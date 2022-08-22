@@ -1,0 +1,11 @@
+.home{
+    flex: 4;
+    max-width: calc(100wh - 250px);
+    box-sizing: border-box;
+    margin-top: 50px;
+}
+
+.homeWidgets{
+    display: flex;
+    margin: 20px;
+}
