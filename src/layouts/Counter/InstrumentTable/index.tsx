@@ -189,22 +189,22 @@ const Example: FC = () => {
             </Tooltip>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
-          <Button
-            color="secondary"
-            onClick={() => setCreateModalOpen(true)}
-            variant="contained"
-          >
-            Create New Account
-          </Button>
-        )}
+        // renderTopToolbarCustomActions={() => (
+        //   <Button
+        //     color="secondary"
+        //     onClick={() => setCreateModalOpen(true)}
+        //     variant="contained"
+        //   >
+        //     Create New Account
+        //   </Button>
+        // )}
       />
-      <CreateNewAccountModal
+      {/* <CreateNewAccountModal
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
-      />
+      /> */}
     </>
   );
 };

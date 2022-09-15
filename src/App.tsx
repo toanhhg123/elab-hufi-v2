@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {
@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from './hooks';
 import { RootState } from './store';
 import { setIsOpenDrawer } from './pages/appSlice';
 import { Box } from '@mui/system';
+import {getTest} from './services/testServices';
 
 const settings = ['Tài khoản', 'Đăng xuất'];
 
@@ -36,6 +37,10 @@ function App() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  useEffect(() => {
+    getTest();
+  }, []);
 
   return (
     <div className="App">
