@@ -1,4 +1,4 @@
-type RequestConfig = {
+export interface RequestConfig  {
     url: string,
     method: "get" | "GET" | "delete" | "DELETE" | "head" | "HEAD" | "options" | "OPTIONS" | "post" | "POST" | "put" | "PUT" | "patch" | "PATCH" | undefined,
     baseURL: string,
@@ -12,8 +12,9 @@ type RequestConfig = {
     maxContentLength: number,
     validateStatus: (status: number) => boolean,
     maxRedirects: number,
-  }
-  const requestConfig: RequestConfig = {
+}
+
+const requestConfig: RequestConfig = {
     url: '',
     method: 'get', // default
     baseURL: '',
@@ -40,4 +41,5 @@ type RequestConfig = {
     },
     maxRedirects: 5, // default
   };
-  export default requestConfig
+  
+  export { requestConfig }

@@ -8,7 +8,7 @@ type Config = {
     };
   };
   const config: Config = {
-    isProd: process.env.NODE_ENV === "production",
+    isProd: process.env.REACT_APP_NODE_ENV === "production",
     production: {
       api_endpoint: process.env.REACT_APP_PRODUCTION_API_ENDPOINT || "",
     },

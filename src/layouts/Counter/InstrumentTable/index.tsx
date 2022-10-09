@@ -171,7 +171,7 @@ const Example: FC = () => {
         }}
         columns={columns}
         data={tableData}
-        editingMode="modal" //default
+        editingMode="row" //default
         enableColumnOrdering
         enableEditing
         onEditingRowSave={handleSaveRowEdits}

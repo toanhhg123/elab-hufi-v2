@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from './hooks';
 import { RootState } from './store';
 import { setIsOpenDrawer } from './pages/appSlice';
 import { Box } from '@mui/system';
-import {getTest} from './services/testServices';
+import { getLaboratories } from './services/laboratoriesServices';
 
 const settings = ['Tài khoản', 'Đăng xuất'];
 
@@ -39,7 +39,7 @@ function App() {
   };
 
   useEffect(() => {
-    getTest();
+    getLaboratories();
   }, []);
 
   return (

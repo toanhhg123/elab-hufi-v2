@@ -1,11 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit'
 import counterReducer from '../layouts/Counter/counterSlice'
 import appReducer from "../pages/appSlice"
+import laboratoriesReducer from "../layouts/LaboratoriesTable/laboratoriesSlice"
+import deviceSpecsReducer from "../layouts/DeviceSpecTable/deviceSpecSlice"
+import employeeReducer from "../layouts/EmployeeTable/employeeSlice"
+import departmentReducer from "../layouts/DepartmentTable/departmentSlice"
+import manufacturerReducer from "../layouts/ManufacturerTable/manufacturerSlice"
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
-    app: appReducer
+    app: appReducer,
+    laboratories: laboratoriesReducer,
+    deviceSpecs: deviceSpecsReducer,
+    employee: employeeReducer,
+    department: departmentReducer,
+    manufacturer: manufacturerReducer
   },
 })
 
