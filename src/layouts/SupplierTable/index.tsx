@@ -16,32 +16,32 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyDeviceSpecData, IDeviceSpecType } from '../../types/deviceSpecType';
+import { dummySupplierData, ISupplierType } from '../../types/supplierType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteDeviceSpec, getDeviceSpec, postDeviceSpec, updateDeviceSpec } from '../../services/deviceSpecServices';
+import { deleteSupplier, getSuppliers, postSupplier, updateSupplier } from '../../services/supplierServices';
 import { RootState } from '../../store';
-import { setListOfDeviceSpecs } from './deviceSpecSlice';
+import { setListOfSuppliers } from './supplierSlice';
 
-const DeviceSpecTable: FC = () => {
-  const deviceSpecData = useAppSelector((state: RootState) => state.deviceSpecs.listOfDeviceSpecs);
+const SupplierTable: FC = () => {
+  const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<IDeviceSpecType[]>([]);
+  const [tableData, setTableData] = useState<ISupplierType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const [updatedRow, setUpdatedRow] = useState<any>(dummyDeviceSpecData);
-  const [deletedRow, setDeletedRow] = useState<any>(dummyDeviceSpecData);
-  const [createdRow, setCreatedRow] = useState<any>(dummyDeviceSpecData);
+  const [updatedRow, setUpdatedRow] = useState<any>(dummySupplierData);
+  const [deletedRow, setDeletedRow] = useState<any>(dummySupplierData);
+  const [createdRow, setCreatedRow] = useState<any>(dummySupplierData);
 
   const getTableData = async () => {
-    const listOfDeviceSpec: IDeviceSpecType[] = await getDeviceSpec();
-    if (listOfDeviceSpec) {
-      dispatch(setListOfDeviceSpecs(listOfDeviceSpec));
+    const listOfSupplier: ISupplierType[] = await getSuppliers();
+    if (listOfSupplier) {
+      dispatch(setListOfSuppliers(listOfSupplier));
     }
   }
 
@@ -50,65 +50,59 @@ const DeviceSpecTable: FC = () => {
   }, [])
 
   useEffect(() => {
-    setTableData(deviceSpecData);
-  }, [deviceSpecData])
+    setTableData(supplierData);
+  }, [supplierData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<IDeviceSpecType>,
-    ): MRT_ColumnDef<IDeviceSpecType>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<ISupplierType>,
+    ): MRT_ColumnDef<ISupplierType>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
-        // onBlur: (event) => {
-        //   const isValid =
-        //     cell.column.id === 'email'
-        //       ? validateEmail(event.target.value)
-        //       : cell.column.id === 'age'
-        //       ? validateAge(+event.target.value)
-        //       : validateRequired(event.target.value);
-        //   if (!isValid) {
-        //     //set validation error for cell if invalid
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //       [cell.id]: `${cell.column.columnDef.header} is required`,
-        //     });
-        //   } else {
-        //     //remove validation error for cell if valid
-        //     delete validationErrors[cell.id];
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //     });
-        //   }
-        // },
       };
     },
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<IDeviceSpecType>[]>(
+  const columns = useMemo<MRT_ColumnDef<ISupplierType>[]>(
     () => [
       {
-        accessorKey: 'DeviceId',
-        header: 'Id thiết bị',
+        accessorKey: 'SupplierId',
+        header: 'Id nhà cung cấp',
         enableColumnOrdering: true,
         enableEditing: false, //disable editing on this column
         enableSorting: false,
         size: 50,
       },
       {
-        accessorKey: 'SpecsID',
-        header: 'Id thông số',
+        accessorKey: 'Name',
+        header: 'Tên nhà cung cấp',
         size: 100,
       },
       {
-        accessorKey: 'SpecsName',
-        header: 'Tên',
+        accessorKey: 'Email',
+        header: 'Email',
         size: 140,
       },
       {
-        accessorKey: 'SpecsValue',
-        header: 'Giá trị',
+        accessorKey: 'PhoneNumber',
+        header: 'Số điện thoại',
+        size: 140,
+      },
+      {
+        accessorKey: 'Address',
+        header: 'Địa chỉ',
+        size: 140,
+      },
+      {
+        accessorKey: 'Status',
+        header: 'Trạng thái',
+        size: 140,
+      },
+      {
+        accessorKey: 'PurchaseOrders',
+        header: 'Đơn mua hàng',
         size: 140,
       },
     ],
@@ -121,19 +115,19 @@ const DeviceSpecTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
-    setUpdatedRow(dummyDeviceSpecData);
     setIsEditModal(false);
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateDeviceSpec(updatedRow);
+    const isUpdatedSuccess = await updateSupplier(updatedRow);
     if (isUpdatedSuccess) {
-      let updatedIdx = deviceSpecData.findIndex(x => (x.DeviceId === updatedRow.DeviceId && x.SpecsID === updatedRow.SpecsID));
-      let newListOfDeviceSpecs = [...deviceSpecData.slice(0, updatedIdx), updatedRow, ...deviceSpecData.slice(updatedIdx + 1,)]
-      dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
+      let updatedIdx = supplierData.findIndex(x => x.SupplierId === updatedRow.SupplierId);
+      let newListOfSuppliers = [...supplierData.slice(0, updatedIdx), updatedRow, ...supplierData.slice(updatedIdx + 1,)]
+      dispatch(setListOfSuppliers(newListOfSuppliers));
     }
 
-    onCloseEditModal();
+    setIsEditModal(false);
+    setUpdatedRow(dummySupplierData);
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -146,14 +140,14 @@ const DeviceSpecTable: FC = () => {
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteDeviceSpec(deletedRow);
+    await deleteSupplier(deletedRow.SupplierId);
 
-    let deletedIdx = deviceSpecData.findIndex(x => x.DeviceId === deletedRow.DeviceId && x.SpecsID === deletedRow.SpecsID);
-    let newListOfDeviceSpecs = [...deviceSpecData.slice(0, deletedIdx), ...deviceSpecData.slice(deletedIdx + 1,)]
-    dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
+    let deletedIdx = supplierData.findIndex(x => x.SupplierId === deletedRow.SupplierId);
+    let newListOfSuppliers = [...supplierData.slice(0, deletedIdx), ...supplierData.slice(deletedIdx + 1,)]
+    dispatch(setListOfSuppliers(newListOfSuppliers));
 
     setIsDeleteModal(false);
-    setDeletedRow(dummyDeviceSpecData);
+    setDeletedRow(dummySupplierData);
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -161,24 +155,27 @@ const DeviceSpecTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setCreatedRow(dummyDeviceSpecData);
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdDeviceSpec = await postDeviceSpec({
-      "DeviceId": createdRow.DeviceId,
-      "SpecsID": createdRow.SpecsID,
-      "SpecsName": createdRow.SpecsName,
-      "SpecsValue": createdRow.SpecsValue
+    const createdSupplier = await postSupplier({
+      "Name": createdRow.Name, 
+      "Email": createdRow.Email, 
+      "PhoneNumber": createdRow.PhoneNumber, 
+      "Address": createdRow.Address, 
+      "Status": createdRow.Status, 
+      "PurchaseOrders": createdRow.PurchaseOrders
     })
-    if (createdDeviceSpec) {
-      const newListOfDeviceSpec: IDeviceSpecType[] = await getDeviceSpec();
-      if (newListOfDeviceSpec) {
-        dispatch(setListOfDeviceSpecs(newListOfDeviceSpec));
+
+    if(createdSupplier){
+      const newListOfSuppliers: ISupplierType[] = await getSuppliers();
+      if(newListOfSuppliers){
+        dispatch(setListOfSuppliers(newListOfSuppliers));
       }
     }
-    onCloseCreateModal();
+    setIsCreateModal(false);
+    setCreatedRow(dummySupplierData);
   }
 
   return (
@@ -197,19 +194,14 @@ const DeviceSpecTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
-        enableRowNumbers
-        enablePinning
-        initialState={{
-          density: 'compact',
-        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip arrow placement="left" title="Sửa thông số thiết bị">
+            <Tooltip arrow placement="left" title="Sửa thông tin nhà cung cấp">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
-            <Tooltip arrow placement="right" title="Xoá thông số thiết bị">
+            <Tooltip arrow placement="right" title="Xoá thông tin nhà cung cấp">
               <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
                 <Delete />
               </IconButton>
@@ -223,13 +215,13 @@ const DeviceSpecTable: FC = () => {
             variant="contained"
             style={{ "margin": "10px" }}
           >
-            Tạo thông số thiết bị mới
+            Tạo nhà cung cấp mới
           </Button>
         )}
       />
 
       <Dialog open={isEditModal}>
-        <DialogTitle textAlign="center"><b>Sửa thông số thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Sửa thông tin nhà cung cấp</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -240,16 +232,23 @@ const DeviceSpecTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                (column.id !== "DeviceId" && column.id !== "SpecsID") &&
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
-                  onChange={(e) =>
-                    setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                  }
-                />
+                column.id === "SupplierId" ?
+                  <TextField
+                    disabled
+                    key="SupplierId"
+                    label="SupplierId"
+                    name="SupplierId"
+                    defaultValue={updatedRow["SupplierId"]}
+                  /> :
+                  <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
+                    }
+                  />
               ))}
 
             </Stack>
@@ -264,9 +263,9 @@ const DeviceSpecTable: FC = () => {
       </Dialog>
 
       <Dialog open={isDeleteModal}>
-        <DialogTitle textAlign="center"><b>Xoá thông số thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Xoá thông tin nhà cung cấp</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin thông số {`${deletedRow.SpecsID}`} thiết bị {`${deletedRow.DeviceId}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin nhà cung cấp {`${deletedRow.Name}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>
@@ -277,7 +276,7 @@ const DeviceSpecTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b>Tạo thông tin thông số thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Tạo thông tin nhà cung cấp</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -287,16 +286,16 @@ const DeviceSpecTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
-                  onChange={(e) =>
-                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                  }
-                />
+              {columns.slice(1, ).map((column) => (
+                  <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                    }
+                  />
               ))}
 
             </Stack>
@@ -314,4 +313,4 @@ const DeviceSpecTable: FC = () => {
   );
 };
 
-export default DeviceSpecTable;
+export default SupplierTable;

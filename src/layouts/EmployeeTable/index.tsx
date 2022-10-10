@@ -30,6 +30,7 @@ import moment from 'moment';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Genders } from '../../configs/enums';
+import AddIcon from '@mui/icons-material/Add';
 
 const EmployeeTable: FC = () => {
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
@@ -75,27 +76,6 @@ const EmployeeTable: FC = () => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
-        // onBlur: (event) => {
-        //   const isValid =
-        //     cell.column.id === 'email'
-        //       ? validateEmail(event.target.value)
-        //       : cell.column.id === 'age'
-        //       ? validateAge(+event.target.value)
-        //       : validateRequired(event.target.value);
-        //   if (!isValid) {
-        //     //set validation error for cell if invalid
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //       [cell.id]: `${cell.column.columnDef.header} is required`,
-        //     });
-        //   } else {
-        //     //remove validation error for cell if valid
-        //     delete validationErrors[cell.id];
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //     });
-        //   }
-        // },
       };
     },
     [validationErrors],
@@ -105,7 +85,7 @@ const EmployeeTable: FC = () => {
     () => [
       {
         accessorKey: 'EmployeeID',
-        header: 'ID nhân viên',
+        header: 'ID',
         enableColumnOrdering: true,
         enableEditing: false, //disable editing on this column
         enableSorting: false,
@@ -235,6 +215,11 @@ const EmployeeTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
+        enableRowNumbers
+        enablePinning
+        initialState={{
+          density: 'compact',
+        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin nhân viên">
@@ -275,7 +260,7 @@ const EmployeeTable: FC = () => {
               {columns.map((column) => {
                 if (column.id === "EmployeeID") {
                   return <TextField
-                    disabled  
+                    disabled
                     key="EmployeeID"
                     label="EmployeeID"
                     name="EmployeeID"
@@ -346,7 +331,7 @@ const EmployeeTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b>Tạo thông tin nhân viên</b></DialogTitle>
+        <DialogTitle textAlign="center"><b><AddIcon /></b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -406,7 +391,6 @@ const EmployeeTable: FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </>
   );
 };

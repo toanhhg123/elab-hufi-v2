@@ -16,32 +16,32 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyDeviceSpecData, IDeviceSpecType } from '../../types/deviceSpecType';
+import { dummyChemicalData, IChemicalType } from '../../types/chemicalType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteDeviceSpec, getDeviceSpec, postDeviceSpec, updateDeviceSpec } from '../../services/deviceSpecServices';
+import { deleteChemical, getChemicals, postChemical, updateChemical } from '../../services/chemicalServices';
 import { RootState } from '../../store';
-import { setListOfDeviceSpecs } from './deviceSpecSlice';
+import { setListOfChemicals } from './chemicalSlice';
 
-const DeviceSpecTable: FC = () => {
-  const deviceSpecData = useAppSelector((state: RootState) => state.deviceSpecs.listOfDeviceSpecs);
+const ChemicalTable: FC = () => {
+  const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<IDeviceSpecType[]>([]);
+  const [tableData, setTableData] = useState<IChemicalType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const [updatedRow, setUpdatedRow] = useState<any>(dummyDeviceSpecData);
-  const [deletedRow, setDeletedRow] = useState<any>(dummyDeviceSpecData);
-  const [createdRow, setCreatedRow] = useState<any>(dummyDeviceSpecData);
+  const [updatedRow, setUpdatedRow] = useState<any>(dummyChemicalData);
+  const [deletedRow, setDeletedRow] = useState<any>(dummyChemicalData);
+  const [createdRow, setCreatedRow] = useState<any>(dummyChemicalData);
 
   const getTableData = async () => {
-    const listOfDeviceSpec: IDeviceSpecType[] = await getDeviceSpec();
-    if (listOfDeviceSpec) {
-      dispatch(setListOfDeviceSpecs(listOfDeviceSpec));
+    const listOfChemical: IChemicalType[] = await getChemicals();
+    if (listOfChemical) {
+      dispatch(setListOfChemicals(listOfChemical));
     }
   }
 
@@ -50,65 +50,59 @@ const DeviceSpecTable: FC = () => {
   }, [])
 
   useEffect(() => {
-    setTableData(deviceSpecData);
-  }, [deviceSpecData])
+    setTableData(chemicalData);
+  }, [chemicalData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<IDeviceSpecType>,
-    ): MRT_ColumnDef<IDeviceSpecType>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<IChemicalType>,
+    ): MRT_ColumnDef<IChemicalType>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
-        // onBlur: (event) => {
-        //   const isValid =
-        //     cell.column.id === 'email'
-        //       ? validateEmail(event.target.value)
-        //       : cell.column.id === 'age'
-        //       ? validateAge(+event.target.value)
-        //       : validateRequired(event.target.value);
-        //   if (!isValid) {
-        //     //set validation error for cell if invalid
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //       [cell.id]: `${cell.column.columnDef.header} is required`,
-        //     });
-        //   } else {
-        //     //remove validation error for cell if valid
-        //     delete validationErrors[cell.id];
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //     });
-        //   }
-        // },
       };
     },
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<IDeviceSpecType>[]>(
+  const columns = useMemo<MRT_ColumnDef<IChemicalType>[]>(
     () => [
       {
-        accessorKey: 'DeviceId',
-        header: 'Id thiết bị',
+        accessorKey: 'ChemicalId',
+        header: 'Id hoá chất',
         enableColumnOrdering: true,
         enableEditing: false, //disable editing on this column
         enableSorting: false,
         size: 50,
       },
       {
-        accessorKey: 'SpecsID',
-        header: 'Id thông số',
+        accessorKey: 'ChemicalName',
+        header: 'Tên hoá chất',
         size: 100,
       },
       {
-        accessorKey: 'SpecsName',
-        header: 'Tên',
+        accessorKey: 'Specifications',
+        header: 'Thông số',
         size: 140,
       },
       {
-        accessorKey: 'SpecsValue',
-        header: 'Giá trị',
+        accessorKey: 'Origin',
+        header: 'Nguồn gốc',
+        size: 140,
+      },
+      {
+        accessorKey: 'Unit',
+        header: 'Đơn vị',
+        size: 140,
+      },
+      {
+        accessorKey: 'Quantity',
+        header: 'Số lượng',
+        size: 140,
+      },
+      {
+        accessorKey: 'ManufacturerId',
+        header: 'Id nhà sản xuất',
         size: 140,
       },
     ],
@@ -121,19 +115,19 @@ const DeviceSpecTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
-    setUpdatedRow(dummyDeviceSpecData);
     setIsEditModal(false);
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateDeviceSpec(updatedRow);
+    const isUpdatedSuccess = await updateChemical(updatedRow.ChemicalId, updatedRow);
     if (isUpdatedSuccess) {
-      let updatedIdx = deviceSpecData.findIndex(x => (x.DeviceId === updatedRow.DeviceId && x.SpecsID === updatedRow.SpecsID));
-      let newListOfDeviceSpecs = [...deviceSpecData.slice(0, updatedIdx), updatedRow, ...deviceSpecData.slice(updatedIdx + 1,)]
-      dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
+      let updatedIdx = chemicalData.findIndex(x => x.ChemicalId === updatedRow.ChemicalId);
+      let newListOfChemicals = [...chemicalData.slice(0, updatedIdx), updatedRow, ...chemicalData.slice(updatedIdx + 1,)]
+      dispatch(setListOfChemicals(newListOfChemicals));
     }
 
-    onCloseEditModal();
+    setIsEditModal(false);
+    setUpdatedRow(dummyChemicalData);
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -146,14 +140,14 @@ const DeviceSpecTable: FC = () => {
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteDeviceSpec(deletedRow);
+    await deleteChemical(deletedRow.ChemicalId);
 
-    let deletedIdx = deviceSpecData.findIndex(x => x.DeviceId === deletedRow.DeviceId && x.SpecsID === deletedRow.SpecsID);
-    let newListOfDeviceSpecs = [...deviceSpecData.slice(0, deletedIdx), ...deviceSpecData.slice(deletedIdx + 1,)]
-    dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
+    let deletedIdx = chemicalData.findIndex(x => x.ChemicalId === deletedRow.ChemicalId);
+    let newListOfChemicals = [...chemicalData.slice(0, deletedIdx), ...chemicalData.slice(deletedIdx + 1,)]
+    dispatch(setListOfChemicals(newListOfChemicals));
 
     setIsDeleteModal(false);
-    setDeletedRow(dummyDeviceSpecData);
+    setDeletedRow(dummyChemicalData);
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -161,24 +155,27 @@ const DeviceSpecTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setCreatedRow(dummyDeviceSpecData);
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdDeviceSpec = await postDeviceSpec({
-      "DeviceId": createdRow.DeviceId,
-      "SpecsID": createdRow.SpecsID,
-      "SpecsName": createdRow.SpecsName,
-      "SpecsValue": createdRow.SpecsValue
+    const createdChemical = await postChemical({
+      "ChemicalName": createdRow.ChemicalName, 
+      "Specifications": createdRow.Specifications, 
+      "Origin": createdRow.Origin, 
+      "Unit": createdRow.Unint, 
+      "Quantity": createdRow.Quantity, 
+      "ManufacturerId": createdRow.ManufacturerId
     })
-    if (createdDeviceSpec) {
-      const newListOfDeviceSpec: IDeviceSpecType[] = await getDeviceSpec();
-      if (newListOfDeviceSpec) {
-        dispatch(setListOfDeviceSpecs(newListOfDeviceSpec));
+
+    if(createdChemical){
+      const newListOfChemicals: IChemicalType[] = await getChemicals();
+      if(newListOfChemicals){
+        dispatch(setListOfChemicals(newListOfChemicals));
       }
     }
-    onCloseCreateModal();
+    setIsCreateModal(false);
+    setCreatedRow(dummyChemicalData);
   }
 
   return (
@@ -197,19 +194,14 @@ const DeviceSpecTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
-        enableRowNumbers
-        enablePinning
-        initialState={{
-          density: 'compact',
-        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip arrow placement="left" title="Sửa thông số thiết bị">
+            <Tooltip arrow placement="left" title="Sửa thông tin hoá chất">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
-            <Tooltip arrow placement="right" title="Xoá thông số thiết bị">
+            <Tooltip arrow placement="right" title="Xoá thông tin hoá chất">
               <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
                 <Delete />
               </IconButton>
@@ -223,13 +215,13 @@ const DeviceSpecTable: FC = () => {
             variant="contained"
             style={{ "margin": "10px" }}
           >
-            Tạo thông số thiết bị mới
+            Tạo hoá chất mới
           </Button>
         )}
       />
 
       <Dialog open={isEditModal}>
-        <DialogTitle textAlign="center"><b>Sửa thông số thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Sửa thông tin hoá chất</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -240,16 +232,23 @@ const DeviceSpecTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                (column.id !== "DeviceId" && column.id !== "SpecsID") &&
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
-                  onChange={(e) =>
-                    setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                  }
-                />
+                column.id === "ChemicalId" ?
+                  <TextField
+                    disabled
+                    key="ChemicalId"
+                    label="ChemicalId"
+                    name="ChemicalId"
+                    defaultValue={updatedRow["ChemicalId"]}
+                  /> :
+                  <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
+                    }
+                  />
               ))}
 
             </Stack>
@@ -264,9 +263,9 @@ const DeviceSpecTable: FC = () => {
       </Dialog>
 
       <Dialog open={isDeleteModal}>
-        <DialogTitle textAlign="center"><b>Xoá thông số thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Xoá thông tin hoá chất</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin thông số {`${deletedRow.SpecsID}`} thiết bị {`${deletedRow.DeviceId}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin hoá chất {`${deletedRow.ChemicalName}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>
@@ -277,7 +276,7 @@ const DeviceSpecTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b>Tạo thông tin thông số thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Tạo thông tin hoá chất</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -287,16 +286,16 @@ const DeviceSpecTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
-                  onChange={(e) =>
-                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                  }
-                />
+              {columns.slice(1, ).map((column) => (
+                  <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                    }
+                  />
               ))}
 
             </Stack>
@@ -314,4 +313,4 @@ const DeviceSpecTable: FC = () => {
   );
 };
 
-export default DeviceSpecTable;
+export default ChemicalTable;

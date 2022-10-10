@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from './hooks';
 import { RootState } from './store';
 import { setIsOpenDrawer } from './pages/appSlice';
 import { Box } from '@mui/system';
-import { getLaboratories } from './services/laboratoriesServices';
+import { getLaboratories } from './services/laboratoryServices';
 
 const settings = ['Tài khoản', 'Đăng xuất'];
 

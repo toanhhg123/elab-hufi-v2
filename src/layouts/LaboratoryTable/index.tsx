@@ -14,16 +14,17 @@ import {
   Stack,
   TextField,
   Tooltip,
+  TextareaAutosize
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyLaboratoryData, ILaboratoryType } from '../../types/laboratoriesType';
+import { dummyLaboratoryData, ILaboratoryType } from '../../types/laboratoryType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteLaboratories, getLaboratories, postLaboratories, updateLaboratories } from '../../services/laboratoriesServices';
+import { deleteLaboratory, getLaboratories, postLaboratory, updateLaboratory } from '../../services/laboratoryServices';
 import { RootState } from '../../store';
-import { setListOfLaboratories } from './laboratoriesSlice';
+import { setListOfLaboratories } from './laboratorySlice';
 
-const LaboratoriesTable: FC = () => {
-  const laboratoriesData = useAppSelector((state: RootState) => state.laboratories.listOfLaboratories);
+const LaboratoryTable: FC = () => {
+  const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
@@ -60,27 +61,6 @@ const LaboratoriesTable: FC = () => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
-        // onBlur: (event) => {
-        //   const isValid =
-        //     cell.column.id === 'email'
-        //       ? validateEmail(event.target.value)
-        //       : cell.column.id === 'age'
-        //       ? validateAge(+event.target.value)
-        //       : validateRequired(event.target.value);
-        //   if (!isValid) {
-        //     //set validation error for cell if invalid
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //       [cell.id]: `${cell.column.columnDef.header} is required`,
-        //     });
-        //   } else {
-        //     //remove validation error for cell if valid
-        //     delete validationErrors[cell.id];
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //     });
-        //   }
-        // },
       };
     },
     [validationErrors],
@@ -88,14 +68,6 @@ const LaboratoriesTable: FC = () => {
 
   const columns = useMemo<MRT_ColumnDef<ILaboratoryType>[]>(
     () => [
-      {
-        accessorKey: 'LabId',
-        header: 'LabId',
-        enableColumnOrdering: true,
-        enableEditing: false, //disable editing on this column
-        enableSorting: false,
-        size: 50,
-      },
       {
         accessorKey: 'LabName',
         header: 'Tên phòng lab',
@@ -121,19 +93,19 @@ const LaboratoriesTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
+    setUpdatedRow(dummyLaboratoryData);
     setIsEditModal(false);
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateLaboratories(updatedRow.LabId, updatedRow);
+    const isUpdatedSuccess = await updateLaboratory(updatedRow.LabId, updatedRow);
     if (isUpdatedSuccess) {
       let updatedIdx = laboratoriesData.findIndex(x => x.LabId === updatedRow.LabId);
       let newListOfLabs = [...laboratoriesData.slice(0, updatedIdx), updatedRow, ...laboratoriesData.slice(updatedIdx + 1,)]
       dispatch(setListOfLaboratories(newListOfLabs));
     }
 
-    setIsEditModal(false);
-    setUpdatedRow(dummyLaboratoryData);
+    onCloseEditModal();
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -142,18 +114,18 @@ const LaboratoriesTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
+    setDeletedRow(dummyLaboratoryData);
     setIsDeleteModal(false);
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteLaboratories(deletedRow.LabId);
+    await deleteLaboratory(deletedRow.LabId);
 
     let deletedIdx = laboratoriesData.findIndex(x => x.LabId === deletedRow.LabId);
     let newListOfLabs = [...laboratoriesData.slice(0, deletedIdx), ...laboratoriesData.slice(deletedIdx + 1,)]
     dispatch(setListOfLaboratories(newListOfLabs));
 
-    setIsDeleteModal(false);
-    setDeletedRow(dummyLaboratoryData);
+    onCloseDeleteModal();
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -161,23 +133,23 @@ const LaboratoriesTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
+    setCreatedRow(dummyLaboratoryData);
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdLab = await postLaboratories({
+    const createdLab = await postLaboratory({
       "LabName": createdRow.LabName,
       "Location": createdRow.Location,
       "Note": createdRow.Note
     })
-    if(createdLab){
+    if (createdLab) {
       const newListOfLaboratories: ILaboratoryType[] = await getLaboratories();
-      if(newListOfLaboratories){
+      if (newListOfLaboratories) {
         dispatch(setListOfLaboratories(newListOfLaboratories));
       }
     }
-    setIsCreateModal(false);
-    setCreatedRow(dummyLaboratoryData);
+    onCloseCreateModal();
   }
 
   return (
@@ -196,6 +168,11 @@ const LaboratoriesTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
+        enableRowNumbers
+        enablePinning
+        initialState={{
+          density: 'compact',
+        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin Lab">
@@ -234,15 +211,17 @@ const LaboratoriesTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                column.id === "LabId" ?
-                  <TextField
-                    disabled
-                    key="LabId"
-                    label="LabId"
-                    name="LabId"
-                    defaultValue={updatedRow["LabId"]}
-                  /> :
-                  <TextField
+                column.id === "Note" ?
+                  <TextareaAutosize
+                    aria-label="minimum height"
+                    minRows={3}
+                    placeholder="Nhập ghi chú..."
+                    defaultValue={updatedRow["Note"]}
+                    onChange={(e) =>
+                      setUpdatedRow({ ...updatedRow, "Note": e.target.value })
+                    }
+                  />
+                  : <TextField
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
@@ -267,7 +246,7 @@ const LaboratoriesTable: FC = () => {
       <Dialog open={isDeleteModal}>
         <DialogTitle textAlign="center"><b>Xoá thông tin Lab</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin Lab {`${deletedRow.LabId}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin Lab {`${deletedRow.LabName}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>
@@ -278,7 +257,7 @@ const LaboratoriesTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b>Tạo thông tin Lab</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Tạo thông tin Lab mới</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -288,7 +267,17 @@ const LaboratoriesTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.slice(1, ).map((column) => (
+              {columns.map((column) => (
+                column.id === "Note" ?
+                  <TextareaAutosize
+                    aria-label="minimum height"
+                    minRows={3}
+                    placeholder="Nhập ghi chú..."
+                    defaultValue={createdRow["Note"]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, "Note": e.target.value })
+                    } />
+                  :
                   <TextField
                     key={column.accessorKey}
                     label={column.header}
@@ -315,4 +304,4 @@ const LaboratoriesTable: FC = () => {
   );
 };
 
-export default LaboratoriesTable;
+export default LaboratoryTable;

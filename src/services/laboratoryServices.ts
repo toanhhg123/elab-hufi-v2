@@ -1,6 +1,6 @@
 import config from "../configs/app"
 import * as API from "../configs/apiHelper";
-import { ILaboratoryType } from '../types/laboratoriesType';
+import { ILaboratoryType } from '../types/laboratoryType';
 
 const { isProd } = config;
 const API_ENDPOINT = "https://www.aspsite.somee.com";
@@ -18,24 +18,24 @@ export const getLaboratories = async () => {
 	return laboratories;
 }
 
-export const getLaboratoriesById = async (id: Number) => {    
+export const getLaboratoryById = async (id: Number) => {    
     const url = `${API_ENDPOINT}/api/laboratories/${id}`;
 	const lab: ILaboratoryType = await API.get<ILaboratoryType>(url);
 	return lab;
 }
 
-export const updateLaboratories = async (id: Number, updatedData: ILaboratoryType) => {    
+export const updateLaboratory = async (id: Number, updatedData: ILaboratoryType) => {    
     const url = `${API_ENDPOINT}/api/laboratories/${id}`;
 	const lab: ILaboratoryType = await API.put<ILaboratoryType, ILaboratoryType>(url, updatedData);
 	return lab;
 }
 
-export const deleteLaboratories = async (id: Number) => {    
+export const deleteLaboratory = async (id: Number) => {    
     const url = `${API_ENDPOINT}/api/laboratories/${id}`;
 	await API.deleteResource(url);
 }
 
-export const postLaboratories = async (newLabData: ILaboratoryType) => {
+export const postLaboratory = async (newLabData: ILaboratoryType) => {
 	const url = `${API_ENDPOINT}/api/laboratories`;
 	const newLab: ILaboratoryType = await API.post<ILaboratoryType, ILaboratoryType>(url, newLabData);
 	return newLab;
