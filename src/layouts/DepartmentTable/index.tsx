@@ -39,17 +39,6 @@ const DepartmentTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyDepartmentData);
   const [createdRow, setCreatedRow] = useState<any>(dummyDepartmentData);
 
-  const getTableData = async () => {
-    const listOfDepartment: IDepartmentType[] = await getDepartments();
-    if (listOfDepartment) {
-      dispatch(setListOfDepartments(listOfDepartment));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     setTableData(departmentData);
   }, [departmentData])

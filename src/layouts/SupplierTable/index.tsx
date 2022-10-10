@@ -39,17 +39,6 @@ const SupplierTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummySupplierData);
   const [createdRow, setCreatedRow] = useState<any>(dummySupplierData);
 
-  const getTableData = async () => {
-    const listOfSupplier: ISupplierType[] = await getSuppliers();
-    if (listOfSupplier) {
-      dispatch(setListOfSuppliers(listOfSupplier));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     setTableData(supplierData);
   }, [supplierData])

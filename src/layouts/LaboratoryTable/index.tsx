@@ -40,17 +40,6 @@ const LaboratoryTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyLaboratoryData);
   const [createdRow, setCreatedRow] = useState<any>(dummyLaboratoryData);
 
-  const getTableData = async () => {
-    const listOfLaboratories: ILaboratoryType[] = await getLaboratories();
-    if (listOfLaboratories) {
-      dispatch(setListOfLaboratories(listOfLaboratories));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     setTableData(laboratoriesData);
   }, [laboratoriesData])

@@ -39,17 +39,6 @@ const DeviceSpecTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyDeviceSpecData);
   const [createdRow, setCreatedRow] = useState<any>(dummyDeviceSpecData);
 
-  const getTableData = async () => {
-    const listOfDeviceSpec: IDeviceSpecType[] = await getDeviceSpec();
-    if (listOfDeviceSpec) {
-      dispatch(setListOfDeviceSpecs(listOfDeviceSpec));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     setTableData(deviceSpecData);
   }, [deviceSpecData])

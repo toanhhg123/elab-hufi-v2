@@ -48,17 +48,6 @@ const EmployeeTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyEmployeeData);
   const [createdRow, setCreatedRow] = useState<any>(dummyEmployeeData);
 
-  const getTableData = async () => {
-    const listOfEmployees: IEmployeeType[] = await getEmployees();
-    if (listOfEmployees) {
-      dispatch(setListOfEmployees(listOfEmployees));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     let formatedEmployeeData = employeeData.map((emp) => {
       return {

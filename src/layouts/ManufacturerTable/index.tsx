@@ -39,17 +39,6 @@ const ManufacturersTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyManufacturerData);
   const [createdRow, setCreatedRow] = useState<any>(dummyManufacturerData);
 
-  const getTableData = async () => {
-    const listOfManufacturers: IManufacturerType[] = await getManufacturers();
-    if (listOfManufacturers) {
-      dispatch(setListOfManufacturers(listOfManufacturers));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     setTableData(manufacturersData);
   }, [manufacturersData])

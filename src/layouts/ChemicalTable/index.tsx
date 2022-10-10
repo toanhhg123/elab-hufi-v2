@@ -39,17 +39,6 @@ const ChemicalTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyChemicalData);
   const [createdRow, setCreatedRow] = useState<any>(dummyChemicalData);
 
-  const getTableData = async () => {
-    const listOfChemical: IChemicalType[] = await getChemicals();
-    if (listOfChemical) {
-      dispatch(setListOfChemicals(listOfChemical));
-    }
-  }
-
-  useEffect(() => {
-    getTableData();
-  }, [])
-
   useEffect(() => {
     setTableData(chemicalData);
   }, [chemicalData])

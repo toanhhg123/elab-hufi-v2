@@ -17,7 +17,7 @@ import MuiDrawer from '@mui/material/Drawer';
 import HufiLogoExtended from '../../assets/img/logo-hufi-extended.png';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
-import { setIsOpenDrawer } from '../../pages/appSlice';
+import { setIsOpenDrawer, setSidebarItems } from '../../pages/appSlice';
 
 const drawerWidth = 240;
 
@@ -93,9 +93,9 @@ export default function PersistentDrawerLeft() {
 
         <List>
           {[
-            'Quản lý phòng lab', 
-            'Quản lý thông số TB', 
-            'Quản lý nhân viên', 
+            'Quản lý phòng lab',
+            'Quản lý thông số TB',
+            'Quản lý nhân viên',
             'Quản lý phòng ban',
             'Quản lý nhà sản xuất',
             'Quản lý hoá chất',
@@ -119,12 +119,13 @@ export default function PersistentDrawerLeft() {
                 >
                   {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                 </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: isOpenDrawer ? 1 : 0 }} />
+                <ListItemText primary={text} sx={{ opacity: isOpenDrawer ? 1 : 0 }} onClick={() => {dispatch(setSidebarItems(index))}} />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
         <Divider />
+
         <List>
           {['Quản lý TKB'].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: 'block' }}>
