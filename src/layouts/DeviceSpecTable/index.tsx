@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteDeviceSpec, getDeviceSpec, postDeviceSpec, updateDeviceSpec } from '../../services/deviceSpecServices';
 import { RootState } from '../../store';
 import { setListOfDeviceSpecs } from './deviceSpecSlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const DeviceSpecTable: FC = () => {
   const deviceSpecData = useAppSelector((state: RootState) => state.deviceSpecs.listOfDeviceSpecs);
@@ -60,27 +61,6 @@ const DeviceSpecTable: FC = () => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
-        // onBlur: (event) => {
-        //   const isValid =
-        //     cell.column.id === 'email'
-        //       ? validateEmail(event.target.value)
-        //       : cell.column.id === 'age'
-        //       ? validateAge(+event.target.value)
-        //       : validateRequired(event.target.value);
-        //   if (!isValid) {
-        //     //set validation error for cell if invalid
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //       [cell.id]: `${cell.column.columnDef.header} is required`,
-        //     });
-        //   } else {
-        //     //remove validation error for cell if valid
-        //     delete validationErrors[cell.id];
-        //     setValidationErrors({
-        //       ...validationErrors,
-        //     });
-        //   }
-        // },
       };
     },
     [validationErrors],
@@ -142,6 +122,7 @@ const DeviceSpecTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
+    setDeletedRow(dummyDeviceSpecData);
     setIsDeleteModal(false);
   }
 
@@ -152,8 +133,7 @@ const DeviceSpecTable: FC = () => {
     let newListOfDeviceSpecs = [...deviceSpecData.slice(0, deletedIdx), ...deviceSpecData.slice(deletedIdx + 1,)]
     dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
 
-    setIsDeleteModal(false);
-    setDeletedRow(dummyDeviceSpecData);
+    onCloseDeleteModal();
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -217,14 +197,16 @@ const DeviceSpecTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Button
-            color="primary"
-            onClick={handleOpenCreateModal}
-            variant="contained"
-            style={{ "margin": "10px" }}
-          >
-            Tạo thông số thiết bị mới
-          </Button>
+          <Tooltip title="Tạo thông số thiết bị mới" placement="right-start">
+            <Button
+              color="primary"
+              onClick={handleOpenCreateModal}
+              variant="contained"
+              style={{ "margin": "10px" }}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </Tooltip>
         )}
       />
 
@@ -266,7 +248,7 @@ const DeviceSpecTable: FC = () => {
       <Dialog open={isDeleteModal}>
         <DialogTitle textAlign="center"><b>Xoá thông số thiết bị</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin thông số {`${deletedRow.SpecsID}`} thiết bị {`${deletedRow.DeviceId}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin thông số {`${deletedRow.SpecsID}`} của thiết bị {`${deletedRow.DeviceId}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>

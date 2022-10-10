@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteSupplier, getSuppliers, postSupplier, updateSupplier } from '../../services/supplierServices';
 import { RootState } from '../../store';
 import { setListOfSuppliers } from './supplierSlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const SupplierTable: FC = () => {
   const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
@@ -68,14 +69,6 @@ const SupplierTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<ISupplierType>[]>(
     () => [
       {
-        accessorKey: 'SupplierId',
-        header: 'Id nhà cung cấp',
-        enableColumnOrdering: true,
-        enableEditing: false, //disable editing on this column
-        enableSorting: false,
-        size: 50,
-      },
-      {
         accessorKey: 'Name',
         header: 'Tên nhà cung cấp',
         size: 100,
@@ -115,6 +108,7 @@ const SupplierTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
+    setUpdatedRow(dummySupplierData);
     setIsEditModal(false);
   }
 
@@ -126,8 +120,7 @@ const SupplierTable: FC = () => {
       dispatch(setListOfSuppliers(newListOfSuppliers));
     }
 
-    setIsEditModal(false);
-    setUpdatedRow(dummySupplierData);
+    onCloseEditModal();
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -136,6 +129,7 @@ const SupplierTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
+    setDeletedRow(dummySupplierData);
     setIsDeleteModal(false);
   }
 
@@ -146,8 +140,7 @@ const SupplierTable: FC = () => {
     let newListOfSuppliers = [...supplierData.slice(0, deletedIdx), ...supplierData.slice(deletedIdx + 1,)]
     dispatch(setListOfSuppliers(newListOfSuppliers));
 
-    setIsDeleteModal(false);
-    setDeletedRow(dummySupplierData);
+    onCloseDeleteModal();
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -155,6 +148,7 @@ const SupplierTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
+    setCreatedRow(dummySupplierData);
     setIsCreateModal(false);
   }
 
@@ -174,8 +168,8 @@ const SupplierTable: FC = () => {
         dispatch(setListOfSuppliers(newListOfSuppliers));
       }
     }
-    setIsCreateModal(false);
-    setCreatedRow(dummySupplierData);
+    
+    onCloseCreateModal();
   }
 
   return (
@@ -194,6 +188,11 @@ const SupplierTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
+        enableRowNumbers
+        enablePinning
+        initialState={{
+          density: 'compact',
+        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin nhà cung cấp">
@@ -209,14 +208,16 @@ const SupplierTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
+          <Tooltip title="Tạo nhà cung cấp mới" placement="right-start">
           <Button
             color="primary"
             onClick={handleOpenCreateModal}
             variant="contained"
             style={{ "margin": "10px" }}
           >
-            Tạo nhà cung cấp mới
+            <AddIcon fontSize="small" />
           </Button>
+        </Tooltip>
         )}
       />
 
@@ -286,7 +287,7 @@ const SupplierTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.slice(1, ).map((column) => (
+              {columns.map((column) => (
                   <TextField
                     key={column.accessorKey}
                     label={column.header}

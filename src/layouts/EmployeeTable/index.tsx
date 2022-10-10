@@ -157,6 +157,7 @@ const EmployeeTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
+    setDeletedRow(dummyEmployeeData);
     setIsDeleteModal(false);
   }
 
@@ -167,8 +168,7 @@ const EmployeeTable: FC = () => {
     let newListOfEmployees = [...employeeData.slice(0, deletedIdx), ...employeeData.slice(deletedIdx + 1,)]
     dispatch(setListOfEmployees(newListOfEmployees));
 
-    setIsDeleteModal(false);
-    setDeletedRow(dummyEmployeeData);
+    onCloseDeleteModal();
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -235,14 +235,16 @@ const EmployeeTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Button
-            color="primary"
-            onClick={handleOpenCreateModal}
-            variant="contained"
-            style={{ "margin": "10px" }}
-          >
-            Tạo nhân viên mới
-          </Button>
+          <Tooltip title="Tạo nhân viên mới" placement="right-start">
+            <Button
+              color="primary"
+              onClick={handleOpenCreateModal}
+              variant="contained"
+              style={{ "margin": "10px" }}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </Tooltip>
         )}
       />
 
@@ -331,7 +333,7 @@ const EmployeeTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b><AddIcon /></b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Tạo nhân viên mới</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack

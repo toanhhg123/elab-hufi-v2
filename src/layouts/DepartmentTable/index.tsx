@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteDepartment, getDepartments, postDepartment, updateDepartment } from '../../services/departmentServices';
 import { RootState } from '../../store';
 import { setListOfDepartments } from './departmentSlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const DepartmentTable: FC = () => {
   const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
@@ -68,14 +69,6 @@ const DepartmentTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IDepartmentType>[]>(
     () => [
       {
-        accessorKey: 'DepartmentId',
-        header: 'Id phòng ban',
-        enableColumnOrdering: true,
-        enableEditing: false, //disable editing on this column
-        enableSorting: false,
-        size: 50,
-      },
-      {
         accessorKey: 'DepartmentName',
         header: 'Tên phòng ban',
         size: 100,
@@ -95,6 +88,7 @@ const DepartmentTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
+    setUpdatedRow(dummyDepartmentData);
     setIsEditModal(false);
   }
 
@@ -106,8 +100,7 @@ const DepartmentTable: FC = () => {
       dispatch(setListOfDepartments(newListOfDepartments));
     }
 
-    setIsEditModal(false);
-    setUpdatedRow(dummyDepartmentData);
+    onCloseEditModal();
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -135,6 +128,7 @@ const DepartmentTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
+    setCreatedRow(dummyDepartmentData);
     setIsCreateModal(false);
   }
 
@@ -144,14 +138,13 @@ const DepartmentTable: FC = () => {
       "Location": createdRow.Location,
     })
 
-    if(createdDepartment){
+    if (createdDepartment) {
       const newListOfDepartments: IDepartmentType[] = await getDepartments();
-      if(newListOfDepartments){
+      if (newListOfDepartments) {
         dispatch(setListOfDepartments(newListOfDepartments));
       }
     }
-    setIsCreateModal(false);
-    setCreatedRow(dummyDepartmentData);
+    onCloseCreateModal();
   }
 
   return (
@@ -170,6 +163,11 @@ const DepartmentTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
+        enableRowNumbers
+        enablePinning
+        initialState={{
+          density: 'compact',
+        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin phòng ban">
@@ -185,14 +183,16 @@ const DepartmentTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Button
-            color="primary"
-            onClick={handleOpenCreateModal}
-            variant="contained"
-            style={{ "margin": "10px" }}
-          >
-            Tạo phòng ban mới
-          </Button>
+          <Tooltip title="Tạo phòng ban mới" placement="right-start">
+            <Button
+              color="primary"
+              onClick={handleOpenCreateModal}
+              variant="contained"
+              style={{ "margin": "10px" }}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </Tooltip>
         )}
       />
 
@@ -241,7 +241,7 @@ const DepartmentTable: FC = () => {
       <Dialog open={isDeleteModal}>
         <DialogTitle textAlign="center"><b>Xoá thông tin phòng ban</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin phòng ban {`${deletedRow.DepartmentId}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin phòng ban {`${deletedRow.DepartmentName}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>
@@ -262,16 +262,16 @@ const DepartmentTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.slice(1, ).map((column) => (
-                  <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                    }
-                  />
+              {columns.map((column) => (
+                <TextField
+                  key={column.accessorKey}
+                  label={column.header}
+                  name={column.accessorKey}
+                  defaultValue={column.id && updatedRow[column.id]}
+                  onChange={(e) =>
+                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                  }
+                />
               ))}
 
             </Stack>

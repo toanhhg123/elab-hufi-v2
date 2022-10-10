@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteManufacturer, getManufacturers, postManufacturer, updateManufacturer } from '../../services/manufacturerServices';
 import { RootState } from '../../store';
 import { setListOfManufacturers } from './manufacturerSlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const ManufacturersTable: FC = () => {
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
@@ -68,14 +69,6 @@ const ManufacturersTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IManufacturerType>[]>(
     () => [
       {
-        accessorKey: 'ManufacturerId',
-        header: 'Id nhà sản xuất',
-        enableColumnOrdering: true,
-        enableEditing: false, //disable editing on this column
-        enableSorting: false,
-        size: 50,
-      },
-      {
         accessorKey: 'Name',
         header: 'Tên nhà sản xuất',
         size: 100,
@@ -110,6 +103,7 @@ const ManufacturersTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
+    setUpdatedRow(dummyManufacturerData);
     setIsEditModal(false);
   }
 
@@ -121,8 +115,7 @@ const ManufacturersTable: FC = () => {
       dispatch(setListOfManufacturers(newListOfManufacturers));
     }
 
-    setIsEditModal(false);
-    setUpdatedRow(dummyManufacturerData);
+    onCloseEditModal();
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -131,6 +124,7 @@ const ManufacturersTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
+    setDeletedRow(dummyManufacturerData);
     setIsDeleteModal(false);
   }
 
@@ -141,8 +135,7 @@ const ManufacturersTable: FC = () => {
     let newListOfManufacturers = [...manufacturersData.slice(0, deletedIdx), ...manufacturersData.slice(deletedIdx + 1,)]
     dispatch(setListOfManufacturers(newListOfManufacturers));
 
-    setIsDeleteModal(false);
-    setDeletedRow(dummyManufacturerData);
+    onCloseDeleteModal();
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -150,6 +143,7 @@ const ManufacturersTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
+    setCreatedRow(dummyManufacturerData);
     setIsCreateModal(false);
   }
 
@@ -167,8 +161,7 @@ const ManufacturersTable: FC = () => {
         dispatch(setListOfManufacturers(newListOfManufacturers));
       }
     }
-    setIsCreateModal(false);
-    setCreatedRow(dummyManufacturerData);
+    onCloseCreateModal();
   }
 
   return (
@@ -187,6 +180,11 @@ const ManufacturersTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
+        enableRowNumbers
+        enablePinning
+        initialState={{
+          density: 'compact',
+        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin nhà sản xuất">
@@ -202,14 +200,16 @@ const ManufacturersTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Button
-            color="primary"
-            onClick={handleOpenCreateModal}
-            variant="contained"
-            style={{ "margin": "10px" }}
-          >
-            Tạo nhà sản xuất mới
-          </Button>
+          <Tooltip title="Tạo nhà sản xuất mới" placement="right-start">
+            <Button
+              color="primary"
+              onClick={handleOpenCreateModal}
+              variant="contained"
+              style={{ "margin": "10px" }}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </Tooltip>
         )}
       />
 
@@ -279,7 +279,7 @@ const ManufacturersTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.slice(1, ).map((column) => (
+              {columns.map((column) => (
                   <TextField
                     key={column.accessorKey}
                     label={column.header}

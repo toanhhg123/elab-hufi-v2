@@ -16,11 +16,11 @@ export function Dashboard() {
         {/* <InstrumentTable/> */}
         {/* <LaboratoryTable /> */}
         {/* <DeviceSpecTable /> */}
-        <EmployeeTable />
+        {/* <EmployeeTable /> */}
         {/* <DepartmentTable /> */}
         {/* <ManufacturersTable /> */}
         {/* <ChemicalTable /> */}
-        {/* <SupplierTable /> */}
+        <SupplierTable />
         </div>
     )
 }

@@ -8,12 +8,12 @@ export interface ISupplierType {
     PurchaseOrders: any
 }
 
-export const dummySupplierData: ISupplierType ={
-    "SupplierId":1,
-    "Name":"Công ty ABC",
-    "Email":"abc@gmail.com",
-    "PhoneNumber":"0902334567",
-    "Address":"TPHCM",
-    "Status":"good",
-    "PurchaseOrders":null
+export const dummySupplierData: ISupplierType = {
+    "SupplierId": -1,
+    "Name": "",
+    "Email": "",
+    "PhoneNumber": "",
+    "Address": "",
+    "Status": "",
+    "PurchaseOrders": null
 }

@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteLaboratory, getLaboratories, postLaboratory, updateLaboratory } from '../../services/laboratoryServices';
 import { RootState } from '../../store';
 import { setListOfLaboratories } from './laboratorySlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const LaboratoryTable: FC = () => {
   const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -188,14 +189,16 @@ const LaboratoryTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Button
-            color="primary"
-            onClick={handleOpenCreateModal}
-            variant="contained"
-            style={{ "margin": "10px" }}
-          >
-            Tạo Lab mới
-          </Button>
+          <Tooltip title="Tạo Lab mới" placement="right-start">
+            <Button
+              color="primary"
+              onClick={handleOpenCreateModal}
+              variant="contained"
+              style={{ "margin": "10px" }}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </Tooltip>
         )}
       />
 

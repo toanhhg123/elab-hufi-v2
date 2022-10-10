@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteChemical, getChemicals, postChemical, updateChemical } from '../../services/chemicalServices';
 import { RootState } from '../../store';
 import { setListOfChemicals } from './chemicalSlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const ChemicalTable: FC = () => {
   const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
@@ -115,6 +116,7 @@ const ChemicalTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
+    setUpdatedRow(dummyChemicalData);
     setIsEditModal(false);
   }
 
@@ -126,8 +128,7 @@ const ChemicalTable: FC = () => {
       dispatch(setListOfChemicals(newListOfChemicals));
     }
 
-    setIsEditModal(false);
-    setUpdatedRow(dummyChemicalData);
+    onCloseEditModal();
   }
 
   const handleOpenDeleteModal = (row: any) => {
@@ -136,6 +137,7 @@ const ChemicalTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
+    setDeletedRow(dummyChemicalData);
     setIsDeleteModal(false);
   }
 
@@ -146,8 +148,7 @@ const ChemicalTable: FC = () => {
     let newListOfChemicals = [...chemicalData.slice(0, deletedIdx), ...chemicalData.slice(deletedIdx + 1,)]
     dispatch(setListOfChemicals(newListOfChemicals));
 
-    setIsDeleteModal(false);
-    setDeletedRow(dummyChemicalData);
+    onCloseDeleteModal();
   }
 
   const handleOpenCreateModal = (row: any) => {
@@ -155,6 +156,7 @@ const ChemicalTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
+    setCreatedRow(dummyChemicalData);
     setIsCreateModal(false);
   }
 
@@ -174,8 +176,7 @@ const ChemicalTable: FC = () => {
         dispatch(setListOfChemicals(newListOfChemicals));
       }
     }
-    setIsCreateModal(false);
-    setCreatedRow(dummyChemicalData);
+    onCloseCreateModal();
   }
 
   return (
@@ -194,6 +195,11 @@ const ChemicalTable: FC = () => {
         editingMode="modal" //default
         enableColumnOrdering
         enableEditing
+        enableRowNumbers
+        enablePinning
+        initialState={{
+          density: 'compact',
+        }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin hoá chất">
@@ -208,15 +214,18 @@ const ChemicalTable: FC = () => {
             </Tooltip>
           </Box>
         )}
+       
         renderBottomToolbarCustomActions={() => (
+          <Tooltip title="Tạo hoá chất mới" placement="right-start">
           <Button
             color="primary"
             onClick={handleOpenCreateModal}
             variant="contained"
             style={{ "margin": "10px" }}
           >
-            Tạo hoá chất mới
+            <AddIcon fontSize="small" />
           </Button>
+        </Tooltip>
         )}
       />
 
