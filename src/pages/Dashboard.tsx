@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import ChemicalTable from '../layouts/ChemicalTable';
 import { setListOfChemicals } from '../layouts/ChemicalTable/chemicalSlice';
+import ClassSubjectTable from '../layouts/ClassSubjectTable';
+import { setListOfClassSubjects } from '../layouts/ClassSubjectTable/classSubjectSlice';
 import { Counter } from "../layouts/Counter";
 import InstrumentTable from '../layouts/Counter/InstrumentTable';
 import DepartmentTable from '../layouts/DepartmentTable';
@@ -16,24 +18,30 @@ import LaboratoryTable from '../layouts/LaboratoryTable';
 import { setListOfLaboratories } from '../layouts/LaboratoryTable/laboratorySlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
+import SubjectTable from '../layouts/SubjectTable';
+import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
 import { setListOfSuppliers } from '../layouts/SupplierTable/supplierSlice';
 import { getChemicals } from '../services/chemicalServices';
+import { getClassSubjects } from '../services/clasSubjectServices';
 import { getDepartments } from '../services/departmentServices';
 import { getDevices } from '../services/deviceServices';
 import { getDeviceSpec } from '../services/deviceSpecServices';
 import { getEmployees } from '../services/employeeServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getManufacturers } from '../services/manufacturerServices';
+import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
 import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
+import { IClassSubjectType } from '../types/classSubjectType';
 import { IDepartmentType } from '../types/departmentType';
 import { IDeviceSpecType } from '../types/deviceSpecType';
 import { IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { IManufacturerType } from '../types/manufacturerType';
+import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
 import './Dashboard.css';
 
@@ -46,6 +54,8 @@ export function Dashboard() {
     const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
     const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
     const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
+    const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
+    const classSubjectData = useAppSelector((state: RootState) => state.classSubject.listOfClassSubjects);
 
     const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
@@ -107,6 +117,20 @@ export function Dashboard() {
         }
     }
 
+    const getSubjectData = async () => {
+        const listOfSubjects: ISubjectType[] = await getSubjects();
+        if (listOfSubjects) {
+            dispatch(setListOfSubjects(listOfSubjects));
+        }
+    }
+
+    const getClassSubjectData = async () => {
+        const listOfClassSubjects: IClassSubjectType[] = await getClassSubjects();
+        if (listOfClassSubjects) {
+            dispatch(setListOfClassSubjects(listOfClassSubjects));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
         getEmployeeData();
@@ -116,6 +140,8 @@ export function Dashboard() {
         getChemicalData();
         getDeviceData();
         getDeviceSpecData();
+        getSubjectData();
+        getClassSubjectData();
     }, [])
 
     return (
@@ -129,6 +155,8 @@ export function Dashboard() {
             {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
             {sidebarItems[6].isOpen && deviceData?.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
             {sidebarItems[7].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
+            {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
+            {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
         </div>
     )
 }

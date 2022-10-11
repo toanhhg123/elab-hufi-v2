@@ -92,7 +92,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List>
-          {defaultSidebarItems.map((item, index) => (
+          {defaultSidebarItems.slice(0, 8).map((item, index) => (
             <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={{
@@ -118,8 +118,8 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List>
-          {['Quản lý TKB'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+          {defaultSidebarItems.slice(8, ).map((item, index) => (
+            <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={{
                   minHeight: 48,
@@ -136,7 +136,7 @@ export default function PersistentDrawerLeft() {
                 >
                   {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                 </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: isOpenDrawer ? 1 : 0 }} />
+                <ListItemText primary={item.name} sx={{ opacity: isOpenDrawer ? 1 : 0 }} onClick={() => {dispatch(setSidebarItems(index + 8))}} />
               </ListItemButton>
             </ListItem>
           ))}

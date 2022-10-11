@@ -24,8 +24,8 @@ export const getDepartmentById = async (id: Number) => {
 	return lab;
 }
 
-export const updateDepartment = async (id: Number, updatedData: IDepartmentType) => {    
-    const url = `${API_ENDPOINT}/api/departments/${id}`;
+export const updateDepartment = async (updatedData: IDepartmentType) => {    
+    const url = `${API_ENDPOINT}/api/departments/${updatedData?.DepartmentId}`;
 	const lab: IDepartmentType = await API.put<IDepartmentType, IDepartmentType>(url, updatedData);
 	return lab;
 }

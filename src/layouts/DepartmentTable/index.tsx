@@ -82,7 +82,7 @@ const DepartmentTable: FC = () => {
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateDepartment(updatedRow.DepartmentId, updatedRow);
+    const isUpdatedSuccess = await updateDepartment(updatedRow);
     if (isUpdatedSuccess) {
       let updatedIdx = departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId);
       let newListOfDepartments = [...departmentData.slice(0, updatedIdx), updatedRow, ...departmentData.slice(updatedIdx + 1,)]
