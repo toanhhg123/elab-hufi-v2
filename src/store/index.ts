@@ -8,6 +8,7 @@ import departmentReducer from "../layouts/DepartmentTable/departmentSlice"
 import manufacturerReducer from "../layouts/ManufacturerTable/manufacturerSlice"
 import chemicalReducer from "../layouts/ChemicalTable/chemicalSlice"
 import supplierReducer from "../layouts/SupplierTable/supplierSlice"
+import deviceReducer from "../layouts/DeviceTable/deviceSlice"
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
     department: departmentReducer,
     manufacturer: manufacturerReducer,
     chemical: chemicalReducer,
-    supplier: supplierReducer
+    supplier: supplierReducer,
+    device: deviceReducer
   },
 })
 

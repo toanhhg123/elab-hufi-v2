@@ -4,8 +4,9 @@ export interface IChemicalType {
     Specifications: String,
     Origin: String,
     Unit: String,
-    Quantity: Number,
-    ManufacturerId: Number
+    Amount: Number,
+    ManufacturerId: Number,
+    ManufacturerName?: String,
 }
 
 export const dummyChemicalData: IChemicalType = { 
@@ -14,6 +15,6 @@ export const dummyChemicalData: IChemicalType = {
     "Specifications": "", 
     "Origin": "", 
     "Unit": "", 
-    "Quantity": 0, 
-    "ManufacturerId": -1
+    "Amount": 0, 
+    "ManufacturerId": -1,
 }

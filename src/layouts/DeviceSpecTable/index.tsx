@@ -10,7 +10,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Stack,
   TextField,
   Tooltip,
@@ -25,6 +30,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 const DeviceSpecTable: FC = () => {
   const deviceSpecData = useAppSelector((state: RootState) => state.deviceSpecs.listOfDeviceSpecs);
+  const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
@@ -40,7 +46,14 @@ const DeviceSpecTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyDeviceSpecData);
 
   useEffect(() => {
-    setTableData(deviceSpecData);
+    let formatedDeviceSpecData = deviceSpecData.map((x: IDeviceSpecType) => {
+      let deviceInfoIdx = deviceData.findIndex(y => y.DeviceId === x.DeviceId);
+      return {
+        ...x,
+        "DeviceName": deviceInfoIdx > -1 ? deviceData[deviceInfoIdx].DeviceName : ""
+      }
+    })
+    setTableData(formatedDeviceSpecData);
   }, [deviceSpecData])
 
   const getCommonEditTextFieldProps = useCallback(
@@ -58,21 +71,21 @@ const DeviceSpecTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IDeviceSpecType>[]>(
     () => [
       {
-        accessorKey: 'DeviceId',
-        header: 'Id thiết bị',
+        accessorKey: 'DeviceName',
+        header: 'Thiết bị',
         enableColumnOrdering: true,
         enableEditing: false, //disable editing on this column
         enableSorting: false,
         size: 50,
       },
-      {
-        accessorKey: 'SpecsID',
-        header: 'Id thông số',
-        size: 100,
-      },
+      // {
+      //   accessorKey: 'SpecsID',
+      //   header: 'Id thông số',
+      //   size: 100,
+      // },
       {
         accessorKey: 'SpecsName',
-        header: 'Tên',
+        header: 'Tên thông số',
         size: 140,
       },
       {
@@ -211,7 +224,7 @@ const DeviceSpecTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                (column.id !== "DeviceId" && column.id !== "SpecsID") &&
+                (column.id !== "DeviceName" && column.id !== "SpecsID") &&
                 <TextField
                   key={column.accessorKey}
                   label={column.header}
@@ -258,17 +271,40 @@ const DeviceSpecTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
-                  onChange={(e) =>
-                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                  }
-                />
-              ))}
+              {columns.map((column) => {
+                const deviceOptions: string[] = deviceData.map(x => x.DeviceName.toString());
+
+                if (column.id === "DeviceName" && deviceData.length > 0) {
+                  return (<FormControl sx={{ m: 0, minWidth: 120 }}>
+                    <InputLabel id="device-select-select-required-label">Thiết bị</InputLabel>
+                    <Select
+                      labelId="device-select-select-required-label"
+                      id="device-select-select-required"
+                      value={deviceData.findIndex(x => x.DeviceId === createdRow.DeviceId) > -1 ?
+                        deviceData.findIndex(x => x.DeviceId === createdRow.DeviceId).toString() : ""}
+                      label="Nhà sản xuất"
+                      onChange={(e: SelectChangeEvent) =>
+                        setCreatedRow({
+                          ...createdRow,
+                          "DeviceName": deviceData[Number(e.target.value)].DeviceName,
+                          "DeviceId": deviceData[Number(e.target.value)].DeviceId
+                        })}
+                    >
+                      {deviceOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                    </Select>
+                  </FormControl>)
+                } else {
+                  return <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && createdRow[column.id]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                    }
+                  />
+                }
+              })}
 
             </Stack>
           </form>

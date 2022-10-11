@@ -24,8 +24,8 @@ export const getChemicalById = async (id: Number) => {
 	return lab;
 }
 
-export const updateChemical = async (id: Number, updatedData: IChemicalType) => {    
-    const url = `${API_ENDPOINT}/api/chemicals/${id}`;
+export const updateChemical = async (updatedData: IChemicalType) => {    
+    const url = `${API_ENDPOINT}/api/chemicals/${updatedData?.ChemicalId}`;
 	const lab: IChemicalType = await API.put<IChemicalType, IChemicalType>(url, updatedData);
 	return lab;
 }

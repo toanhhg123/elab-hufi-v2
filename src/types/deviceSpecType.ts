@@ -1,5 +1,6 @@
 export interface IDeviceSpecType {
     DeviceId?: String,
+    DeviceName?: String,
     SpecsID: Number,
     SpecsName: String,
     SpecsValue: String

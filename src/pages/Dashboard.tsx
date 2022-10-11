@@ -8,6 +8,8 @@ import DepartmentTable from '../layouts/DepartmentTable';
 import { setListOfDepartments } from '../layouts/DepartmentTable/departmentSlice';
 import DeviceSpecTable from '../layouts/DeviceSpecTable';
 import { setListOfDeviceSpecs } from '../layouts/DeviceSpecTable/deviceSpecSlice';
+import DeviceTable from '../layouts/DeviceTable';
+import { setListOfDevices } from '../layouts/DeviceTable/deviceSlice';
 import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
@@ -18,6 +20,7 @@ import SupplierTable from '../layouts/SupplierTable';
 import { setListOfSuppliers } from '../layouts/SupplierTable/supplierSlice';
 import { getChemicals } from '../services/chemicalServices';
 import { getDepartments } from '../services/departmentServices';
+import { getDevices } from '../services/deviceServices';
 import { getDeviceSpec } from '../services/deviceSpecServices';
 import { getEmployees } from '../services/employeeServices';
 import { getLaboratories } from '../services/laboratoryServices';
@@ -27,6 +30,7 @@ import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
 import { IDepartmentType } from '../types/departmentType';
 import { IDeviceSpecType } from '../types/deviceSpecType';
+import { IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { IManufacturerType } from '../types/manufacturerType';
@@ -41,15 +45,7 @@ export function Dashboard() {
     const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
     const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
     const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
-
-    // const isLaboratoryTable = useAppSelector((state: RootState) => state.app.isLaboratoryTable);
-    // const isDeviceSpecTable = useAppSelector((state: RootState) => state.app.isDeviceSpecTable);
-    // const isEmployeeTable = useAppSelector((state: RootState) => state.app.isEmployeeTable);
-    // const isDepartmentTable = useAppSelector((state: RootState) => state.app.isDepartmentTable);
-    // const isManufacturerTable = useAppSelector((state: RootState) => state.app.isManufacturerTable);
-    // const isChemicalTable = useAppSelector((state: RootState) => state.app.isChemicalTable);
-    // const isSupplierTable = useAppSelector((state: RootState) => state.app.isSupplierTable);
-    // const isDeviceTable = useAppSelector((state: RootState) => state.app.isDeviceTable);
+    const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
 
     const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
@@ -104,26 +100,35 @@ export function Dashboard() {
         }
     }
 
+    const getDeviceData = async () => {
+        const listOfDevices: IDeviceType[] = await getDevices();
+        if (listOfDevices) {
+            dispatch(setListOfDevices(listOfDevices));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
-        getDeviceSpecData();
         getEmployeeData();
         getDepartmentData();
         getManufacturerData();
         getSupplierData();
         getChemicalData();
+        getDeviceData();
+        getDeviceSpecData();
     }, [])
 
     return (
         <div className="home">
             {/* <InstrumentTable/> */}
             {sidebarItems[0].isOpen && laboratoriesData?.length > 0 && <LaboratoryTable />}
-            {sidebarItems[1].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
+            {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
             {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
-            {sidebarItems[3].isOpen && departmentData?.length > 0 && <DepartmentTable />}
-            {sidebarItems[4].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-            {sidebarItems[5].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
-            {sidebarItems[6].isOpen && supplierData?.length > 0 && <SupplierTable />}
+            {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
+            {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
+            {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
+            {sidebarItems[6].isOpen && deviceData?.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
+            {sidebarItems[7].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
         </div>
     )
 }

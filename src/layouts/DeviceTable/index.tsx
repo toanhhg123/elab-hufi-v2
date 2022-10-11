@@ -21,32 +21,32 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyChemicalData, IChemicalType } from '../../types/chemicalType';
+import { dummyDeviceData, IDeviceType } from '../../types/deviceType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteChemical, getChemicals, postChemical, updateChemical } from '../../services/chemicalServices';
+import { deleteDevice, getDevices, postDevice, updateDevice } from '../../services/deviceServices';
 import { RootState } from '../../store';
-import { setListOfChemicals } from './chemicalSlice';
+import { setListOfDevices } from './deviceSlice';
 import AddIcon from '@mui/icons-material/Add';
 
-const ChemicalTable: FC = () => {
-  const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
+const DeviceTable: FC = () => {
+  const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<IChemicalType[]>([]);
+  const [tableData, setTableData] = useState<IDeviceType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const [updatedRow, setUpdatedRow] = useState<any>(dummyChemicalData);
-  const [deletedRow, setDeletedRow] = useState<any>(dummyChemicalData);
-  const [createdRow, setCreatedRow] = useState<any>(dummyChemicalData);
+  const [updatedRow, setUpdatedRow] = useState<any>(dummyDeviceData);
+  const [deletedRow, setDeletedRow] = useState<any>(dummyDeviceData);
+  const [createdRow, setCreatedRow] = useState<any>(dummyDeviceData);
 
   useEffect(() => {
-    let formatedDeviceData = chemicalData.map((x: IChemicalType) => {
+    let formatedDeviceData = deviceData.map((x: IDeviceType) => {
       let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
       return {
         ...x,
@@ -54,12 +54,12 @@ const ChemicalTable: FC = () => {
       }
     })
     setTableData(formatedDeviceData);
-  }, [chemicalData])
+  }, [deviceData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<IChemicalType>,
-    ): MRT_ColumnDef<IChemicalType>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<IDeviceType>,
+    ): MRT_ColumnDef<IDeviceType>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
@@ -68,21 +68,26 @@ const ChemicalTable: FC = () => {
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<IChemicalType>[]>(
+  const columns = useMemo<MRT_ColumnDef<IDeviceType>[]>(
     () => [
       {
-        accessorKey: 'ChemicalName',
-        header: 'Tên hoá chất',
-        size: 100,
+        accessorKey: 'DeviceName',
+        header: 'Tên thiết bị',
+        size: 140,
       },
       {
-        accessorKey: 'Specifications',
-        header: 'Thông số',
+        accessorKey: 'DeviceType',
+        header: 'Loại thiết bị',
+        size: 140,
+      },
+      {
+        accessorKey: 'Model',
+        header: 'Mẫu',
         size: 140,
       },
       {
         accessorKey: 'Origin',
-        header: 'Nguồn gốc',
+        header: 'Xuất xứ',
         size: 140,
       },
       {
@@ -91,10 +96,20 @@ const ChemicalTable: FC = () => {
         size: 140,
       },
       {
-        accessorKey: 'Amount',
+        accessorKey: 'Standard',
+        header: 'Tiêu chuẩn',
+        size: 140,
+      },
+      {
+        accessorKey: 'Quantity',
         header: 'Số lượng',
         size: 140,
       },
+      // {
+      //   accessorKey: 'HasTrain',
+      //   header: 'Đã tập huấn',
+      //   size: 140,
+      // },
       {
         accessorKey: 'ManufacturerName',
         header: 'Nhà sản xuất',
@@ -110,24 +125,27 @@ const ChemicalTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
-    setUpdatedRow(dummyChemicalData);
+    setUpdatedRow(dummyDeviceData);
     setIsEditModal(false);
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateChemical({
-      "ChemicalId": updatedRow.ChemicalId,
-      "ChemicalName": updatedRow.ChemicalName,
-      "Specifications": updatedRow.Specifications,
+    const isUpdatedSuccess = await updateDevice({
+      "DeviceId": updatedRow.DeviceId,
+      "DeviceName": updatedRow.DeviceName,
+      "DeviceType": updatedRow.DeviceType,
+      "Model": updatedRow.Model,
       "Origin": updatedRow.Origin,
-      "Unit": updatedRow.Unint,
-      "Amount": updatedRow.Amount,
+      "Unit": updatedRow.Unit,
+      "Standard": updatedRow.Standard,
+      "Quantity": updatedRow.Quantity,
+      "HasTrain": updatedRow.HasTrain,
       "ManufacturerId": updatedRow.ManufacturerId
     });
     if (isUpdatedSuccess) {
-      let updatedIdx = chemicalData.findIndex(x => x.ChemicalId === updatedRow.ChemicalId);
-      let newListOfChemicals = [...chemicalData.slice(0, updatedIdx), updatedRow, ...chemicalData.slice(updatedIdx + 1,)]
-      dispatch(setListOfChemicals(newListOfChemicals));
+      let updatedIdx = deviceData.findIndex(x => x.DeviceId === updatedRow.DeviceId);
+      let newListOfDevices = [...deviceData.slice(0, updatedIdx), updatedRow, ...deviceData.slice(updatedIdx + 1,)]
+      dispatch(setListOfDevices(newListOfDevices));
     }
 
     onCloseEditModal();
@@ -139,16 +157,16 @@ const ChemicalTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
-    setDeletedRow(dummyChemicalData);
+    setDeletedRow(dummyDeviceData);
     setIsDeleteModal(false);
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteChemical(deletedRow.ChemicalId);
+    await deleteDevice(deletedRow.DeviceId);
 
-    let deletedIdx = chemicalData.findIndex(x => x.ChemicalId === deletedRow.ChemicalId);
-    let newListOfChemicals = [...chemicalData.slice(0, deletedIdx), ...chemicalData.slice(deletedIdx + 1,)]
-    dispatch(setListOfChemicals(newListOfChemicals));
+    let deletedIdx = deviceData.findIndex(x => x.DeviceId === deletedRow.DeviceId);
+    let newListOfDevices = [...deviceData.slice(0, deletedIdx), ...deviceData.slice(deletedIdx + 1,)]
+    dispatch(setListOfDevices(newListOfDevices));
 
     onCloseDeleteModal();
   }
@@ -158,26 +176,30 @@ const ChemicalTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setCreatedRow(dummyChemicalData);
+    setCreatedRow(dummyDeviceData);
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdChemical = await postChemical({
-      "ChemicalName": createdRow.ChemicalName,
-      "Specifications": createdRow.Specifications,
+    const createdDevice = await postDevice({
+      "DeviceName": createdRow.DeviceName,
+      "DeviceType": createdRow.DeviceType,
+      "Model": createdRow.Model,
       "Origin": createdRow.Origin,
-      "Unit": createdRow.Unint,
-      "Amount": createdRow.Amount,
+      "Unit": createdRow.Unit,
+      "Standard": createdRow.Standard,
+      "Quantity": createdRow.Quantity,
+      "HasTrain": createdRow.HasTrain,
       "ManufacturerId": createdRow.ManufacturerId
     })
 
-    if (createdChemical) {
-      const newListOfChemicals: IChemicalType[] = await getChemicals();
-      if (newListOfChemicals) {
-        dispatch(setListOfChemicals(newListOfChemicals));
+    if (createdDevice) {
+      const newListOfDevices: IDeviceType[] = await getDevices();
+      if (newListOfDevices) {
+        dispatch(setListOfDevices(newListOfDevices));
       }
     }
+
     onCloseCreateModal();
   }
 
@@ -204,21 +226,20 @@ const ChemicalTable: FC = () => {
         }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip arrow placement="left" title="Sửa thông tin hoá chất">
+            <Tooltip arrow placement="left" title="Sửa thông tin thiết bị">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
-            <Tooltip arrow placement="right" title="Xoá thông tin hoá chất">
+            <Tooltip arrow placement="right" title="Xoá thông tin thiết bị">
               <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
                 <Delete />
               </IconButton>
             </Tooltip>
           </Box>
         )}
-
         renderBottomToolbarCustomActions={() => (
-          <Tooltip title="Tạo hoá chất mới" placement="right-start">
+          <Tooltip title="Tạo thiết bị mới" placement="right-start">
             <Button
               color="primary"
               onClick={handleOpenCreateModal}
@@ -232,7 +253,7 @@ const ChemicalTable: FC = () => {
       />
 
       <Dialog open={isEditModal}>
-        <DialogTitle textAlign="center"><b>Sửa thông tin hoá chất</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Sửa thông tin thiết bị</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -244,13 +265,12 @@ const ChemicalTable: FC = () => {
             >
               {columns.map((column) => {
                 const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
-
                 if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="manufacturer-select-select-required-label">Nhà sản xuất</InputLabel>
+                    <InputLabel id="manufacturer-select-required-label">Nhà sản xuất</InputLabel>
                     <Select
-                      labelId="manufacturer-select-select-required-label"
-                      id="manufacturer-select-select-required"
+                      labelId="manufacturer-select-required-label"
+                      id="manufacturer-select-required"
                       value={manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId) > -1 ?
                         manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId).toString() : ""}
                       label="Nhà sản xuất"
@@ -270,7 +290,7 @@ const ChemicalTable: FC = () => {
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
+                    defaultValue={column.id && createdRow[column.id]}
                     onChange={(e) =>
                       setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
                     }
@@ -278,7 +298,6 @@ const ChemicalTable: FC = () => {
                 }
               }
               )}
-
             </Stack>
           </form>
         </DialogContent>
@@ -291,9 +310,9 @@ const ChemicalTable: FC = () => {
       </Dialog>
 
       <Dialog open={isDeleteModal}>
-        <DialogTitle textAlign="center"><b>Xoá thông tin hoá chất</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Xoá thông tin thiết bị</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin hoá chất {`${deletedRow.ChemicalName}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin thiết bị {`${deletedRow.DeviceName}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>
@@ -304,7 +323,7 @@ const ChemicalTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b>Tạo thông tin hoá chất</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Tạo thông tin thiết bị</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -319,10 +338,10 @@ const ChemicalTable: FC = () => {
 
                 if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="manufacturer-select-select-required-label">Nhà sản xuất</InputLabel>
+                    <InputLabel id="manufacturer-select-required-label">Nhà sản xuất</InputLabel>
                     <Select
-                      labelId="manufacturer-select-select-required-label"
-                      id="manufacturer-select-select-required"
+                      labelId="manufacturer-select-required-label"
+                      id="manufacturer-select-required"
                       value={manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId) > -1 ?
                         manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId).toString() : ""}
                       label="Nhà sản xuất"
@@ -350,6 +369,7 @@ const ChemicalTable: FC = () => {
                 }
               }
               )}
+
             </Stack>
           </form>
         </DialogContent>
@@ -365,4 +385,4 @@ const ChemicalTable: FC = () => {
   );
 };
 
-export default ChemicalTable;
+export default DeviceTable;

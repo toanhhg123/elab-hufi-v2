@@ -12,7 +12,7 @@ interface AppState {
   sidebarItems: ISidebarItem[]
 }
 
-const defaultSidebarItems: ISidebarItem[] = [
+export const defaultSidebarItems: ISidebarItem[] = [
   {
     "isOpen": true,
     "name": "Quản lý phòng lab",
@@ -20,17 +20,12 @@ const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý thông số TB",
+    "name": "Quản lý phòng ban",
     "icon": ""
   },
   {
     "isOpen": false,
     "name": "Quản lý nhân viên",
-    "icon": ""
-  },
-  {
-    "isOpen": false,
-    "name": "Quản lý phòng ban",
     "icon": ""
   },
   {
@@ -45,12 +40,17 @@ const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý nhà cung ứng",
+    "name": "Quản lý nhà cung cấp",
     "icon": ""
   },
   {
     "isOpen": false,
     "name": "Quản lý thiết bị",
+    "icon": ""
+  },
+  {
+    "isOpen": false,
+    "name": "Quản lý thông số TB",
     "icon": ""
   },
 ]

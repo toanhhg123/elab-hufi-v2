@@ -34,6 +34,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 const EmployeeTable: FC = () => {
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
+  const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
@@ -49,10 +50,12 @@ const EmployeeTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyEmployeeData);
 
   useEffect(() => {
-    let formatedEmployeeData = employeeData.map((emp) => {
+    let formatedEmployeeData = employeeData.map((emp: IEmployeeType) => {
+      let departmentInfoIdx = departmentData.findIndex(y => y.DepartmentId === emp.DepartmentId);
       return {
         ...emp,
-        "Birthday": moment(emp.Birthday).format("DD/MM/YYYY")
+        "formatedBirthday": moment.unix(emp.Birthday).format('DD/MM/YYYY'),
+        "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : ""
       }
     })
     setTableData(formatedEmployeeData);
@@ -86,7 +89,7 @@ const EmployeeTable: FC = () => {
         size: 100,
       },
       {
-        accessorKey: 'Birthday',
+        accessorKey: 'formatedBirthday',
         header: 'Ngày sinh',
         size: 140,
       },
@@ -111,7 +114,7 @@ const EmployeeTable: FC = () => {
         size: 50,
       },
       {
-        accessorKey: 'DepartmentId',
+        accessorKey: 'DepartmentName',
         header: 'Phòng ban',
         size: 50,
       },
@@ -129,7 +132,16 @@ const EmployeeTable: FC = () => {
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateEmployee(updatedRow);
+    const isUpdatedSuccess = await updateEmployee({
+      "EmployeeID": updatedRow.EmployeeID,
+      "Fullname": updatedRow.Fullname,
+      "Birthday": updatedRow.Birthday,
+      "Gender": updatedRow.Gender,
+      "Address": updatedRow.Address,
+      "Email": updatedRow.Email,
+      "PhoneNumber": updatedRow.PhoneNumber,
+      "DepartmentId": updatedRow.DepartmentId
+    });
     if (isUpdatedSuccess) {
       let updatedIdx = employeeData.findIndex(x => x.EmployeeID === updatedRow.EmployeeID);
       let newListOfEmployees = [...employeeData.slice(0, updatedIdx), updatedRow, ...employeeData.slice(updatedIdx + 1,)]
@@ -257,16 +269,20 @@ const EmployeeTable: FC = () => {
                     name="EmployeeID"
                     defaultValue={updatedRow["EmployeeID"]}
                   />
-                } else if (column.id === "Birthday") {
-                  console.log("updatedRow :", updatedRow)
+                } else if (column.id === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
                       label="Ngày sinh"
-                      value={moment(updatedRow.Birthday, 'DD/MM/YYYY')}
+                      value={new Date(updatedRow.Birthday * 1000)}
                       onChange={(val: any) =>
-                        setUpdatedRow({ ...updatedRow, "Birthday": moment(val).format("DD/MM/YYYY") })
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "formatedBirthday": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                          "Birthday": Date.parse(val) / 1000
+                        })
                       }
                       renderInput={(params: any) => <TextField {...params} />}
+                      inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
                 } else if (column.id === "Gender") {
@@ -283,7 +299,30 @@ const EmployeeTable: FC = () => {
                       {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2).map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
-                } else {
+                }
+                else if (column.id === "DepartmentName" && departmentData.length > 0) {
+                  const departmentOptions: string[] = departmentData.map(x => x.DepartmentName.toString());
+
+                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
+                    <InputLabel id="department-select-required-label">Phòng ban</InputLabel>
+                    <Select
+                      labelId="department-select-required-label"
+                      id="department-select-required"
+                      value={departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId) > -1 ?
+                        departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId).toString() : ""}
+                      label="Phòng ban"
+                      onChange={(e: SelectChangeEvent) =>
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "DepartmentName": departmentData[Number(e.target.value)].DepartmentName,
+                          "DepartmentId": departmentData[Number(e.target.value)].DepartmentId
+                        })}
+                    >
+                      {departmentOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                }
+                else {
                   return <TextField
                     key={column.accessorKey}
                     label={column.header}
@@ -332,45 +371,73 @@ const EmployeeTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.slice(1,).map((column) => (
-                column.id === "Birthday" ?
-                  <LocalizationProvider dateAdapter={AdapterMoment}>
+              {columns.slice(1,).map((column) => {
+                if (column.id === "formatedBirthday") {
+                  return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
                       label="Ngày sinh"
-                      value={createdRow.Birthday}
+                      value={new Date(createdRow.Birthday * 1000)}
                       onChange={(val: any) =>
-                        setCreatedRow({ ...createdRow, "Birthday": val })
+                        setCreatedRow({
+                          ...createdRow,
+                          "formatedBirthday": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                          "Birthday": Date.parse(val) / 1000
+                        })
                       }
                       renderInput={(params: any) => <TextField {...params} />}
+                      inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                  :
-                  (column.id === "Gender" ?
-                    <FormControl sx={{ m: 0, minWidth: 120 }}>
-                      <InputLabel id="demo-simple-select-required-label">Giới tính</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-required-label"
-                        id="demo-simple-select-required"
-                        value={Genders[createdRow.Gender]}
-                        label="Giới tính"
-                        onChange={(e: SelectChangeEvent) =>
-                          setCreatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
-                      >
-                        {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2).map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                } else if (column.id === "Gender") {
+                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
+                    <InputLabel id="edit-select-required">Giới tính</InputLabel>
+                    <Select
+                      labelId="edit-select-required"
+                      id="edit-select-required"
+                      value={Genders[createdRow.Gender]}
+                      label="Giới tính"
+                      onChange={(e: SelectChangeEvent) =>
+                        setUpdatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
+                    >
+                      {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2).map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                }
+                else if (column.id === "DepartmentName" && departmentData.length > 0) {
+                  const departmentOptions: string[] = departmentData.map(x => x.DepartmentName.toString());
 
-                      </Select>
-                    </FormControl>
-                    :
-                    <TextField
-                      key={column.accessorKey}
-                      label={column.header}
-                      name={column.accessorKey}
-                      defaultValue={column.id && updatedRow[column.id]}
-                      onChange={(e) =>
-                        setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                      }
-                    />)
-              ))}
+                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
+                    <InputLabel id="department-select-required-label">Phòng ban</InputLabel>
+                    <Select
+                      labelId="department-select-required-label"
+                      id="department-select-required"
+                      value={departmentData.findIndex(x => x.DepartmentId === createdRow.DepartmentId) > -1 ?
+                        departmentData.findIndex(x => x.DepartmentId === createdRow.DepartmentId).toString() : ""}
+                      label="Phòng ban"
+                      onChange={(e: SelectChangeEvent) =>
+                        setCreatedRow({
+                          ...createdRow,
+                          "DepartmentName": departmentData[Number(e.target.value)].DepartmentName,
+                          "DepartmentId": departmentData[Number(e.target.value)].DepartmentId
+                        })}
+                    >
+                      {departmentOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                }
+                else {
+                  return <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && createdRow[column.id]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                    }
+                  />
+                }
+              }
+              )}
 
             </Stack>
           </form>
