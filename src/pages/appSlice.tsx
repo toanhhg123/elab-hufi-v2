@@ -63,6 +63,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
     "name": "Quản lý lớp học phần",
     "icon": ""
   },
+  {
+    "isOpen": false,
+    "name": "Quản lý bài thí nghiệm",
+    "icon": ""
+  },
 ]
 
 // Define the initial state using that type

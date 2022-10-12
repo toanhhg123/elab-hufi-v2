@@ -16,6 +16,8 @@ import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
 import { setListOfLaboratories } from '../layouts/LaboratoryTable/laboratorySlice';
+import LessonLabTable from '../layouts/LessonLabTable';
+import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
 import SubjectTable from '../layouts/SubjectTable';
@@ -29,6 +31,7 @@ import { getDevices } from '../services/deviceServices';
 import { getDeviceSpec } from '../services/deviceSpecServices';
 import { getEmployees } from '../services/employeeServices';
 import { getLaboratories } from '../services/laboratoryServices';
+import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
@@ -40,6 +43,7 @@ import { IDeviceSpecType } from '../types/deviceSpecType';
 import { IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
 import { ILaboratoryType } from '../types/laboratoryType';
+import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
@@ -56,6 +60,7 @@ export function Dashboard() {
     const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
     const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
     const classSubjectData = useAppSelector((state: RootState) => state.classSubject.listOfClassSubjects);
+    const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
 
     const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
@@ -131,6 +136,13 @@ export function Dashboard() {
         }
     }
 
+    const getLessonLabData = async () => {
+        const listOfLessonLabs: ILessonLabType[] = await getLessonLabs();
+        if (listOfLessonLabs) {
+            dispatch(setListOfLessonLabs(listOfLessonLabs));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
         getEmployeeData();
@@ -142,6 +154,7 @@ export function Dashboard() {
         getDeviceSpecData();
         getSubjectData();
         getClassSubjectData();
+        getLessonLabData();
     }, [])
 
     return (
@@ -157,6 +170,7 @@ export function Dashboard() {
             {sidebarItems[7].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
             {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
             {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+            {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
         </div>
     )
 }

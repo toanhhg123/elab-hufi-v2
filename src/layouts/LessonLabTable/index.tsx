@@ -21,45 +21,46 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyDeviceData, IDeviceType } from '../../types/deviceType';
+import { dummyLessonLabData, ILessonLabType } from '../../types/lessonLabType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteDevice, getDevices, postDevice, updateDevice } from '../../services/deviceServices';
+import { deleteLessonLab, getLessonLabs, postLessonLab, updateLessonLab } from '../../services/lessonLabServices';
 import { RootState } from '../../store';
-import { setListOfDevices } from './deviceSlice';
+import { setListOfLessonLabs } from './lessonLabSlice';
 import AddIcon from '@mui/icons-material/Add';
 
-const DeviceTable: FC = () => {
-  const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
-  const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
+const LessonLabTable: FC = () => {
+  const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
+  const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
+
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<IDeviceType[]>([]);
+  const [tableData, setTableData] = useState<ILessonLabType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const [updatedRow, setUpdatedRow] = useState<any>(dummyDeviceData);
-  const [deletedRow, setDeletedRow] = useState<any>(dummyDeviceData);
-  const [createdRow, setCreatedRow] = useState<any>(dummyDeviceData);
+  const [updatedRow, setUpdatedRow] = useState<any>(dummyLessonLabData);
+  const [deletedRow, setDeletedRow] = useState<any>(dummyLessonLabData);
+  const [createdRow, setCreatedRow] = useState<any>(dummyLessonLabData);
 
   useEffect(() => {
-    let formatedDeviceData = deviceData.map((x: IDeviceType) => {
-      let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
+    let formatedLessonLabData = lessonLabData.map((x: ILessonLabType) => {
+      let SubjectInfoIdx = subjectData.findIndex(y => y.SubjectId === x.SubjectId);
       return {
         ...x,
-        "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
+        "SubjectName": SubjectInfoIdx > -1 ? subjectData[SubjectInfoIdx].SubjectName : ""
       }
     })
-    setTableData(formatedDeviceData);
-  }, [deviceData])
+    setTableData(formatedLessonLabData);
+  }, [lessonLabData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<IDeviceType>,
-    ): MRT_ColumnDef<IDeviceType>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<ILessonLabType>,
+    ): MRT_ColumnDef<ILessonLabType>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
@@ -68,51 +69,16 @@ const DeviceTable: FC = () => {
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<IDeviceType>[]>(
+  const columns = useMemo<MRT_ColumnDef<ILessonLabType>[]>(
     () => [
       {
-        accessorKey: 'DeviceName',
-        header: 'Tên thiết bị',
-        size: 140,
+        accessorKey: 'LessonName',
+        header: 'Tên bài thí nghiệm',
+        size: 100,
       },
       {
-        accessorKey: 'DeviceType',
-        header: 'Loại thiết bị',
-        size: 140,
-      },
-      {
-        accessorKey: 'Model',
-        header: 'Mẫu',
-        size: 140,
-      },
-      {
-        accessorKey: 'Origin',
-        header: 'Xuất xứ',
-        size: 140,
-      },
-      {
-        accessorKey: 'Unit',
-        header: 'Đơn vị',
-        size: 140,
-      },
-      {
-        accessorKey: 'Standard',
-        header: 'Tiêu chuẩn',
-        size: 140,
-      },
-      {
-        accessorKey: 'Quantity',
-        header: 'Số lượng',
-        size: 140,
-      },
-      // {
-      //   accessorKey: 'HasTrain',
-      //   header: 'Đã tập huấn',
-      //   size: 140,
-      // },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
+        accessorKey: 'SubjectName',
+        header: 'Tên môn học',
         size: 140,
       },
     ],
@@ -125,27 +91,20 @@ const DeviceTable: FC = () => {
   }
 
   const onCloseEditModal = () => {
-    setUpdatedRow(dummyDeviceData);
+    setUpdatedRow(dummyLessonLabData);
     setIsEditModal(false);
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateDevice({
-      "DeviceId": updatedRow.DeviceId,
-      "DeviceName": updatedRow.DeviceName,
-      "DeviceType": updatedRow.DeviceType,
-      "Model": updatedRow.Model,
-      "Origin": updatedRow.Origin,
-      "Unit": updatedRow.Unit,
-      "Standard": updatedRow.Standard,
-      "Quantity": updatedRow.Quantity,
-      "HasTrain": updatedRow.HasTrain,
-      "ManufacturerId": updatedRow.ManufacturerId
+    const isUpdatedSuccess = await updateLessonLab({
+      "LessonId": updatedRow.LessonId,
+      "LessonName": updatedRow.LessonName,
+      "SubjectId": updatedRow.SubjectId,
     });
     if (isUpdatedSuccess) {
-      let updatedIdx = deviceData.findIndex(x => x.DeviceId === updatedRow.DeviceId);
-      let newListOfDevices = [...deviceData.slice(0, updatedIdx), updatedRow, ...deviceData.slice(updatedIdx + 1,)]
-      dispatch(setListOfDevices(newListOfDevices));
+      let updatedIdx = lessonLabData.findIndex(x => x.LessonId === updatedRow.LessonId);
+      let newListOfLessonLabs = [...lessonLabData.slice(0, updatedIdx), updatedRow, ...lessonLabData.slice(updatedIdx + 1,)]
+      dispatch(setListOfLessonLabs(newListOfLessonLabs));
     }
 
     onCloseEditModal();
@@ -157,16 +116,16 @@ const DeviceTable: FC = () => {
   }
 
   const onCloseDeleteModal = () => {
-    setDeletedRow(dummyDeviceData);
+    setDeletedRow(dummyLessonLabData);
     setIsDeleteModal(false);
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteDevice(deletedRow.DeviceId);
+    await deleteLessonLab(deletedRow.LessonLabId);
 
-    let deletedIdx = deviceData.findIndex(x => x.DeviceId === deletedRow.DeviceId);
-    let newListOfDevices = [...deviceData.slice(0, deletedIdx), ...deviceData.slice(deletedIdx + 1,)]
-    dispatch(setListOfDevices(newListOfDevices));
+    let deletedIdx = lessonLabData.findIndex((x: ILessonLabType) => x.LessonId === deletedRow.LessonId);
+    let newListOfLessonLabs = [...lessonLabData.slice(0, deletedIdx), ...lessonLabData.slice(deletedIdx + 1,)]
+    dispatch(setListOfLessonLabs(newListOfLessonLabs));
 
     onCloseDeleteModal();
   }
@@ -176,27 +135,20 @@ const DeviceTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setCreatedRow(dummyDeviceData);
+    setCreatedRow(dummyLessonLabData);
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdDevice = await postDevice({
-      "DeviceName": createdRow.DeviceName,
-      "DeviceType": createdRow.DeviceType,
-      "Model": createdRow.Model,
-      "Origin": createdRow.Origin,
-      "Unit": createdRow.Unit,
-      "Standard": createdRow.Standard,
-      "Quantity": createdRow.Quantity,
-      "HasTrain": createdRow.HasTrain,
-      "ManufacturerId": createdRow.ManufacturerId
+    const createdLessonLab = await postLessonLab({
+      "LessonName": createdRow.LessonName,
+      "SubjectId": createdRow.SubjectId,
     })
 
-    if (createdDevice) {
-      const newListOfDevices: IDeviceType[] = await getDevices();
-      if (newListOfDevices) {
-        dispatch(setListOfDevices(newListOfDevices));
+    if (createdLessonLab) {
+      const newListOfLessonLabs: ILessonLabType[] = await getLessonLabs();
+      if (newListOfLessonLabs) {
+        dispatch(setListOfLessonLabs(newListOfLessonLabs));
       }
     }
 
@@ -226,12 +178,12 @@ const DeviceTable: FC = () => {
         }}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip arrow placement="left" title="Sửa thông tin thiết bị">
+            <Tooltip arrow placement="left" title="Sửa thông tin bài thí nghiệm">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
-            <Tooltip arrow placement="right" title="Xoá thông tin thiết bị">
+            <Tooltip arrow placement="right" title="Xoá thông tin bài thí nghiệm">
               <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
                 <Delete />
               </IconButton>
@@ -239,7 +191,7 @@ const DeviceTable: FC = () => {
           </Box>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Tooltip title="Tạo thiết bị mới" placement="right-start">
+          <Tooltip title="Tạo bài thí nghiệm mới" placement="right-start">
             <Button
               color="primary"
               onClick={handleOpenCreateModal}
@@ -253,7 +205,7 @@ const DeviceTable: FC = () => {
       />
 
       <Dialog open={isEditModal}>
-        <DialogTitle textAlign="center"><b>Sửa thông tin thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Sửa thông tin bài thí nghiệm</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -264,24 +216,24 @@ const DeviceTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
-                if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
+                const subjectOptions: string[] = subjectData.map(x => x.SubjectName.toString());
+                if (column.id === "SubjectName" && subjectData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="manufacturer-select-required-label">Nhà sản xuất</InputLabel>
+                    <InputLabel id="subject-select-required-label">Môn học</InputLabel>
                     <Select
-                      labelId="manufacturer-select-required-label"
-                      id="manufacturer-select-required"
-                      value={manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId) > -1 ?
-                        manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId).toString() : ""}
-                      label="Nhà sản xuất"
+                      labelId="subject-select-required-label"
+                      id="subject-select-required"
+                      value={subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId) > -1 ?
+                        subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId).toString() : ""}
+                      label="Môn học"
                       onChange={(e: SelectChangeEvent) =>
                         setUpdatedRow({
                           ...updatedRow,
-                          "ManufacturerName": manufacturersData[Number(e.target.value)].Name,
-                          "ManufacturerId": manufacturersData[Number(e.target.value)].ManufacturerId
+                          "SubjectName": subjectData[Number(e.target.value)].SubjectName,
+                          "SubjectId": subjectData[Number(e.target.value)].SubjectId
                         })}
                     >
-                      {manufacturerOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                      {subjectOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
                 }
@@ -310,9 +262,9 @@ const DeviceTable: FC = () => {
       </Dialog>
 
       <Dialog open={isDeleteModal}>
-        <DialogTitle textAlign="center"><b>Xoá thông tin thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Xoá thông tin bài thí nghiệm</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin thiết bị {`${deletedRow.DeviceName}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin bài thí nghiệm {`${deletedRow.Name}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Huỷ</Button>
@@ -323,7 +275,7 @@ const DeviceTable: FC = () => {
       </Dialog>
 
       <Dialog open={isCreateModal}>
-        <DialogTitle textAlign="center"><b>Tạo thông tin thiết bị</b></DialogTitle>
+        <DialogTitle textAlign="center"><b>Tạo thông tin bài thí nghiệm</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
             <Stack
@@ -334,25 +286,24 @@ const DeviceTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
-
-                if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
+                const subjectOptions: string[] = subjectData.map(x => x.SubjectName.toString());
+                if (column.id === "SubjectName" && subjectData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="manufacturer-select-required-label">Nhà sản xuất</InputLabel>
+                    <InputLabel id="subject-select-required-label">Môn học</InputLabel>
                     <Select
-                      labelId="manufacturer-select-required-label"
-                      id="manufacturer-select-required"
-                      value={manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId) > -1 ?
-                        manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId).toString() : ""}
-                      label="Nhà sản xuất"
+                      labelId="subject-select-required-label"
+                      id="subject-select-required"
+                      value={subjectData.findIndex(x => x.SubjectId === createdRow.SubjectId) > -1 ?
+                        subjectData.findIndex(x => x.SubjectId === createdRow.SubjectId).toString() : ""}
+                      label="Môn học"
                       onChange={(e: SelectChangeEvent) =>
                         setCreatedRow({
                           ...createdRow,
-                          "ManufacturerName": manufacturersData[Number(e.target.value)].Name,
-                          "ManufacturerId": manufacturersData[Number(e.target.value)].ManufacturerId
+                          "SubjectName": subjectData[Number(e.target.value)].SubjectName,
+                          "SubjectId": subjectData[Number(e.target.value)].SubjectId
                         })}
                     >
-                      {manufacturerOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                      {subjectOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
                 }
@@ -385,4 +336,4 @@ const DeviceTable: FC = () => {
   );
 };
 
-export default DeviceTable;
+export default LessonLabTable;

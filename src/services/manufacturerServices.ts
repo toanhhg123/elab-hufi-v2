@@ -24,8 +24,8 @@ export const getManufacturersById = async (id: Number) => {
 	return manufacturer;
 }
 
-export const updateManufacturer = async (id: Number, updatedData: IManufacturerType) => {    
-    const url = `${API_ENDPOINT}/api/manufacturers/${id}`;
+export const updateManufacturer = async (updatedData: IManufacturerType) => {    
+    const url = `${API_ENDPOINT}/api/manufacturers/${updatedData?.ManufacturerId}`;
 	const manufacturer: IManufacturerType = await API.put<IManufacturerType, IManufacturerType>(url, updatedData);
 	return manufacturer;
 }

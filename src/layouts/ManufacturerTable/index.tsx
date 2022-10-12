@@ -97,7 +97,7 @@ const ManufacturersTable: FC = () => {
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateManufacturer(updatedRow.ManufacturerId, updatedRow);
+    const isUpdatedSuccess = await updateManufacturer(updatedRow);
     if (isUpdatedSuccess) {
       let updatedIdx = manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId);
       let newListOfManufacturers = [...manufacturersData.slice(0, updatedIdx), updatedRow, ...manufacturersData.slice(updatedIdx + 1,)]
@@ -144,9 +144,9 @@ const ManufacturersTable: FC = () => {
       "Address": createdRow.Address,
       "Status": createdRow.Status
     })
-    if(createdManufacturer){
+    if (createdManufacturer) {
       const newListOfManufacturers: IManufacturerType[] = await getManufacturers();
-      if(newListOfManufacturers){
+      if (newListOfManufacturers) {
         dispatch(setListOfManufacturers(newListOfManufacturers));
       }
     }
@@ -214,23 +214,15 @@ const ManufacturersTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                column.id === "ManufacturerId" ?
-                  <TextField
-                    disabled
-                    key="ManufacturerId"
-                    label="ManufacturerId"
-                    name="ManufacturerId"
-                    defaultValue={updatedRow["ManufacturerId"]}
-                  /> :
-                  <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                    }
-                  />
+                <TextField
+                  key={column.accessorKey}
+                  label={column.header}
+                  name={column.accessorKey}
+                  defaultValue={column.id && updatedRow[column.id]}
+                  onChange={(e) =>
+                    setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
+                  }
+                />
               ))}
 
             </Stack>
@@ -269,15 +261,15 @@ const ManufacturersTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                  <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                    }
-                  />
+                <TextField
+                  key={column.accessorKey}
+                  label={column.header}
+                  name={column.accessorKey}
+                  defaultValue={column.id && updatedRow[column.id]}
+                  onChange={(e) =>
+                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                  }
+                />
               ))}
 
             </Stack>

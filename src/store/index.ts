@@ -11,6 +11,7 @@ import supplierReducer from "../layouts/SupplierTable/supplierSlice"
 import deviceReducer from "../layouts/DeviceTable/deviceSlice"
 import subjectReducer from "../layouts/SubjectTable/subjectSlice"
 import classSubjectReducer from "../layouts/ClassSubjectTable/classSubjectSlice"
+import lessonLabReducer from "../layouts/LessonLabTable/lessonLabSlice"
 
 export const store = configureStore({
   reducer: {
@@ -25,7 +26,8 @@ export const store = configureStore({
     supplier: supplierReducer,
     device: deviceReducer,
     subject: subjectReducer,
-    classSubject: classSubjectReducer
+    classSubject: classSubjectReducer,
+    lessonLab: lessonLabReducer
   },
 })
 
