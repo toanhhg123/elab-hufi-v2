@@ -8,8 +8,7 @@ import { Counter } from "../layouts/Counter";
 import InstrumentTable from '../layouts/Counter/InstrumentTable';
 import DepartmentTable from '../layouts/DepartmentTable';
 import { setListOfDepartments } from '../layouts/DepartmentTable/departmentSlice';
-import DeviceSpecTable from '../layouts/DeviceSpecTable';
-import { setListOfDeviceSpecs } from '../layouts/DeviceSpecTable/deviceSpecSlice';
+import { setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import DeviceTable from '../layouts/DeviceTable';
 import { setListOfDevices } from '../layouts/DeviceTable/deviceSlice';
 import EmployeeTable from '../layouts/EmployeeTable';
@@ -27,8 +26,7 @@ import { setListOfSuppliers } from '../layouts/SupplierTable/supplierSlice';
 import { getChemicals } from '../services/chemicalServices';
 import { getClassSubjects } from '../services/clasSubjectServices';
 import { getDepartments } from '../services/departmentServices';
-import { getDevices } from '../services/deviceServices';
-import { getDeviceSpec } from '../services/deviceSpecServices';
+import { getDevices, getDeviceSpec } from '../services/deviceServices';
 import { getEmployees } from '../services/employeeServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
@@ -39,8 +37,7 @@ import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
 import { IClassSubjectType } from '../types/classSubjectType';
 import { IDepartmentType } from '../types/departmentType';
-import { IDeviceSpecType } from '../types/deviceSpecType';
-import { IDeviceType } from '../types/deviceType';
+import { IDeviceType, IDeviceSpecType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
@@ -53,7 +50,7 @@ import { setSnackbarMessage } from './appSlice';
 
 export function Dashboard() {
     const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
-    const deviceSpecData = useAppSelector((state: RootState) => state.deviceSpecs.listOfDeviceSpecs);
+    const deviceSpecData = useAppSelector((state: RootState) => state.device.listOfDeviceSpecs);
     const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
     const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
     const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
@@ -182,11 +179,10 @@ export function Dashboard() {
                 {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
                 {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
                 {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-                {sidebarItems[6].isOpen && deviceData?.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
-                {sidebarItems[7].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
-                {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
-                {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-                {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
+                {sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
+                {sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+                {sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
             </div>
             <Snackbar
                 anchorOrigin={{

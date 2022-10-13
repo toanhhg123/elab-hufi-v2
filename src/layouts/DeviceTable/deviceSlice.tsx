@@ -1,16 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../../store'
-import { IDeviceType } from '../../types/deviceType'
+import { IDeviceType, IDeviceSpecType } from '../../types/deviceType'
 
 // Define a type for the slice state
 interface IDeviceState {
   listOfDevices: IDeviceType[],
+  listOfDeviceSpecs: IDeviceSpecType[],
 }
 
 // Define the initial state using that type
 const initialState: IDeviceState = {
-    listOfDevices: []
+    listOfDevices: [],
+    listOfDeviceSpecs: []
 }
 
 export const supplierSlice = createSlice({
@@ -20,9 +22,12 @@ export const supplierSlice = createSlice({
     setListOfDevices: (state: IDeviceState, action: PayloadAction<IDeviceType[]>) => {
       state.listOfDevices = action.payload
     },
+    setListOfDeviceSpecs: (state: IDeviceState, action: PayloadAction<IDeviceSpecType[]>) => {
+      state.listOfDeviceSpecs = action.payload
+    },
   },
 })
 
-export const { setListOfDevices } = supplierSlice.actions
+export const { setListOfDevices, setListOfDeviceSpecs } = supplierSlice.actions
 
 export default supplierSlice.reducer

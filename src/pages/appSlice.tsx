@@ -61,11 +61,6 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý thông số TB",
-    "icon": ""
-  },
-  {
-    "isOpen": false,
     "name": "Quản lý môn học",
     "icon": ""
   },

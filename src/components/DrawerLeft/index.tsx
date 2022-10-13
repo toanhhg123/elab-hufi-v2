@@ -18,6 +18,7 @@ import HufiLogoExtended from '../../assets/img/logo-hufi-extended.png';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import { defaultSidebarItems, setIsOpenDrawer, setSidebarItems } from '../../pages/appSlice';
+import { Tooltip } from '@mui/material';
 
 const drawerWidth = 240;
 
@@ -72,7 +73,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 export default function PersistentDrawerLeft() {
   const dispatch = useAppDispatch()
   const theme = useTheme();
-  const isOpenDrawer: boolean = useAppSelector((state: RootState) => state.app.isOpenDrawer)
+  const { isOpenDrawer, sidebarItems } = useAppSelector((state: RootState) => state.app);
+
 
   const handleDrawerClose = () => {
     dispatch(setIsOpenDrawer(false));
@@ -92,52 +94,104 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List>
-          {defaultSidebarItems.slice(0, 8).map((item, index) => (
+          {defaultSidebarItems.slice(0, 7).map((item, index) => (
             <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: isOpenDrawer ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
+              {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
+                <ListItemButton
                   sx={{
-                    minWidth: 0,
-                    mr: isOpenDrawer ? 3 : 'auto',
-                    justifyContent: 'center',
+                    minHeight: 48,
+                    justifyContent: isOpenDrawer ? 'initial' : 'center',
+                    px: 2.5,
                   }}
+                  style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
+                  onClick={() => { dispatch(setSidebarItems(index)) }}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={item.name} sx={{ opacity: isOpenDrawer ? 1 : 0 }} onClick={() => {dispatch(setSidebarItems(index))}} />
-              </ListItemButton>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: isOpenDrawer ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { dispatch(setSidebarItems(index)) }} />
+                </ListItemButton>
+              </Tooltip>
+                :
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: isOpenDrawer ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                  style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
+                  onClick={() => { dispatch(setSidebarItems(index)) }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: isOpenDrawer ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { dispatch(setSidebarItems(index)) }} />
+                </ListItemButton>
+              }
             </ListItem>
           ))}
         </List>
         <Divider />
 
         <List>
-          {defaultSidebarItems.slice(8, ).map((item, index) => (
+          {defaultSidebarItems.slice(7,).map((item, index) => (
             <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: isOpenDrawer ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
+              {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
+                <ListItemButton
                   sx={{
-                    minWidth: 0,
-                    mr: isOpenDrawer ? 3 : 'auto',
-                    justifyContent: 'center',
+                    minHeight: 48,
+                    justifyContent: isOpenDrawer ? 'initial' : 'center',
+                    px: 2.5,
                   }}
+                  style={{ "backgroundColor": sidebarItems[7 + index].isOpen ? "#DEE1E6" : "white" }}
+                  onClick={() => { dispatch(setSidebarItems(7 + index)) }}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={item.name} sx={{ opacity: isOpenDrawer ? 1 : 0 }} onClick={() => {dispatch(setSidebarItems(index + 8))}} />
-              </ListItemButton>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: isOpenDrawer ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { dispatch(setSidebarItems(index + 7)) }} />
+                </ListItemButton>
+              </Tooltip>
+                :
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: isOpenDrawer ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                  style={{ "backgroundColor": sidebarItems[7 + index].isOpen ? "#DEE1E6" : "white" }}
+                  onClick={() => { dispatch(setSidebarItems(7 + index)) }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: isOpenDrawer ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  </ListItemIcon>
+                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { dispatch(setSidebarItems(index + 7)) }} />
+                </ListItemButton>
+              }
             </ListItem>
           ))}
         </List>
