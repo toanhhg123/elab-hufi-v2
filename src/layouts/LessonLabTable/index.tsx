@@ -27,6 +27,7 @@ import { deleteLessonLab, getLessonLabs, postLessonLab, updateLessonLab } from '
 import { RootState } from '../../store';
 import { setListOfLessonLabs } from './lessonLabSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const LessonLabTable: FC = () => {
   const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
@@ -189,6 +190,14 @@ const LessonLabTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin bài thí nghiệm</span>
+          </h3>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo bài thí nghiệm mới" placement="right-start">

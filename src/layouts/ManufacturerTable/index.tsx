@@ -22,6 +22,7 @@ import { deleteManufacturer, getManufacturers, postManufacturer, updateManufactu
 import { RootState } from '../../store';
 import { setListOfManufacturers } from './manufacturerSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const ManufacturersTable: FC = () => {
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
@@ -187,6 +188,14 @@ const ManufacturersTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin nhà sản xuất</span>
+          </h3>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo nhà sản xuất mới" placement="right-start">

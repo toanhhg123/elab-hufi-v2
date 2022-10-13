@@ -27,6 +27,7 @@ import { deleteSubject, getSubjects, postSubject, updateSubject } from '../../se
 import { RootState } from '../../store';
 import { setListOfSubjects } from './subjectSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const SubjectTable: FC = () => {
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
@@ -201,6 +202,14 @@ const SubjectTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin môn học</span>
+          </h3>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo môn học mới" placement="right-start">

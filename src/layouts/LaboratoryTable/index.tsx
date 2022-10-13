@@ -23,6 +23,8 @@ import { deleteLaboratory, getLaboratories, postLaboratory, updateLaboratory } f
 import { RootState } from '../../store';
 import { setListOfLaboratories } from './laboratorySlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const LaboratoryTable: FC = () => {
   const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -90,6 +92,7 @@ const LaboratoryTable: FC = () => {
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updateLaboratory(updatedRow.LabId, updatedRow);
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin phòng lab thành công"));
       let updatedIdx = laboratoriesData.findIndex(x => x.LabId === updatedRow.LabId);
       let newListOfLabs = [...laboratoriesData.slice(0, updatedIdx), updatedRow, ...laboratoriesData.slice(updatedIdx + 1,)]
       dispatch(setListOfLaboratories(newListOfLabs));
@@ -110,7 +113,7 @@ const LaboratoryTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteLaboratory(deletedRow.LabId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin phòng lab thành công"));
     let deletedIdx = laboratoriesData.findIndex(x => x.LabId === deletedRow.LabId);
     let newListOfLabs = [...laboratoriesData.slice(0, deletedIdx), ...laboratoriesData.slice(deletedIdx + 1,)]
     dispatch(setListOfLaboratories(newListOfLabs));
@@ -136,6 +139,7 @@ const LaboratoryTable: FC = () => {
     if (createdLab) {
       const newListOfLaboratories: ILaboratoryType[] = await getLaboratories();
       if (newListOfLaboratories) {
+        dispatch(setSnackbarMessage("Tạo thông tin phòng lab mới thành công"));
         dispatch(setListOfLaboratories(newListOfLaboratories));
       }
     }
@@ -163,6 +167,14 @@ const LaboratoryTable: FC = () => {
         initialState={{
           density: 'compact',
         }}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin phòng lab</span>
+          </h3>
+        )}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin Lab">

@@ -27,6 +27,7 @@ import { deleteClassSubject, getClassSubjects, postClassSubject, updateClassSubj
 import { RootState } from '../../store';
 import { setListOfClassSubjects } from './classSubjectSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const ClassSubjectTable: FC = () => {
   const classSubjectData = useAppSelector((state: RootState) => state.classSubject.listOfClassSubjects);
@@ -209,6 +210,14 @@ const ClassSubjectTable: FC = () => {
         initialState={{
           density: 'compact',
         }}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin lớp học phần</span>
+          </h3>
+        )}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin lớp học phần">

@@ -1,15 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
+interface ISnackbarMessage {
+  isOpen: boolean,
+  message: string
+}
+
+export const defaultSnackbarMessage: ISnackbarMessage = {
+  isOpen: false,
+  message: ""
+}
+
 interface ISidebarItem {
   isOpen: boolean,
   name: String,
   icon: String
 }
 
-interface AppState {
+interface IAppState {
   isOpenDrawer: boolean,
-  sidebarItems: ISidebarItem[]
+  sidebarItems: ISidebarItem[],
+  snackbarState: ISnackbarMessage
 }
 
 export const defaultSidebarItems: ISidebarItem[] = [
@@ -71,9 +82,10 @@ export const defaultSidebarItems: ISidebarItem[] = [
 ]
 
 // Define the initial state using that type
-const initialState: AppState = {
+const initialState: IAppState = {
   isOpenDrawer: false,
-  sidebarItems: defaultSidebarItems
+  sidebarItems: defaultSidebarItems,
+  snackbarState: defaultSnackbarMessage
 }
 
 export const appSlice = createSlice({
@@ -81,13 +93,13 @@ export const appSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    setIsOpenDrawer: (state: AppState, action: PayloadAction<boolean>) => {
+    setIsOpenDrawer: (state: IAppState, action: PayloadAction<boolean>) => {
       return {
         ...state,
         isOpenDrawer: action.payload
       }
     },
-    setSidebarItems: (state: AppState, action: PayloadAction<Number>) => {
+    setSidebarItems: (state: IAppState, action: PayloadAction<Number>) => {
       let newSidebarItems: ISidebarItem[] = state.sidebarItems.map((item: ISidebarItem, idx) => {
         if (idx === action.payload) {
           return {
@@ -107,9 +119,18 @@ export const appSlice = createSlice({
         sidebarItems: newSidebarItems
       };
     },
+    setSnackbarMessage: (state: IAppState, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        snackbarState: {
+          isOpen: action.payload ? true : false,
+          message: action.payload ? action.payload : ""
+        }
+      }
+    },
   }
 })
 
-export const { setIsOpenDrawer, setSidebarItems } = appSlice.actions
+export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems } = appSlice.actions
 
 export default appSlice.reducer

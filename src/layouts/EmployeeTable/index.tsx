@@ -31,6 +31,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Genders } from '../../configs/enums';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const EmployeeTable: FC = () => {
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
@@ -235,6 +236,14 @@ const EmployeeTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin nhân viên</span>
+          </h3>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo nhân viên mới" placement="right-start">

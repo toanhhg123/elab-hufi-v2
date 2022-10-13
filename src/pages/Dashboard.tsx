@@ -47,7 +47,9 @@ import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
+import Snackbar from '@mui/material/Snackbar';
 import './Dashboard.css';
+import { setSnackbarMessage } from './appSlice';
 
 export function Dashboard() {
     const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -61,7 +63,7 @@ export function Dashboard() {
     const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
     const classSubjectData = useAppSelector((state: RootState) => state.classSubject.listOfClassSubjects);
     const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
-
+    const snackbarState = useAppSelector((state: RootState) => state.app.snackbarState);
     const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
     const dispatch = useAppDispatch();
@@ -157,20 +159,45 @@ export function Dashboard() {
         getLessonLabData();
     }, [])
 
+    const snackbarFunc = () => setTimeout(() => {
+        dispatch((setSnackbarMessage("")));
+    }, 1000)
+
+    useEffect(() => {
+        if (snackbarState.isOpen) {
+            snackbarFunc();
+        }
+        return () => {
+            clearTimeout(snackbarFunc());
+        }
+    }, [snackbarState.isOpen])
+
     return (
-        <div className="home">
-            {/* <InstrumentTable/> */}
-            {sidebarItems[0].isOpen && laboratoriesData?.length > 0 && <LaboratoryTable />}
-            {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
-            {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
-            {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-            {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
-            {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-            {sidebarItems[6].isOpen && deviceData?.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
-            {sidebarItems[7].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
-            {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
-            {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-            {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
-        </div>
+        <>
+            <div className="home">
+                {/* <InstrumentTable/> */}
+                {sidebarItems[0].isOpen && laboratoriesData?.length > 0 && <LaboratoryTable />}
+                {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
+                {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
+                {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
+                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
+                {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
+                {sidebarItems[6].isOpen && deviceData?.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
+                {sidebarItems[7].isOpen && deviceSpecData?.length > 0 && <DeviceSpecTable />}
+                {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
+                {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+                {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+            </div>
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                open={snackbarState.isOpen}
+                // onClose={handleClose}
+                message={snackbarState.message}
+                key='bottomRight'
+            />
+        </>
     )
 }

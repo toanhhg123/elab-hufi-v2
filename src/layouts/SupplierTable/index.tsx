@@ -22,6 +22,7 @@ import { deleteSupplier, getSuppliers, postSupplier, updateSupplier } from '../.
 import { RootState } from '../../store';
 import { setListOfSuppliers } from './supplierSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const SupplierTable: FC = () => {
   const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
@@ -195,6 +196,14 @@ const SupplierTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin cung cấp</span>
+          </h3>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo nhà cung cấp mới" placement="right-start">

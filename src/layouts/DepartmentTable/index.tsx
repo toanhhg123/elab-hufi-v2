@@ -22,6 +22,7 @@ import { deleteDepartment, getDepartments, postDepartment, updateDepartment } fr
 import { RootState } from '../../store';
 import { setListOfDepartments } from './departmentSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const DepartmentTable: FC = () => {
   const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
@@ -157,6 +158,14 @@ const DepartmentTable: FC = () => {
         initialState={{
           density: 'compact',
         }}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin phòng ban</span>
+          </h3>
+        )}
         renderRowActions={({ row, table }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement="left" title="Sửa thông tin phòng ban">
@@ -273,7 +282,6 @@ const DepartmentTable: FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </>
   );
 };

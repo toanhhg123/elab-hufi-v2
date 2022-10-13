@@ -27,6 +27,7 @@ import { deleteChemical, getChemicals, postChemical, updateChemical } from '../.
 import { RootState } from '../../store';
 import { setListOfChemicals } from './chemicalSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const ChemicalTable: FC = () => {
   const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
@@ -222,7 +223,14 @@ const ChemicalTable: FC = () => {
             </Tooltip>
           </Box>
         )}
-
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin hoá chất</span>
+          </h3>
+        )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo hoá chất mới" placement="right-start">
             <Button

@@ -27,6 +27,7 @@ import { deleteDevice, getDevices, postDevice, updateDevice } from '../../servic
 import { RootState } from '../../store';
 import { setListOfDevices } from './deviceSlice';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const DeviceTable: FC = () => {
   const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
@@ -243,6 +244,14 @@ const DeviceTable: FC = () => {
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <h3 style={{ "margin": "0px" }}>
+            <b><KeyboardArrowRightIcon
+              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+            ></KeyboardArrowRightIcon></b>
+            <span>Thông tin thiết bị</span>
+          </h3>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo thiết bị mới" placement="right-start">
