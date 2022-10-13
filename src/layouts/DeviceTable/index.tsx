@@ -71,49 +71,54 @@ const DeviceTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IDeviceType>[]>(
     () => [
       {
+        accessorKey: 'DeviceId',
+        header: 'Id thiết bị',
+        size: 100,
+      },
+      {
         accessorKey: 'DeviceName',
         header: 'Tên thiết bị',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'DeviceType',
         header: 'Loại thiết bị',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Model',
         header: 'Mẫu',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Origin',
         header: 'Xuất xứ',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Unit',
         header: 'Đơn vị',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Standard',
         header: 'Tiêu chuẩn',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Quantity',
         header: 'Số lượng',
-        size: 140,
+        size: 100,
       },
       // {
       //   accessorKey: 'HasTrain',
       //   header: 'Đã tập huấn',
-      //   size: 140,
+      //   size: 100,
       // },
       {
         accessorKey: 'ManufacturerName',
         header: 'Nhà sản xuất',
-        size: 140,
+        size: 100,
       },
     ],
     [getCommonEditTextFieldProps],
@@ -182,6 +187,7 @@ const DeviceTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdDevice = await postDevice({
+      "DeviceId": createdRow.DeviceId,
       "DeviceName": createdRow.DeviceName,
       "DeviceType": createdRow.DeviceType,
       "Model": createdRow.Model,
@@ -284,6 +290,17 @@ const DeviceTable: FC = () => {
                       {manufacturerOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
+                } else if (column.id === "DeviceId") {
+                  return <TextField
+                    disabled
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
+                    }
+                  />
                 }
                 else {
                   return <TextField

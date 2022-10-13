@@ -182,6 +182,7 @@ const EmployeeTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdEmployee = await postEmployee({
+      "EmployeeID": createdRow.EmployeeID,
       "Fullname": createdRow.Fullname,
       "Birthday": createdRow.Birthday,
       "Gender": createdRow.Gender,
@@ -371,7 +372,7 @@ const EmployeeTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.slice(1,).map((column) => {
+              {columns.map((column) => {
                 if (column.id === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker

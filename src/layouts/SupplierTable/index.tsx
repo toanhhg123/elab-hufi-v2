@@ -82,11 +82,11 @@ const SupplierTable: FC = () => {
         header: 'Trạng thái',
         size: 140,
       },
-      {
-        accessorKey: 'PurchaseOrders',
-        header: 'Đơn mua hàng',
-        size: 140,
-      },
+      // {
+      //   accessorKey: 'PurchaseOrders',
+      //   header: 'Đơn mua hàng',
+      //   size: 140,
+      // },
     ],
     [getCommonEditTextFieldProps],
   );

@@ -71,6 +71,11 @@ const ChemicalTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IChemicalType>[]>(
     () => [
       {
+        accessorKey: 'ChemicalId',
+        header: 'Id hoá chất',
+        size: 100,
+      },
+      {
         accessorKey: 'ChemicalName',
         header: 'Tên hoá chất',
         size: 100,
@@ -78,27 +83,27 @@ const ChemicalTable: FC = () => {
       {
         accessorKey: 'Specifications',
         header: 'Thông số',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Origin',
         header: 'Nguồn gốc',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Unit',
         header: 'Đơn vị',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'Amount',
         header: 'Số lượng',
-        size: 140,
+        size: 100,
       },
       {
         accessorKey: 'ManufacturerName',
         header: 'Nhà sản xuất',
-        size: 140,
+        size: 100,
       },
     ],
     [getCommonEditTextFieldProps],
@@ -120,7 +125,7 @@ const ChemicalTable: FC = () => {
       "ChemicalName": updatedRow.ChemicalName,
       "Specifications": updatedRow.Specifications,
       "Origin": updatedRow.Origin,
-      "Unit": updatedRow.Unint,
+      "Unit": updatedRow.Unit,
       "Amount": updatedRow.Amount,
       "ManufacturerId": updatedRow.ManufacturerId
     });
@@ -164,10 +169,11 @@ const ChemicalTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdChemical = await postChemical({
+      "ChemicalId": createdRow.ChemicalId,
       "ChemicalName": createdRow.ChemicalName,
       "Specifications": createdRow.Specifications,
       "Origin": createdRow.Origin,
-      "Unit": createdRow.Unint,
+      "Unit": createdRow.Unit,
       "Amount": createdRow.Amount,
       "ManufacturerId": createdRow.ManufacturerId
     })
@@ -264,6 +270,17 @@ const ChemicalTable: FC = () => {
                       {manufacturerOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
+                } else if (column.id === "ChemicalId") {
+                  return <TextField
+                    disabled
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
+                    }
+                  />
                 }
                 else {
                   return <TextField

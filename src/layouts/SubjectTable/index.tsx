@@ -72,6 +72,11 @@ const SubjectTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<ISubjectType>[]>(
     () => [
       {
+        accessorKey: 'SubjectId',
+        header: 'Id môn học',
+        size: 100,
+      },
+      {
         accessorKey: 'SubjectName',
         header: 'Tên môn học',
         size: 100,
@@ -147,6 +152,7 @@ const SubjectTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdSubject = await postSubject({
+      "SubjectId": createdRow.SubjectId,
       "SubjectName": createdRow.SubjectName,
       "Credits": createdRow.Credits,
       "DepartmentId": createdRow.DepartmentId

@@ -72,6 +72,11 @@ const ClassSubjectTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IClassSubjectType>[]>(
     () => [
       {
+        accessorKey: 'ClassId',
+        header: 'Id lớp',
+        size: 140,
+      },
+      {
         accessorKey: 'ClassName',
         header: 'Tên lớp',
         size: 140,
@@ -165,6 +170,7 @@ const ClassSubjectTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdClassSubject = await postClassSubject({
+      "ClassId": createdRow.ClassId,
       "ClassName": createdRow.ClassName,
       "NumOfStudent": createdRow.NumOfStudent,
       "TeacherName": createdRow.TeacherName,
@@ -264,6 +270,14 @@ const ClassSubjectTable: FC = () => {
                       {subjectOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
+                } if (column.id === "ClassId") {
+                  return <TextField
+                    disabled
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                  />
                 } else {
                   return <TextField
                     key={column.accessorKey}
