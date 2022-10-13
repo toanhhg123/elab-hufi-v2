@@ -32,6 +32,7 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { Genders } from '../../configs/enums';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const EmployeeTable: FC = () => {
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
@@ -144,6 +145,7 @@ const EmployeeTable: FC = () => {
       "DepartmentId": updatedRow.DepartmentId
     });
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin nhân viên thành công"));
       let updatedIdx = employeeData.findIndex(x => x.EmployeeID === updatedRow.EmployeeID);
       let newListOfEmployees = [...employeeData.slice(0, updatedIdx), updatedRow, ...employeeData.slice(updatedIdx + 1,)]
       dispatch(setListOfEmployees(newListOfEmployees));
@@ -165,7 +167,7 @@ const EmployeeTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteEmployee(deletedRow.EmployeeID);
-
+    dispatch(setSnackbarMessage("Xóa thông tin nhân viên thành công"));
     let deletedIdx = employeeData.findIndex(x => x.EmployeeID === deletedRow.EmployeeID);
     let newListOfEmployees = [...employeeData.slice(0, deletedIdx), ...employeeData.slice(deletedIdx + 1,)]
     dispatch(setListOfEmployees(newListOfEmployees));
@@ -195,6 +197,7 @@ const EmployeeTable: FC = () => {
     if (createdEmployee) {
       const newListOfEmployees: IEmployeeType[] = await getEmployees();
       if (newListOfEmployees) {
+        dispatch(setSnackbarMessage("Tạo thông tin nhân viên mới thành công"));
         dispatch(setListOfEmployees(newListOfEmployees));
       }
     }

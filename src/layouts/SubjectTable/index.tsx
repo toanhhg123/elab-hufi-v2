@@ -28,6 +28,7 @@ import { RootState } from '../../store';
 import { setListOfSubjects } from './subjectSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const SubjectTable: FC = () => {
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
@@ -114,6 +115,7 @@ const SubjectTable: FC = () => {
       "DepartmentId": updatedRow.DepartmentId
     });
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin môn học thành công"));
       let updatedIdx = subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId);
       let newListOfSubjects = [...subjectData.slice(0, updatedIdx), updatedRow, ...subjectData.slice(updatedIdx + 1,)]
       dispatch(setListOfSubjects(newListOfSubjects));
@@ -133,7 +135,7 @@ const SubjectTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteSubject(deletedRow.SubjectId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin môn học thành công"));
     let deletedIdx = subjectData.findIndex((x: ISubjectType) => x.SubjectId === deletedRow.SubjectId);
     let newListOfSubjects = [...subjectData.slice(0, deletedIdx), ...subjectData.slice(deletedIdx + 1,)]
     dispatch(setListOfSubjects(newListOfSubjects));
@@ -162,6 +164,7 @@ const SubjectTable: FC = () => {
     if (createdSubject) {
       const newListOfSubjects: ISubjectType[] = await getSubjects();
       if (newListOfSubjects) {
+        dispatch(setSnackbarMessage("Tạo thông tin môn học mới thành công"));
         dispatch(setListOfSubjects(newListOfSubjects));
       }
     }

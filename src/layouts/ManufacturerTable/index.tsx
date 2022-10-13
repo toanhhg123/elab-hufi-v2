@@ -23,6 +23,7 @@ import { RootState } from '../../store';
 import { setListOfManufacturers } from './manufacturerSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const ManufacturersTable: FC = () => {
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
@@ -100,6 +101,7 @@ const ManufacturersTable: FC = () => {
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updateManufacturer(updatedRow);
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin nhà sản xuất thành công"));
       let updatedIdx = manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId);
       let newListOfManufacturers = [...manufacturersData.slice(0, updatedIdx), updatedRow, ...manufacturersData.slice(updatedIdx + 1,)]
       dispatch(setListOfManufacturers(newListOfManufacturers));
@@ -120,7 +122,7 @@ const ManufacturersTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteManufacturer(deletedRow.ManufacturerId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin nhà sản xuất thành công"));
     let deletedIdx = manufacturersData.findIndex(x => x.ManufacturerId === deletedRow.ManufacturerId);
     let newListOfManufacturers = [...manufacturersData.slice(0, deletedIdx), ...manufacturersData.slice(deletedIdx + 1,)]
     dispatch(setListOfManufacturers(newListOfManufacturers));
@@ -148,6 +150,7 @@ const ManufacturersTable: FC = () => {
     if (createdManufacturer) {
       const newListOfManufacturers: IManufacturerType[] = await getManufacturers();
       if (newListOfManufacturers) {
+        dispatch(setSnackbarMessage("Tạo thông tin nhà sản xuất mới thành công"));
         dispatch(setListOfManufacturers(newListOfManufacturers));
       }
     }

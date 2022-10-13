@@ -23,6 +23,7 @@ import { RootState } from '../../store';
 import { setListOfDepartments } from './departmentSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const DepartmentTable: FC = () => {
   const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
@@ -85,6 +86,7 @@ const DepartmentTable: FC = () => {
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updateDepartment(updatedRow);
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin phòng ban thành công"));
       let updatedIdx = departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId);
       let newListOfDepartments = [...departmentData.slice(0, updatedIdx), updatedRow, ...departmentData.slice(updatedIdx + 1,)]
       dispatch(setListOfDepartments(newListOfDepartments));
@@ -104,7 +106,7 @@ const DepartmentTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteDepartment(deletedRow.DepartmentId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin phòng ban thành công"));
     let deletedIdx = departmentData.findIndex(x => x.DepartmentId === deletedRow.DepartmentId);
     let newListOfDepartments = [...departmentData.slice(0, deletedIdx), ...departmentData.slice(deletedIdx + 1,)]
     dispatch(setListOfDepartments(newListOfDepartments));
@@ -131,6 +133,7 @@ const DepartmentTable: FC = () => {
     if (createdDepartment) {
       const newListOfDepartments: IDepartmentType[] = await getDepartments();
       if (newListOfDepartments) {
+        dispatch(setSnackbarMessage("Tạo thông tin phòng ban mới thành công"));
         dispatch(setListOfDepartments(newListOfDepartments));
       }
     }

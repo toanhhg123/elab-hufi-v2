@@ -28,6 +28,7 @@ import { RootState } from '../../store';
 import { setListOfDevices } from './deviceSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const DeviceTable: FC = () => {
   const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
@@ -149,6 +150,7 @@ const DeviceTable: FC = () => {
       "ManufacturerId": updatedRow.ManufacturerId
     });
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin thiết bị thành công"));
       let updatedIdx = deviceData.findIndex(x => x.DeviceId === updatedRow.DeviceId);
       let newListOfDevices = [...deviceData.slice(0, updatedIdx), updatedRow, ...deviceData.slice(updatedIdx + 1,)]
       dispatch(setListOfDevices(newListOfDevices));
@@ -169,7 +171,7 @@ const DeviceTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteDevice(deletedRow.DeviceId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin thiết bị thành công"));
     let deletedIdx = deviceData.findIndex(x => x.DeviceId === deletedRow.DeviceId);
     let newListOfDevices = [...deviceData.slice(0, deletedIdx), ...deviceData.slice(deletedIdx + 1,)]
     dispatch(setListOfDevices(newListOfDevices));
@@ -203,6 +205,7 @@ const DeviceTable: FC = () => {
     if (createdDevice) {
       const newListOfDevices: IDeviceType[] = await getDevices();
       if (newListOfDevices) {
+        dispatch(setSnackbarMessage("Tạo thông tin thiết bị mới thành công"));
         dispatch(setListOfDevices(newListOfDevices));
       }
     }

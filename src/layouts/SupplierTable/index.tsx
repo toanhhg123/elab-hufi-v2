@@ -23,6 +23,7 @@ import { RootState } from '../../store';
 import { setListOfSuppliers } from './supplierSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const SupplierTable: FC = () => {
   const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
@@ -105,6 +106,7 @@ const SupplierTable: FC = () => {
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updateSupplier(updatedRow);
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin nhà cung cấp thành công"));
       let updatedIdx = supplierData.findIndex(x => x.SupplierId === updatedRow.SupplierId);
       let newListOfSuppliers = [...supplierData.slice(0, updatedIdx), updatedRow, ...supplierData.slice(updatedIdx + 1,)]
       dispatch(setListOfSuppliers(newListOfSuppliers));
@@ -125,7 +127,7 @@ const SupplierTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteSupplier(deletedRow.SupplierId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin nhà cung cấp thành công"));
     let deletedIdx = supplierData.findIndex(x => x.SupplierId === deletedRow.SupplierId);
     let newListOfSuppliers = [...supplierData.slice(0, deletedIdx), ...supplierData.slice(deletedIdx + 1,)]
     dispatch(setListOfSuppliers(newListOfSuppliers));
@@ -155,6 +157,7 @@ const SupplierTable: FC = () => {
     if(createdSupplier){
       const newListOfSuppliers: ISupplierType[] = await getSuppliers();
       if(newListOfSuppliers){
+        dispatch(setSnackbarMessage("Tạo thông tin nhà cung cấp mới thành công"));
         dispatch(setListOfSuppliers(newListOfSuppliers));
       }
     }

@@ -28,6 +28,7 @@ import { RootState } from '../../store';
 import { setListOfChemicals } from './chemicalSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const ChemicalTable: FC = () => {
   const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
@@ -131,6 +132,7 @@ const ChemicalTable: FC = () => {
       "ManufacturerId": updatedRow.ManufacturerId
     });
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin hoá chất thành công"));
       let updatedIdx = chemicalData.findIndex(x => x.ChemicalId === updatedRow.ChemicalId);
       let newListOfChemicals = [...chemicalData.slice(0, updatedIdx), updatedRow, ...chemicalData.slice(updatedIdx + 1,)]
       dispatch(setListOfChemicals(newListOfChemicals));
@@ -151,7 +153,7 @@ const ChemicalTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteChemical(deletedRow.ChemicalId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin hoá chất thành công"));
     let deletedIdx = chemicalData.findIndex(x => x.ChemicalId === deletedRow.ChemicalId);
     let newListOfChemicals = [...chemicalData.slice(0, deletedIdx), ...chemicalData.slice(deletedIdx + 1,)]
     dispatch(setListOfChemicals(newListOfChemicals));
@@ -182,6 +184,7 @@ const ChemicalTable: FC = () => {
     if (createdChemical) {
       const newListOfChemicals: IChemicalType[] = await getChemicals();
       if (newListOfChemicals) {
+        dispatch(setSnackbarMessage("Tạo thông tin hoá chất mới thành công"));
         dispatch(setListOfChemicals(newListOfChemicals));
       }
     }

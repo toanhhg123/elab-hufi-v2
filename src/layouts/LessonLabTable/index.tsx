@@ -28,6 +28,7 @@ import { RootState } from '../../store';
 import { setListOfLessonLabs } from './lessonLabSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const LessonLabTable: FC = () => {
   const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
@@ -103,6 +104,7 @@ const LessonLabTable: FC = () => {
       "SubjectId": updatedRow.SubjectId,
     });
     if (isUpdatedSuccess) {
+      dispatch(setSnackbarMessage("Cập nhật thông tin bài thí nghiệm thành công"));
       let updatedIdx = lessonLabData.findIndex(x => x.LessonId === updatedRow.LessonId);
       let newListOfLessonLabs = [...lessonLabData.slice(0, updatedIdx), updatedRow, ...lessonLabData.slice(updatedIdx + 1,)]
       dispatch(setListOfLessonLabs(newListOfLessonLabs));
@@ -123,7 +125,7 @@ const LessonLabTable: FC = () => {
 
   const handleSubmitDeleteModal = async () => {
     await deleteLessonLab(deletedRow.LessonLabId);
-
+    dispatch(setSnackbarMessage("Xóa thông tin bài thí nghiệm thành công"));
     let deletedIdx = lessonLabData.findIndex((x: ILessonLabType) => x.LessonId === deletedRow.LessonId);
     let newListOfLessonLabs = [...lessonLabData.slice(0, deletedIdx), ...lessonLabData.slice(deletedIdx + 1,)]
     dispatch(setListOfLessonLabs(newListOfLessonLabs));
@@ -149,6 +151,7 @@ const LessonLabTable: FC = () => {
     if (createdLessonLab) {
       const newListOfLessonLabs: ILessonLabType[] = await getLessonLabs();
       if (newListOfLessonLabs) {
+        dispatch(setSnackbarMessage("Tạo thông tin bài thí nghiệm mới thành công"));
         dispatch(setListOfLessonLabs(newListOfLessonLabs));
       }
     }
