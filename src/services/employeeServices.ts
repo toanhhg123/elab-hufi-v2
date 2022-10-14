@@ -18,7 +18,7 @@ export const getEmployees = async () => {
 	return devicespec;
 }
 
-export const getEmployeeById = async (id: Number) => {    
+export const getEmployeeById = async (id: String) => {    
     const url = `${API_ENDPOINT}/api/employees/${id}`;
 	const lab: IEmployeeType = await API.get<IEmployeeType>(url);
 	return lab;
