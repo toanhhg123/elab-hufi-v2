@@ -105,7 +105,7 @@ const ClassSubjectTable: FC = () => {
       },
       {
         accessorKey: 'SubjectName',
-        header: 'Tên lớp học phần',
+        header: 'Tên môn học',
         size: 100,
       },
     ],

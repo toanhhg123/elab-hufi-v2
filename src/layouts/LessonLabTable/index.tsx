@@ -28,7 +28,10 @@ import { RootState } from '../../store';
 import { setListOfLessonLabs } from './lessonLabSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import ScienceIcon from '@mui/icons-material/Science';
+import ConstructionIcon from '@mui/icons-material/Construction';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import DevicePlanning from './DevicePlanning';
 
 const LessonLabTable: FC = () => {
   const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
@@ -39,6 +42,7 @@ const LessonLabTable: FC = () => {
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
+  const [isDevicePlanningModal, setIsDevicePlanningModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<ILessonLabType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
@@ -47,6 +51,7 @@ const LessonLabTable: FC = () => {
   const [updatedRow, setUpdatedRow] = useState<any>(dummyLessonLabData);
   const [deletedRow, setDeletedRow] = useState<any>(dummyLessonLabData);
   const [createdRow, setCreatedRow] = useState<any>(dummyLessonLabData);
+  const [selectedRow, setSelectedRow] = useState<any>(dummyLessonLabData);
 
   useEffect(() => {
     let formatedLessonLabData = lessonLabData.map((x: ILessonLabType) => {
@@ -159,6 +164,20 @@ const LessonLabTable: FC = () => {
     onCloseCreateModal();
   }
 
+  const handleOpenDevicePlanningModal = (row: any) => {
+    setSelectedRow(row.original);
+    setIsDevicePlanningModal(true);
+  }
+
+  const onCloseDevicePlanningModal = () => {
+    setSelectedRow(dummyLessonLabData);
+    setIsDevicePlanningModal(false);
+  }
+
+  const onHandleSubmitDevicePlanningModal = () => {
+    
+  }
+
   return (
     <>
       <MaterialReactTable
@@ -181,15 +200,28 @@ const LessonLabTable: FC = () => {
           density: 'compact',
         }}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <Box sx={{
+            "display": 'flex', "gap": '1rem', "justifyContent": "center",
+            "alignItems": "center"
+          }}>
             <Tooltip arrow placement="left" title="Sửa thông tin bài thí nghiệm">
-              <IconButton onClick={() => handleOpenEditModal(row)}>
+              <IconButton style={{ "paddingRight": "0px" }} onClick={() => handleOpenEditModal(row)}>
                 <Edit />
               </IconButton>
             </Tooltip>
-            <Tooltip arrow placement="right" title="Xoá thông tin bài thí nghiệm">
-              <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
+            <Tooltip arrow placement="top" title="Xoá thông tin bài thí nghiệm">
+              <IconButton style={{ "paddingLeft": "0px", "paddingRight": "0px" }} color="error" onClick={() => handleOpenDeleteModal(row)}>
                 <Delete />
+              </IconButton>
+            </Tooltip>
+            <Tooltip arrow placement="top" title="Dự trù hoá chất cho bài thí nghiệm">
+              <IconButton style={{ "paddingLeft": "0px", "paddingRight": "0px" }} color="secondary" onClick={() => handleOpenDeleteModal(row)}>
+                <ScienceIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip arrow placement="right" title="Dự trù thiết bị cho bài thí nghiệm">
+              <IconButton style={{ "paddingRight": "0px" }} color="info" onClick={() => handleOpenDevicePlanningModal(row)}>
+                <ConstructionIcon />
               </IconButton>
             </Tooltip>
           </Box>
@@ -344,6 +376,12 @@ const LessonLabTable: FC = () => {
         </DialogActions>
       </Dialog>
 
+      <DevicePlanning
+        isOpen={isDevicePlanningModal}
+        currentLessonLab={selectedRow}
+        onClose={onCloseDevicePlanningModal}
+        handleSubmit={onHandleSubmitDevicePlanningModal}
+      />
     </>
   );
 };
