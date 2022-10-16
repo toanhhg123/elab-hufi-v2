@@ -578,11 +578,22 @@ const DeviceTable: FC = () => {
               <MaterialReactTable
                 displayColumnDefOptions={{
                   'mrt-row-actions': {
+                    header: 'Các hành động',
                     muiTableHeadCellProps: {
                       align: 'center',
                     },
-                    size: 120,
+                    muiTableBodyCellProps: {
+                      align: 'center',
+                    },
                   },
+                  'mrt-row-numbers': {
+                    muiTableHeadCellProps: {
+                      align: 'center',
+                    },
+                    muiTableBodyCellProps: {
+                      align: 'center',
+                    },
+                  }
                 }}
                 columns={deviceSpecColumns}
                 data={deviceSpecTableData}
@@ -593,6 +604,11 @@ const DeviceTable: FC = () => {
                 enablePinning
                 initialState={{
                   density: 'compact',
+                  columnOrder: [
+                    'mrt-row-numbers',
+                    ...deviceSpecColumns.map(x => x.accessorKey || ''),
+                    'mrt-row-actions'
+                  ]
                 }}
                 renderRowActions={({ row, table }) => (
                   <Box sx={{ display: 'flex', gap: '1rem' }}>

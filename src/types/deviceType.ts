@@ -12,16 +12,25 @@ export interface IDeviceType {
     ManufacturerName?: String
 }
 
-export const dummyDeviceData: IDeviceType = { 
-    "DeviceId": "", 
-    "DeviceName": "", 
-    "DeviceType": "", 
-    "Model": "", 
-    "Origin": "", 
-    "Unit": "", 
-    "Standard": "", 
-    "Quantity": 0, 
-    "HasTrain": 1, 
+export interface ILessonDeviceType {
+    LessonId: String,
+    DeviceId: String,
+    DeviceName: String,
+    Standard: String,
+    Unit: String,
+    Quantity: Number,
+    Note: String
+}
+export const dummyDeviceData: IDeviceType = {
+    "DeviceId": "",
+    "DeviceName": "",
+    "DeviceType": "",
+    "Model": "",
+    "Origin": "",
+    "Unit": "",
+    "Standard": "",
+    "Quantity": 0,
+    "HasTrain": 1,
     "ManufacturerId": 0
 }
 
@@ -33,9 +42,9 @@ export interface IDeviceSpecType {
     SpecsValue: String
 }
 
-export const dummyDeviceSpecData: IDeviceSpecType = { 
-    "DeviceId": "", 
-    "SpecsID": -1, 
-    "SpecsName": "", 
-    "SpecsValue": "" 
+export const dummyDeviceSpecData: IDeviceSpecType = {
+    "DeviceId": "",
+    "SpecsID": -1,
+    "SpecsName": "",
+    "SpecsValue": ""
 }

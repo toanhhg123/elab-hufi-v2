@@ -32,6 +32,10 @@ import ScienceIcon from '@mui/icons-material/Science';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import DevicePlanning from './DevicePlanning';
+import { getChemicalPlanningByLesson, getDevicePlanningByLesson, updateDevicePlanningByLesson } from '../../services/deviceServices';
+import { IDeviceType, ILessonDeviceType } from '../../types/deviceType';
+import { IChemicalType } from '../../types/chemicalType';
+import ChemicalPlanning from './ChemicalPlanning';
 
 const LessonLabTable: FC = () => {
   const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
@@ -43,7 +47,10 @@ const LessonLabTable: FC = () => {
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
   const [isDevicePlanningModal, setIsDevicePlanningModal] = useState<boolean>(false);
+  const [isChemicalPlanningModal, setIsChemicalPlanningModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<ILessonLabType[]>([]);
+  const [defaultDevicePlanning, setDefaultDevicePlanning] = useState<IDeviceType[]>([]);
+  const [defaultChemicalPlanning, setDefaultChemicalPlanning] = useState<IChemicalType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -164,9 +171,14 @@ const LessonLabTable: FC = () => {
     onCloseCreateModal();
   }
 
-  const handleOpenDevicePlanningModal = (row: any) => {
+  const handleOpenDevicePlanningModal = async (row: any) => {
     setSelectedRow(row.original);
-    setIsDevicePlanningModal(true);
+
+    let devicePlanningData = await getDevicePlanningByLesson(row.original.LessonId);
+    if (devicePlanningData) {
+      setDefaultDevicePlanning(devicePlanningData);
+      setIsDevicePlanningModal(true);
+    }
   }
 
   const onCloseDevicePlanningModal = () => {
@@ -174,14 +186,37 @@ const LessonLabTable: FC = () => {
     setIsDevicePlanningModal(false);
   }
 
-  const onHandleSubmitDevicePlanningModal = () => {
+  const onHandleSubmitDevicePlanningModal = async (DevicePlanningData: ILessonDeviceType[]) => {
+    // await updateDevicePlanningByLesson(DevicePlanningData);
+    dispatch(setSnackbarMessage("Cập nhật dự trù thiết bị thành công"));
+    onCloseDevicePlanningModal();
+  }
 
+  const handleOpenChemicalPlanningModal = async (row: any) => {
+    setSelectedRow(row.original);
+
+    let devicePlanningData = await getChemicalPlanningByLesson(row.original.LessonId);
+    if (devicePlanningData) {
+      setDefaultChemicalPlanning(devicePlanningData);
+      setIsChemicalPlanningModal(true);
+    }
+  }
+
+  const onCloseChemicalPlanningModal = () => {
+    setSelectedRow(dummyLessonLabData);
+    setIsChemicalPlanningModal(false);
+  }
+
+  const onHandleSubmitChemicalPlanningModal = async (ChemicalPlanningData: ILessonDeviceType[]) => {
+    // await updateChemicalPlanningByLesson(ChemicalPlanningData);
+    dispatch(setSnackbarMessage("Cập nhật dự trù hoá chất thành công"));
+    onCloseChemicalPlanningModal();
   }
 
   return (
     <>
       <MaterialReactTable
-         displayColumnDefOptions={{
+        displayColumnDefOptions={{
           'mrt-row-actions': {
             header: 'Các hành động',
             muiTableHeadCellProps: {
@@ -231,7 +266,7 @@ const LessonLabTable: FC = () => {
               </IconButton>
             </Tooltip>
             <Tooltip arrow placement="top" title="Dự trù hoá chất cho bài thí nghiệm">
-              <IconButton style={{ "paddingLeft": "0px", "paddingRight": "0px" }} color="secondary" onClick={() => handleOpenDeleteModal(row)}>
+              <IconButton style={{ "paddingLeft": "0px", "paddingRight": "0px" }} color="secondary" onClick={() => handleOpenChemicalPlanningModal(row)}>
                 <ScienceIcon />
               </IconButton>
             </Tooltip>
@@ -397,6 +432,15 @@ const LessonLabTable: FC = () => {
         currentLessonLab={selectedRow}
         onClose={onCloseDevicePlanningModal}
         handleSubmit={onHandleSubmitDevicePlanningModal}
+        defaultCurrentValue={defaultDevicePlanning}
+      />
+
+      <ChemicalPlanning
+        isOpen={isChemicalPlanningModal}
+        currentLessonLab={selectedRow}
+        onClose={onCloseChemicalPlanningModal}
+        handleSubmit={onHandleSubmitChemicalPlanningModal}
+        defaultCurrentValue={defaultChemicalPlanning}
       />
     </>
   );
