@@ -146,22 +146,22 @@ const SupplierTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdSupplier = await postSupplier({
-      "Name": createdRow.Name, 
-      "Email": createdRow.Email, 
-      "PhoneNumber": createdRow.PhoneNumber, 
-      "Address": createdRow.Address, 
-      "Status": createdRow.Status, 
+      "Name": createdRow.Name,
+      "Email": createdRow.Email,
+      "PhoneNumber": createdRow.PhoneNumber,
+      "Address": createdRow.Address,
+      "Status": createdRow.Status,
       "PurchaseOrders": createdRow.PurchaseOrders
     })
 
-    if(createdSupplier){
+    if (createdSupplier) {
       const newListOfSuppliers: ISupplierType[] = await getSuppliers();
-      if(newListOfSuppliers){
+      if (newListOfSuppliers) {
         dispatch(setSnackbarMessage("Tạo thông tin nhà cung cấp mới thành công"));
         dispatch(setListOfSuppliers(newListOfSuppliers));
       }
     }
-    
+
     onCloseCreateModal();
   }
 
@@ -170,11 +170,22 @@ const SupplierTable: FC = () => {
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -185,9 +196,14 @@ const SupplierTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <>
             <Tooltip arrow placement="left" title="Sửa thông tin nhà cung cấp">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
@@ -198,7 +214,7 @@ const SupplierTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
-          </Box>
+          </>
         )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
@@ -210,15 +226,15 @@ const SupplierTable: FC = () => {
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo nhà cung cấp mới" placement="right-start">
-          <Button
-            color="primary"
-            onClick={handleOpenCreateModal}
-            variant="contained"
-            style={{ "margin": "10px" }}
-          >
-            <AddIcon fontSize="small" />
-          </Button>
-        </Tooltip>
+            <Button
+              color="primary"
+              onClick={handleOpenCreateModal}
+              variant="contained"
+              style={{ "margin": "10px" }}
+            >
+              <AddIcon fontSize="small" />
+            </Button>
+          </Tooltip>
         )}
       />
 
@@ -289,15 +305,15 @@ const SupplierTable: FC = () => {
               }}
             >
               {columns.map((column) => (
-                  <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                    }
-                  />
+                <TextField
+                  key={column.accessorKey}
+                  label={column.header}
+                  name={column.accessorKey}
+                  defaultValue={column.id && updatedRow[column.id]}
+                  onChange={(e) =>
+                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                  }
+                />
               ))}
 
             </Stack>

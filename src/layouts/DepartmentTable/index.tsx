@@ -145,11 +145,22 @@ const DepartmentTable: FC = () => {
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -160,6 +171,11 @@ const DepartmentTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
@@ -170,7 +186,7 @@ const DepartmentTable: FC = () => {
           </h3>
         )}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <>
             <Tooltip arrow placement="left" title="Sửa thông tin phòng ban">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
@@ -181,7 +197,7 @@ const DepartmentTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
-          </Box>
+          </>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo phòng ban mới" placement="right-start">

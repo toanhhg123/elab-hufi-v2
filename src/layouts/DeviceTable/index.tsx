@@ -338,11 +338,22 @@ const DeviceTable: FC = () => {
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -353,9 +364,14 @@ const DeviceTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <Box sx={{ display: 'flex', gap: '0.5rem' }}>
             <Tooltip arrow placement="left" title="Xem chi tiết thông số">
               <IconButton style={{ "paddingRight": "0px" }} onClick={() => handleOpenDetailModal(row)}>
                 <RemoveRedEyeIcon />

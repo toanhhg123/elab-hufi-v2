@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import MaterialReactTable, {
+    MaterialReactTableProps,
     MRT_Cell,
     MRT_ColumnDef,
 } from 'material-react-table';
@@ -108,6 +109,15 @@ const DevicePlanning: FC<{
         }
     }, [isOpen])
 
+    const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
+    async ({ exitEditingMode, row, values }) => {
+      //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here.
+      tableData[row.index] = values;
+      //send/receive api updates here
+      setTableData([...tableData]);
+      exitEditingMode(); //required to exit editing mode
+    };
+
     return (
         <>
             <Dialog open={isOpen}>
@@ -144,6 +154,7 @@ const DevicePlanning: FC<{
                             <MaterialReactTable
                                 displayColumnDefOptions={{
                                     'mrt-row-actions': {
+                                        header: '',
                                         muiTableHeadCellProps: {
                                             align: 'center',
                                         },
@@ -152,11 +163,13 @@ const DevicePlanning: FC<{
                                 }}
                                 columns={columns}
                                 data={tableData}
-                                editingMode="cell"
+                                editingMode="row"
+                                enableTopToolbar={false}
                                 enableEditing
                                 enableColumnOrdering
                                 enableRowNumbers
                                 enablePinning
+                                onEditingRowSave={handleSaveRow}
                                 initialState={{
                                     density: 'compact',
                                 }}

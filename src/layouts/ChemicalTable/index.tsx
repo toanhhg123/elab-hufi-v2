@@ -196,11 +196,22 @@ const ChemicalTable: FC = () => {
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -211,9 +222,14 @@ const ChemicalTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <>
             <Tooltip arrow placement="left" title="Sửa thông tin hoá chất">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
@@ -224,7 +240,7 @@ const ChemicalTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
-          </Box>
+          </>
         )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>

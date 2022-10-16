@@ -175,19 +175,30 @@ const LessonLabTable: FC = () => {
   }
 
   const onHandleSubmitDevicePlanningModal = () => {
-    
+
   }
 
   return (
     <>
       <MaterialReactTable
-        displayColumnDefOptions={{
+         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -198,6 +209,11 @@ const LessonLabTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderRowActions={({ row, table }) => (
           <Box sx={{
@@ -220,7 +236,7 @@ const LessonLabTable: FC = () => {
               </IconButton>
             </Tooltip>
             <Tooltip arrow placement="right" title="Dự trù thiết bị cho bài thí nghiệm">
-              <IconButton style={{ "paddingRight": "0px" }} color="info" onClick={() => handleOpenDevicePlanningModal(row)}>
+              <IconButton style={{ "paddingLeft": "0px" }} color="info" onClick={() => handleOpenDevicePlanningModal(row)}>
                 <ConstructionIcon />
               </IconButton>
             </Tooltip>

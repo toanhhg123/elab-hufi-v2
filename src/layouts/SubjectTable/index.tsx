@@ -176,11 +176,22 @@ const SubjectTable: FC = () => {
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -191,9 +202,14 @@ const SubjectTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <>
             <Tooltip arrow placement="left" title="Sửa thông tin môn học">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
@@ -204,7 +220,7 @@ const SubjectTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
-          </Box>
+          </>
         )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>

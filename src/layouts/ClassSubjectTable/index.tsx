@@ -197,11 +197,22 @@ const ClassSubjectTable: FC = () => {
       <MaterialReactTable
         displayColumnDefOptions={{
           'mrt-row-actions': {
+            header: 'Các hành động',
             muiTableHeadCellProps: {
               align: 'center',
             },
-            size: 120,
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
           },
+          'mrt-row-numbers': {
+            muiTableHeadCellProps: {
+              align: 'center',
+            },
+            muiTableBodyCellProps: {
+              align: 'center',
+            },
+          }
         }}
         columns={columns}
         data={tableData}
@@ -212,6 +223,11 @@ const ClassSubjectTable: FC = () => {
         enablePinning
         initialState={{
           density: 'compact',
+          columnOrder: [
+            'mrt-row-numbers',
+            ...columns.map(x => x.accessorKey || ''),
+            'mrt-row-actions'
+          ]
         }}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
@@ -222,7 +238,7 @@ const ClassSubjectTable: FC = () => {
           </h3>
         )}
         renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <>
             <Tooltip arrow placement="left" title="Sửa thông tin lớp học phần">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
@@ -233,7 +249,7 @@ const ClassSubjectTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
-          </Box>
+          </>
         )}
         renderBottomToolbarCustomActions={() => (
           <Tooltip title="Tạo lớp học phần mới" placement="right-start">
