@@ -1,52 +1,64 @@
-import React, { useEffect } from 'react'
+import Snackbar from '@mui/material/Snackbar';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import ChemicalTable from '../layouts/ChemicalTable';
 import { setListOfChemicals } from '../layouts/ChemicalTable/chemicalSlice';
 import ClassSubjectTable from '../layouts/ClassSubjectTable';
 import { setListOfClassSubjects } from '../layouts/ClassSubjectTable/classSubjectSlice';
-import { Counter } from "../layouts/Counter";
-import InstrumentTable from '../layouts/Counter/InstrumentTable';
 import DepartmentTable from '../layouts/DepartmentTable';
 import { setListOfDepartments } from '../layouts/DepartmentTable/departmentSlice';
-import { setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import DeviceTable from '../layouts/DeviceTable';
-import { setListOfDevices } from '../layouts/DeviceTable/deviceSlice';
+import { setListOfDevices, setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
+import ExportChemicalTable from '../layouts/ExportChemicalTable';
+import { setListOfExportChemical } from '../layouts/ExportChemicalTable/exportChemicalSlice';
+import ExportDeviceTable from '../layouts/ExportDeviceTable';
+import { setListOfExportDevice } from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
 import { setListOfLaboratories } from '../layouts/LaboratoryTable/laboratorySlice';
 import LessonLabTable from '../layouts/LessonLabTable';
 import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
+import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
 import { setListOfSuppliers } from '../layouts/SupplierTable/supplierSlice';
+import WarehouseTable from '../layouts/WarehouseTable';
+import { setListOfWarehouseLaboratory, setListOfWarehouseRegisterGeneral, setListOfWarehouseStudySession } from '../layouts/WarehouseTable/warehouseSlice';
 import { getChemicals } from '../services/chemicalServices';
 import { getClassSubjects } from '../services/clasSubjectServices';
 import { getDepartments } from '../services/departmentServices';
 import { getDevices, getDeviceSpec } from '../services/deviceServices';
 import { getEmployees } from '../services/employeeServices';
+import { getExportChemical } from '../services/exportChemicalServices';
+import { getExportDevice } from '../services/exportDeviceServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
+import { getRegisterGeneral } from '../services/registerGeneralServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
+import { getWarehouseFeildId } from '../services/warehouseServices';
 import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
 import { IClassSubjectType } from '../types/classSubjectType';
 import { IDepartmentType } from '../types/departmentType';
-import { IDeviceType, IDeviceSpecType } from '../types/deviceType';
+import { IDeviceSpecType, IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
+import { IExportChemicalType } from '../types/exportChemicalType';
+import { IExportDeviceType } from '../types/exportDeviceType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
+import { IRegisterGeneralType } from '../types/registerGeneralType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
-import Snackbar from '@mui/material/Snackbar';
-import './Dashboard.css';
+import { IWarehouseType } from '../types/warehouseType';
 import { setSnackbarMessage } from './appSlice';
+import './Dashboard.css';
 
 export function Dashboard() {
     const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -142,6 +154,47 @@ export function Dashboard() {
         }
     }
 
+    const getWarehouseLaboratoryData = async () => {
+        const listOfWarehouseLaboratorys: IWarehouseType[] = await getWarehouseFeildId('lab');
+        if (listOfWarehouseLaboratorys) {
+            dispatch(setListOfWarehouseLaboratory(listOfWarehouseLaboratorys));
+        }
+    }
+
+    const getWarehouseRegisterGeneralData = async () => {
+        const listOfWarehouseRegisterGeneral: IWarehouseType[] = await getWarehouseFeildId('reg');
+        if (listOfWarehouseRegisterGeneral) {
+            dispatch(setListOfWarehouseRegisterGeneral(listOfWarehouseRegisterGeneral));
+        }
+    }
+
+    const getWarehouseStudySessionData = async () => {
+        const listOfWarehouseStudySession: IWarehouseType[] = await getWarehouseFeildId('ses');
+        if (listOfWarehouseStudySession) {
+            dispatch(setListOfWarehouseStudySession(listOfWarehouseStudySession));
+        }
+    }
+
+    const getRegisterGeneralsData = async () => {
+        const listOfRegisterGeneral: IRegisterGeneralType[] = await getRegisterGeneral();
+        if (listOfRegisterGeneral) {
+            dispatch(setListOfRegisterGeneral(listOfRegisterGeneral));
+        }
+    }
+
+    const getExportChemicalData = async () => {
+        const listOfExportChemical: IExportChemicalType[] = await getExportChemical();
+        if (listOfExportChemical) {
+            dispatch(setListOfExportChemical(listOfExportChemical));
+        }
+    }
+    const getExportDeviceData = async () => {
+        const listOfExportDevice: IExportDeviceType[] = await getExportDevice();
+        if (listOfExportDevice) {
+            dispatch(setListOfExportDevice(listOfExportDevice));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
         getEmployeeData();
@@ -154,6 +207,12 @@ export function Dashboard() {
         getSubjectData();
         getClassSubjectData();
         getLessonLabData();
+        getWarehouseRegisterGeneralData();
+        getWarehouseLaboratoryData();
+        getRegisterGeneralsData();
+        getExportChemicalData();
+        getWarehouseStudySessionData();
+        getExportDeviceData();
     }, [])
 
     const snackbarFunc = () => setTimeout(() => {
@@ -183,6 +242,9 @@ export function Dashboard() {
                 {sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
                 {sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+                {sidebarItems[10].isOpen && <WarehouseTable />}
+                {sidebarItems[11].isOpen && <ExportChemicalTable />}
+                {sidebarItems[12].isOpen && <ExportDeviceTable />}
             </div>
             <Snackbar
                 anchorOrigin={{

@@ -1,0 +1,33 @@
+export interface IWarehouseType {
+    "ExportId"?: String,
+    "ExportDate": number,
+    "Content": String,
+    "Status": String,
+    "EmployeeId": String,
+    "EmployeeName"?: String,
+    "formatedExportDate"?: String,
+    "ThesisName"?: String,
+    "Instructor"?: String,
+    "ResearchSubject"?: String,
+    "LabName"?: String,
+    "LabId"?: Number,
+    "SessionId"?: Number,
+    "RegisterGeneralId"?: Number,
+}
+
+export const dummyWarehouseData: IWarehouseType = {
+    "ExportId": "",
+    "ExportDate": Number(new Date()),
+    "Content": "",
+    "Status": "",
+    "EmployeeId": "",
+    "EmployeeName": "",
+    "formatedExportDate": "",
+    "ThesisName": "",
+    "Instructor": "",
+    "ResearchSubject": "",
+    "LabName": "",
+    "LabId": -1,
+    "SessionId": -1,
+    "RegisterGeneralId": -1,
+}
