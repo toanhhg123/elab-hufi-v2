@@ -21,9 +21,11 @@ export const Login: FC = () => {
         <h2>HỆ THỐNG QUẢN LÝ PHÒNG THÍ NGHIỆM ELAB</h2>
         <img src={About} style={{ height: "480px", opacity: "80%" }} />
       </div>
+
       <div className="login-form">
         <img src={HufiLogoExtended} style={{ width: "340px" }} />
         <h2>ĐĂNG NHẬP HỆ THỐNG</h2>
+
         <form onSubmit={(e) => e.preventDefault()} style={{ "margin": "30px 30px" }}>
           <Stack sx={{ width: '100%', gap: '1.5rem' }}>
             <TextField
@@ -52,6 +54,7 @@ export const Login: FC = () => {
             </div>
           </Stack>
         </form>
+        
         <Button variant="contained">
           Đăng nhập
         </Button>
