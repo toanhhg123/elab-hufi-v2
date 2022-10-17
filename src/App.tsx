@@ -15,6 +15,7 @@ import { Box } from '@mui/system';
 import { getLaboratories } from './services/laboratoryServices';
 import { Login } from './pages/Login';
 import Account from './pages/Account';
+import { NotFound } from './pages/NotFound';
 
 const settings = [
   {
@@ -113,8 +114,8 @@ function App() {
       </AppBar>
       <div className="container">
         <DrawerLeft />
-        {id == "dashboard" && <Dashboard />}
-        {id == "taikhoan" && <Account />}
+        {id === "dashboard" && <Dashboard />}
+        {id === "taikhoan" && <Account />}
       </div>
     </>);
   }
@@ -126,6 +127,7 @@ function App() {
           <Route element={<Login />} path="/login" />
           <Route element={_renderRouteElement("dashboard")} path="/" />
           <Route element={_renderRouteElement("taikhoan")} path="/TaiKhoan" />
+          <Route element={<NotFound />} path="*" />
         </Routes>
       </Router>
     </div>
