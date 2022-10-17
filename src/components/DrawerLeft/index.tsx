@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import { defaultSidebarItems, setIsOpenDrawer, setSidebarItems } from '../../pages/appSlice';
 import { Tooltip } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -74,7 +75,7 @@ export default function PersistentDrawerLeft() {
   const dispatch = useAppDispatch()
   const theme = useTheme();
   const { isOpenDrawer, sidebarItems } = useAppSelector((state: RootState) => state.app);
-
+  const navigate = useNavigate()
 
   const handleDrawerClose = () => {
     dispatch(setIsOpenDrawer(false));
@@ -86,7 +87,7 @@ export default function PersistentDrawerLeft() {
 
       <Drawer variant="permanent" open={isOpenDrawer}>
         <DrawerHeader>
-          <img src={HufiLogoExtended} style={{ maxHeight: "50px", marginTop: "5px", minWidth: "150px" }} />
+          <img src={HufiLogoExtended} style={{ maxHeight: "50px", marginTop: "5px", minWidth: "150px" }} alt=""/>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
@@ -104,7 +105,10 @@ export default function PersistentDrawerLeft() {
                     px: 2.5,
                   }}
                   style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { dispatch(setSidebarItems(index)) }}
+                  onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(index))
+                   }}
                 >
                   <ListItemIcon
                     sx={{
@@ -115,7 +119,10 @@ export default function PersistentDrawerLeft() {
                   >
                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                   </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { dispatch(setSidebarItems(index)) }} />
+                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(index))
+                     }} />
                 </ListItemButton>
               </Tooltip>
                 :
@@ -126,7 +133,10 @@ export default function PersistentDrawerLeft() {
                     px: 2.5,
                   }}
                   style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { dispatch(setSidebarItems(index)) }}
+                  onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(index))
+                   }}
                 >
                   <ListItemIcon
                     sx={{
@@ -137,7 +147,10 @@ export default function PersistentDrawerLeft() {
                   >
                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                   </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { dispatch(setSidebarItems(index)) }} />
+                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(index))
+                     }} />
                 </ListItemButton>
               }
             </ListItem>
@@ -156,7 +169,10 @@ export default function PersistentDrawerLeft() {
                     px: 2.5,
                   }}
                   style={{ "backgroundColor": sidebarItems[7 + index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { dispatch(setSidebarItems(7 + index)) }}
+                  onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(7 +
+                       index)) }}
                 >
                   <ListItemIcon
                     sx={{
@@ -167,7 +183,10 @@ export default function PersistentDrawerLeft() {
                   >
                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                   </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { dispatch(setSidebarItems(index + 7)) }} />
+                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(index +
+                     7)) }} />
                 </ListItemButton>
               </Tooltip>
                 :
@@ -178,7 +197,10 @@ export default function PersistentDrawerLeft() {
                     px: 2.5,
                   }}
                   style={{ "backgroundColor": sidebarItems[7 + index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { dispatch(setSidebarItems(7 + index)) }}
+                  onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(7 +
+                       index)) }}
                 >
                   <ListItemIcon
                     sx={{
@@ -189,7 +211,10 @@ export default function PersistentDrawerLeft() {
                   >
                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                   </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { dispatch(setSidebarItems(index + 7)) }} />
+                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { 
+                    navigate("/")
+                    dispatch(setSidebarItems(index +
+                     7)) }} />
                 </ListItemButton>
               }
             </ListItem>

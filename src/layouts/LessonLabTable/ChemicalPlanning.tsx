@@ -19,16 +19,16 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import { ILessonLabType } from '../../types/lessonLabType';
 import Autocomplete from '@mui/material/Autocomplete';
-import { IDeviceType } from '../../types/deviceType';
+import { IChemicalType } from '../../types/chemicalType';
 
-const DevicePlanning: FC<{
+const ChemicalPlanning: FC<{
     isOpen: boolean,
     currentLessonLab: ILessonLabType,
-    defaultCurrentValue: IDeviceType[],
+    defaultCurrentValue: IChemicalType[],
     onClose: () => void,
-    handleSubmit: (DevicePlanningData: any) => void,
+    handleSubmit: (ChemicalPlanningData: any) => void,
 }> = ({ isOpen, currentLessonLab, onClose, handleSubmit, defaultCurrentValue }) => {
-    const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
+    const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
     const [tableData, setTableData] = useState<any[]>([]);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
@@ -68,14 +68,14 @@ const DevicePlanning: FC<{
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
-                accessorKey: 'DeviceName',
-                header: 'Tên thiết bị',
+                accessorKey: 'ChemicalName',
+                header: 'Tên hoá chất',
                 enableEditing: false,
                 size: 100,
             },
 
             {
-                accessorKey: 'Quantity',
+                accessorKey: 'Amount',
                 header: 'Số lượng',
                 size: 100,
             },
@@ -84,7 +84,7 @@ const DevicePlanning: FC<{
         [getCommonEditTextFieldProps],
     );
 
-    const handleSelectAutocomplete = (e: any, val: IDeviceType[]) => {
+    const handleSelectAutocomplete = (e: any, val: IChemicalType[]) => {
         setTableData(val);
     }
 
@@ -100,7 +100,7 @@ const DevicePlanning: FC<{
     return (
         <>
             <Dialog open={isOpen}>
-                <DialogTitle textAlign="center"><b>Dự trù thiết bị cho bài thí nghiệm</b></DialogTitle>
+                <DialogTitle textAlign="center"><b>Dự trù hoá chất cho bài thí nghiệm</b></DialogTitle>
                 <DialogContent>
                     <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
                         <Stack
@@ -120,15 +120,15 @@ const DevicePlanning: FC<{
                             <Autocomplete
                                 multiple
                                 filterSelectedOptions
-                                options={deviceData}
+                                options={chemicalData}
                                 value={tableData}
-                                isOptionEqualToValue={(option, value) => option.DeviceId === value.DeviceId}
-                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceName.toString() : ''}
+                                isOptionEqualToValue={(option, value) => option.ChemicalId === value.ChemicalId}
+                                getOptionLabel={(option: IChemicalType) => option?.ChemicalName ? option.ChemicalName.toString() : ''}
                                 id="auto-complete"
                                 autoComplete
                                 includeInputInList
                                 renderInput={(params) => (
-                                    <TextField {...params} placeholder="Chọn thiết bị..." variant="standard" />
+                                    <TextField {...params} placeholder="Chọn hoá chất..." variant="standard" />
                                 )}
                                 onChange={(e: any, val) => handleSelectAutocomplete(e, val)}
                             />
@@ -181,7 +181,7 @@ const DevicePlanning: FC<{
                                         <b><KeyboardArrowRightIcon
                                             style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
                                         ></KeyboardArrowRightIcon></b>
-                                        <span>Thông tin thiết bị</span>
+                                        <span>Thông tin hoá chất</span>
                                     </h3>
                                 )}
                             />
@@ -199,4 +199,4 @@ const DevicePlanning: FC<{
     );
 };
 
-export default DevicePlanning;
+export default ChemicalPlanning;
