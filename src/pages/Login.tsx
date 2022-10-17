@@ -6,6 +6,7 @@ import About from '../assets/img/login-about.png';
 import { Button, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import CachedIcon from '@mui/icons-material/Cached';
 import { dummyLoginData, IloginType } from "../types/loginType";
+import { Link } from "react-router-dom";
 
 export const Login: FC = () => {
   const [loginData, setLoginData] = useState<IloginType>(dummyLoginData);
@@ -54,10 +55,12 @@ export const Login: FC = () => {
             </div>
           </Stack>
         </form>
-        
-        <Button variant="contained">
-          Đăng nhập
-        </Button>
+
+        <Link to={"/"} style={{ textDecoration: 'none' }}>
+          <Button variant="contained">
+            Đăng nhập
+          </Button>
+        </Link>
       </div>
     </div >
   )

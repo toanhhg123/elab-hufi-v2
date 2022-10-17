@@ -23,7 +23,7 @@ const settings = [
   },
   {
     text: 'Đăng xuất',
-    link: '/DangXuat',
+    link: '/login',
   },
 ];
 
