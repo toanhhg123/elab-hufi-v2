@@ -105,7 +105,7 @@ const RegisterGeneralTabItem: FC = () => {
 			},
 			{
 				accessorKey: 'EmployeeName',
-				header: 'Người xuát',
+				header: 'Người xuất',
 				size: 140,
 			},
 			{
@@ -116,7 +116,7 @@ const RegisterGeneralTabItem: FC = () => {
 
 			{
 				accessorKey: 'ThesisName',
-				header: 'ThesisName',
+				header: 'Tên luận văn',
 				size: 140,
 			},
 			{
@@ -245,8 +245,18 @@ const RegisterGeneralTabItem: FC = () => {
 						muiTableHeadCellProps: {
 							align: 'center',
 						},
-						size: 120,
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
 					},
+					'mrt-row-numbers': {
+						muiTableHeadCellProps: {
+							align: 'center',
+						},
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
+					}
 				}}
 				columns={columns}
 				data={tableData}
@@ -257,6 +267,11 @@ const RegisterGeneralTabItem: FC = () => {
 				enablePinning
 				initialState={{
 					density: 'compact',
+					columnOrder: [
+						'mrt-row-numbers',
+						...columns.map(x => x.accessorKey || ''),
+						'mrt-row-actions'
+					]
 				}}
 				renderTopToolbarCustomActions={() => (
 					<h3 style={{ margin: '0px' }}>
@@ -269,21 +284,21 @@ const RegisterGeneralTabItem: FC = () => {
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
-					<Box sx={{ display: 'flex', gap: '1rem' }}>
-						<Tooltip arrow placement="left" title="Sửa thông tin Lab">
+					<>
+						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất đăng kí chung">
 							<IconButton onClick={() => handleOpenEditModal(row)}>
 								<Edit />
 							</IconButton>
 						</Tooltip>
-						<Tooltip arrow placement="right" title="Xoá Lab">
+						<Tooltip arrow placement="right" title="Xoá thông tin phiếu xuất đăng kí chung">
 							<IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
 								<Delete />
 							</IconButton>
 						</Tooltip>
-					</Box>
+					</>
 				)}
 				renderBottomToolbarCustomActions={() => (
-					<Tooltip title="Tạo Lab mới" placement="right-start">
+					<Tooltip title="Tạo phiếu xuất đăng kí chung mới" placement="right-start">
 						<Button
 							color="primary"
 							onClick={handleOpenCreateModal}
@@ -298,7 +313,7 @@ const RegisterGeneralTabItem: FC = () => {
 
 			<Dialog open={isDeleteModal}>
 				<DialogTitle textAlign="center">
-					<b>Xoá thông tin Lab</b>
+					<b>Xoá thông tin phiếu xuất đăng kí chung</b>
 				</DialogTitle>
 				<DialogContent>
 					<div>

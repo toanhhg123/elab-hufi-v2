@@ -224,8 +224,18 @@ const ExportChemicalTable: FC = () => {
 						muiTableHeadCellProps: {
 							align: 'center',
 						},
-						size: 120,
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
 					},
+					'mrt-row-numbers': {
+						muiTableHeadCellProps: {
+							align: 'center',
+						},
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
+					}
 				}}
 				columns={columns}
 				data={tableData}
@@ -236,6 +246,11 @@ const ExportChemicalTable: FC = () => {
 				enablePinning
 				initialState={{
 					density: 'compact',
+					columnOrder: [
+					  'mrt-row-numbers',
+					  ...columns.map(x => x.accessorKey || ''),
+					  'mrt-row-actions'
+					]
 				}}
 				renderTopToolbarCustomActions={() => (
 					<h3 style={{ margin: '0px' }}>
@@ -244,7 +259,7 @@ const ExportChemicalTable: FC = () => {
 								style={{ margin: '0px', fontSize: '30px', paddingTop: '15px' }}
 							></KeyboardArrowRightIcon>
 						</b>
-						<span>Quản lý phiếu xuât hóa chất</span>
+						<span>Quản lý phiếu xuất hóa chất</span>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (

@@ -96,7 +96,7 @@ const LaboratoryTabItem: FC = () => {
 			},
 			{
 				accessorKey: 'EmployeeName',
-				header: 'Người xuát',
+				header: 'Người xuất',
 				size: 140,
 			},
 			{
@@ -222,8 +222,18 @@ const LaboratoryTabItem: FC = () => {
 						muiTableHeadCellProps: {
 							align: 'center',
 						},
-						size: 120,
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
 					},
+					'mrt-row-numbers': {
+						muiTableHeadCellProps: {
+							align: 'center',
+						},
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
+					}
 				}}
 				columns={columns}
 				data={tableData}
@@ -234,6 +244,11 @@ const LaboratoryTabItem: FC = () => {
 				enablePinning
 				initialState={{
 					density: 'compact',
+					columnOrder: [
+					  'mrt-row-numbers',
+					  ...columns.map(x => x.accessorKey || ''),
+					  'mrt-row-actions'
+					]
 				}}
 				renderTopToolbarCustomActions={() => (
 					<h3 style={{ margin: '0px' }}>
@@ -247,12 +262,12 @@ const LaboratoryTabItem: FC = () => {
 				)}
 				renderRowActions={({ row, table }) => (
 					<>
-						<Tooltip arrow placement="left" title="Sửa thông tin Lab">
+						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất phòng thí nghiệm">
 							<IconButton onClick={() => handleOpenEditModal(row)}>
 								<Edit />
 							</IconButton>
 						</Tooltip>
-						<Tooltip arrow placement="right" title="Xoá Lab">
+						<Tooltip arrow placement="right" title="Xoá phiếu xuất phòng thí nghiệm">
 							<IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
 								<Delete />
 							</IconButton>
@@ -260,7 +275,7 @@ const LaboratoryTabItem: FC = () => {
 					</>
 				)}
 				renderBottomToolbarCustomActions={() => (
-					<Tooltip title="Tạo Lab mới" placement="right-start">
+					<Tooltip title="Tạo phiếu xuất phòng thí nghiệm mới" placement="right-start">
 						<Button
 							color="primary"
 							onClick={handleOpenCreateModal}
@@ -275,7 +290,7 @@ const LaboratoryTabItem: FC = () => {
 
 			<Dialog open={isDeleteModal}>
 				<DialogTitle textAlign="center">
-					<b>Xoá thông tin Lab</b>
+					<b>Xoá thông tin phiếu xuất phòng thí nghiệm</b>
 				</DialogTitle>
 				<DialogContent>
 					<div>

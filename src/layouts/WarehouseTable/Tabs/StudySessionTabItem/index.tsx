@@ -103,7 +103,7 @@ const StudySessionTabItem: FC = () => {
 			},
 			{
 				accessorKey: 'EmployeeName',
-				header: 'Người xuát',
+				header: 'Người xuất',
 				size: 140,
 			},
 			{
@@ -114,7 +114,7 @@ const StudySessionTabItem: FC = () => {
 
 			{
 				accessorKey: 'ThesisName',
-				header: 'ThesisName',
+				header: 'Tên luận văn',
 				size: 140,
 			},
 			{
@@ -244,8 +244,18 @@ const StudySessionTabItem: FC = () => {
 						muiTableHeadCellProps: {
 							align: 'center',
 						},
-						size: 120,
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
 					},
+					'mrt-row-numbers': {
+						muiTableHeadCellProps: {
+							align: 'center',
+						},
+						muiTableBodyCellProps: {
+							align: 'center',
+						},
+					}
 				}}
 				columns={columns}
 				data={tableData}
@@ -256,6 +266,11 @@ const StudySessionTabItem: FC = () => {
 				enablePinning
 				initialState={{
 					density: 'compact',
+					columnOrder: [
+						'mrt-row-numbers',
+						...columns.map(x => x.accessorKey || ''),
+						'mrt-row-actions'
+					]
 				}}
 				renderTopToolbarCustomActions={() => (
 					<h3 style={{ margin: '0px' }}>
@@ -270,12 +285,12 @@ const StudySessionTabItem: FC = () => {
 				)}
 				renderRowActions={({ row, table }) => (
 					<Box sx={{ display: 'flex', gap: '1rem' }}>
-						<Tooltip arrow placement="left" title="Sửa thông tin Lab">
+						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất buổi học">
 							<IconButton onClick={() => handleOpenEditModal(row)}>
 								<Edit />
 							</IconButton>
 						</Tooltip>
-						<Tooltip arrow placement="right" title="Xoá Lab">
+						<Tooltip arrow placement="right" title="Xoá phiếu xuất buổi học">
 							<IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
 								<Delete />
 							</IconButton>
@@ -283,7 +298,7 @@ const StudySessionTabItem: FC = () => {
 					</Box>
 				)}
 				renderBottomToolbarCustomActions={() => (
-					<Tooltip title="Tạo Lab mới" placement="right-start">
+					<Tooltip title="Tạo phiếu xuất buổi học mới" placement="right-start">
 						<Button
 							color="primary"
 							onClick={handleOpenCreateModal}
@@ -298,7 +313,7 @@ const StudySessionTabItem: FC = () => {
 
 			<Dialog open={isDeleteModal}>
 				<DialogTitle textAlign="center">
-					<b>Xoá thông tin Lab</b>
+					<b>Xoá thông tin phiếu xuất buổi học</b>
 				</DialogTitle>
 				<DialogContent>
 					<div>

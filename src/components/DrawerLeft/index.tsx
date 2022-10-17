@@ -87,7 +87,7 @@ export default function PersistentDrawerLeft() {
 
       <Drawer variant="permanent" open={isOpenDrawer}>
         <DrawerHeader>
-          <img src={HufiLogoExtended} style={{ maxHeight: "50px", marginTop: "5px", minWidth: "150px" }} alt=""/>
+          <img src={HufiLogoExtended} style={{ maxHeight: "50px", marginTop: "5px", minWidth: "150px" }} alt="" />
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
@@ -95,129 +95,68 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List>
-          {defaultSidebarItems.slice(0, 7).map((item, index) => (
-            <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
-              {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: isOpenDrawer ? 'initial' : 'center',
-                    px: 2.5,
-                  }}
-                  style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(index))
-                   }}
-                >
-                  <ListItemIcon
+          {defaultSidebarItems.map((item, index) => (
+            <>
+              <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
+                {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: isOpenDrawer ? 3 : 'auto',
-                      justifyContent: 'center',
+                      minHeight: 48,
+                      justifyContent: isOpenDrawer ? 'initial' : 'center',
+                      px: 2.5,
+                    }}
+                    style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
+                    onClick={() => {
+                      navigate("/")
+                      dispatch(setSidebarItems(index))
                     }}
                   >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(index))
-                     }} />
-                </ListItemButton>
-              </Tooltip>
-                :
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: isOpenDrawer ? 'initial' : 'center',
-                    px: 2.5,
-                  }}
-                  style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(index))
-                   }}
-                >
-                  <ListItemIcon
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: isOpenDrawer ? 3 : 'auto',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                    </ListItemIcon>
+                    <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => {
+                      navigate("/")
+                      dispatch(setSidebarItems(index))
+                    }} />
+                  </ListItemButton>
+                </Tooltip>
+                  :
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: isOpenDrawer ? 3 : 'auto',
-                      justifyContent: 'center',
+                      minHeight: 48,
+                      justifyContent: isOpenDrawer ? 'initial' : 'center',
+                      px: 2.5,
+                    }}
+                    style={{ "backgroundColor": sidebarItems[index].isOpen ? "#DEE1E6" : "white" }}
+                    onClick={() => {
+                      navigate("/")
+                      dispatch(setSidebarItems(index))
                     }}
                   >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(index))
-                     }} />
-                </ListItemButton>
-              }
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-
-        <List>
-          {defaultSidebarItems.slice(7,).map((item, index) => (
-            <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
-              {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: isOpenDrawer ? 'initial' : 'center',
-                    px: 2.5,
-                  }}
-                  style={{ "backgroundColor": sidebarItems[7 + index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(7 +
-                       index)) }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: isOpenDrawer ? 3 : 'auto',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 0 }} onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(index +
-                     7)) }} />
-                </ListItemButton>
-              </Tooltip>
-                :
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: isOpenDrawer ? 'initial' : 'center',
-                    px: 2.5,
-                  }}
-                  style={{ "backgroundColor": sidebarItems[7 + index].isOpen ? "#DEE1E6" : "white" }}
-                  onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(7 +
-                       index)) }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: isOpenDrawer ? 3 : 'auto',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => { 
-                    navigate("/")
-                    dispatch(setSidebarItems(index +
-                     7)) }} />
-                </ListItemButton>
-              }
-            </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: isOpenDrawer ? 3 : 'auto',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                    </ListItemIcon>
+                    <ListItemText primary={item.name} sx={{ opacity: 1 }} onClick={() => {
+                      navigate("/")
+                      dispatch(setSidebarItems(index))
+                    }} />
+                  </ListItemButton>
+                }
+              </ListItem>
+              {[6, 9].includes(index) && <Divider />}
+            </>
           ))}
         </List>
       </Drawer>
