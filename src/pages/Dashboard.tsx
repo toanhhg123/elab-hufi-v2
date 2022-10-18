@@ -22,6 +22,7 @@ import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
+import SchedulerTable from '../layouts/SchedulerTable';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
@@ -239,12 +240,13 @@ export function Dashboard() {
                 {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
                 {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
                 {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
-                {sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
-                {sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-                {sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
-                {sidebarItems[10].isOpen && <WarehouseTable />}
-                {sidebarItems[11].isOpen && <ExportChemicalTable />}
-                {sidebarItems[12].isOpen && <ExportDeviceTable />}
+                {sidebarItems[7].isOpen && <SchedulerTable />}
+                {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
+                {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+                {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+                {sidebarItems[11].isOpen && <WarehouseTable />}
+                {sidebarItems[12].isOpen && <ExportChemicalTable />}
+                {sidebarItems[13].isOpen && <ExportDeviceTable />}
             </div>
             <Snackbar
                 anchorOrigin={{
