@@ -279,7 +279,7 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin hoá chất</span>
+            <span>Thông tin {type === "generalOrder" ? "nhập" : ""} hoá chất {type === "detailOrder" ? `của ${OrderId}` : ""}</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (

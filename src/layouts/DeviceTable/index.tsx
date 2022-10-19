@@ -414,7 +414,7 @@ const DeviceTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }) 
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin thiết bị</span>
+            <span>Thông tin {type === "generalOrder" ? "nhập" : ""} thiết bị {type === "detailOrder" ? `của ${OrderId}` : ""}</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (
