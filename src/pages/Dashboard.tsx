@@ -21,6 +21,10 @@ import LessonLabTable from '../layouts/LessonLabTable';
 import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
+import { setListOfOrderDevices } from '../layouts/DeviceTable/orderDeviceSlice';
+import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
+import { setListOfOrderChemicals } from '../layouts/ChemicalTable/orderChemicalSlice';
+import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
@@ -38,6 +42,9 @@ import { getExportDevice } from '../services/exportDeviceServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
+import { getOrderChemicals } from '../services/orderChemicalServices';
+import { getOrderDevices } from '../services/orderDeviceServices';
+import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
@@ -53,6 +60,9 @@ import { IExportDeviceType } from '../types/exportDeviceType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
+import { IOrderChemicalType } from '../types/orderChemicalType';
+import { IOrderDeviceType } from '../types/orderDeviceType';
+import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
@@ -195,6 +205,27 @@ export function Dashboard() {
         }
     }
 
+    const getPurchaseOrderData = async () => {
+        const listOfPurchaseOrders: IPurchaseOrderType[] = await getPurchaseOrders();
+        if (listOfPurchaseOrders) {
+            dispatch(setListOfPurchaseOrders(listOfPurchaseOrders));
+        }
+    }
+
+    const getOrderChemicalData = async () => {
+        const listOfOrderChemicals: IOrderChemicalType[] = await getOrderChemicals();
+        if (listOfOrderChemicals) {
+            dispatch(setListOfOrderChemicals(listOfOrderChemicals));
+        }
+    }
+
+    const getOrderDeviceData = async () => {
+        const listOfOrderDevices: IOrderDeviceType[] = await getOrderDevices();
+        if (listOfOrderDevices) {
+            dispatch(setListOfOrderDevices(listOfOrderDevices));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
         getEmployeeData();
@@ -213,6 +244,9 @@ export function Dashboard() {
         getExportChemicalData();
         getWarehouseStudySessionData();
         getExportDeviceData();
+        getPurchaseOrderData();
+        getOrderChemicalData();
+        getOrderDeviceData();
     }, [])
 
     const snackbarFunc = () => setTimeout(() => {
@@ -236,15 +270,18 @@ export function Dashboard() {
                 {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
                 {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
                 {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
+                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable type="normal" />}
                 {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
+                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable type="normal" />}
                 {sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
                 {sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
                 {sidebarItems[10].isOpen && <WarehouseTable />}
                 {sidebarItems[11].isOpen && <ExportChemicalTable />}
                 {sidebarItems[12].isOpen && <ExportDeviceTable />}
+                {sidebarItems[13].isOpen && <PurchaseOrderTable />}
+                {sidebarItems[14].isOpen && <ChemicalTable type="generalOrder" />}
+                {sidebarItems[15].isOpen && <DeviceTable type="generalOrder" />}
             </div>
             <Snackbar
                 anchorOrigin={{

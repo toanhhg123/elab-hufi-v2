@@ -1,4 +1,5 @@
 export interface IDeviceType {
+    OrderId?: String,
     DeviceId?: String,
     DeviceName: String,
     DeviceType: String,
@@ -9,7 +10,8 @@ export interface IDeviceType {
     Quantity: Number,
     HasTrain: Number,
     ManufacturerId: Number,
-    ManufacturerName?: String
+    ManufacturerName?: String,
+    Price?: Number,
 }
 
 export interface ILessonDeviceType {

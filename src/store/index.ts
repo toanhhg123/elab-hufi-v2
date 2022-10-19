@@ -15,6 +15,9 @@ import warehouseReducer from '../layouts/WarehouseTable/warehouseSlice';
 import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import exportChemicalReducer from '../layouts/ExportChemicalTable/exportChemicalSlice';
 import exportDeviceReducer from '../layouts/ExportDeviceTable/exportDeviceSlice';
+import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
+import orderChemicalReducer from '../layouts/ChemicalTable/orderChemicalSlice';
+import orderDeviceReducer from '../layouts/DeviceTable/orderDeviceSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -34,6 +37,9 @@ export const store = configureStore({
 		registerGeneral: registerGeneralReducer,
 		exportChemical: exportChemicalReducer,
 		exportDevice: exportDeviceReducer,
+		purchaseOrder: purchaseOrderReducer,
+		orderChemical: orderChemicalReducer,
+		orderDevice: orderDeviceReducer,
 	},
 });
 
