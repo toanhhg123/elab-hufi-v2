@@ -61,6 +61,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
+    "name": "Quản lý thời khoá biểu",
+    "icon": ""
+  },
+  {
+    "isOpen": false,
     "name": "Quản lý môn học",
     "icon": ""
   },
