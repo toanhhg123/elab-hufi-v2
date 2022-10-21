@@ -18,7 +18,7 @@ import exportDeviceReducer from '../layouts/ExportDeviceTable/exportDeviceSlice'
 import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import orderChemicalReducer from '../layouts/ChemicalTable/orderChemicalSlice';
 import orderDeviceReducer from '../layouts/DeviceTable/orderDeviceSlice';
-import schedulerReducer from '../layouts/SchedulerTable/schedulerSlice';
+import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -41,7 +41,7 @@ export const store = configureStore({
 		purchaseOrder: purchaseOrderReducer,
 		orderChemical: orderChemicalReducer,
 		orderDevice: orderDeviceReducer,
-		scheduler: schedulerReducer,
+		schedule: scheduleReducer,
 	},
 });
 

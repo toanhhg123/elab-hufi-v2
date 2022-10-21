@@ -1,28 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../../store'
-import { ISchedulerType } from '../../types/schedulerType'
+import { IScheduleType } from '../../types/scheduleType'
 
 // Define a type for the slice state
 interface ISchedulerState {
-  listOfSchedulers: ISchedulerType[],
+  listOfSchedules: IScheduleType[],
 }
 
 // Define the initial state using that type
 const initialState: ISchedulerState = {
-    listOfSchedulers: []
+  listOfSchedules: []
 }
 
 export const schedulerSlice = createSlice({
   name: 'scheduler',
   initialState,
   reducers: {
-    setListOfSchedulers: (state: ISchedulerState, action: PayloadAction<ISchedulerType[]>) => {
-      state.listOfSchedulers = action.payload
+    setListOfSchedules: (state: ISchedulerState, action: PayloadAction<IScheduleType[]>) => {
+      state.listOfSchedules = action.payload
     },
   },
 })
 
-export const { setListOfSchedulers } = schedulerSlice.actions
+export const { setListOfSchedules } = schedulerSlice.actions
 
 export default schedulerSlice.reducer

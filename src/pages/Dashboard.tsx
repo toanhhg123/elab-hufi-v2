@@ -26,7 +26,8 @@ import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
 import { setListOfOrderChemicals } from '../layouts/ChemicalTable/orderChemicalSlice';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import SchedulerTable from '../layouts/SchedulerTable';
+import ScheduleTable from '../layouts/ScheduleTable';
+import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
@@ -47,6 +48,7 @@ import { getOrderChemicals } from '../services/orderChemicalServices';
 import { getOrderDevices } from '../services/orderDeviceServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
+import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
 import { getWarehouseFeildId } from '../services/warehouseServices';
@@ -65,6 +67,7 @@ import { IOrderChemicalType } from '../types/orderChemicalType';
 import { IOrderDeviceType } from '../types/orderDeviceType';
 import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
+import { IScheduleType } from '../types/scheduleType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
 import { IWarehouseType } from '../types/warehouseType';
@@ -224,6 +227,11 @@ export function Dashboard() {
         const listOfOrderDevices: IOrderDeviceType[] = await getOrderDevices();
         if (listOfOrderDevices) {
             dispatch(setListOfOrderDevices(listOfOrderDevices));
+
+    const getScheduleData = async () => {
+        const listOfSchedules: IScheduleType[] = await getSchedules();
+        if (listOfSchedules) {
+            dispatch(setListOfSchedules(listOfSchedules));
         }
     }
 
@@ -248,6 +256,7 @@ export function Dashboard() {
         getPurchaseOrderData();
         getOrderChemicalData();
         getOrderDeviceData();
+        getScheduleData();
     }, [])
 
     const snackbarFunc = () => setTimeout(() => {
