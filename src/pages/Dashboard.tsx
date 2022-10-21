@@ -227,6 +227,8 @@ export function Dashboard() {
         const listOfOrderDevices: IOrderDeviceType[] = await getOrderDevices();
         if (listOfOrderDevices) {
             dispatch(setListOfOrderDevices(listOfOrderDevices));
+        }
+    }
 
     const getScheduleData = async () => {
         const listOfSchedules: IScheduleType[] = await getSchedules();
@@ -283,7 +285,7 @@ export function Dashboard() {
                 {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable type="normal" />}
                 {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
                 {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable type="normal" />}
-                {sidebarItems[7].isOpen && <SchedulerTable />}
+                {sidebarItems[7].isOpen && <ScheduleTable />}
                 {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
                 {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
