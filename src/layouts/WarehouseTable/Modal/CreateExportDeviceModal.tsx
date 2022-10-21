@@ -4,7 +4,7 @@ import {
 	Autocomplete,
 	Box,
 	Button,
-	debounce,
+	CircularProgress,
 	Dialog,
 	DialogActions,
 	DialogContent,
@@ -12,10 +12,6 @@ import {
 	FormControl,
 	Grid,
 	IconButton,
-	InputLabel,
-	MenuItem,
-	Select,
-	SelectChangeEvent,
 	TextField,
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
@@ -26,59 +22,116 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Stack } from '@mui/system';
+import axios from 'axios';
 import { MRT_ColumnDef } from 'material-react-table';
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setSnackbarMessage } from '../../../pages/appSlice';
-import { getExportDevice, postExportDevices } from '../../../services/exportDeviceServices';
-import { RootState } from '../../../store';
+import { ChangeEvent, Fragment, useEffect, useState } from 'react';
+import { useAppDispatch } from '../../../hooks';
 import { dummyExportDevice, IExportDeviceType } from '../../../types/exportDeviceType';
-import { setListOfExportDevice } from '../../ExportDeviceTable/exportDeviceSlice';
 
 type CreateExportDeviceModalProps = {
-	initData: any;
 	isOpen: boolean;
+	initData: any;
 	columns: MRT_ColumnDef<IExportDeviceType>[];
 	onClose: () => void;
+	handleSubmit: (list: any, row: any) => void;
+	type: string;
 };
 
-const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateExportDeviceModalProps) => {
+const CreateExportDeviceModal = ({
+	isOpen,
+	initData,
+	columns,
+	onClose,
+	handleSubmit,
+	type,
+}: CreateExportDeviceModalProps) => {
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportDevice);
-	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
-	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
+	const [deviceData, setDeviceData] = useState([]);
 
 	const [listDeviceAmount, setListDeviceAmount] = useState<any>([]);
-	const [deviceAmount, setDeviceAmount] = useState<any>({ DeviceId: '', Quantity: 1 });
+	const [deviceAmount, setDeviceAmount] = useState<any>({ ExpDeviceDeptId: '', DeviceDetailId: '', Amount: 0 });
 	const dispatch = useAppDispatch();
+	const [exportDeviceIdText, setExportDeviceIdText] = useState('');
+	const [loading, setLoading] = useState<boolean>(true);
 
-	const handleSubmit = async () => {
-		const newExportDevices = listDeviceAmount.map((el: any) => {
-			const data: IExportDeviceType = {
-				ExportId: createdRow.ExportId,
-				DeviceId: el.DeviceId,
-				Quantity: el.Quantity,
-			};
-			return data;
-		});
-		const resData = await postExportDevices(newExportDevices);
-		if (Object.keys(resData).length !== 0) {
-			const newListOfExportDevice: IExportDeviceType[] = await getExportDevice();
-			if (newListOfExportDevice) {
-				dispatch(setSnackbarMessage('Tạo thông tin thành công'));
-				dispatch(setListOfExportDevice(newListOfExportDevice));
-			}
-		} else {
-			dispatch(setSnackbarMessage('Tạo thông tin không thành công'));
-		}
-		onClose();
-	};
+	const handleChangeExportDeviceIdText = (e: ChangeEvent<HTMLInputElement>) => setExportDeviceIdText(e.target.value);
 
 	useEffect(() => {
-		setCreatedRow((prev: any) => ({ ...prev, ExportId: initData.ExportId }));
+		let list = [];
+
+		switch (type) {
+			case 'DEP':
+				list = initData?.listDeviceExport || [];
+				break;
+			case 'LAB':
+				list = initData?.listDevice || [];
+				break;
+			default:
+				break;
+		}
+
+		const listInitDevice = list?.map((device: any) => {
+			switch (type) {
+				case 'DEP':
+					return {
+						ExpDeviceDeptId: device?.ExpDeviceDeptId,
+						DeviceDetailId: device?.DeviceDetailId,
+						DeviceName: device?.DeviceName,
+						Amount: device?.QuantityOriginal,
+						Unit: device?.Unit,
+					};
+				case 'LAB':
+					return {
+						ExpDeviceDeptId: device?.ExpDeviceDeptId,
+						DeviceDetailId: device?.DeviceDetailId,
+						DeviceName: device?.DeviceName,
+						Unit: device?.Unit,
+					};
+				default:
+					break;
+			}
+		});
+
+		setListDeviceAmount(listInitDevice || []);
+	}, [initData]);
+
+	useEffect(() => {
+		const getDeviceData = async (DepartmentId: number = 1) => {
+			const devicesDetail: any = [];
+			Promise.all([
+				axios.get(`https://aspsite.somee.com/api/devices/${DepartmentId}/Thiết bị`),
+				axios.get(`https://aspsite.somee.com/api/devices/${DepartmentId}/Công cụ`),
+				axios.get(`https://aspsite.somee.com/api/devices/${DepartmentId}/Dụng cụ`),
+			])
+				.then(resData => {
+					resData.forEach(({ data }) => {
+						data?.forEach((devices: any) => {
+							for (let x of devices.listDeviceDetail) {
+								devicesDetail.push({
+									DeviceName: devices?.DeviceName,
+									DeviceDetailId: x?.DeviceDetailId,
+									Unit: devices.Unit,
+								});
+							}
+						});
+					});
+				})
+				.catch(() => {})
+				.finally(() => {
+					setDeviceData(devicesDetail);
+					setLoading(false);
+				});
+		};
+
+		getDeviceData();
+	}, []);
+
+	useEffect(() => {
+		setCreatedRow((prev: any) => ({ ...prev, ...initData }));
 	}, [initData]);
 
 	return (
-		<Dialog open={isOpen}>
+		<Dialog open={isOpen} PaperProps={{ style: { width: '850px', maxWidth: 'unset' } }}>
 			<DialogTitle textAlign="center">
 				<b>Tạo thông tin phiếu xuất thiết bị mới</b>
 			</DialogTitle>
@@ -92,103 +145,152 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 						}}
 					>
 						{columns.map(column => {
-							if (column.accessorKey === 'ExportId') {
+							if (column.accessorKey === 'ExportId' || column.accessorKey === 'ExpRegGeneralId') {
 								return (
 									<TextField
-										disabled
 										key={column.accessorKey}
+										disabled
 										label={column.header}
 										name={column.accessorKey}
-										defaultValue={column.accessorKey && initData['ExportId']}
+										defaultValue={column.accessorKey && initData[column.accessorKey]}
 									/>
 								);
-							} else if (column.accessorKey === 'DeviceId') {
-								const list = deviceData.map((x) => {
-									const isExistInListAdded =
-										listDeviceAmount.findIndex((y: any) => y.DeviceId === x.DeviceId) === -1;
-									const isExistInListData =
-										exportDeviceData.findIndex(
-											y => y.DeviceId === x.DeviceId && y.ExportId === initData['ExportId'],
-										) === -1;
-									if (isExistInListAdded && isExistInListData) {
-										return {
-											label: `${x.DeviceId} - ${x.DeviceName}`,
-											id: x.DeviceId,
-											name: x.DeviceName,
-										};
-									}
-								}).filter(x => x !== undefined)
-								
+							}
+							if (column.accessorKey === 'ExpDeviceDeptId') {
+								const list = deviceData
+									.map((x: any) => {
+										const isExistInListAdded =
+											listDeviceAmount?.findIndex(
+												(y: any) => y.DeviceDetailId === x?.DeviceDetailId,
+											) === -1;
+										if (isExistInListAdded) {
+											return {
+												label: `${x?.DeviceDetailId} - ${x?.DeviceName}`,
+												id: x?.DeviceDetailId,
+												name: x?.DeviceDetailId,
+												unit: x?.Unit,
+											};
+										}
+									})
+									.filter(x => x !== undefined);
+
 								return (
-									<FormControl key={column.accessorKey}>
-										<Box>
-											<Grid container spacing={1}>
-												<Grid item xs={9}>
-													<Autocomplete
-														key={column.id}
-														noOptionsText="Không có kết quả trùng khớp"
-														options={list}
-														defaultValue={
-															list.find(x => x?.id === deviceAmount['DeviceId']) || null
-														}
-														value={list.find(x => x?.id === deviceAmount['DeviceId']) || null}
-														getOptionLabel={option => option?.label || ""}
-														renderInput={params => {
-															return (
-																<TextField
-																	{...params}
-																	label="Thiết bị"
-																	placeholder="Nhập để tìm kiếm"
-																/>
-															);
-														}}
-														onChange={(event, value) => {
-															setDeviceAmount((prev: any) => ({
-																...prev,
-																DeviceId: value?.id,
-																DeviceName: value?.name,
-															}));
-														}}
-													/>
+									<Fragment key={column.accessorKey}>
+										<TextField
+											label={column.header}
+											name={column.accessorKey}
+											disabled={!deviceAmount.DeviceDetailId}
+											value={exportDeviceIdText}
+											onChange={handleChangeExportDeviceIdText}
+										/>
+										<FormControl>
+											<Box>
+												<Grid container spacing={1}>
+													<Grid item xs={8}>
+														<Autocomplete
+															key={column.id}
+															noOptionsText="Không có kết quả trùng khớp"
+															options={list}
+															defaultValue={
+																list.find(
+																	x => x?.id === deviceAmount['DeviceDetailId'],
+																) || null
+															}
+															value={
+																list.find(
+																	x => x?.id === deviceAmount['DeviceDetailId'],
+																) || null
+															}
+															loading={loading}
+															getOptionLabel={option => option?.label || ''}
+															renderInput={params => {
+																return (
+																	<TextField
+																		{...params}
+																		label="Thiết bị"
+																		placeholder="Nhập để tìm kiếm"
+																		InputProps={{
+																			...params.InputProps,
+																			endAdornment: (
+																				<>
+																					{loading ? (
+																						<CircularProgress
+																							color="inherit"
+																							size={20}
+																						/>
+																					) : null}
+																					{params.InputProps.endAdornment}
+																				</>
+																			),
+																		}}
+																	/>
+																);
+															}}
+															onChange={(event, value) => {
+																setExportDeviceIdText(value?.id || '');
+																setDeviceAmount((prev: any) => ({
+																	...prev,
+																	DeviceDetailId: value?.id,
+																	DeviceName: value?.name,
+																	Unit: value?.unit,
+																}));
+															}}
+														/>
+													</Grid>
+													<Grid item xs={3}>
+														<TextField
+															label={'Số lượng'}
+															type="number"
+															InputProps={{ inputProps: { min: 1 } }}
+															value={deviceAmount.Amount}
+															onChange={e =>
+																setDeviceAmount({
+																	...deviceAmount,
+																	Amount: Number(e.target.value),
+																})
+															}
+														/>
+													</Grid>
+													<Grid item xs={1}>
+														<Box
+															height="100%"
+															display="flex"
+															alignItems="center"
+															justifyContent="center"
+														>
+															{deviceAmount.Unit && `(${deviceAmount.Unit})`}{' '}
+														</Box>
+													</Grid>
 												</Grid>
-												<Grid item xs={3}>
-													<TextField
-														label={'Số lượng'}
-														type="number"
-														InputProps={{ inputProps: { min: 1 } }}
-														value={deviceAmount.Quantity}
-														onChange={e =>
-															setDeviceAmount({
-																...deviceAmount,
-																Quantity: Number(e.target.value),
-															})
-														}
-													/>
-												</Grid>
-											</Grid>
-											<Button
-												aria-label="delete"
-												color="primary"
-												variant="contained"
-												disabled={deviceAmount.DeviceId === ""}
-												sx={{ float: 'right', marginTop: '8px' }}
-												onClick={() => {
-													setListDeviceAmount((prev: any) => [...prev, deviceAmount]);
-													setDeviceAmount({ DeviceId: '', Quantity: 1 });
-												}}
-											>
-												<AddIcon />
-											</Button>
-										</Box>
-									</FormControl>
+												<Button
+													aria-label="delete"
+													color="primary"
+													variant="contained"
+													sx={{ float: 'right', marginTop: '8px' }}
+													disabled={!deviceAmount.DeviceDetailId}
+													onClick={() => {
+														setListDeviceAmount((prev: any) => [
+															...prev,
+															{ ...deviceAmount, ExpDeviceDeptId: exportDeviceIdText },
+														]);
+														setDeviceAmount({ DeviceDetailId: '', Amount: 0 });
+														setExportDeviceIdText('');
+													}}
+												>
+													<AddIcon />
+												</Button>
+											</Box>
+										</FormControl>
+									</Fragment>
 								);
 							}
 						})}
 						<TableContainer component={Paper} sx={{ height: 440 }}>
-							<Table aria-label="simple table">
+							<Table size="small" aria-label="simple table">
 								<TableHead>
 									<TableRow>
 										<TableCell>STT</TableCell>
+										<TableCell>Mã thiết bị xuất</TableCell>
 										<TableCell>Thiết bị</TableCell>
 										<TableCell>SL</TableCell>
 										<TableCell></TableCell>
@@ -203,10 +305,13 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 											<TableCell component="th" scope="row">
 												{index + 1}
 											</TableCell>
+											<TableCell>{el.ExpDeviceDeptId}</TableCell>
 											<TableCell>
-												{el.DeviceId} - {el.DeviceName}
+												{el.DeviceDetailId} - {el.DeviceName}
 											</TableCell>
-											<TableCell>{el.Quantity}</TableCell>
+											<TableCell>
+												{el.Amount} {el.Unit}
+											</TableCell>
 											<TableCell>
 												<IconButton
 													aria-label="delete"
@@ -232,7 +337,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 				<Button onClick={onClose}>Huỷ</Button>
 				<Button
 					color="primary"
-					onClick={handleSubmit}
+					onClick={() => handleSubmit(listDeviceAmount, createdRow)}
 					variant="contained"
 					disabled={listDeviceAmount.length === 0}
 				>

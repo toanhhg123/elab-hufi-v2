@@ -11,7 +11,7 @@ import {
 	MenuItem,
 	Select,
 	SelectChangeEvent,
-	TextField
+	TextField,
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -19,14 +19,13 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import { FC, useEffect, useState } from 'react';
-import * as API from '../../../configs/apiHelper';
 import { useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
-import { IWarehouseType } from '../../../types/warehouseType';
+import { IExportType } from '../../../types/exportType';
 
 type EditExportModalProps = {
 	isEditModal: boolean;
-	columns: MRT_ColumnDef<IWarehouseType>[];
+	columns: MRT_ColumnDef<IExportType>[];
 	onClose: () => void;
 	handleSubmitEditModal: Function;
 	initData: any;
@@ -44,6 +43,8 @@ const EditExportModal: FC<EditExportModalProps> = ({
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
 	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
+	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
+	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
 
 	const handleSubmit = () => {
 		handleSubmitEditModal(updatedRow);
@@ -69,7 +70,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 						}}
 					>
 						{columns.map(column => {
-							if (column.id === 'ExportId' && column.enableHiding !== false) {
+							if ((column.id === 'ExportLabId' ||column.id === 'ExpRegGeneralId' ||column.id === 'ExpSubjectId' )  && column.enableHiding !== false) {
 								return (
 									<TextField
 										disabled
@@ -83,7 +84,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 								return (
 									<LocalizationProvider dateAdapter={AdapterMoment} key={column.id}>
 										<DatePicker
-											label="Ngày sinh"
+											label="Ngày xuất"
 											value={new Date(updatedRow.ExportDate * 1000)}
 											onChange={(val: any) =>
 												setUpdatedRow({
@@ -98,6 +99,76 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											inputFormat="DD/MM/YYYY"
 										/>
 									</LocalizationProvider>
+								);
+							} else if (
+								column.id === 'SubjectId' &&
+								column.enableHiding !== false &&
+								employeeData.length > 0
+							) {
+								const list =  Array.isArray(subjectData) ?  subjectData?.map(x => ({
+									label: `${x.SubjectId} - ${x.SubjectName}`,
+									id: x.SubjectId,
+								})) : [];
+
+								return (
+									<Autocomplete
+										key={column.id}
+										options={list}
+										noOptionsText="Không có kết quả trùng khớp"
+										defaultValue={list.find(x => x.id === updatedRow['SubjectId']) || null}
+										value={list.find(x => x.id === updatedRow['SubjectId']) || null}
+										getOptionLabel={option => option?.label}
+										renderInput={params => {
+											return (
+												<TextField
+													{...params}
+													label="Người xuất"
+													placeholder="Nhập để tìm kiếm"
+												/>
+											);
+										}}
+										onChange={(event, value) => {
+											setUpdatedRow({
+												...updatedRow,
+												SubjectId: value?.id,
+											});
+										}}
+									/>
+								);
+							}else if (
+								column.id === 'RegisterGeneralId' &&
+								column.enableHiding !== false &&
+								registerGeneralData.length > 0
+							) {
+								const list = registerGeneralData.map((x, idx) => ({
+									label: `${x.RegisterGeneralId} - ${x.Instructor} - ${x.ResearchSubject}`,
+									id: x.RegisterGeneralId,
+								}));
+
+								return (
+									<Autocomplete
+										key={column.id}
+										options={list}
+										noOptionsText="Không có kết quả trùng khớp"
+										defaultValue={list.find(x => x.id === updatedRow['RegisterGeneralId']) || null}
+										value={list.find(x => x.id === updatedRow['RegisterGeneralId']) || null}
+										getOptionLabel={option => option?.label}
+										renderInput={params => {
+											return (
+												<TextField
+													{...params}
+													label="Đăng kí chung"
+													placeholder="Nhập để tìm kiếm"
+												/>
+											);
+										}}
+										onChange={(event, value) => {
+											setUpdatedRow({
+												...updatedRow,
+												RegisterGeneralId: value?.id,
+											});
+										}}
+									/>
 								);
 							} else if (
 								column.id === 'LabId' &&
@@ -135,7 +206,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 									/>
 								);
 							} else if (
-								column.id === 'EmployeeId' &&
+								(column.id === 'EmployeeId' || column.id === 'EmployeeInCharge' || column.id === 'EmployeeCreate') &&
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
@@ -149,14 +220,14 @@ const EditExportModal: FC<EditExportModalProps> = ({
 										key={column.id}
 										options={list}
 										noOptionsText="Không có kết quả trùng khớp"
-										defaultValue={list.find(x => x.id === updatedRow['EmployeeId']) || null}
-										value={list.find(x => x.id === updatedRow['EmployeeId']) || null}
+										defaultValue={list.find(x => x.id === updatedRow[column.id as keyof typeof updatedRow]) || null}
+										value={list.find(x => x.id === updatedRow[column.id as keyof typeof updatedRow]) || null}
 										getOptionLabel={option => option?.label}
 										renderInput={params => {
 											return (
 												<TextField
 													{...params}
-													label="Người xuất"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -164,38 +235,38 @@ const EditExportModal: FC<EditExportModalProps> = ({
 										onChange={(event, value) => {
 											setUpdatedRow({
 												...updatedRow,
-												EmployeeId: value?.id,
+												[column.id as keyof typeof updatedRow]: value?.id,
 											});
 										}}
 									/>
 								);
 							} else if (
-								column.id === 'Status' &&
+								column.id === 'Accept' &&
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
 								return (
 									<FormControl sx={{ m: 0, minWidth: 120 }} key={column.id}>
-										<InputLabel id="status-select-required-label">Trạng thái</InputLabel>
+										<InputLabel id="Accept-select-required-label">Chấp nhận</InputLabel>
 										<Select
-											labelId="status-select-required-label"
-											id="status-select-required"
+											labelId="Accept-select-required-label"
+											id="Accept-select-required"
 											value={
-												['True', 'Fasle'].findIndex(x => x === updatedRow.Status) > -1
-													? ['True', 'Fasle']
-															.findIndex(x => x === updatedRow.Status)
+												['true', 'false'].findIndex(x => x === updatedRow.Accept) > -1
+													? ['true', 'false']
+															.findIndex(x => x === updatedRow.Accept)
 															.toString()
 													: ''
 											}
-											label="Trạng thái"
+											label="Chấp nhận"
 											onChange={(e: SelectChangeEvent) =>
 												setUpdatedRow({
 													...updatedRow,
-													Status: ['True', 'Fasle'][Number(e.target.value)],
+													Accept: ['true', 'false'][Number(e.target.value)],
 												})
 											}
 										>
-											{['True', 'Fasle'].map((x, idx) => (
+											{['true', 'false'].map((x, idx) => (
 												<MenuItem key={idx} value={idx}>
 													{x}
 												</MenuItem>
@@ -204,13 +275,13 @@ const EditExportModal: FC<EditExportModalProps> = ({
 									</FormControl>
 								);
 							} else if (
-								column.id === 'RegisterGeneralId' &&
+								column.id === 'DepartmentId' &&
 								column.enableHiding !== false &&
-								registerGeneralData.length > 0
+								employeeData.length > 0
 							) {
-								const list = registerGeneralData.map((x, idx) => ({
-									label: `${x.RegisterGeneralId} - ${x.Instructor} - ${x.ResearchSubject}`,
-									id: x.RegisterGeneralId,
+								const list = departmentData.map(x => ({
+									label: `${x.DepartmentId} - ${x.DepartmentName}`,
+									id: x.DepartmentId,
 								}));
 
 								return (
@@ -218,14 +289,14 @@ const EditExportModal: FC<EditExportModalProps> = ({
 										key={column.id}
 										options={list}
 										noOptionsText="Không có kết quả trùng khớp"
-										defaultValue={list.find(x => x.id === updatedRow['RegisterGeneralId']) || null}
-										value={list.find(x => x.id === updatedRow['RegisterGeneralId']) || null}
+										defaultValue={list.find(x => x.id === updatedRow['DepartmentId']) || null}
+										value={list.find(x => x.id === updatedRow['DepartmentId']) || null}
 										getOptionLabel={option => option?.label}
 										renderInput={params => {
 											return (
 												<TextField
 													{...params}
-													label="Đăng kí chung"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -233,7 +304,42 @@ const EditExportModal: FC<EditExportModalProps> = ({
 										onChange={(event, value) => {
 											setUpdatedRow({
 												...updatedRow,
-												RegisterGeneralId: value?.id,
+												DepartmentId: value?.id,
+											});
+										}}
+									/>
+								);
+							} else if (
+								column.id === 'UserAccept' &&
+								column.enableHiding !== false &&
+								employeeData.length > 0
+							) {
+								const list = employeeData.map(x => ({
+									label: `${x.EmployeeID} - ${x.Fullname}`,
+									id: x.EmployeeID,
+								}));
+
+								return (
+									<Autocomplete
+										key={column.id}
+										options={list}
+										noOptionsText="Không có kết quả trùng khớp"
+										defaultValue={list.find(x => x.id === updatedRow['UserAccept']) || null}
+										value={list.find(x => x.id === updatedRow['UserAccept']) || null}
+										getOptionLabel={option => option?.label}
+										renderInput={params => {
+											return (
+												<TextField
+													{...params}
+													label="Người chấp nhận"
+													placeholder="Nhập để tìm kiếm"
+												/>
+											);
+										}}
+										onChange={(event, value) => {
+											setUpdatedRow({
+												...updatedRow,
+												UserAccept: value?.id,
 											});
 										}}
 									/>
@@ -275,6 +381,26 @@ const EditExportModal: FC<EditExportModalProps> = ({
 												SessionId: value?.id,
 											});
 										}}
+									/>
+								);
+							} else if (
+								column.id === 'Note' &&
+								column.enableHiding !== false &&
+								registerGeneralData.length > 0
+							) {
+								return (
+									<TextField
+										key={column.accessorKey}
+										label={column.header}
+										name={column.accessorKey}
+										defaultValue={column.id && updatedRow[column.id]}
+										multiline={true}
+										minRows={3}
+										maxRows={5}
+										onChange={debounce(
+											e => setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value }),
+											300,
+										)}
 									/>
 								);
 							} else if (column.enableHiding === false) {

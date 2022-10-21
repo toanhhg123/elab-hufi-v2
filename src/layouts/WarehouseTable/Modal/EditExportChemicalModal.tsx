@@ -1,7 +1,7 @@
-import { Button, debounce, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Box, Button, debounce, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import { MRT_ColumnDef } from 'material-react-table';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setSnackbarMessage } from '../../../pages/appSlice';
 import { putExportChemical } from '../../../services/exportChemicalServices';
@@ -14,6 +14,7 @@ type EditExportChemicalModalProps = {
 	columns: MRT_ColumnDef<IExportChemicalType>[];
 	onClose: () => void;
 	initData: any;
+    handleSubmit: (updateData: any) => void
 };
 
 const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
@@ -21,35 +22,21 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 	columns,
 	onClose,
 	initData,
+    handleSubmit,
 }: EditExportChemicalModalProps) => {
 	const [updatedRow, setUpdatedRow] = useState<any>(() => initData);
 	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
+	const chemicalsData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
 	const dispatch = useAppDispatch();
+	const [isValid, setIsValid] = useState<boolean>(false);
 
-	const handleSubmit = async () => {
-		const updateData: IExportChemicalType = {
-			ChemicalId: updatedRow.ChemicalId.toString(),
-			Amount: Number(updatedRow.Amount),
-			ExportId: updatedRow.ExportId,
-		};
-		const resData = await putExportChemical(updatedRow.ExportId, updatedRow.ChemicalId, updateData);
-
-		if (Object.keys(resData).length !== 0) {
-			dispatch(setSnackbarMessage('Cập nhật thành công'));
-			let updatedIdx = exportChemicalData.findIndex(
-				x => x.ChemicalId === updatedRow.ChemicalId && x.ExportId === updatedRow.ExportId,
-			);
-			let newListOfDeviceSpecs = [
-				...exportChemicalData.slice(0, updatedIdx),
-				updateData,
-				...exportChemicalData.slice(updatedIdx + 1),
-			];
-			dispatch(setListOfExportChemical(newListOfDeviceSpecs));
+	useEffect(() => {
+		if(Number(updatedRow?.AmountOriginal) > 0) {
+			setIsValid(true)
 		} else {
-			dispatch(setSnackbarMessage('Cập nhật không thành công'));
+			setIsValid(false)
 		}
-		onClose();
-	};
+	}, [updatedRow])
 
 	useEffect(() => {
 		setUpdatedRow(initData);
@@ -70,7 +57,7 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 						}}
 					>
 						{columns.map(column => {
-							if (column.accessorKey === 'ExportId' || column.accessorKey === 'ChemicalId') {
+							if (column.accessorKey === 'ExportId' || column.accessorKey === 'ExpChemDeptId') {
 								return (
 									<TextField
 										disabled
@@ -80,26 +67,31 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 										value={column.accessorKey && updatedRow[column.accessorKey]}
 									/>
 								);
-							} else if (column.accessorKey === 'Amount') {
-								console.log(updatedRow[column.accessorKey]);
+							} else if (column.accessorKey === 'AmountOriginal') {
+								let unitChemical = updatedRow?.Unit
 								return (
-									<TextField
-										key={column.accessorKey}
-										label={column.header}
-										name={column.accessorKey}
-										type="number"
-										inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-										InputProps={{ inputProps: { min: 1 } }}
-										defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
-										onChange={debounce(
-											e =>
-												setUpdatedRow({
-													...updatedRow,
-													[e.target.name]: e.target.value,
-												}),
-											200,
-										)}
-									/>
+									<Box display='flex' alignItems='center'  >
+										<TextField
+											error={!isValid}
+											key={column.accessorKey}
+											label={column.header}
+											name={column.accessorKey}
+											sx={{flex: 1}}
+											type="number"
+											inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+											InputProps={{ inputProps: { min: 1 } }}
+											defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
+											onChange={debounce(
+												e =>
+													setUpdatedRow({
+														...updatedRow,
+														[e.target.name]: e.target.value,
+													}),
+												200,
+											)}
+										/>
+										<Typography mx={2}>{unitChemical && `(${unitChemical})`}</Typography>
+									</Box>
 								);
 							}
 						})}
@@ -108,7 +100,7 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
 				<Button onClick={onClose}>Huỷ</Button>
-				<Button color="primary" onClick={handleSubmit} variant="contained">
+				<Button color="primary" onClick={() => handleSubmit(updatedRow)} disabled={!isValid} variant="contained">
 					Lưu thay đổi
 				</Button>
 			</DialogActions>
