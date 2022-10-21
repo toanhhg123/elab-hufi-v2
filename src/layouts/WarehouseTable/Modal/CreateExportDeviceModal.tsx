@@ -3,20 +3,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {
 	Autocomplete,
 	Box,
-	Button,
-	debounce,
-	Dialog,
+	Button, Dialog,
 	DialogActions,
 	DialogContent,
 	DialogTitle,
 	FormControl,
 	Grid,
-	IconButton,
-	InputLabel,
-	MenuItem,
-	Select,
-	SelectChangeEvent,
-	TextField,
+	IconButton, TextField
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -48,7 +41,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
 
 	const [listDeviceAmount, setListDeviceAmount] = useState<any>([]);
-	const [deviceAmount, setDeviceAmount] = useState<any>({ DeviceId: '', Quantity: 1 });
+	const [deviceAmount, setDeviceAmount] = useState<any>({ DeviceId: '', Quantity: 0 });
 	const dispatch = useAppDispatch();
 
 	const handleSubmit = async () => {
@@ -78,7 +71,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 	}, [initData]);
 
 	return (
-		<Dialog open={isOpen}>
+		<Dialog open={isOpen} PaperProps={{ style: { width: '700px', maxWidth: 'unset' } }}>
 			<DialogTitle textAlign="center">
 				<b>Tạo thông tin phiếu xuất thiết bị mới</b>
 			</DialogTitle>
@@ -115,6 +108,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 											label: `${x.DeviceId} - ${x.DeviceName}`,
 											id: x.DeviceId,
 											name: x.DeviceName,
+											unit: x.Unit
 										};
 									}
 								}).filter(x => x !== undefined)
@@ -123,7 +117,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 									<FormControl key={column.accessorKey}>
 										<Box>
 											<Grid container spacing={1}>
-												<Grid item xs={9}>
+												<Grid item xs={8}>
 													<Autocomplete
 														key={column.id}
 														noOptionsText="Không có kết quả trùng khớp"
@@ -147,6 +141,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 																...prev,
 																DeviceId: value?.id,
 																DeviceName: value?.name,
+																Unit: value?.unit
 															}));
 														}}
 													/>
@@ -165,6 +160,9 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 														}
 													/>
 												</Grid>
+												<Grid item xs={1}>
+													<Box height='100%' display='flex' alignItems='center' justifyContent='center'>{deviceAmount.Unit && `(${deviceAmount.Unit})`} </Box>
+												</Grid>
 											</Grid>
 											<Button
 												aria-label="delete"
@@ -174,7 +172,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 												sx={{ float: 'right', marginTop: '8px' }}
 												onClick={() => {
 													setListDeviceAmount((prev: any) => [...prev, deviceAmount]);
-													setDeviceAmount({ DeviceId: '', Quantity: 1 });
+													setDeviceAmount({ DeviceId: '', Quantity: 0 });
 												}}
 											>
 												<AddIcon />
@@ -185,7 +183,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 							}
 						})}
 						<TableContainer component={Paper} sx={{ height: 440 }}>
-							<Table aria-label="simple table">
+							<Table aria-label="simple table" size="small">
 								<TableHead>
 									<TableRow>
 										<TableCell>STT</TableCell>
@@ -206,7 +204,7 @@ const CreateExportDeviceModal = ({ isOpen, initData, columns, onClose }: CreateE
 											<TableCell>
 												{el.DeviceId} - {el.DeviceName}
 											</TableCell>
-											<TableCell>{el.Quantity}</TableCell>
+											<TableCell>{el.Quantity} {el.Unit}</TableCell>
 											<TableCell>
 												<IconButton
 													aria-label="delete"

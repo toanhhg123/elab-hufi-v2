@@ -56,7 +56,7 @@ const DeleteExportChemicalModal = ({ isOpen, onClose, initData }: DeleteExportCh
 					</div>
 				</DialogContent>
 				<DialogActions sx={{ p: '1.25rem' }}>
-					<Button onClick={() => onClose}>Huỷ</Button>
+					<Button onClick={onClose}>Huỷ</Button>
 					<Button color="primary" onClick={handleSubmit} variant="contained">
 						Xác nhận
 					</Button>

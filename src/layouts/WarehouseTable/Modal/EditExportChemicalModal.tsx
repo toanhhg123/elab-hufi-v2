@@ -1,4 +1,4 @@
-import { Button, debounce, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Box, Button, debounce, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import { MRT_ColumnDef } from 'material-react-table';
 import { FC, useEffect, useState } from 'react';
@@ -24,7 +24,17 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 }: EditExportChemicalModalProps) => {
 	const [updatedRow, setUpdatedRow] = useState<any>(() => initData);
 	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
+	const chemicalsData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
 	const dispatch = useAppDispatch();
+	const [isValid, setIsValid] = useState<boolean>(false);
+
+	useEffect(() => {
+		if(Number(updatedRow?.Amount) > 0) {
+			setIsValid(true)
+		} else {
+			setIsValid(false)
+		}
+	}, [updatedRow])
 
 	const handleSubmit = async () => {
 		const updateData: IExportChemicalType = {
@@ -81,25 +91,30 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 									/>
 								);
 							} else if (column.accessorKey === 'Amount') {
-								console.log(updatedRow[column.accessorKey]);
+								let unitChemical = chemicalsData.find(x => x.ChemicalId === updatedRow?.ChemicalId)?.Unit
 								return (
-									<TextField
-										key={column.accessorKey}
-										label={column.header}
-										name={column.accessorKey}
-										type="number"
-										inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-										InputProps={{ inputProps: { min: 1 } }}
-										defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
-										onChange={debounce(
-											e =>
-												setUpdatedRow({
-													...updatedRow,
-													[e.target.name]: e.target.value,
-												}),
-											200,
-										)}
-									/>
+									<Box display='flex' alignItems='center'  >
+										<TextField
+											error={!isValid}
+											key={column.accessorKey}
+											label={column.header}
+											name={column.accessorKey}
+											sx={{flex: 1}}
+											type="number"
+											inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+											InputProps={{ inputProps: { min: 1 } }}
+											defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
+											onChange={debounce(
+												e =>
+													setUpdatedRow({
+														...updatedRow,
+														[e.target.name]: e.target.value,
+													}),
+												200,
+											)}
+										/>
+										<Typography mx={2}>{unitChemical && `(${unitChemical})`}</Typography>
+									</Box>
 								);
 							}
 						})}
@@ -108,7 +123,7 @@ const EditExportChemicalModal: FC<EditExportChemicalModalProps> = ({
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
 				<Button onClick={onClose}>Huỷ</Button>
-				<Button color="primary" onClick={handleSubmit} variant="contained">
+				<Button color="primary" onClick={handleSubmit} disabled={!isValid} variant="contained">
 					Lưu thay đổi
 				</Button>
 			</DialogActions>

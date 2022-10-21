@@ -19,7 +19,6 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import { FC, useEffect, useState } from 'react';
-import * as API from '../../../configs/apiHelper';
 import { useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
 import { IWarehouseType } from '../../../types/warehouseType';
@@ -83,7 +82,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 								return (
 									<LocalizationProvider dateAdapter={AdapterMoment} key={column.id}>
 										<DatePicker
-											label="Ngày sinh"
+											label="Ngày xuất"
 											value={new Date(updatedRow.ExportDate * 1000)}
 											onChange={(val: any) =>
 												setUpdatedRow({

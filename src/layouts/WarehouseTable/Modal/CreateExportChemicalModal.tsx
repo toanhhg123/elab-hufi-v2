@@ -41,7 +41,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
 
 	const [listChemicalAmount, setListChemicalAmount] = useState<any>([]);
-	const [chemicalAmount, setChemicalAmount] = useState<any>({ ChemicalId: '', Amount: 1 });
+	const [chemicalAmount, setChemicalAmount] = useState<any>({ ChemicalId: '', Amount: 0 });
 	const dispatch = useAppDispatch();
 
 	const handleSubmit = async () => {
@@ -73,7 +73,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 	}, [initData])
 
 	return (
-		<Dialog open={isOpen}>
+		<Dialog open={isOpen} PaperProps={{ style: { width: '700px', maxWidth: 'unset' } }}>
 			<DialogTitle textAlign="center">
 				<b>Tạo thông tin phiếu xuất hóa chất mới</b>
 			</DialogTitle>
@@ -110,6 +110,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 											label: `${x.ChemicalId} - ${x.ChemicalName}`,
 											id: x.ChemicalId,
 											name: x.ChemicalName,
+											unit: x.Unit
 										};
 									}
 								}).filter(x => x !== undefined)
@@ -118,7 +119,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 									<FormControl key={column.accessorKey}>
 										<Box>
 											<Grid container spacing={1}>
-												<Grid item xs={9}>
+												<Grid item xs={8}>
 												<Autocomplete
 														key={column.id}
 														noOptionsText="Không có kết quả trùng khớp"
@@ -142,6 +143,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 																...prev,
 																ChemicalId: value?.id,
 																ChemicalName: value?.name,
+																Unit: value?.unit
 															}));
 														}}
 													/>
@@ -160,6 +162,9 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 														}
 													/>
 												</Grid>
+												<Grid item xs={1}>
+													<Box height='100%' display='flex' alignItems='center' justifyContent='center'>{chemicalAmount.Unit && `(${chemicalAmount.Unit})`} </Box>
+												</Grid>
 											</Grid>
 											<Button
 												aria-label="delete"
@@ -168,7 +173,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 												sx={{ float: 'right', marginTop: '8px' }}
 												onClick={() => {
 													setListChemicalAmount((prev: any) => [...prev, chemicalAmount]);
-													setChemicalAmount({ ChemicalId: '', Amount: 1 });
+													setChemicalAmount({ ChemicalId: '', Amount: 0 });
 												}}
 											>
 												<AddIcon />
@@ -179,7 +184,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 							}
 						})}
 						<TableContainer component={Paper} sx={{ height: 440 }}>
-							<Table aria-label="simple table">
+							<Table size="small" aria-label="simple table">
 								<TableHead>
 									<TableRow>
 										<TableCell>STT</TableCell>
@@ -200,7 +205,7 @@ const CreateExportChemicalModal = ({ isOpen, initData, columns, onClose }: Creat
 											<TableCell>
 												{el.ChemicalId} - {el.ChemicalName}
 											</TableCell>
-											<TableCell>{el.Amount}</TableCell>
+											<TableCell>{el.Amount} {el.Unit}</TableCell>
 											<TableCell>
 												<IconButton
 													aria-label="delete"
