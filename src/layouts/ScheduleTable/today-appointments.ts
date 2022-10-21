@@ -4,7 +4,7 @@ import { appointments } from './appointments';
 const currentDate = moment();
 let date = currentDate.date();
 
-const makeTodayAppointment = (startDate, endDate) => {
+const makeTodayAppointment = (startDate: any, endDate: any) => {
   const days = moment(startDate).diff(endDate, 'days');
   const nextStartDate = moment(startDate)
     .year(currentDate.year())
@@ -21,10 +21,10 @@ const makeTodayAppointment = (startDate, endDate) => {
   };
 };
 
-export default appointments.map(({ startDate, endDate, ...restArgs }) => {
+export default appointments.map((x:any) => {
   const result = {
-    ...makeTodayAppointment(startDate, endDate),
-    ...restArgs,
+    ...x,
+    ...makeTodayAppointment(x.startDate, x.endDate),
   };
   date += 1;
   if (date > 31) date = 1;
