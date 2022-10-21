@@ -61,7 +61,7 @@ const StudySessionTabItem: FC = () => {
 	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
 	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
 	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
-	const studySessionData = useAppSelector((state: RootState) => state.studySession.listOfStudySession);
+	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
 	const [isEditExportChemicalModal, setIsEditExportChemicalModal] = useState<boolean>(false);

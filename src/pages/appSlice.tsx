@@ -61,7 +61,7 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý thời khoá biểu",
+    "name": "Quản lý TKB",
     "icon": ""
   },
   {
@@ -83,7 +83,22 @@ export const defaultSidebarItems: ISidebarItem[] = [
     "isOpen": false,
     "name": "Quản lý xuất",
     "icon": ""
-  }
+  },
+  {
+    "isOpen": false,
+    "name": "Quản lý phiếu nhập",
+    "icon": ""
+  },
+  {
+    "isOpen": false,
+    "name": "Quản lý nhập hóa chất",
+    "icon": ""
+  },
+  {
+    "isOpen": false,
+    "name": "Quản lý nhập thiết bị",
+    "icon": ""
+  },
 ]
 
 // Define the initial state using that type

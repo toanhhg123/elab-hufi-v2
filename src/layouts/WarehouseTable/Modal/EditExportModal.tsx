@@ -43,7 +43,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
-	const studySessionData = useAppSelector((state: RootState) => state.studySession.listOfStudySession);
+	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
 
 	const handleSubmit = () => {
 		handleSubmitEditModal(updatedRow);
