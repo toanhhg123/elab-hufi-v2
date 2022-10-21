@@ -1,6 +1,6 @@
 import config from '../configs/app';
 import * as API from '../configs/apiHelper';
-import { IRegisterGeneralType } from '../types/registerGeneralType';
+import { IStudySessionType } from '../types/studySessionType';
 
 const { isProd } = config;
 const API_ENDPOINT = 'https://www.aspsite.somee.com';
@@ -11,8 +11,8 @@ const API_ENDPOINT = 'https://www.aspsite.somee.com';
 
 // define type params: APIRequestParams
 
-export const getRegisterGeneral = async <T> () => {
-	const url = `${API_ENDPOINT}/api/registergenerals`;
-	const registergenerals: T = await API.get<T>(url);
-	return registergenerals;
+export const getStudySession = async () => {
+	const url = `${API_ENDPOINT}/api/schedules`;
+	const suppliers: IStudySessionType[] = await API.get<IStudySessionType[]>(url);
+	return suppliers;
 };

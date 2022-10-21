@@ -11,9 +11,7 @@ import DeviceTable from '../layouts/DeviceTable';
 import { setListOfDevices, setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
-import ExportChemicalTable from '../layouts/ExportChemicalTable';
 import { setListOfExportChemical } from '../layouts/ExportChemicalTable/exportChemicalSlice';
-import ExportDeviceTable from '../layouts/ExportDeviceTable';
 import { setListOfExportDevice } from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
 import { setListOfLaboratories } from '../layouts/LaboratoryTable/laboratorySlice';
@@ -23,6 +21,7 @@ import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import SchedulerTable from '../layouts/SchedulerTable';
+import { setListOfStudySession } from '../layouts/StudySessionTable/studySessionSlice';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
@@ -40,6 +39,7 @@ import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
+import { getStudySession } from '../services/studySessionServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
 import { getWarehouseFeildId } from '../services/warehouseServices';
@@ -55,6 +55,7 @@ import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
+import { IStudySessionType } from '../types/studySessionType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
 import { IWarehouseType } from '../types/warehouseType';
@@ -155,6 +156,13 @@ export function Dashboard() {
         }
     }
 
+    const getStudySessionData = async () => {
+        const listOfStudySessions: IStudySessionType[] = await getStudySession();
+        if(listOfStudySessions) {
+            dispatch(setListOfStudySession(listOfStudySessions));
+        }
+    }
+
     const getWarehouseLaboratoryData = async () => {
         const listOfWarehouseLaboratorys: IWarehouseType[] = await getWarehouseFeildId('lab');
         if (listOfWarehouseLaboratorys) {
@@ -214,6 +222,7 @@ export function Dashboard() {
         getExportChemicalData();
         getWarehouseStudySessionData();
         getExportDeviceData();
+        getStudySessionData();
     }, [])
 
     const snackbarFunc = () => setTimeout(() => {
@@ -245,8 +254,6 @@ export function Dashboard() {
                 {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
                 {sidebarItems[11].isOpen && <WarehouseTable />}
-                {sidebarItems[12].isOpen && <ExportChemicalTable />}
-                {sidebarItems[13].isOpen && <ExportDeviceTable />}
             </div>
             <Snackbar
                 anchorOrigin={{

@@ -114,11 +114,11 @@ const Account: React.FC = () => {
 
 	useEffect(() => {
 		compareTwoObj();
-	}, [createdRow]);
+	}, [createdRow, employee]);
 
 	const handleSubmitEdit = async () => {
 		const isUpdatedSuccess = await updateEmployee({
-			EmployeeID: createdRow.EmployeeID,
+			EmployeeID: createdRow.EmployeeID + 1,
 			Fullname: createdRow.Fullname,
 			Birthday: createdRow.Birthday,
 			Gender: createdRow.Gender,
@@ -127,7 +127,8 @@ const Account: React.FC = () => {
 			PhoneNumber: createdRow.PhoneNumber,
 			DepartmentId: createdRow.DepartmentId,
 		});
-		if (isUpdatedSuccess) {
+
+		if (Object.keys(isUpdatedSuccess).length !== 0) {
 			dispatch(setSnackbarMessage('Cập nhật thông tin nhân viên thành công'));
 			let updatedIdx = employeeData.findIndex(x => x.EmployeeID === createdRow.EmployeeID);
 			let newListOfEmployees = [
@@ -136,7 +137,12 @@ const Account: React.FC = () => {
 				...employeeData.slice(updatedIdx + 1),
 			];
 			setEmployee(createdRow);
+			setCreatedRow(createdRow);
 			dispatch(setListOfEmployees(newListOfEmployees));
+		} else {
+			setEmployee(employee)
+			setCreatedRow(employee)
+			dispatch(setSnackbarMessage('Cập nhật thông tin nhân viên không thành công'));
 		}
 	};
 

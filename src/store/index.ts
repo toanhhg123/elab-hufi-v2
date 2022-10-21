@@ -16,6 +16,7 @@ import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGene
 import exportChemicalReducer from '../layouts/ExportChemicalTable/exportChemicalSlice';
 import exportDeviceReducer from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import schedulerReducer from '../layouts/SchedulerTable/schedulerSlice';
+import studySessionReducer from '../layouts/StudySessionTable/studySessionSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -36,6 +37,7 @@ export const store = configureStore({
 		exportChemical: exportChemicalReducer,
 		exportDevice: exportDeviceReducer,
 		scheduler: schedulerReducer,
+		studySession: studySessionReducer
 	},
 });
 
