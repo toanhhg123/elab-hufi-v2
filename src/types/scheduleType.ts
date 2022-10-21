@@ -1,4 +1,4 @@
-export interface ISchedulerType {
+export interface IScheduleType {
     SessionId?: Number,
     ClassId: String,
     SubjectName: String,
@@ -18,7 +18,7 @@ export interface ISchedulerType {
     Schoolyear: String
 }
 
-export const dummySchedulerData: ISchedulerType ={
+export const dummyScheduleData: IScheduleType ={
     "SessionId":1,
     "ClassId":"01022233301",
     "SubjectName":"Phân tích thực phẩm",

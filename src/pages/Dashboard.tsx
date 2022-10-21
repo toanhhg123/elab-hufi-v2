@@ -22,7 +22,8 @@ import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import SchedulerTable from '../layouts/SchedulerTable';
+import ScheduleTable from '../layouts/ScheduleTable';
+import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
@@ -40,6 +41,7 @@ import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
+import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
 import { getWarehouseFeildId } from '../services/warehouseServices';
@@ -55,6 +57,7 @@ import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
+import { IScheduleType } from '../types/scheduleType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
 import { IWarehouseType } from '../types/warehouseType';
@@ -196,6 +199,13 @@ export function Dashboard() {
         }
     }
 
+    const getScheduleData = async () => {
+        const listOfSchedules: IScheduleType[] = await getSchedules();
+        if (listOfSchedules) {
+            dispatch(setListOfSchedules(listOfSchedules));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
         getEmployeeData();
@@ -214,6 +224,7 @@ export function Dashboard() {
         getExportChemicalData();
         getWarehouseStudySessionData();
         getExportDeviceData();
+        getScheduleData();
     }, [])
 
     const snackbarFunc = () => setTimeout(() => {
@@ -240,7 +251,7 @@ export function Dashboard() {
                 {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
                 {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
                 {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
-                {sidebarItems[7].isOpen && <SchedulerTable />}
+                {sidebarItems[7].isOpen && <ScheduleTable />}
                 {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
                 {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}

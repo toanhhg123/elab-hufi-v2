@@ -15,7 +15,7 @@ import warehouseReducer from '../layouts/WarehouseTable/warehouseSlice';
 import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import exportChemicalReducer from '../layouts/ExportChemicalTable/exportChemicalSlice';
 import exportDeviceReducer from '../layouts/ExportDeviceTable/exportDeviceSlice';
-import schedulerReducer from '../layouts/SchedulerTable/schedulerSlice';
+import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -35,7 +35,7 @@ export const store = configureStore({
 		registerGeneral: registerGeneralReducer,
 		exportChemical: exportChemicalReducer,
 		exportDevice: exportDeviceReducer,
-		scheduler: schedulerReducer,
+		schedule: scheduleReducer,
 	},
 });
 
