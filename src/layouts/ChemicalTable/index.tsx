@@ -29,9 +29,14 @@ import { setListOfChemicals } from './chemicalSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import { IOrderChemicalType } from '../../types/orderChemicalType';
+import { detailOrderColumns, generalOrderColumns, normalColumns } from './const';
+import { deleteOrderChemical, getOrderChemicals, postOrderChemicals, updateOrderChemical } from '../../services/orderChemicalServices';
+import { setListOfOrderChemicals } from './orderChemicalSlice';
 
-const ChemicalTable: FC = () => {
+const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }) => {
   const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
+  const orderChemicalData = useAppSelector((state: RootState) => state.orderChemical.listOfOrderChemicals);
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
   const dispatch = useAppDispatch();
 
@@ -48,15 +53,35 @@ const ChemicalTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyChemicalData);
 
   useEffect(() => {
-    let formatedDeviceData = chemicalData.map((x: IChemicalType) => {
-      let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
-      return {
-        ...x,
-        "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
-      }
-    })
-    setTableData(formatedDeviceData);
-  }, [chemicalData])
+    let formatedData: IChemicalType[] = [];
+    if (type === "normal") {
+      formatedData = chemicalData.map((chemical: IChemicalType) => {
+        let manufacturerInfoIdx = manufacturersData.findIndex(item => item.ManufacturerId === chemical.ManufacturerId);
+        return {
+          ...chemical,
+          "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
+        }
+      })
+    }
+    if (type === "generalOrder" || type === "detailOrder") {
+      formatedData =
+        (type === "detailOrder" ? orderChemicalData.filter(item => item.OrderId === OrderId) : orderChemicalData)
+          .map((chemical: IOrderChemicalType) => {
+            let chemicalInfo = chemicalData.find(item => item.ChemicalId === chemical.ChemicalId);
+            let manufacturerInfoIdx = manufacturersData.findIndex(item => item.ManufacturerId === chemicalInfo?.ManufacturerId);
+            return {
+              ...chemical,
+              "ChemicalName": chemicalInfo ? chemicalInfo.ChemicalName : "",
+              "Specifications": chemicalInfo ? chemicalInfo.Specifications : "",
+              "Origin": chemicalInfo ? chemicalInfo.Origin : "",
+              "Unit": chemicalInfo ? chemicalInfo.Unit : "",
+              "ManufacturerId": chemicalInfo ? chemicalInfo.ManufacturerId : -1,
+              "ManufacturerName": chemicalInfo ? manufacturersData[manufacturerInfoIdx].Name : "",
+            }
+          })
+    }
+    setTableData(formatedData);
+  }, [chemicalData, orderChemicalData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
@@ -71,44 +96,9 @@ const ChemicalTable: FC = () => {
   );
 
   const columns = useMemo<MRT_ColumnDef<IChemicalType>[]>(
-    () => [
-      {
-        accessorKey: 'ChemicalId',
-        header: 'Id hoá chất',
-        size: 100,
-      },
-      {
-        accessorKey: 'ChemicalName',
-        header: 'Tên hoá chất',
-        size: 100,
-      },
-      {
-        accessorKey: 'Specifications',
-        header: 'Thông số',
-        size: 100,
-      },
-      {
-        accessorKey: 'Origin',
-        header: 'Nguồn gốc',
-        size: 100,
-      },
-      {
-        accessorKey: 'Unit',
-        header: 'Đơn vị',
-        size: 100,
-      },
-      {
-        accessorKey: 'Amount',
-        header: 'Số lượng',
-        size: 100,
-      },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
-        size: 100,
-      },
-    ],
-    [getCommonEditTextFieldProps],
+    () => type === "normal" ? normalColumns :
+      type === "generalOrder" ? generalOrderColumns : detailOrderColumns
+    , [getCommonEditTextFieldProps],
   );
 
   const handleOpenEditModal = (row: any) => {
@@ -122,6 +112,24 @@ const ChemicalTable: FC = () => {
   }
 
   const handleSubmitEditModal = async () => {
+    if (type === "generalOrder" || type === "detailOrder") {
+      const isUpdatedSuccessOrder = await updateOrderChemical(
+        type === "generalOrder" ? updatedRow.OrderId : OrderId,
+        updatedRow.ChemicalId,
+        {
+          "OrderId": updatedRow.OrderId,
+          "ChemicalId": updatedRow.ChemicalId,
+          "Amount": updatedRow.Amount,
+          "Price": updatedRow.Price,
+        }
+      );
+      if (isUpdatedSuccessOrder) {
+        dispatch(setSnackbarMessage("Cập nhật thông tin phiếu nhập hoá chất thành công"));
+        let updatedIdx = orderChemicalData.findIndex(item => item.ChemicalId === updatedRow.ChemicalId);
+        let newListOfOrderChemicals = [...orderChemicalData.slice(0, updatedIdx), updatedRow, ...orderChemicalData.slice(updatedIdx + 1,)]
+        dispatch(setListOfOrderChemicals(newListOfOrderChemicals));
+      }
+    }
     const isUpdatedSuccess = await updateChemical({
       "ChemicalId": updatedRow.ChemicalId,
       "ChemicalName": updatedRow.ChemicalName,
@@ -133,7 +141,7 @@ const ChemicalTable: FC = () => {
     });
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin hoá chất thành công"));
-      let updatedIdx = chemicalData.findIndex(x => x.ChemicalId === updatedRow.ChemicalId);
+      let updatedIdx = chemicalData.findIndex(item => item.ChemicalId === updatedRow.ChemicalId);
       let newListOfChemicals = [...chemicalData.slice(0, updatedIdx), updatedRow, ...chemicalData.slice(updatedIdx + 1,)]
       dispatch(setListOfChemicals(newListOfChemicals));
     }
@@ -152,9 +160,16 @@ const ChemicalTable: FC = () => {
   }
 
   const handleSubmitDeleteModal = async () => {
+    if (type === "generalOrder" || type === "detailOrder") {
+      await deleteOrderChemical(type === "generalOrder" ? deletedRow.OrderId : OrderId, deletedRow.ChemicalId);
+      dispatch(setSnackbarMessage("Xóa thông tin phiếu nhập hoá chất thành công"));
+      let deletedIdx = orderChemicalData.findIndex(item => item.ChemicalId === deletedRow.ChemicalId);
+      let newListOfOrderChemicals = [...orderChemicalData.slice(0, deletedIdx), ...orderChemicalData.slice(deletedIdx + 1,)]
+      dispatch(setListOfOrderChemicals(newListOfOrderChemicals));
+    }
     await deleteChemical(deletedRow.ChemicalId);
     dispatch(setSnackbarMessage("Xóa thông tin hoá chất thành công"));
-    let deletedIdx = chemicalData.findIndex(x => x.ChemicalId === deletedRow.ChemicalId);
+    let deletedIdx = chemicalData.findIndex(item => item.ChemicalId === deletedRow.ChemicalId);
     let newListOfChemicals = [...chemicalData.slice(0, deletedIdx), ...chemicalData.slice(deletedIdx + 1,)]
     dispatch(setListOfChemicals(newListOfChemicals));
 
@@ -188,6 +203,23 @@ const ChemicalTable: FC = () => {
         dispatch(setListOfChemicals(newListOfChemicals));
       }
     }
+
+    if (type === "generalOrder" || type === "detailOrder") {
+      const createdOrderChemical = await postOrderChemicals([{
+        "OrderId": type === "generalOrder" ? createdRow.OrderId : OrderId,
+        "ChemicalId": createdRow.ChemicalId,
+        "Amount": createdRow.Amount,
+        "Price": createdRow.Price,
+      }])
+      if (createdOrderChemical) {
+        const newListOfOrderChemicals: IOrderChemicalType[] = await getOrderChemicals();
+        if (newListOfOrderChemicals) {
+          dispatch(setSnackbarMessage("Tạo thông tin phiếu nhập hoá chất mới thành công"));
+          dispatch(setListOfOrderChemicals(newListOfOrderChemicals));
+        }
+      }
+    }
+
     onCloseCreateModal();
   }
 
@@ -224,7 +256,7 @@ const ChemicalTable: FC = () => {
           density: 'compact',
           columnOrder: [
             'mrt-row-numbers',
-            ...columns.map(x => x.accessorKey || ''),
+            ...columns.map(item => item.accessorKey || ''),
             'mrt-row-actions'
           ]
         }}
@@ -247,7 +279,7 @@ const ChemicalTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin hoá chất</span>
+            <span>Thông tin {type === "generalOrder" ? "nhập" : ""} hoá chất {type === "detailOrder" ? `của ${OrderId}` : ""}</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (
@@ -276,7 +308,7 @@ const ChemicalTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
+                const manufacturerOptions: string[] = manufacturersData.map(item => item.Name.toString());
 
                 if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
@@ -284,8 +316,8 @@ const ChemicalTable: FC = () => {
                     <Select
                       labelId="manufacturer-select-select-required-label"
                       id="manufacturer-select-select-required"
-                      value={manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId) > -1 ?
-                        manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId).toString() : ""}
+                      value={manufacturersData.findIndex(item => item.ManufacturerId === updatedRow.ManufacturerId) > -1 ?
+                        manufacturersData.findIndex(item => item.ManufacturerId === updatedRow.ManufacturerId).toString() : ""}
                       label="Nhà sản xuất"
                       onChange={(e: SelectChangeEvent) =>
                         setUpdatedRow({
@@ -359,7 +391,7 @@ const ChemicalTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
+                const manufacturerOptions: string[] = manufacturersData.map(item => item.Name.toString());
 
                 if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
@@ -367,8 +399,8 @@ const ChemicalTable: FC = () => {
                     <Select
                       labelId="manufacturer-select-select-required-label"
                       id="manufacturer-select-select-required"
-                      value={manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId) > -1 ?
-                        manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId).toString() : ""}
+                      value={manufacturersData.findIndex(item => item.ManufacturerId === createdRow.ManufacturerId) > -1 ?
+                        manufacturersData.findIndex(item => item.ManufacturerId === createdRow.ManufacturerId).toString() : ""}
                       label="Nhà sản xuất"
                       onChange={(e: SelectChangeEvent) =>
                         setCreatedRow({

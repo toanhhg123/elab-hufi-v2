@@ -30,10 +30,15 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import { detailOrderColumns, generalOrderColumns, normalColumns } from './const';
+import { IOrderDeviceType } from '../../types/orderDeviceType';
+import { deleteOrderDevice, getOrderDevices, postOrderDevices, updateOrderDevice } from '../../services/orderDeviceServices';
+import { setListOfOrderDevices } from './orderDeviceSlice';
 
-const DeviceTable: FC = () => {
+const DeviceTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }) => {
   const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
   const deviceSpecData = useAppSelector((state: RootState) => state.device.listOfDeviceSpecs);
+  const orderDeviceData = useAppSelector((state: RootState) => state.orderDevice.listOfOrderDevices);
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
   const dispatch = useAppDispatch();
 
@@ -60,19 +65,42 @@ const DeviceTable: FC = () => {
   const [deviceSpecCreatedRow, setDeviceSpecCreatedRow] = useState<any>(dummyDeviceSpecData);
 
   useEffect(() => {
-    let formatedDeviceData = deviceData.map((x: IDeviceType) => {
-      let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
-      return {
-        ...x,
-        "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
-      }
-    })
-    setTableData(formatedDeviceData);
-  }, [deviceData])
+    let formatedData: IDeviceType[] = [];
+    if (type === "normal") {
+      formatedData = deviceData.map((device: IDeviceType) => {
+        let manufacturerInfoIdx = manufacturersData.findIndex(item => item.ManufacturerId === device.ManufacturerId);
+        return {
+          ...device,
+          "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
+        }
+      })
+    }
+    else if (type === "generalOrder" || type === "detailOrder") {
+      formatedData =
+        (type === "detailOrder" ? orderDeviceData.filter(item => item.OrderId === OrderId) : orderDeviceData)
+          .map((device: IOrderDeviceType) => {
+            let deviceInfo = deviceData.find(item => item.DeviceId === device.DeviceId);
+            let manufacturerInfoIdx = manufacturersData.findIndex(item => item.ManufacturerId === deviceInfo?.ManufacturerId);
+            return {
+              ...device,
+              "DeviceName": deviceInfo ? deviceInfo.DeviceName : "",
+              "DeviceType": deviceInfo ? deviceInfo.DeviceType : "",
+              "Model": deviceInfo ? deviceInfo.Model : "",
+              "Origin": deviceInfo ? deviceInfo.Origin : "",
+              "Unit": deviceInfo ? deviceInfo.Unit : "",
+              "Standard": deviceInfo ? deviceInfo.Standard : "",
+              "HasTrain": deviceInfo ? deviceInfo.HasTrain : 1,
+              "ManufacturerId": deviceInfo ? deviceInfo.ManufacturerId : -1,
+              "ManufacturerName": deviceInfo ? manufacturersData[manufacturerInfoIdx].Name : "",
+            }
+          })
+    }
+    setTableData(formatedData);
+  }, [deviceData, orderDeviceData])
 
   useEffect(() => {
     if (selectedRow.DeviceId) {
-      let formatedDeviceSpecData = deviceSpecData.filter(x => x.DeviceId === selectedRow.DeviceId);
+      let formatedDeviceSpecData = deviceSpecData.filter(item => item.DeviceId === selectedRow.DeviceId);
       setDeviceSpecTableData(formatedDeviceSpecData);
     }
 
@@ -92,58 +120,8 @@ const DeviceTable: FC = () => {
   );
 
   const columns = useMemo<MRT_ColumnDef<IDeviceType>[]>(
-    () => [
-      {
-        accessorKey: 'DeviceId',
-        header: 'Id thiết bị',
-        size: 100,
-      },
-      {
-        accessorKey: 'DeviceName',
-        header: 'Tên thiết bị',
-        size: 100,
-      },
-      {
-        accessorKey: 'DeviceType',
-        header: 'Loại thiết bị',
-        size: 100,
-      },
-      {
-        accessorKey: 'Model',
-        header: 'Mẫu',
-        size: 100,
-      },
-      {
-        accessorKey: 'Origin',
-        header: 'Xuất xứ',
-        size: 100,
-      },
-      {
-        accessorKey: 'Unit',
-        header: 'Đơn vị',
-        size: 100,
-      },
-      {
-        accessorKey: 'Standard',
-        header: 'Tiêu chuẩn',
-        size: 100,
-      },
-      {
-        accessorKey: 'Quantity',
-        header: 'Số lượng',
-        size: 100,
-      },
-      // {
-      //   accessorKey: 'HasTrain',
-      //   header: 'Đã tập huấn',
-      //   size: 100,
-      // },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
-        size: 100,
-      },
-    ],
+    () => type === "normal" ? normalColumns :
+      type === "generalOrder" ? generalOrderColumns : detailOrderColumns,
     [getCommonEditTextFieldProps],
   );
 
@@ -179,6 +157,24 @@ const DeviceTable: FC = () => {
   }
 
   const handleSubmitEditModal = async () => {
+    if (type === "generalOrder" || type === "detailOrder") {
+      const isUpdatedSuccessOrder = await updateOrderDevice(
+        type === "generalOrder" ? updatedRow.OrderId : OrderId,
+        updatedRow.DeviceId,
+        {
+          "OrderId": updatedRow.OrderId,
+          "DeviceId": updatedRow.DeviceId,
+          "Quantity": updatedRow.Quantity,
+          "Price": updatedRow.Price,
+        }
+      );
+      if (isUpdatedSuccessOrder) {
+        dispatch(setSnackbarMessage("Cập nhật thông tin phiếu nhập thiết bị thành công"));
+        let updatedIdx = orderDeviceData.findIndex(item => item.DeviceId === updatedRow.DeviceId);
+        let newListOfOrderDevices = [...orderDeviceData.slice(0, updatedIdx), updatedRow, ...orderDeviceData.slice(updatedIdx + 1,)]
+        dispatch(setListOfOrderDevices(newListOfOrderDevices));
+      }
+    }
     const isUpdatedSuccess = await updateDevice({
       "DeviceId": updatedRow.DeviceId,
       "DeviceName": updatedRow.DeviceName,
@@ -193,7 +189,7 @@ const DeviceTable: FC = () => {
     });
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin thiết bị thành công"));
-      let updatedIdx = deviceData.findIndex(x => x.DeviceId === updatedRow.DeviceId);
+      let updatedIdx = deviceData.findIndex(item => item.DeviceId === updatedRow.DeviceId);
       let newListOfDevices = [...deviceData.slice(0, updatedIdx), updatedRow, ...deviceData.slice(updatedIdx + 1,)]
       dispatch(setListOfDevices(newListOfDevices));
     }
@@ -212,9 +208,16 @@ const DeviceTable: FC = () => {
   }
 
   const handleSubmitDeleteModal = async () => {
+    if (type === "generalOrder" || type === "detailOrder") {
+      await deleteOrderDevice(type === "generalOrder" ? deletedRow.OrderId : OrderId, deletedRow.DeviceId);
+      dispatch(setSnackbarMessage("Xóa thông tin phiếu nhập thiết bị thành công"));
+      let deletedIdx = orderDeviceData.findIndex(item => item.DeviceId === deletedRow.DeviceId);
+      let newListOfOrderDevices = [...orderDeviceData.slice(0, deletedIdx), ...orderDeviceData.slice(deletedIdx + 1,)]
+      dispatch(setListOfOrderDevices(newListOfOrderDevices));
+    }
     await deleteDevice(deletedRow.DeviceId);
     dispatch(setSnackbarMessage("Xóa thông tin thiết bị thành công"));
-    let deletedIdx = deviceData.findIndex(x => x.DeviceId === deletedRow.DeviceId);
+    let deletedIdx = deviceData.findIndex(item => item.DeviceId === deletedRow.DeviceId);
     let newListOfDevices = [...deviceData.slice(0, deletedIdx), ...deviceData.slice(deletedIdx + 1,)]
     dispatch(setListOfDevices(newListOfDevices));
 
@@ -252,6 +255,23 @@ const DeviceTable: FC = () => {
       }
     }
 
+    if (type === "generalOrder" || type === "detailOrder") {
+      const createdOrderDevice = await postOrderDevices([{
+        "OrderId": type === "generalOrder" ? createdRow.OrderId : OrderId,
+        "DeviceId": createdRow.DeviceId,
+        "Quantity": createdRow.Quantity,
+        "Price": createdRow.Price,
+      }])
+
+      if (createdOrderDevice) {
+        const newListOfOrderDevices: IOrderDeviceType[] = await getOrderDevices();
+        if (newListOfOrderDevices) {
+          dispatch(setSnackbarMessage("Tạo thông tin phiếu nhập thiết bị mới thành công"));
+          dispatch(setListOfOrderDevices(newListOfOrderDevices));
+        }
+      }
+    }
+
     onCloseCreateModal();
   }
 
@@ -279,7 +299,7 @@ const DeviceTable: FC = () => {
     const isDeviceSpecUpdatedSuccess = await updateDeviceSpec({ ...deviceSpecUpdatedRow, "DeviceId": selectedRow.DeviceId });
     if (isDeviceSpecUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông số thiết bị thành công"));
-      let updatedDeviceSpecIdx = deviceSpecData.findIndex(x => (x.DeviceId === selectedRow.DeviceId && x.SpecsID === deviceSpecUpdatedRow.SpecsID));
+      let updatedDeviceSpecIdx = deviceSpecData.findIndex(item => (item.DeviceId === selectedRow.DeviceId && item.SpecsID === deviceSpecUpdatedRow.SpecsID));
       let newListOfDeviceSpecs = [...deviceSpecData.slice(0, updatedDeviceSpecIdx), deviceSpecUpdatedRow, ...deviceSpecData.slice(updatedDeviceSpecIdx + 1,)]
       dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
     }
@@ -300,7 +320,7 @@ const DeviceTable: FC = () => {
   const handleSubmitDeviceSpecDeleteModal = async () => {
     await deleteDeviceSpec(deviceSpecDeletedRow);
     dispatch(setSnackbarMessage("Xóa thông số thiết bị thành công"));
-    let deletedIdx = deviceSpecData.findIndex(x => x.DeviceId === deviceSpecDeletedRow.DeviceId && x.SpecsID === deviceSpecDeletedRow.SpecsID);
+    let deletedIdx = deviceSpecData.findIndex(item => item.DeviceId === deviceSpecDeletedRow.DeviceId && item.SpecsID === deviceSpecDeletedRow.SpecsID);
     let newListOfDeviceSpecs = [...deviceSpecData.slice(0, deletedIdx), ...deviceSpecData.slice(deletedIdx + 1,)]
     dispatch(setListOfDeviceSpecs(newListOfDeviceSpecs));
 
@@ -366,7 +386,7 @@ const DeviceTable: FC = () => {
           density: 'compact',
           columnOrder: [
             'mrt-row-numbers',
-            ...columns.map(x => x.accessorKey || ''),
+            ...columns.map(item => item.accessorKey || ''),
             'mrt-row-actions'
           ]
         }}
@@ -394,7 +414,7 @@ const DeviceTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin thiết bị</span>
+            <span>Thông tin {type === "generalOrder" ? "nhập" : ""} thiết bị {type === "detailOrder" ? `của ${OrderId}` : ""}</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (
@@ -423,15 +443,15 @@ const DeviceTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
+                const manufacturerOptions: string[] = manufacturersData.map(item => item.Name.toString());
                 if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="manufacturer-select-required-label">Nhà sản xuất</InputLabel>
                     <Select
                       labelId="manufacturer-select-required-label"
                       id="manufacturer-select-required"
-                      value={manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId) > -1 ?
-                        manufacturersData.findIndex(x => x.ManufacturerId === updatedRow.ManufacturerId).toString() : ""}
+                      value={manufacturersData.findIndex(item => item.ManufacturerId === updatedRow.ManufacturerId) > -1 ?
+                        manufacturersData.findIndex(item => item.ManufacturerId === updatedRow.ManufacturerId).toString() : ""}
                       label="Nhà sản xuất"
                       onChange={(e: SelectChangeEvent) =>
                         setUpdatedRow({
@@ -504,7 +524,7 @@ const DeviceTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const manufacturerOptions: string[] = manufacturersData.map(x => x.Name.toString());
+                const manufacturerOptions: string[] = manufacturersData.map(item => item.Name.toString());
 
                 if (column.id === "ManufacturerName" && manufacturersData.length > 0) {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
@@ -512,8 +532,8 @@ const DeviceTable: FC = () => {
                     <Select
                       labelId="manufacturer-select-required-label"
                       id="manufacturer-select-required"
-                      value={manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId) > -1 ?
-                        manufacturersData.findIndex(x => x.ManufacturerId === createdRow.ManufacturerId).toString() : ""}
+                      value={manufacturersData.findIndex(item => item.ManufacturerId === createdRow.ManufacturerId) > -1 ?
+                        manufacturersData.findIndex(item => item.ManufacturerId === createdRow.ManufacturerId).toString() : ""}
                       label="Nhà sản xuất"
                       onChange={(e: SelectChangeEvent) =>
                         setCreatedRow({
@@ -606,7 +626,7 @@ const DeviceTable: FC = () => {
                   density: 'compact',
                   columnOrder: [
                     'mrt-row-numbers',
-                    ...deviceSpecColumns.map(x => x.accessorKey || ''),
+                    ...deviceSpecColumns.map(item => item.accessorKey || ''),
                     'mrt-row-actions'
                   ]
                 }}
