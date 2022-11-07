@@ -16,6 +16,7 @@ import { getLaboratories } from './services/laboratoryServices';
 import { Login } from './pages/Login';
 import Account from './pages/Account';
 import { NotFound } from './pages/NotFound';
+import 'devextreme/dist/css/dx.light.css';
 
 const settings = [
   {

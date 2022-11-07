@@ -26,7 +26,7 @@ import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
 import { setListOfOrderChemicals } from '../layouts/ChemicalTable/orderChemicalSlice';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import ScheduleTable from '../layouts/ScheduleTable';
+import ScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
 import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
