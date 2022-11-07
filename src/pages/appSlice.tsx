@@ -81,17 +81,7 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý xuất ????",
-    "icon": ""
-  },
-  {
-    "isOpen": false,
-    "name": "Quản lý xuất hóa chất",
-    "icon": ""
-  },
-  {
-    "isOpen": false,
-    "name": "Quản lý xuất thiết bị",
+    "name": "Quản lý xuất",
     "icon": ""
   },
   {

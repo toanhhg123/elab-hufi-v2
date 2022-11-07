@@ -13,11 +13,21 @@ export interface IWarehouseType {
     "LabId"?: Number,
     "SessionId"?: Number,
     "RegisterGeneralId"?: Number,
+    "TeacherName"?: String,
+    "ClassId"?: String,
+    "ClassName"?: String
+    "DayOfWeek"?: Number,
+    "StartTime"?: Number,
+    "EndTime"?: Number,
+    "LessonName"?: String,
+    "SubjectName"?: String,
+    "fortmatDateStudy"?: String,
+    "DateStudy"?: number, 
 }
 
 export const dummyWarehouseData: IWarehouseType = {
     "ExportId": "",
-    "ExportDate": Number(new Date()),
+    "ExportDate": Math.floor(Number(new Date()) / 1000),
     "Content": "",
     "Status": "",
     "EmployeeId": "",
@@ -30,4 +40,14 @@ export const dummyWarehouseData: IWarehouseType = {
     "LabId": -1,
     "SessionId": -1,
     "RegisterGeneralId": -1,
+    "TeacherName": "",
+    "ClassId": "",
+    "ClassName": "",
+    "DayOfWeek": -1,
+    "StartTime": -1,
+    "EndTime": -1,
+    "LessonName": "",
+    "SubjectName": "",
+    "fortmatDateStudy": "",
+    "DateStudy": Number(new Date())
 }

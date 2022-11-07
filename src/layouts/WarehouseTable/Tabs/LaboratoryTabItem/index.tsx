@@ -3,38 +3,57 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
 	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	IconButton,
-	Tooltip,
-	Typography,
+	IconButton, Tooltip,
+	Typography
 } from '@mui/material';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setSnackbarMessage } from '../../../../pages/appSlice';
+import { deleteExportChemical } from '../../../../services/exportChemicalServices';
+import { deleteExportDevice } from '../../../../services/exportDeviceServices';
 import {
 	deleteWarehouse,
 	getWarehouseFeildId,
 	postWarehouse,
-	updateWarehouse,
+	updateWarehouse
 } from '../../../../services/warehouseServices';
 import { RootState } from '../../../../store';
+import { IExportChemicalType } from '../../../../types/exportChemicalType';
+import { IExportDeviceType } from '../../../../types/exportDeviceType';
 import { dummyWarehouseData, IWarehouseType } from '../../../../types/warehouseType';
-import CreateLabModal from '../../Modal/CreateLabModal';
-import EditLabModal from '../../Modal/EditLabModal';
+import ChemicalTable from '../../Details/ChemicalTable';
+import DeviceTable from '../../Details/DeviceTable';
+import CreateExportChemicalModal from '../../Modal/CreateExportChemicalModal';
+import CreateExportDeviceModal from '../../Modal/CreateExportDeviceModal';
+import CreateExportModal from '../../Modal/CreateExportModal';
+import DeleteExportChemicalModal from '../../Modal/DeleteExportChemicalModal';
+import DeleteExportDeviceModal from '../../Modal/DeleteExportDeviceModal';
+import { DeleteExportModal } from '../../Modal/DeleteExportModal';
+import EditExportChemicalModal from '../../Modal/EditExportChemicalModal';
+import EditExportDeviceModal from '../../Modal/EditExportDeviceModal';
+import EditExportModal from '../../Modal/EditExportModal';
 import { setListOfWarehouseLaboratory } from '../../warehouseSlice';
 
 const LaboratoryTabItem: FC = () => {
 	const warehouseLaboratoriesData = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseLaboratory);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
+	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
+	const chemicalsData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
+	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
+	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
+	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
 	const dispatch = useAppDispatch();
 
-	const [isCreateModal, setIsCreateModal] = useState(false);
+	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
+	const [isEditExportChemicalModal, setIsEditExportChemicalModal] = useState<boolean>(false);
+	const [isDeleteExportChemicalModal, setIsDeleteExportChemicalModal] = useState<boolean>(false);
+	const [isCreateExportDeviceModal, setIsCreateExportDeviceModal] = useState<boolean>(false);
+	const [isEditExportDeviceModal, setIsEditExportDeviceModal] = useState<boolean>(false);
+	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
+	const [isDeleteExportDeviceModal, setIsDeleteExportDeviceModal] = useState<boolean>(false);
 	const [isEditModal, setIsEditModal] = useState<boolean>(false);
 	const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
 	const [tableData, setTableData] = useState<IWarehouseType[]>([]);
@@ -42,11 +61,12 @@ const LaboratoryTabItem: FC = () => {
 		[cellId: string]: string;
 	}>({});
 
+	const [createdRow, setCreatedRow] = useState<any>(dummyWarehouseData);
 	const [updatedRow, setUpdatedRow] = useState<any>(dummyWarehouseData);
 	const [deletedRow, setDeletedRow] = useState<any>(dummyWarehouseData);
 
 	useEffect(() => {
-		let formatedDeviceData = warehouseLaboratoriesData.map((x: IWarehouseType) => {
+		let formatedData = warehouseLaboratoriesData.map((x: IWarehouseType) => {
 			let employeeInfoIdx = employeeData.findIndex(y => y.EmployeeID === x.EmployeeId);
 			let laboratoryInfoIdx = laboratoriesData.findIndex(y => y.LabId === x.LabId);
 			return {
@@ -56,7 +76,8 @@ const LaboratoryTabItem: FC = () => {
 				formatedExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY'),
 			};
 		});
-		setTableData(formatedDeviceData);
+		formatedData.sort((x, y) => y.ExportDate - x.ExportDate)
+		setTableData(formatedData);
 	}, [warehouseLaboratoriesData]);
 
 	const getCommonEditTextFieldProps = useCallback(
@@ -95,44 +116,139 @@ const LaboratoryTabItem: FC = () => {
 				size: 140,
 			},
 			{
+				accessorKey: 'EmployeeId',
+				header: 'EmployeeId',
+				size: 140,
+			},
+			{
 				accessorKey: 'EmployeeName',
 				header: 'Người xuất',
 				size: 140,
+				enableHiding: false,
 			},
 			{
 				accessorKey: 'LabName',
 				header: 'Phòng',
+				size: 140,
+				enableHiding: false,
+			},
+			{
+				accessorKey: 'LabId',
+				header: 'LabId',
 				size: 140,
 			},
 		],
 		[getCommonEditTextFieldProps],
 	);
 
-	const handleOpenEditModal = (row: any) => {
+	const columnsExportChemical = useMemo<MRT_ColumnDef<IExportChemicalType>[]>(
+		() => [
+			{
+				accessorKey: 'ExportId',
+				header: 'ID',
+				size: 100,
+				enableColumnOrdering: true,
+				enableEditing: false,
+				enableSorting: false,
+			},
+			{
+				accessorKey: 'ChemicalId',
+				header: 'Mã hóa chất',
+				enableEditing: false,
+				size: 140,
+			},
+			{
+				accessorKey: 'ChemicalName',
+				header: 'Tên hóa chất',
+				enableEditing: false,
+				size: 140,
+			},
+			{
+				accessorKey: 'Amount',
+				header: 'Số lượng',
+				size: 140,
+			},
+			{
+				accessorKey: 'ManufacturerName',
+				header: 'Nhà sản xuât',
+				enableEditing: false,
+				size: 140,
+			},
+			{
+				accessorKey: 'Origin',
+				header: 'Xuất xứ',
+				enableEditing: false,
+				size: 140,
+			},
+		],
+		[getCommonEditTextFieldProps],
+	);
+
+	const columnsExportDevice = useMemo<MRT_ColumnDef<IExportDeviceType>[]>(
+		() => [
+			{
+				accessorKey: 'ExportId',
+				header: 'ID',
+				size: 100,
+				enableColumnOrdering: true,
+				enableEditing: false,
+				enableSorting: false,
+			},
+			{
+				accessorKey: 'DeviceId',
+				header: 'Mã Thiết bị',
+				enableEditing: false,
+				size: 140,
+			},
+			{
+				accessorKey: 'DeviceName',
+				header: 'Tên thiết bị',
+				size: 140,
+			},
+			{
+				accessorKey: 'Quantity',
+				header: 'Số lượng',
+				size: 140,
+			},
+			{
+				accessorKey: 'Origin',
+				header: 'Xuất xứ',
+				size: 140,
+			},
+			{
+				accessorKey: 'Model',
+				header: 'Mẫu',
+				size: 140,
+			},
+		],
+		[getCommonEditTextFieldProps],
+	);
+
+	const handleOpenEditWarehouseLabModal = (row: any) => {
 		setUpdatedRow(row.original);
 		setIsEditModal(true);
 	};
 
-	const onCloseEditModal = () => {
+	const onCloseEditWarehouseLab = () => {
 		setUpdatedRow(dummyWarehouseData);
 		setIsEditModal(false);
 	};
 
-	const handleSubmitEditModal = async (updatedRow: any) => {
+	const handleSubmitEditWarehouseLabModal = async (updatedRow: any) => {
 		const updateData = {
 			ExportId: updatedRow.ExportId,
-			ExportDate: moment.unix(updatedRow.ExportDate).format('YYYY-MM-DD'),
+			ExportDate: updatedRow.ExportDate.toString(),
 			Content: updatedRow.Content,
 			Status: updatedRow.Status,
 			EmployeeId: updatedRow.EmployeeId,
 			LabId: updatedRow.LabId,
 		};
+
 		const resData = await updateWarehouse('lab', updatedRow.ExportId, updateData);
 		if (Object.keys(resData).length !== 0) {
 			dispatch(setSnackbarMessage('Cập nhật thông tin thành công'));
-			let updatedIdx = warehouseLaboratoriesData.findIndex(
-				x => x.ExportId === updatedRow.ExportId && x.LabId === updatedRow.LabId,
-			);
+			let updatedIdx = warehouseLaboratoriesData.findIndex(x => x.ExportId === updatedRow.ExportId);
+
 			let newListOfLabs = [
 				...warehouseLaboratoriesData.slice(0, updatedIdx),
 				updatedRow,
@@ -142,53 +258,68 @@ const LaboratoryTabItem: FC = () => {
 		} else {
 			dispatch(setSnackbarMessage('Cập nhật thông tin không thành công'));
 		}
-
-		onCloseEditModal();
 	};
 
-	const handleOpenDeleteModal = (row: any) => {
+	const handleOpenDeleteWarehouseLabModal = (row: any) => {
 		setDeletedRow(row.original);
 		setIsDeleteModal(true);
 	};
 
-	const onCloseDeleteModal = () => {
+	const onCloseDeleteWarehouseLabModal = () => {
 		setDeletedRow(dummyWarehouseData);
 		setIsDeleteModal(false);
 	};
 
-	const handleSubmitDeleteModal = async () => {
+	const handleSubmitDeleteWarehouseLabModal = async () => {
 		try {
-			const data = await deleteWarehouse(deletedRow.ExportId);
-			if (data) {
-				dispatch(setSnackbarMessage('Xóa thông tin thành công'));
-				let deletedIdx = warehouseLaboratoriesData.findIndex(x => x.ExportId === deletedRow.ExportId);
-				let newListOfLabs = [
-					...warehouseLaboratoriesData.slice(0, deletedIdx),
-					...warehouseLaboratoriesData.slice(deletedIdx + 1),
-				];
-				dispatch(setListOfWarehouseLaboratory(newListOfLabs));
-			} else {
-				dispatch(setSnackbarMessage('Xóa thông tin không thành công'));
-			}
+			let exportChemicalOfExportChemical = exportChemicalData.filter(
+				(x: IExportChemicalType) => x.ExportId === deletedRow.ExportId,
+			);
+			let exportDeviceOfExportDevice = exportDeviceData.filter(
+				(x: IExportDeviceType) => x.ExportId === deletedRow.ExportId,
+			);
+
+			let promisesList: any[] = [];
+
+			exportChemicalOfExportChemical.forEach(x => promisesList.push(deleteExportChemical(x.ExportId, x.ChemicalId)));
+			exportDeviceOfExportDevice.forEach(async x => promisesList.push(deleteExportDevice(x.ExportId, x.DeviceId)));
+
+			Promise.all(promisesList)
+				.then(async () => {
+					const data = await deleteWarehouse(deletedRow.ExportId);
+					if (data) {
+						dispatch(setSnackbarMessage('Xóa thông tin thành công'));
+						let deletedIdx = warehouseLaboratoriesData.findIndex(x => x.ExportId === deletedRow.ExportId);
+						let newListOfLabs = [
+							...warehouseLaboratoriesData.slice(0, deletedIdx),
+							...warehouseLaboratoriesData.slice(deletedIdx + 1),
+						];
+						dispatch(setListOfWarehouseLaboratory(newListOfLabs));
+					} else {
+						dispatch(setSnackbarMessage('Xóa thông tin không thành công'));
+					}
+				})
+				.catch(() => {
+					throw new Error();
+				});
 		} catch (error) {
 			dispatch(setSnackbarMessage('Xóa thông tin không thành công'));
 		}
-		onCloseDeleteModal();
 	};
 
-	const handleOpenCreateModal = (row: any) => {
+	const handleOpenCreateWarehouseLabModal = (row: any) => {
 		setIsCreateModal(true);
 	};
 
-	const onCloseCreateModal = () => {
+	const onCloseCreateWarehouseLabModal = () => {
 		setIsCreateModal(false);
 	};
 
-	const handleSubmitCreateModal = async (createdRow: any) => {
+	const handleSubmitCreateWarehouseLabModal = async (createdRow: any) => {
 		try {
 			const createData = {
 				ExportId: createdRow.ExportId,
-				ExportDate: moment.unix(createdRow.ExportDate / 1000).format('YYYY-MM-DD'),
+				ExportDate: createdRow.ExportDate.toString(),
 				Content: createdRow.Content,
 				Status: createdRow.Status,
 				EmployeeId: createdRow.EmployeeId,
@@ -196,7 +327,7 @@ const LaboratoryTabItem: FC = () => {
 			};
 
 			const resData = await postWarehouse('lab', createData);
-			
+
 			if (Object.keys(resData).length !== 0) {
 				const newListOfLaboratories: IWarehouseType[] = await getWarehouseFeildId('lab');
 				if (newListOfLaboratories) {
@@ -209,8 +340,6 @@ const LaboratoryTabItem: FC = () => {
 		} catch (error) {
 			dispatch(setSnackbarMessage('Tạo thông tin mới không thành công'));
 		}
-
-		onCloseCreateModal();
 	};
 
 	return (
@@ -233,7 +362,7 @@ const LaboratoryTabItem: FC = () => {
 						muiTableBodyCellProps: {
 							align: 'center',
 						},
-					}
+					},
 				}}
 				columns={columns}
 				data={tableData}
@@ -242,13 +371,54 @@ const LaboratoryTabItem: FC = () => {
 				enableEditing
 				enableRowNumbers
 				enablePinning
+				enableGrouping
+				enableRowActions
+				enableExpanding
 				initialState={{
 					density: 'compact',
+					columnVisibility: { LabId: false, EmployeeId: false },
 					columnOrder: [
-					  'mrt-row-numbers',
-					  ...columns.map(x => x.accessorKey || ''),
-					  'mrt-row-actions'
-					]
+						'mrt-row-expand',
+						'mrt-row-numbers',
+						...columns.map(x => x.accessorKey || ''),
+						'mrt-row-actions',
+					],
+				}}
+				renderDetailPanel={({ row }) => {
+					return (
+						<>
+							<ChemicalTable
+								handleOpenCreate={() => {
+									setCreatedRow(row.original);
+									setIsCreateExportChemicalModal(true);
+								}}
+								handleOpenDelete={(exportChemical: any) => {
+									setDeletedRow(exportChemical);
+									setIsDeleteExportChemicalModal(true);
+								}}
+								handleOpenEdit={(exportChemical: any) => {
+									setUpdatedRow(exportChemical);
+									setIsEditExportChemicalModal(true);
+								}}
+								row={row}
+							/>
+							<DeviceTable 
+								handleOpenCreate={() => {
+									setCreatedRow(row.original);
+									setIsCreateExportDeviceModal(true);
+								}}
+								handleOpenDelete={(exportDevice: any) => {
+									setUpdatedRow(exportDevice);
+									setIsEditExportDeviceModal(true);
+								}}
+								handleOpenEdit={(exportDevice: any) => {
+									setDeletedRow(exportDevice);
+									setIsDeleteExportDeviceModal(true);
+								}}
+								row={row}
+							/>
+						</>
+					);
 				}}
 				renderTopToolbarCustomActions={() => (
 					<h3 style={{ margin: '0px' }}>
@@ -263,12 +433,12 @@ const LaboratoryTabItem: FC = () => {
 				renderRowActions={({ row, table }) => (
 					<>
 						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất phòng thí nghiệm">
-							<IconButton onClick={() => handleOpenEditModal(row)}>
+							<IconButton onClick={() => handleOpenEditWarehouseLabModal(row)}>
 								<Edit />
 							</IconButton>
 						</Tooltip>
 						<Tooltip arrow placement="right" title="Xoá phiếu xuất phòng thí nghiệm">
-							<IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
+							<IconButton color="error" onClick={() => handleOpenDeleteWarehouseLabModal(row)}>
 								<Delete />
 							</IconButton>
 						</Tooltip>
@@ -278,7 +448,7 @@ const LaboratoryTabItem: FC = () => {
 					<Tooltip title="Tạo phiếu xuất phòng thí nghiệm mới" placement="right-start">
 						<Button
 							color="primary"
-							onClick={handleOpenCreateModal}
+							onClick={handleOpenCreateWarehouseLabModal}
 							variant="contained"
 							style={{ margin: '10px' }}
 						>
@@ -288,41 +458,89 @@ const LaboratoryTabItem: FC = () => {
 				)}
 			/>
 
-			<Dialog open={isDeleteModal}>
-				<DialogTitle textAlign="center">
-					<b>Xoá thông tin phiếu xuất phòng thí nghiệm</b>
-				</DialogTitle>
-				<DialogContent>
-					<div>
-						Bạn có chắc muốn xoá thông tin{' '}
-						<Typography component="span" color="red">
-							{deletedRow.ExportId} - {deletedRow.Content} - {deletedRow.EmployeeName}
-						</Typography>{' '}
-						không?
-					</div>
-				</DialogContent>
-				<DialogActions sx={{ p: '1.25rem' }}>
-					<Button onClick={onCloseDeleteModal}>Huỷ</Button>
-					<Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
-						Xác nhận
-					</Button>
-				</DialogActions>
-			</Dialog>
+			{isDeleteModal && (
+				<DeleteExportModal
+					isOpen={isDeleteModal}
+					onClose={onCloseDeleteWarehouseLabModal}
+					title="Xoá thông tin phiếu xuất phòng thí nghiệm"
+					handleSubmit={handleSubmitDeleteWarehouseLabModal}
+				>
+					Bạn có chắc muốn xoá thông tin{' '}
+					<Typography component="span" color="red">
+						{deletedRow.ExportId} - {deletedRow.Content} - {deletedRow.EmployeeName}
+					</Typography>{' '}
+					không?
+				</DeleteExportModal>
+			)}
+
 			{isCreateModal && (
-				<CreateLabModal
-					onCloseCreateModal={onCloseCreateModal}
+				<CreateExportModal
+					onClose={onCloseCreateWarehouseLabModal}
 					columns={columns}
 					isCreateModal={isCreateModal}
-					handleSubmitCreateModal={handleSubmitCreateModal}
+					handleSubmitCreateModal={handleSubmitCreateWarehouseLabModal}
 				/>
 			)}
+
 			{isEditModal && (
-				<EditLabModal
+				<EditExportModal
 					initData={updatedRow}
 					isEditModal={isEditModal}
 					columns={columns}
-					onCloseEditModal={onCloseEditModal}
-					handleSubmitEditModal={handleSubmitEditModal}
+					onClose={onCloseEditWarehouseLab}
+					handleSubmitEditModal={handleSubmitEditWarehouseLabModal}
+				/>
+			)}
+
+			{isDeleteExportChemicalModal && (
+				<DeleteExportChemicalModal
+					isOpen={isDeleteExportChemicalModal}
+					initData={deletedRow}
+					onClose={() => setIsDeleteExportChemicalModal(false)}
+				/>
+			)}
+
+			{isCreateExportChemicalModal && (
+				<CreateExportChemicalModal
+					initData={createdRow}
+					isOpen={isCreateExportChemicalModal}
+					columns={columnsExportChemical}
+					onClose={() => setIsCreateExportChemicalModal(false)}
+				/>
+			)}
+
+			{isEditExportChemicalModal && (
+				<EditExportChemicalModal
+					initData={updatedRow}
+					isOpen={isEditExportChemicalModal}
+					columns={columnsExportChemical}
+					onClose={() => setIsEditExportChemicalModal(false)}
+				/>
+			)}
+
+			{isDeleteExportDeviceModal && (
+				<DeleteExportDeviceModal
+					isOpen={isDeleteExportDeviceModal}
+					initData={deletedRow}
+					onClose={() => setIsDeleteExportDeviceModal(false)}
+				/>
+			)}
+
+			{isCreateExportDeviceModal && (
+				<CreateExportDeviceModal
+					initData={createdRow}
+					isOpen={isCreateExportDeviceModal}
+					columns={columnsExportDevice}
+					onClose={() => setIsCreateExportDeviceModal(false)}
+				/>
+			)}
+
+			{isEditExportDeviceModal && (
+				<EditExportDeviceModal
+					initData={updatedRow}
+					isOpen={isEditExportDeviceModal}
+					columns={columnsExportDevice}
+					onClose={() => setIsEditExportDeviceModal(false)}
 				/>
 			)}
 		</>

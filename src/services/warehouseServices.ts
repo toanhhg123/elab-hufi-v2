@@ -17,16 +17,16 @@ export const getWarehouseFeildId = async <T>(id: String, id2 = '') => {
 	return warehouse;
 };
 
-export const postWarehouse = async (id: String, newLabData: any) => {
+export const postWarehouse = async (id: String, newWarehouseData: any) => {
 	const url = `${API_ENDPOINT}/api/exports/${id}`;
-	const newLab = await API.post<IWarehouseType, IWarehouseType>(url, newLabData);
-	return newLab;
+	const newWarehouse = await API.post<IWarehouseType, IWarehouseType>(url, newWarehouseData);
+	return newWarehouse;
 };
 
 export const updateWarehouse = async (id1: String, id2: String, updatedData: any) => {
 	const url = `${API_ENDPOINT}/api/exports/${id1}/${id2}`;
-	const lab: IWarehouseType = await API.put<IWarehouseType, IWarehouseType>(url, updatedData);
-	return lab;
+	const warehouse: IWarehouseType = await API.put<IWarehouseType, IWarehouseType>(url, updatedData);
+	return warehouse;
 };
 
 export const deleteWarehouse = async (id: String) => {

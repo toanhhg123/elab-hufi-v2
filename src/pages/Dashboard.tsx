@@ -11,9 +11,7 @@ import DeviceTable from '../layouts/DeviceTable';
 import { setListOfDevices, setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
-import ExportChemicalTable from '../layouts/ExportChemicalTable';
 import { setListOfExportChemical } from '../layouts/ExportChemicalTable/exportChemicalSlice';
-import ExportDeviceTable from '../layouts/ExportDeviceTable';
 import { setListOfExportDevice } from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
 import { setListOfLaboratories } from '../layouts/LaboratoryTable/laboratorySlice';
@@ -290,11 +288,9 @@ export function Dashboard() {
                 {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
                 {sidebarItems[11].isOpen && <WarehouseTable />}
-                {sidebarItems[12].isOpen && <ExportChemicalTable />}
-                {sidebarItems[13].isOpen && <ExportDeviceTable />}
-                {sidebarItems[14].isOpen && <PurchaseOrderTable />}
-                {sidebarItems[15].isOpen && <ChemicalTable type="generalOrder" />}
-                {sidebarItems[16].isOpen && <DeviceTable type="generalOrder" />}
+                {sidebarItems[12].isOpen && <PurchaseOrderTable />}
+                {sidebarItems[13].isOpen && <ChemicalTable type="generalOrder" />}
+                {sidebarItems[14].isOpen && <DeviceTable type="generalOrder" />}
             </div>
             <Snackbar
                 anchorOrigin={{
