@@ -218,7 +218,7 @@ const ScheduleTable: FC = () => {
                         type="file"
                         onChange={handleImagePreview}
                     />
-                      
+
                     <b style={{ "fontSize": "15px", "paddingRight": "3px" }}>Học kỳ: </b>
                     <Select
                         labelId="demo-simple-select-label"
@@ -270,10 +270,10 @@ const ScheduleTable: FC = () => {
                     // adaptivityEnabled={true}
                     // startDayHour={7}
                     // endDayHour={22}
-                    dataCellRender={(itemData) => <DataScaleCell itemData={itemData} />}
-                    dateCellRender={(itemData) => <DateScaleCell itemData={itemData} />}
-                    resourceCellRender={(itemData) => <TimeScaleCell itemData={itemData} />}
-                    appointmentRender={(itemData) => <AppointmentContentCell itemData={itemData} />}
+                    dataCellRender={(itemData: any) => <DataScaleCell itemData={itemData} />}
+                    dateCellRender={(itemData: any) => <DateScaleCell itemData={itemData} />}
+                    resourceCellRender={(itemData: any) => <TimeScaleCell itemData={itemData} />}
+                    appointmentRender={(itemData: any) => <AppointmentContentCell itemData={itemData} />}
                 >
                     <Resource
                         fieldExpr="session"
