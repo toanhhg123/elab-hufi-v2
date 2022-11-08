@@ -65,7 +65,7 @@ const DataScaleCell = (props: any) => {
 const AppointmentContentCell = (restProps: any) => {
     const { appointmentData } = restProps.itemData;
     return (
-        <div style={{ "fontSize": '12px', "color": 'black' }}>
+        <div style={{ "fontSize": '10px', "color": 'black' }}>
             <div style={{ "margin": "0px 0px" }}>
                 <b> {'Môn: '} {appointmentData.title.length < 15 ? appointmentData.title : appointmentData.title.slice(0, 15) + '...'} {' '} ({appointmentData.ScheduleType}) </b>
             </div>
@@ -209,7 +209,7 @@ const ScheduleTable: FC = () => {
                 ></KeyboardArrowRightIcon></b>
                 <span>Thông tin thời khoá biểu</span>
             </h3>
-            <Paper>
+            <Paper sx={{ "height": "78vh" }}>
                 <div style={{ "float": "left", "margin": "10px 50px" }}>
                     {/* image preview */}
                     {/* <img src={imagePreview} alt="image preview" /> */}
@@ -262,7 +262,7 @@ const ScheduleTable: FC = () => {
                     currentDate={currentDate}
                     cellDuration={1440}
                     // onOptionChanged={handlePropertyChange}
-                    height={600}
+                    height={"72vh"}
                     groups={groups}
                     firstDayOfWeek={1}
                     showCurrentTimeIndicator={false}
