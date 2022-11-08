@@ -3,12 +3,15 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 import Scheduler, { Resource } from 'devextreme-react/scheduler';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import Paper from '@mui/material/Paper';
-import { isToday,sessionData } from './utils';
+import { isToday, sessionData } from './utils';
 import { RootState } from '../../store';
 import { IScheduleType } from '../../types/scheduleType';
 import { useAppSelector } from '../../hooks';
-import Button from "devextreme/ui/button";
+// import Button from "devextreme/ui/button";
 import './scheduleStyle.css';
+import * as API from '../../configs/apiHelper';
+import Button from '@mui/material/Button';
+import { MenuItem, Select } from '@mui/material';
 
 const views = [
     {
@@ -59,10 +62,8 @@ const DataScaleCell = (props: any) => {
 };
 
 
-
 const AppointmentContentCell = (restProps: any) => {
     const { appointmentData } = restProps.itemData;
-    console.log("restProps :", restProps)
     return (
         <div style={{ "fontSize": '12px', "color": 'black' }}>
             <div style={{ "margin": "0px 0px" }}>
@@ -92,6 +93,10 @@ const ScheduleTable: FC = () => {
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [tableData, setTableData] = useState<any[]>([]);
+    const [uploadedFile, setUploadFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState<any>();
+    const [selectedSemester, setSelectedSemester] = useState<number>(1);
+    const [selectedSchoolyear, setSelectedSchoolyear] = useState<string>('2022-2023');
 
     // const customizeDateNavigatorText = useCallback((e: any) => {
     //     const formatOptions = { 
@@ -138,6 +143,48 @@ const ScheduleTable: FC = () => {
     //     onContentReady();
     // }, [document.getElementById('schedulerTodayButton')])
 
+    const handleImagePreview = (e: any) => {
+        let image_as_base64 = URL.createObjectURL(e.target.files[0])
+        let image_as_files = e.target.files[0];
+
+        setImagePreview(image_as_base64);
+        setUploadFile(image_as_files);
+    }
+
+    const handleSubmitFile = async () => {
+
+        if (uploadedFile !== null) {
+            // let formData = new FormData();
+            // formData.append('', uploadedFile);
+            let formData = {
+                uploadedFile,
+                Semester: '1',
+                Schoolyear: '2022-2023'
+            }
+
+            await API.post(
+                "https://www.aspsite.somee.com/api/Schedules/importFile",
+                formData,
+                {
+                    headers: {
+                        // "Authorization": "YOUR_API_AUTHORIZATION_KEY_SHOULD_GOES_HERE_IF_HAVE",
+                        "Content-type": "multipart/form-data",
+                    },
+                }
+            )
+                .then((res: any) => {
+                    console.log(`Success` + res.data);
+                })
+                .catch((err: any) => {
+                    console.log(err);
+                })
+        }
+    }
+
+    const handleSelectSemester = (e: any) => {
+        setSelectedSemester(e.value);
+    }
+
     useEffect(() => {
         let formatedScheduleData = scheduleData.map((sche: IScheduleType) => {
             let lessonDate = new Date(Number(sche.DateStudy) * 1000);
@@ -151,7 +198,6 @@ const ScheduleTable: FC = () => {
                 "session": (Number(sche.StartTime) < 7) ? 1 : ((12 < Number(sche.StartTime)) ? 3 : 2)
             }
         })
-        console.log("formatedScheduleData :", formatedScheduleData)
         setTableData(formatedScheduleData);
     }, [scheduleData])
 
@@ -164,6 +210,44 @@ const ScheduleTable: FC = () => {
                 <span>Thông tin thời khoá biểu</span>
             </h3>
             <Paper>
+                <div style={{ "float": "left", "margin": "10px 50px" }}>
+                    {/* image preview */}
+                    {/* <img src={imagePreview} alt="image preview" /> */}
+                    <b style={{ "fontSize": "15px", "paddingRight": "10px" }}>File TKB: </b>
+                    <input
+                        type="file"
+                        onChange={handleImagePreview}
+                    />
+                      
+                    <b style={{ "fontSize": "15px", "paddingRight": "3px" }}>Học kỳ: </b>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={selectedSemester}
+                        label="Age"
+                        onChange={handleSelectSemester}
+                        style={{ "height": "25px", "margin": "0 15px" }}
+                    >
+                        <MenuItem value={1}>1</MenuItem>
+                        <MenuItem value={2}>2</MenuItem>
+                        <MenuItem value={3}>3</MenuItem>
+                    </Select>
+                    <b style={{ "fontSize": "15px", "paddingRight": "3px" }}>Năm học: </b>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={selectedSchoolyear}
+                        label="Age"
+                        onChange={handleSelectSemester}
+                        style={{ "height": "25px", "margin": "0 15px" }}
+                    >
+                        <MenuItem value={'2022-2023'}>2022-2023</MenuItem>
+                        <MenuItem value={'2021-2022'}>2021-2022</MenuItem>
+                        <MenuItem value={'2020-2021'}>2020-2021</MenuItem>
+                    </Select>
+                    <Button onClick={handleSubmitFile} variant="contained" style={{ "height": "25px" }}> Upload </Button>
+                </div>
+
                 <Scheduler
                     dataSource={tableData}
                     views={[
