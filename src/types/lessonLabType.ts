@@ -27,7 +27,7 @@ export interface ILessonLabType {
     SubjectName?: String,
     listChemical: IChemicalsBelongingToLessonLabType[] | [],
     listDevice: IDevicesBelongingToLessonLab[] | [],
-    listInstrument: IInstrumentBelongingToLessonLab[] | []
+    listInstrument: IDevicesBelongingToLessonLab[]
 }
 
 export const dummyLessonLabData: ILessonLabType = {

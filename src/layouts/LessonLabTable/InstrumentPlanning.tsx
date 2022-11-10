@@ -17,18 +17,18 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
-import { IChemicalsBelongingToLessonLabType, ILessonLabType } from '../../types/lessonLabType';
+import { IDevicesBelongingToLessonLab, ILessonLabType } from '../../types/lessonLabType';
 import Autocomplete from '@mui/material/Autocomplete';
-import { IChemicalType } from '../../types/chemicalType';
+import { IDeviceType } from '../../types/deviceType';
 
-const ChemicalPlanning: FC<{
+const DevicePlanning: FC<{
     isOpen: boolean,
     currentLessonLab: ILessonLabType,
-    defaultCurrentValue: IChemicalsBelongingToLessonLabType[],
+    defaultCurrentValue: IDevicesBelongingToLessonLab[],
     onClose: () => void,
-    handleSubmit: (ChemicalPlanningData: any) => void,
+    handleSubmit: (DevicePlanningData: any) => void,
 }> = ({ isOpen, currentLessonLab, onClose, handleSubmit, defaultCurrentValue }) => {
-    const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
+    const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
     const [tableData, setTableData] = useState<any[]>([]);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
@@ -68,46 +68,44 @@ const ChemicalPlanning: FC<{
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
-				accessorKey: 'ChemicalId',
-				header: 'Mã hóa chất',
+				accessorKey: 'DeviceId',
+				header: 'Mã dụng cụ',
 				enableEditing: false,
 			},
             {
-                accessorKey: 'ChemicalName',
-                header: 'Tên hoá chất',
+                accessorKey: 'DeviceName',
+                header: 'Tên dụng cụ',
                 enableEditing: false,
             },
             {
-                accessorKey: 'Specifications',
-                header: 'Đặc tả',
+                accessorKey: 'Standard',
+                header: 'Tiêu chuẩn',
                 enableEditing: false,
             },
             {
-                accessorKey: 'Amount',
-                header: 'Số lượng',
+                accessorKey: 'Quantity',
+                header: 'Số lượng',            
             },
             {
                 accessorKey: 'Unit',
-                header: 'Đơn vị',
+                header: 'Đơn vị',             
             },
             {
                 accessorKey: 'Note',
-                header: 'Ghi chú',
+                header: 'Ghi chú',             
             },
         ],
         [getCommonEditTextFieldProps],
     );
 
-    const handleSelectAutocomplete = (e: any, val: IChemicalType[]) => {
+    const handleSelectAutocomplete = (e: any, val: IDeviceType[]) => {
         setTableData(val);
     }
 
     const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
         async ({ exitEditingMode, row, values }) => {
-            //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here
             let updatedData = [...tableData];
             updatedData.splice(Number(row.id), 1, values);
-
             //send/receive api updates here
             setTableData([...updatedData]);
             exitEditingMode(); //required to exit editing mode
@@ -116,7 +114,7 @@ const ChemicalPlanning: FC<{
     return (
         <>
             <Dialog open={isOpen}>
-                <DialogTitle textAlign="center"><b>Dự trù hoá chất cho bài thí nghiệm</b></DialogTitle>
+                <DialogTitle textAlign="center"><b>Dự trù dụng cụ cho bài thí nghiệm</b></DialogTitle>
                 <DialogContent>
                     <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
                         <Stack
@@ -136,15 +134,15 @@ const ChemicalPlanning: FC<{
                             <Autocomplete
                                 multiple
                                 filterSelectedOptions
-                                options={chemicalData}
+                                options={deviceData}
                                 value={tableData}
-                                isOptionEqualToValue={(option, value) => option.ChemicalId === value.ChemicalId}
-                                getOptionLabel={(option: IChemicalType) => option?.ChemicalName ? option.ChemicalId + ' - ' + option.ChemicalName.toString() : ''}
+                                isOptionEqualToValue={(option, value) => option.DeviceId === value.DeviceId}
+                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceId + ' - ' +option.DeviceName.toString() : ''}
                                 id="auto-complete"
                                 autoComplete
                                 includeInputInList
                                 renderInput={(params) => (
-                                    <TextField {...params} placeholder="Chọn hoá chất..." variant="standard" />
+                                    <TextField {...params} placeholder="Chọn dụng cụ..." variant="standard" />
                                 )}
                                 onChange={(e: any, val) => handleSelectAutocomplete(e, val)}
                             />
@@ -197,7 +195,7 @@ const ChemicalPlanning: FC<{
                                         <b><KeyboardArrowRightIcon
                                             style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
                                         ></KeyboardArrowRightIcon></b>
-                                        <span>Thông tin hoá chất</span>
+                                        <span>Thông tin dụng cụ</span>
                                     </h3>
                                 )}
                             />
@@ -215,4 +213,4 @@ const ChemicalPlanning: FC<{
     );
 };
 
-export default ChemicalPlanning;
+export default DevicePlanning;

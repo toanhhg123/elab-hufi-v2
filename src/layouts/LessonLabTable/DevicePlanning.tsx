@@ -68,26 +68,31 @@ const DevicePlanning: FC<{
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
+				accessorKey: 'DeviceId',
+				header: 'Mã thiết bị',
+				enableEditing: false,
+			},
+            {
                 accessorKey: 'DeviceName',
                 header: 'Tên thiết bị',
                 enableEditing: false,
-                size: 100,
             },
-
+            {
+                accessorKey: 'Standard',
+                header: 'Tiêu chuẩn',
+                enableEditing: false,
+            },
             {
                 accessorKey: 'Quantity',
-                header: 'Số lượng',
-                size: 100,
+                header: 'Số lượng',            
             },
             {
                 accessorKey: 'Unit',
-                header: 'Đơn vị',
-                size: 100,
+                header: 'Đơn vị',             
             },
             {
                 accessorKey: 'Note',
-                header: 'Ghi chú',
-                size: 100,
+                header: 'Ghi chú',             
             },
         ],
         [getCommonEditTextFieldProps],
@@ -132,7 +137,7 @@ const DevicePlanning: FC<{
                                 options={deviceData}
                                 value={tableData}
                                 isOptionEqualToValue={(option, value) => option.DeviceId === value.DeviceId}
-                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceName.toString() : ''}
+                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceId + ' - ' +option.DeviceName.toString() : ''}
                                 id="auto-complete"
                                 autoComplete
                                 includeInputInList
