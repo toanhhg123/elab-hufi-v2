@@ -73,7 +73,7 @@ const AppointmentContentCell = (restProps: any) => {
                 <b>{appointmentData.LessonName}</b>
             </div>
             <div style={{ "margin": "0px 0px" }}>
-                {appointmentData.ClassId} - {appointmentData.ClassName}
+                {appointmentData.ClassCode} - {appointmentData.ClassName}
             </div>
             <div style={{ "margin": "10px 0px" }}>
                 {'Tiết: '} {appointmentData.StartTime} - {appointmentData.EndTime}

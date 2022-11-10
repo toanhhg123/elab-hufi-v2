@@ -156,7 +156,7 @@ const AppointmentContent = (restProps: any) => {
                 <b>{restProps.data.LessonName}</b>
             </div>
             <div style={{ "margin": "0px 0px" }}>
-                {restProps.data.ClassId} - {restProps.data.ClassName}
+                {restProps.data.ClassCode} - {restProps.data.ClassName}
             </div>
             {/* <div style={{ "margin": "0px 0px" }}>
                 {'Tiết: '} {restProps.data.StartTime} - {restProps.data.EndTime}

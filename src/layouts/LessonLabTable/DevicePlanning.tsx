@@ -17,14 +17,14 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
-import { ILessonLabType } from '../../types/lessonLabType';
+import { IDevicesBelongingToLessonLab, ILessonLabType } from '../../types/lessonLabType';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IDeviceType } from '../../types/deviceType';
 
 const DevicePlanning: FC<{
     isOpen: boolean,
     currentLessonLab: ILessonLabType,
-    defaultCurrentValue: IDeviceType[],
+    defaultCurrentValue: IDevicesBelongingToLessonLab[],
     onClose: () => void,
     handleSubmit: (DevicePlanningData: any) => void,
 }> = ({ isOpen, currentLessonLab, onClose, handleSubmit, defaultCurrentValue }) => {
@@ -79,7 +79,16 @@ const DevicePlanning: FC<{
                 header: 'Số lượng',
                 size: 100,
             },
-
+            {
+                accessorKey: 'Unit',
+                header: 'Đơn vị',
+                size: 100,
+            },
+            {
+                accessorKey: 'Note',
+                header: 'Ghi chú',
+                size: 100,
+            },
         ],
         [getCommonEditTextFieldProps],
     );
@@ -90,10 +99,10 @@ const DevicePlanning: FC<{
 
     const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
         async ({ exitEditingMode, row, values }) => {
-            //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here.
-
+            let updatedData = [...tableData];
+            updatedData.splice(Number(row.id), 1, values);
             //send/receive api updates here
-            setTableData([...tableData]);
+            setTableData([...updatedData]);
             exitEditingMode(); //required to exit editing mode
         };
 

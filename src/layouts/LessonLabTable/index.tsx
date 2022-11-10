@@ -21,7 +21,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyLessonLabData, ILessonLabType } from '../../types/lessonLabType';
+import { dummyLessonLabData, IChemicalsBelongingToLessonLabType, IDevicesBelongingToLessonLab, ILessonLabType } from '../../types/lessonLabType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteLessonLab, getLessonLabs, postLessonLab, updateLessonLab } from '../../services/lessonLabServices';
 import { RootState } from '../../store';
@@ -49,8 +49,8 @@ const LessonLabTable: FC = () => {
   const [isDevicePlanningModal, setIsDevicePlanningModal] = useState<boolean>(false);
   const [isChemicalPlanningModal, setIsChemicalPlanningModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<ILessonLabType[]>([]);
-  const [defaultDevicePlanning, setDefaultDevicePlanning] = useState<IDeviceType[]>([]);
-  const [defaultChemicalPlanning, setDefaultChemicalPlanning] = useState<IChemicalType[]>([]);
+  const [defaultDevicePlanning, setDefaultDevicePlanning] = useState<IDevicesBelongingToLessonLab[]>([]);
+  const [defaultChemicalPlanning, setDefaultChemicalPlanning] = useState<IChemicalsBelongingToLessonLabType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -110,17 +110,17 @@ const LessonLabTable: FC = () => {
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateLessonLab({
-      "LessonId": updatedRow.LessonId,
-      "LessonName": updatedRow.LessonName,
-      "SubjectId": updatedRow.SubjectId,
-    });
-    if (isUpdatedSuccess) {
-      dispatch(setSnackbarMessage("Cập nhật thông tin bài thí nghiệm thành công"));
-      let updatedIdx = lessonLabData.findIndex(x => x.LessonId === updatedRow.LessonId);
-      let newListOfLessonLabs = [...lessonLabData.slice(0, updatedIdx), updatedRow, ...lessonLabData.slice(updatedIdx + 1,)]
-      dispatch(setListOfLessonLabs(newListOfLessonLabs));
-    }
+    // const isUpdatedSuccess = await updateLessonLab({
+    //   "LessonId": updatedRow.LessonId,
+    //   "LessonName": updatedRow.LessonName,
+    //   "SubjectId": updatedRow.SubjectId,
+    // });
+    // if (isUpdatedSuccess) {
+    //   dispatch(setSnackbarMessage("Cập nhật thông tin bài thí nghiệm thành công"));
+    //   let updatedIdx = lessonLabData.findIndex(x => x.LessonId === updatedRow.LessonId);
+    //   let newListOfLessonLabs = [...lessonLabData.slice(0, updatedIdx), updatedRow, ...lessonLabData.slice(updatedIdx + 1,)]
+    //   dispatch(setListOfLessonLabs(newListOfLessonLabs));
+    // }
 
     onCloseEditModal();
   }
@@ -155,18 +155,18 @@ const LessonLabTable: FC = () => {
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdLessonLab = await postLessonLab({
-      "LessonName": createdRow.LessonName,
-      "SubjectId": createdRow.SubjectId,
-    })
+    // const createdLessonLab = await postLessonLab({
+    //   "LessonName": createdRow.LessonName,
+    //   "SubjectId": createdRow.SubjectId,
+    // })
 
-    if (createdLessonLab) {
-      const newListOfLessonLabs: ILessonLabType[] = await getLessonLabs();
-      if (newListOfLessonLabs) {
-        dispatch(setSnackbarMessage("Tạo thông tin bài thí nghiệm mới thành công"));
-        dispatch(setListOfLessonLabs(newListOfLessonLabs));
-      }
-    }
+    // if (createdLessonLab) {
+    //   const newListOfLessonLabs: ILessonLabType[] = await getLessonLabs();
+    //   if (newListOfLessonLabs) {
+    //     dispatch(setSnackbarMessage("Tạo thông tin bài thí nghiệm mới thành công"));
+    //     dispatch(setListOfLessonLabs(newListOfLessonLabs));
+    //   }
+    // }
 
     onCloseCreateModal();
   }
@@ -174,9 +174,9 @@ const LessonLabTable: FC = () => {
   const handleOpenDevicePlanningModal = async (row: any) => {
     setSelectedRow(row.original);
 
-    let devicePlanningData = await getDevicePlanningByLesson(row.original.LessonId);
+    let devicePlanningData = lessonLabData.find((item: ILessonLabType) => item.LessonId === row.original.LessonId)
     if (devicePlanningData) {
-      setDefaultDevicePlanning(devicePlanningData);
+      setDefaultDevicePlanning(devicePlanningData.listDevice);
       setIsDevicePlanningModal(true);
     }
   }
@@ -195,9 +195,10 @@ const LessonLabTable: FC = () => {
   const handleOpenChemicalPlanningModal = async (row: any) => {
     setSelectedRow(row.original);
 
-    let devicePlanningData = await getChemicalPlanningByLesson(row.original.LessonId);
+    let devicePlanningData = lessonLabData.find((item: ILessonLabType) => item.LessonId === row.original.LessonId)
+    //  await getChemicalPlanningByLesson(row.original.LessonId);
     if (devicePlanningData) {
-      setDefaultChemicalPlanning(devicePlanningData);
+      setDefaultChemicalPlanning(devicePlanningData.listChemical);
       setIsChemicalPlanningModal(true);
     }
   }
