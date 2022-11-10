@@ -3,37 +3,29 @@ import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
 } from 'material-react-table';
-import { useAppSelector } from '../../../hooks';
-import { RootState } from '../../../store';
 import moment from 'moment';
+import { useAppSelector } from '../../hooks';
+import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { IOrderChemicalType } from '../../../types/orderChemicalType';
+import { IChemicalWarehouseType } from '../../types/chemicalWarehouseType';
+import ChemicalDetailTable from './ChemicalDetailTable';
 
-const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[] }> = ({ chemicalData }) => {
-  const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
+const ChemicalWarehouseTable: FC = () => {
+  const chemicalWarehouseData: IChemicalWarehouseType[] = useAppSelector((state: RootState) => state.chemicalWarehouse.listOfChemicalWarehouse);
 
-  const [tableData, setTableData] = useState<IOrderChemicalType[]>([]);
+  const [tableData, setTableData] = useState<IChemicalWarehouseType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
   useEffect(() => {
-    let formatedDeviceData = chemicalData.map((x: IOrderChemicalType) => {
-      let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
-      return {
-        ...x,
-        "formatedManufacturingDate": moment.unix(x.ManufacturingDate).format('DD/MM/YYYY'),
-        "formatedExpiryDate": moment.unix(x.ExpiryDate).format('DD/MM/YYYY'),
-        "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
-      }
-    })
-    setTableData(formatedDeviceData);
-  }, [chemicalData])
+    setTableData(chemicalWarehouseData);
+  }, [chemicalWarehouseData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<IOrderChemicalType>,
-    ): MRT_ColumnDef<IOrderChemicalType>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<IChemicalWarehouseType>,
+    ): MRT_ColumnDef<IChemicalWarehouseType>['muiTableBodyCellEditTextFieldProps'] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
@@ -42,10 +34,10 @@ const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[] }> = (
     [validationErrors],
   );
 
-  const columns = useMemo<MRT_ColumnDef<IOrderChemicalType>[]>(
+  const columns = useMemo<MRT_ColumnDef<IChemicalWarehouseType>[]>(
     () => [
       {
-        accessorKey: 'ChemDetailId',
+        accessorKey: 'ChemicalId',
         header: 'Id hoá chất',
         size: 100,
       },
@@ -55,8 +47,13 @@ const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[] }> = (
         size: 100,
       },
       {
-        accessorKey: 'AmountOriginal',
-        header: 'Lượng',
+        accessorKey: 'Specifications',
+        header: 'Thông số',
+        size: 100,
+      },
+      {
+        accessorKey: 'Origin',
+        header: 'Nguồn gốc',
         size: 100,
       },
       {
@@ -65,33 +62,18 @@ const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[] }> = (
         size: 100,
       },
       {
-        accessorKey: 'formatedManufacturingDate',
-        header: 'Ngày sản xuất',
+        accessorKey: 'AmountOriginal',
+        header: 'Lượng ban đầu',
         size: 100,
       },
       {
-        accessorKey: 'formatedExpiryDate',
-        header: 'Ngày hết hạn',
+        accessorKey: 'AmountExport',
+        header: 'Lượng xuất',
         size: 100,
       },
       {
-        accessorKey: 'LotNumber',
-        header: 'Số lô',
-        size: 100,
-      },
-      {
-        accessorKey: 'Price',
-        header: 'Giá',
-        size: 100,
-      },
-      {
-        accessorKey: 'ChemicalId',
-        header: 'Id gốc',
-        size: 100,
-      },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
+        accessorKey: 'AmountRemain',
+        header: 'Lượng còn lại',
         size: 100,
       },
     ],
@@ -130,10 +112,14 @@ const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[] }> = (
         initialState={{
           density: 'compact',
           columnOrder: [
+            'mrt-row-expand',
             'mrt-row-numbers',
-            ...columns.map(x => x.accessorKey || ''),
+            ...columns.map(item => item.accessorKey || '')
           ]
         }}
+        renderDetailPanel={({ row }) => (
+          <ChemicalDetailTable chemicalDetail={row.original.listChemicalDetail} />
+        )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
             <b><KeyboardArrowRightIcon
@@ -147,4 +133,4 @@ const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[] }> = (
   );
 };
 
-export default PurchaseOrderChemicalTable;
+export default ChemicalWarehouseTable;

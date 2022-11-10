@@ -65,6 +65,10 @@ import { ISupplierType } from '../types/supplierType';
 import { IWarehouseType } from '../types/warehouseType';
 import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
+import { IChemicalWarehouseType } from '../types/chemicalWarehouseType';
+import { getChemicalWarehouseById } from '../services/chemicalWarehouseServices';
+import { setListOfChemicalWarehouse } from '../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice';
+import ChemicalWarehouseTable from '../layouts/ChemicalWarehouseTable';
 
 export function Dashboard() {
     const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -82,6 +86,8 @@ export function Dashboard() {
     const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
     const dispatch = useAppDispatch();
+
+    const currentRole = Number(localStorage.getItem("role") || 1);
 
     const getLaboratoryData = async () => {
         const listOfLaboratories: ILaboratoryType[] = await getLaboratories();
@@ -129,6 +135,13 @@ export function Dashboard() {
         const listOfChemical: IChemicalType[] = await getChemicals();
         if (listOfChemical) {
             dispatch(setListOfChemicals(listOfChemical));
+        }
+    }
+
+    const getChemicalWarehouseData = async (id: Number) => {
+        const listOfChemicalWarehouse: IChemicalWarehouseType[] = await getChemicalWarehouseById(id);
+        if (listOfChemicalWarehouse) {
+            dispatch(setListOfChemicalWarehouse(listOfChemicalWarehouse));
         }
     }
 
@@ -222,6 +235,7 @@ export function Dashboard() {
         getManufacturerData();
         getSupplierData();
         getChemicalData();
+        getChemicalWarehouseData(currentRole);
         getDeviceData();
         getDeviceSpecData();
         getSubjectData();
@@ -259,14 +273,15 @@ export function Dashboard() {
                 {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
                 {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
                 {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
-                {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
-                {sidebarItems[7].isOpen && <ScheduleTable />}
-                {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
-                {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-                {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
-                {sidebarItems[11].isOpen && <WarehouseTable />}
-                {sidebarItems[12].isOpen && <PurchaseOrderTable />}
+                {sidebarItems[5].isOpen && <ChemicalWarehouseTable />}
+                {sidebarItems[6].isOpen && supplierData?.length > 0 && <SupplierTable />}
+                {sidebarItems[7].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
+                {sidebarItems[8].isOpen && <ScheduleTable />}
+                {sidebarItems[9].isOpen && subjectData?.length > 0 && <SubjectTable />}
+                {sidebarItems[10].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+                {sidebarItems[11].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+                {sidebarItems[12].isOpen && <WarehouseTable />}
+                {sidebarItems[13].isOpen && <PurchaseOrderTable />}
             </div>
             <Snackbar
                 anchorOrigin={{

@@ -48,14 +48,7 @@ const ChemicalTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyChemicalData);
 
   useEffect(() => {
-    let formatedDeviceData = chemicalData.map((x: IChemicalType) => {
-      let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
-      return {
-        ...x,
-        "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
-      }
-    })
-    setTableData(formatedDeviceData);
+    setTableData(chemicalData);
   }, [chemicalData])
 
   const getCommonEditTextFieldProps = useCallback(
@@ -96,17 +89,7 @@ const ChemicalTable: FC = () => {
         accessorKey: 'Unit',
         header: 'Đơn vị',
         size: 100,
-      },
-      {
-        accessorKey: 'Amount',
-        header: 'Số lượng',
-        size: 100,
-      },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
-        size: 100,
-      },
+      }
     ],
     [getCommonEditTextFieldProps],
   );
@@ -247,7 +230,7 @@ const ChemicalTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin hoá chất</span>
+            <span>Danh mục hoá chất</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (

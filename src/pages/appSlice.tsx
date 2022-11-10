@@ -46,6 +46,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
+    "name": "Danh mục hoá chất",
+    "icon": ""
+  },
+  {
+    "isOpen": false,
     "name": "Quản lý hoá chất",
     "icon": ""
   },
