@@ -68,10 +68,10 @@ const ChemicalPlanning: FC<{
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
-				accessorKey: 'ChemicalId',
-				header: 'Mã hóa chất',
-				enableEditing: false,
-			},
+                accessorKey: 'ChemicalId',
+                header: 'Mã hóa chất',
+                enableEditing: false,
+            },
             {
                 accessorKey: 'ChemicalName',
                 header: 'Tên hoá chất',
@@ -115,7 +115,16 @@ const ChemicalPlanning: FC<{
 
     return (
         <>
-            <Dialog open={isOpen}>
+            <Dialog open={isOpen}
+                sx={{
+                    "& .MuiDialog-container": {
+                        "& .MuiPaper-root": {
+                            width: "100%",
+                            maxWidth: "800px",  // Set your width here
+                        },
+                    },
+                }}
+            >
                 <DialogTitle textAlign="center"><b>Dự trù hoá chất cho bài thí nghiệm</b></DialogTitle>
                 <DialogContent>
                     <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>

@@ -68,10 +68,10 @@ const DevicePlanning: FC<{
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
-				accessorKey: 'DeviceId',
-				header: 'Mã dụng cụ',
-				enableEditing: false,
-			},
+                accessorKey: 'DeviceId',
+                header: 'Mã dụng cụ',
+                enableEditing: false,
+            },
             {
                 accessorKey: 'DeviceName',
                 header: 'Tên dụng cụ',
@@ -84,15 +84,15 @@ const DevicePlanning: FC<{
             },
             {
                 accessorKey: 'Quantity',
-                header: 'Số lượng',            
+                header: 'Số lượng',
             },
             {
                 accessorKey: 'Unit',
-                header: 'Đơn vị',             
+                header: 'Đơn vị',
             },
             {
                 accessorKey: 'Note',
-                header: 'Ghi chú',             
+                header: 'Ghi chú',
             },
         ],
         [getCommonEditTextFieldProps],
@@ -113,7 +113,17 @@ const DevicePlanning: FC<{
 
     return (
         <>
-            <Dialog open={isOpen}>
+            <Dialog
+                open={isOpen}
+                sx={{
+                    "& .MuiDialog-container": {
+                        "& .MuiPaper-root": {
+                            width: "100%",
+                            maxWidth: "800px",  // Set your width here
+                        },
+                    },
+                }}
+            >
                 <DialogTitle textAlign="center"><b>Dự trù dụng cụ cho bài thí nghiệm</b></DialogTitle>
                 <DialogContent>
                     <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
@@ -137,7 +147,7 @@ const DevicePlanning: FC<{
                                 options={deviceData}
                                 value={tableData}
                                 isOptionEqualToValue={(option, value) => option.DeviceId === value.DeviceId}
-                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceId + ' - ' +option.DeviceName.toString() : ''}
+                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceId + ' - ' + option.DeviceName.toString() : ''}
                                 id="auto-complete"
                                 autoComplete
                                 includeInputInList
