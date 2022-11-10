@@ -19,9 +19,7 @@ import LessonLabTable from '../layouts/LessonLabTable';
 import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
-import { setListOfOrderDevices } from '../layouts/DeviceTable/orderDeviceSlice';
 import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
-import { setListOfOrderChemicals } from '../layouts/ChemicalTable/orderChemicalSlice';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import ScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
@@ -42,8 +40,6 @@ import { getExportDevice } from '../services/exportDeviceServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
-import { getOrderChemicals } from '../services/orderChemicalServices';
-import { getOrderDevices } from '../services/orderDeviceServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
 import { getSchedules } from '../services/scheduleServices';
@@ -61,8 +57,6 @@ import { IExportDeviceType } from '../types/exportDeviceType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
-import { IOrderChemicalType } from '../types/orderChemicalType';
-import { IOrderDeviceType } from '../types/orderDeviceType';
 import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
 import { IScheduleType } from '../types/scheduleType';
@@ -214,20 +208,6 @@ export function Dashboard() {
         }
     }
 
-    const getOrderChemicalData = async () => {
-        const listOfOrderChemicals: IOrderChemicalType[] = await getOrderChemicals();
-        if (listOfOrderChemicals) {
-            dispatch(setListOfOrderChemicals(listOfOrderChemicals));
-        }
-    }
-
-    const getOrderDeviceData = async () => {
-        const listOfOrderDevices: IOrderDeviceType[] = await getOrderDevices();
-        if (listOfOrderDevices) {
-            dispatch(setListOfOrderDevices(listOfOrderDevices));
-        }
-    }
-
     const getScheduleData = async () => {
         const listOfSchedules: IScheduleType[] = await getSchedules();
         if (listOfSchedules) {
@@ -254,8 +234,6 @@ export function Dashboard() {
         getWarehouseStudySessionData();
         getExportDeviceData();
         getPurchaseOrderData();
-        getOrderChemicalData();
-        getOrderDeviceData();
         getScheduleData();
     }, [])
 
@@ -280,17 +258,15 @@ export function Dashboard() {
                 {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
                 {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
                 {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable type="normal" />}
+                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
                 {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable type="normal" />}
+                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
                 {sidebarItems[7].isOpen && <ScheduleTable />}
                 {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
                 {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
                 {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
                 {sidebarItems[11].isOpen && <WarehouseTable />}
                 {sidebarItems[12].isOpen && <PurchaseOrderTable />}
-                {sidebarItems[13].isOpen && <ChemicalTable type="generalOrder" />}
-                {sidebarItems[14].isOpen && <DeviceTable type="generalOrder" />}
             </div>
             <Snackbar
                 anchorOrigin={{
