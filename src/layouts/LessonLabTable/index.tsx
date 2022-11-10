@@ -34,9 +34,6 @@ import BuildIcon from '@mui/icons-material/Build';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import DevicePlanning from './DevicePlanning';
 import InstrumentPlanning from './InstrumentPlanning';
-import { getChemicalPlanningByLesson, getDevicePlanningByLesson, updateDevicePlanningByLesson } from '../../services/deviceServices';
-import { IDeviceType, ILessonDeviceType } from '../../types/deviceType';
-import { IChemicalType } from '../../types/chemicalType';
 import ChemicalPlanning from './ChemicalPlanning';
 
 const LessonLabTable: FC = () => {

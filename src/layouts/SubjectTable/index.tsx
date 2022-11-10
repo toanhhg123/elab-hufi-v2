@@ -21,14 +21,20 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummySubjectData, ISubjectType } from '../../types/subjectType';
+import { dummySubjectData, IChemicalsBelongingToSubjectType, IDevicesBelongingToSubjectType, ISubjectType } from '../../types/subjectType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteSubject, getSubjects, postSubject, updateSubject } from '../../services/subjectServices';
 import { RootState } from '../../store';
 import { setListOfSubjects } from './subjectSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import ScienceIcon from '@mui/icons-material/Science';
+import ConstructionIcon from '@mui/icons-material/Construction';
+import BuildIcon from '@mui/icons-material/Build';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import DevicePlanning from './DevicePlanning';
+import InstrumentPlanning from './InstrumentPlanning';
+import ChemicalPlanning from './ChemicalPlanning';
 
 const SubjectTable: FC = () => {
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
@@ -38,7 +44,13 @@ const SubjectTable: FC = () => {
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
+  const [isDevicePlanningModal, setIsDevicePlanningModal] = useState<boolean>(false);
+  const [isChemicalPlanningModal, setIsChemicalPlanningModal] = useState<boolean>(false);
+  const [isInstrumentPlanningModal, setIsInstrumentPlanningModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<ISubjectType[]>([]);
+  const [defaultDevicePlanning, setDefaultDevicePlanning] = useState<IDevicesBelongingToSubjectType[]>([]);
+  const [defaultInstrumentPlanning, setDefaultInstrumentPlanning] = useState<IDevicesBelongingToSubjectType[]>([]);
+  const [defaultChemicalPlanning, setDefaultChemicalPlanning] = useState<IChemicalsBelongingToSubjectType[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -46,6 +58,7 @@ const SubjectTable: FC = () => {
   const [updatedRow, setUpdatedRow] = useState<any>(dummySubjectData);
   const [deletedRow, setDeletedRow] = useState<any>(dummySubjectData);
   const [createdRow, setCreatedRow] = useState<any>(dummySubjectData);
+  const [selectedRow, setSelectedRow] = useState<any>(dummySubjectData);
 
   useEffect(() => {
     let formatedSubjectData = subjectData.map((sub: ISubjectType) => {
@@ -112,7 +125,10 @@ const SubjectTable: FC = () => {
       "SubjectId": updatedRow.SubjectId,
       "SubjectName": updatedRow.SubjectName,
       "Credits": updatedRow.Credits,
-      "DepartmentId": updatedRow.DepartmentId
+      "DepartmentId": updatedRow.DepartmentId,
+      "listChemical": updatedRow.listChemical,
+      "listDevice": updatedRow.listDevice,
+      "listInstrument": updatedRow.listInstrument
     });
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin môn học thành công"));
@@ -158,7 +174,10 @@ const SubjectTable: FC = () => {
       "SubjectId": createdRow.SubjectId,
       "SubjectName": createdRow.SubjectName,
       "Credits": createdRow.Credits,
-      "DepartmentId": createdRow.DepartmentId
+      "DepartmentId": createdRow.DepartmentId,
+      "listChemical": createdRow.listChemical,
+      "listDevice": createdRow.listDevice,
+      "listInstrument": createdRow.listInstrument
     })
 
     if (createdSubject) {
@@ -169,6 +188,93 @@ const SubjectTable: FC = () => {
       }
     }
     onCloseCreateModal();
+  }
+
+  const handleOpenDevicePlanningModal = async (row: any) => {
+    setSelectedRow(row.original);
+
+    let devicePlanningData = subjectData.find((item: ISubjectType) => item.SubjectId === row.original.SubjectId)
+    if (devicePlanningData) {
+      setDefaultDevicePlanning(devicePlanningData.listDevice);
+      setIsDevicePlanningModal(true);
+    }
+  }
+
+  const onCloseDevicePlanningModal = () => {
+    setSelectedRow(dummySubjectData);
+    setIsDevicePlanningModal(false);
+  }
+
+  const onHandleSubmitDevicePlanningModal = async (DevicePlanningData: IDevicesBelongingToSubjectType[]) => {
+    let updatedData = {
+      ...selectedRow,
+      listDevice: DevicePlanningData
+    }
+
+    await updateSubject(updatedData);
+    let updatedIdx = subjectData.findIndex(x => x.SubjectId === updatedData.SubjectId);
+    let updatedSubjectData = [...subjectData.slice(0, updatedIdx), updatedData, ...subjectData.slice(updatedIdx + 1,)];
+    dispatch(setListOfSubjects(updatedSubjectData));
+    dispatch(setSnackbarMessage("Cập nhật dự trù thiết bị thành công"));
+    onCloseDevicePlanningModal();
+  }
+
+  const handleOpenChemicalPlanningModal = async (row: any) => {
+    setSelectedRow(row.original);
+
+    let devicePlanningData = subjectData.find((item: ISubjectType) => item.SubjectId === row.original.SubjectId)
+    if (devicePlanningData) {
+      setDefaultChemicalPlanning(devicePlanningData.listChemical);
+      setIsChemicalPlanningModal(true);
+    }
+  }
+
+  const onCloseChemicalPlanningModal = () => {
+    setSelectedRow(dummySubjectData);
+    setIsChemicalPlanningModal(false);
+  }
+
+  const onHandleSubmitChemicalPlanningModal = async (ChemicalPlanningData: IChemicalsBelongingToSubjectType[]) => {
+    let updatedData = {
+      ...selectedRow,
+      listChemical: ChemicalPlanningData
+    }
+
+    await updateSubject(updatedData);
+    let updatedIdx = subjectData.findIndex((x: ISubjectType) => x.SubjectId === updatedData.SubjectId);
+    let updatedSubjectData = [...subjectData.slice(0, updatedIdx), updatedData, ...subjectData.slice(updatedIdx + 1,)];
+    dispatch(setListOfSubjects(updatedSubjectData));
+    dispatch(setSnackbarMessage("Cập nhật dự trù hoá chất thành công"));
+    onCloseChemicalPlanningModal();
+  }
+
+  const handleOpenInstrumentPlanningModal = async (row: any) => {
+    setSelectedRow(row.original);
+
+    let devicePlanningData = subjectData.find((item: ISubjectType) => item.SubjectId === row.original.SubjectId)
+    if (devicePlanningData) {
+      setDefaultInstrumentPlanning(devicePlanningData.listInstrument);
+      setIsInstrumentPlanningModal(true);
+    }
+  }
+
+  const onCloseInstrumentPlanningModal = () => {
+    setSelectedRow(dummySubjectData);
+    setIsInstrumentPlanningModal(false);
+  }
+
+  const onHandleSubmitInstrumentPlanningModal = async (InstrumentPlanningData: IDevicesBelongingToSubjectType[]) => {
+    let updatedData = {
+      ...selectedRow,
+      listInstrument: InstrumentPlanningData
+    }
+
+    await updateSubject(updatedData);
+    let updatedIdx = subjectData.findIndex(x => x.SubjectId === updatedData.SubjectId);
+    let updatedSubjectData = [...subjectData.slice(0, updatedIdx), updatedData, ...subjectData.slice(updatedIdx + 1,)];
+    dispatch(setListOfSubjects(updatedSubjectData));
+    dispatch(setSnackbarMessage("Cập nhật dự trù thiết bị thành công"));
+    onCloseInstrumentPlanningModal();
   }
 
   return (
@@ -209,7 +315,10 @@ const SubjectTable: FC = () => {
           ]
         }}
         renderRowActions={({ row, table }) => (
-          <>
+          <Box sx={{
+            "display": 'flex', "gap": '1rem', "justifyContent": "center",
+            "alignItems": "center"
+          }}>
             <Tooltip arrow placement="left" title="Sửa thông tin môn học">
               <IconButton onClick={() => handleOpenEditModal(row)}>
                 <Edit />
@@ -220,7 +329,22 @@ const SubjectTable: FC = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
-          </>
+            <Tooltip arrow placement="top" title="Dự trù hoá chất cho môn học">
+              <IconButton style={{ "paddingLeft": "0px", "paddingRight": "0px" }} color="secondary" onClick={() => handleOpenChemicalPlanningModal(row)}>
+                <ScienceIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip arrow placement="top" title="Dự trù thiết bị cho môn học">
+              <IconButton style={{ "paddingLeft": "0px" }} color="info" onClick={() => handleOpenDevicePlanningModal(row)}>
+                <ConstructionIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip arrow placement="right" title="Dự trù dụng cụ cho môn học">
+              <IconButton style={{ "paddingLeft": "0px" }} color="warning" onClick={() => handleOpenInstrumentPlanningModal(row)}>
+                <BuildIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
@@ -370,6 +494,29 @@ const SubjectTable: FC = () => {
         </DialogActions>
       </Dialog>
 
+      <DevicePlanning
+        isOpen={isDevicePlanningModal}
+        currentSubject={selectedRow}
+        onClose={onCloseDevicePlanningModal}
+        handleSubmit={onHandleSubmitDevicePlanningModal}
+        defaultCurrentValue={defaultDevicePlanning}
+      />
+
+      <InstrumentPlanning
+        isOpen={isInstrumentPlanningModal}
+        currentSubject={selectedRow}
+        onClose={onCloseInstrumentPlanningModal}
+        handleSubmit={onHandleSubmitInstrumentPlanningModal}
+        defaultCurrentValue={defaultInstrumentPlanning}
+      />
+
+      <ChemicalPlanning
+        isOpen={isChemicalPlanningModal}
+        currentSubject={selectedRow}
+        onClose={onCloseChemicalPlanningModal}
+        handleSubmit={onHandleSubmitChemicalPlanningModal}
+        defaultCurrentValue={defaultChemicalPlanning}
+      /> 
     </>
   );
 };
