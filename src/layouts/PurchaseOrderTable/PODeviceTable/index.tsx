@@ -185,7 +185,6 @@ const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ devi
           columnOrder: [
             'mrt-row-numbers',
             ...columns.map(x => x.accessorKey || ''),
-            'mrt-row-actions'
           ]
         }}
         renderRowActions={({ row, table }) => (

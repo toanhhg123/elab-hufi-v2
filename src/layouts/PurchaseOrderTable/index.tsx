@@ -220,7 +220,6 @@ export const PurchaseOrderTable: FC = () => {
             'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(item => item.accessorKey || ''),
-            'mrt-row-actions'
           ]
         }}
         renderDetailPanel={({ row }) => (

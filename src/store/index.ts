@@ -6,6 +6,7 @@ import employeeReducer from '../layouts/EmployeeTable/employeeSlice';
 import departmentReducer from '../layouts/DepartmentTable/departmentSlice';
 import manufacturerReducer from '../layouts/ManufacturerTable/manufacturerSlice';
 import chemicalReducer from '../layouts/ChemicalTable/chemicalSlice';
+import chemicalWarehouseReducer from '../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice';
 import supplierReducer from '../layouts/SupplierTable/supplierSlice';
 import deviceReducer from '../layouts/DeviceTable/deviceSlice';
 import subjectReducer from '../layouts/SubjectTable/subjectSlice';
@@ -27,6 +28,7 @@ export const store = configureStore({
 		department: departmentReducer,
 		manufacturer: manufacturerReducer,
 		chemical: chemicalReducer,
+		chemicalWarehouse: chemicalWarehouseReducer,
 		supplier: supplierReducer,
 		device: deviceReducer,
 		subject: subjectReducer,
