@@ -6,12 +6,13 @@ import Paper from '@mui/material/Paper';
 import { isToday, sessionData } from './utils';
 import { RootState } from '../../store';
 import { IScheduleType } from '../../types/scheduleType';
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 // import Button from "devextreme/ui/button";
 import './scheduleStyle.css';
 import * as API from '../../configs/apiHelper';
 import Button from '@mui/material/Button';
 import { MenuItem, Select } from '@mui/material';
+import { setSnackbarMessage } from '../../pages/appSlice';
 
 const views = [
     {
@@ -90,6 +91,7 @@ const AppointmentContentCell = (restProps: any) => {
 
 const ScheduleTable: FC = () => {
     const scheduleData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
+    const dispatch = useAppDispatch();
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [tableData, setTableData] = useState<any[]>([]);
@@ -154,12 +156,10 @@ const ScheduleTable: FC = () => {
     const handleSubmitFile = async () => {
 
         if (uploadedFile !== null) {
-            // let formData = new FormData();
-            // formData.append('', uploadedFile);
             let formData = {
                 uploadedFile,
-                Semester: '1',
-                Schoolyear: '2022-2023'
+                Semester: selectedSemester,
+                Schoolyear: selectedSchoolyear
             }
 
             await API.post(
@@ -173,16 +173,20 @@ const ScheduleTable: FC = () => {
                 }
             )
                 .then((res: any) => {
-                    console.log(`Success` + res.data);
+                    dispatch(setSnackbarMessage("Upload thông tin TKB thành công"));
                 })
                 .catch((err: any) => {
-                    console.log(err);
+                    dispatch(setSnackbarMessage("Upload thông tin TKB thất bại"));
                 })
         }
     }
 
     const handleSelectSemester = (e: any) => {
-        setSelectedSemester(e.value);
+        setSelectedSemester(e.target.value);
+    }
+
+    const handleSelectSchoolyear = (e: any) => {
+        setSelectedSchoolyear(e.target.value);
     }
 
     useEffect(() => {
@@ -225,12 +229,10 @@ const ScheduleTable: FC = () => {
                         id="demo-simple-select"
                         value={selectedSemester}
                         label="Age"
-                        onChange={handleSelectSemester}
+                        onChange={(e) => handleSelectSemester(e)}
                         style={{ "height": "25px", "margin": "0 15px" }}
                     >
-                        <MenuItem value={1}>1</MenuItem>
-                        <MenuItem value={2}>2</MenuItem>
-                        <MenuItem value={3}>3</MenuItem>
+                        {[1, 2, 3].map((x) => <MenuItem value={x}>{x}</MenuItem>)}
                     </Select>
                     <b style={{ "fontSize": "15px", "paddingRight": "3px" }}>Năm học: </b>
                     <Select
@@ -238,12 +240,10 @@ const ScheduleTable: FC = () => {
                         id="demo-simple-select"
                         value={selectedSchoolyear}
                         label="Age"
-                        onChange={handleSelectSemester}
+                        onChange={(e) => handleSelectSchoolyear(e)}
                         style={{ "height": "25px", "margin": "0 15px" }}
                     >
-                        <MenuItem value={'2022-2023'}>2022-2023</MenuItem>
-                        <MenuItem value={'2021-2022'}>2021-2022</MenuItem>
-                        <MenuItem value={'2020-2021'}>2020-2021</MenuItem>
+                        {['2022-2023', '2021-2022', '2020-2021'].map((x) => <MenuItem value={x}>{x}</MenuItem>)}
                     </Select>
                     <Button onClick={handleSubmitFile} variant="contained" style={{ "height": "25px" }}> Upload </Button>
                 </div>
