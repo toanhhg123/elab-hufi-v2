@@ -3,7 +3,6 @@ import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
 } from 'material-react-table';
-import moment from 'moment';
 import { useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -133,4 +132,4 @@ const ChemicalWarehouseTable: FC = () => {
   );
 };
 
-export default ChemicalWarehouseTable;
+export default React.memo(ChemicalWarehouseTable);

@@ -263,4 +263,4 @@ const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratory
     );
 }
 
-export default DeviceInLaboratoryTable;
+export default React.memo(DeviceInLaboratoryTable);

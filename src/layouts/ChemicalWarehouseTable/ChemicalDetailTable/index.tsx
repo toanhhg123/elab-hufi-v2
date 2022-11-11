@@ -143,4 +143,4 @@ const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[] }> = ({ ch
   );
 };
 
-export default ChemicalDetailTable;
+export default React.memo(ChemicalDetailTable);

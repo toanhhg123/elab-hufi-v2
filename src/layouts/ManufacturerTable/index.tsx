@@ -213,7 +213,7 @@ const ManufacturersTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin nhà sản xuất</span>
+            <span>Danh mục nhà sản xuất</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (

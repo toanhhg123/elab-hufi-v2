@@ -335,4 +335,4 @@ const LaboratoryTable: FC = () => {
   );
 };
 
-export default LaboratoryTable;
+export default React.memo(LaboratoryTable);

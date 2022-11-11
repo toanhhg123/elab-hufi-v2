@@ -118,4 +118,4 @@ const InstrumentInLaboratoryTable: FC<{ instrumentData: IListInstrumentBeloingTo
   );
 }
 
-export default InstrumentInLaboratoryTable;
+export default React.memo(InstrumentInLaboratoryTable); 

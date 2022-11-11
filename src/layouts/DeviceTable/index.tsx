@@ -394,7 +394,7 @@ const DeviceTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin thiết bị</span>
+            <span>Danh mục thiết bị</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (

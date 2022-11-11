@@ -41,7 +41,7 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý nhà sản xuất",
+    "name": "Quản lý hoá chất",
     "icon": ""
   },
   {
@@ -51,17 +51,17 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý hoá chất",
+    "name": "Danh mục thiết bị",
     "icon": ""
   },
   {
     "isOpen": false,
-    "name": "Quản lý nhà cung cấp",
+    "name": "Danh mục NSX",
     "icon": ""
   },
   {
     "isOpen": false,
-    "name": "Quản lý thiết bị",
+    "name": "Danh mục NCC",
     "icon": ""
   },
   {
@@ -91,7 +91,7 @@ export const defaultSidebarItems: ISidebarItem[] = [
   },
   {
     "isOpen": false,
-    "name": "Quản lý phiếu nhập",
+    "name": "Quản lý nhập",
     "icon": ""
   },
 ]
