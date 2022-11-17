@@ -12,7 +12,7 @@ import {
 	FormControl,
 	Grid,
 	IconButton,
-	TextField,
+	TextField
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -22,10 +22,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Stack } from '@mui/system';
-import axios from 'axios';
 import { MRT_ColumnDef } from 'material-react-table';
 import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { useAppDispatch } from '../../../hooks';
+import { getDevices } from '../../../services/deviveDepartmentServices';
+import { IDeviceDepartmentType } from '../../../types/deviceDepartmentType';
 import { dummyExportDevice, IExportDeviceType } from '../../../types/exportDeviceType';
 
 type CreateExportDeviceModalProps = {
@@ -63,8 +64,11 @@ const CreateExportDeviceModal = ({
 			case 'DEP':
 				list = initData?.listDeviceExport || [];
 				break;
-			case 'LAB':
+			case 'LAB_DEV':
 				list = initData?.listDevice || [];
+				break;
+			case 'LAB_INS':
+				list = initData?.listInstrument || [];
 				break;
 			default:
 				break;
@@ -80,12 +84,21 @@ const CreateExportDeviceModal = ({
 						Amount: device?.QuantityOriginal,
 						Unit: device?.Unit,
 					};
-				case 'LAB':
+				case 'LAB_DEV':
 					return {
 						ExpDeviceDeptId: device?.ExpDeviceDeptId,
 						DeviceDetailId: device?.DeviceDetailId,
 						DeviceName: device?.DeviceName,
 						Unit: device?.Unit,
+						SerialNumber: device?.SerialNumber,
+					};
+				case 'LAB_INS':
+					return {
+						ExpDeviceDeptId: device?.ExpDeviceDeptId,
+						DeviceDetailId: device?.DeviceDetailId,
+						DeviceName: device?.DeviceName,
+						Unit: device?.Unit,
+						Quantity: device?.Quantity,
 					};
 				default:
 					break;
@@ -93,38 +106,75 @@ const CreateExportDeviceModal = ({
 		});
 
 		setListDeviceAmount(listInitDevice || []);
-	}, [initData]);
+	}, [initData, type]);
 
 	useEffect(() => {
 		const getDeviceData = async (DepartmentId: number = 1) => {
 			const devicesDetail: any = [];
 			Promise.all([
-				axios.get(`https://aspsite.somee.com/api/devices/${DepartmentId}/Thiết bị`),
-				axios.get(`https://aspsite.somee.com/api/devices/${DepartmentId}/Công cụ`),
-				axios.get(`https://aspsite.somee.com/api/devices/${DepartmentId}/Dụng cụ`),
+				await getDevices(DepartmentId, 'Thiết bị'),
+				await getDevices(DepartmentId, 'Dụng cụ - Công cụ'),
 			])
 				.then(resData => {
-					resData.forEach(({ data }) => {
+					resData.forEach((data: IDeviceDepartmentType[]) => {
+						console.log(data);
 						data?.forEach((devices: any) => {
-							for (let x of devices.listDeviceDetail) {
-								devicesDetail.push({
-									DeviceName: devices?.DeviceName,
-									DeviceDetailId: x?.DeviceDetailId,
-									Unit: devices.Unit,
-								});
+							switch (type) {
+								case 'DEP':
+									for (let x of devices.listDeviceDetail) {
+										devicesDetail.push({
+											DeviceName: devices?.DeviceName,
+											DeviceDetailId: x?.DeviceDetailId,
+											Unit: devices.Unit,
+										});
+									}
+									break;
+								case 'LAB_DEV':
+									for (let x of devices.listExportDevice) {
+										devicesDetail.push({
+											DeviceName: devices?.DeviceName,
+											ExpDeviceDeptId: x?.ExpDeviceDeptId,
+											Unit: devices.Unit,
+											SerialNumber: x?.SerialNumber,
+											...x,
+										});
+									}
+									break;
+								case 'LAB_INS':
+									if (devices.DeviceType === 'Dụng cụ - Công cụ') {
+										devicesDetail.push({
+											DeviceName: devices?.DeviceName,
+											ExpDeviceDeptId: devices?.ExpDeviceDeptId,
+											Unit: devices.Unit,
+											Quantity: devices?.Quantity,
+										});
+									}
+									break;
+
+								default:
+									break;
 							}
 						});
 					});
-				})
-				.catch(() => {})
-				.finally(() => {
 					setDeviceData(devicesDetail);
 					setLoading(false);
-				});
+				})
+				.catch(() => {})
+				.finally(() => {});
 		};
 
-		getDeviceData();
-	}, []);
+		switch (type) {
+			case 'DEP':
+				getDeviceData();
+				break;
+			case 'LAB_DEV':
+			case 'LAB_INS':
+				getDeviceData(initData?.DepartmentId || -1);
+				break;
+			default:
+				break;
+		}
+	}, [type]);
 
 	useEffect(() => {
 		setCreatedRow((prev: any) => ({ ...prev, ...initData }));
@@ -145,7 +195,7 @@ const CreateExportDeviceModal = ({
 						}}
 					>
 						{columns.map(column => {
-							if (column.accessorKey === 'ExportId' || column.accessorKey === 'ExpRegGeneralId') {
+							if (column.accessorKey === 'ExportId' || column.accessorKey === 'ExportLabId') {
 								return (
 									<TextField
 										key={column.accessorKey}
@@ -160,33 +210,70 @@ const CreateExportDeviceModal = ({
 								const list = deviceData
 									.map((x: any) => {
 										const isExistInListAdded =
-											listDeviceAmount?.findIndex(
-												(y: any) => y.DeviceDetailId === x?.DeviceDetailId,
-											) === -1;
+											listDeviceAmount?.findIndex((y: any) => {
+												switch (type) {
+													case 'DEP':
+														return y.DeviceDetailId === x?.DeviceDetailId;
+													case 'LAB_DEV':
+													case 'LAB_INS':
+														return y.ExpDeviceDeptId === x?.ExpDeviceDeptId;
+
+													default:
+														break;
+												}
+											}) === -1;
 										if (isExistInListAdded) {
-											return {
-												label: `${x?.DeviceDetailId} - ${x?.DeviceName}`,
-												id: x?.DeviceDetailId,
-												name: x?.DeviceDetailId,
-												unit: x?.Unit,
-											};
+											switch (type) {
+												case 'DEP':
+													return {
+														label: `${x?.DeviceDetailId || ''} - ${x?.DeviceName || ''}`,
+														id: x?.DeviceDetailId,
+														name: x?.DeviceName,
+														unit: x?.Unit,
+													};
+												case 'LAB_DEV':
+													return {
+														label: `${x?.ExpDeviceDeptId || ''} - ${
+															x?.DeviceName || ''
+														} - ${x?.SerialNumber || ''} `,
+														id: x?.ExpDeviceDeptId,
+														name: x?.DeviceName,
+														SerialNumber: x?.SerialNumber,
+														unit: x?.Unit,
+														...x,
+													};
+
+												case 'LAB_INS':
+													return {
+														label: `${x?.ExpDeviceDeptId || ''} - ${x?.DeviceName || ''}`,
+														id: x?.ExpDeviceDeptId,
+														name: x?.DeviceName,
+														unit: x?.Unit,
+														...x,
+													};
+
+												default:
+													break;
+											}
 										}
 									})
 									.filter(x => x !== undefined);
 
 								return (
 									<Fragment key={column.accessorKey}>
-										<TextField
-											label={column.header}
-											name={column.accessorKey}
-											disabled={!deviceAmount.DeviceDetailId}
-											value={exportDeviceIdText}
-											onChange={handleChangeExportDeviceIdText}
-										/>
+										{type === 'DEP' && (
+											<TextField
+												label={column.header}
+												name={column.accessorKey}
+												disabled={!deviceAmount.DeviceDetailId}
+												value={exportDeviceIdText}
+												onChange={handleChangeExportDeviceIdText}
+											/>
+										)}
 										<FormControl>
 											<Box>
 												<Grid container spacing={1}>
-													<Grid item xs={8}>
+													<Grid item xs={type === 'DEP' || type === 'LAB_INS' ? 8 : 12}>
 														<Autocomplete
 															key={column.id}
 															noOptionsText="Không có kết quả trùng khớp"
@@ -230,37 +317,43 @@ const CreateExportDeviceModal = ({
 																setExportDeviceIdText(value?.id || '');
 																setDeviceAmount((prev: any) => ({
 																	...prev,
+																	...value,
 																	DeviceDetailId: value?.id,
+																	SerialNumber: value?.SerialNumber,
 																	DeviceName: value?.name,
 																	Unit: value?.unit,
 																}));
 															}}
 														/>
 													</Grid>
-													<Grid item xs={3}>
-														<TextField
-															label={'Số lượng'}
-															type="number"
-															InputProps={{ inputProps: { min: 1 } }}
-															value={deviceAmount.Amount}
-															onChange={e =>
-																setDeviceAmount({
-																	...deviceAmount,
-																	Amount: Number(e.target.value),
-																})
-															}
-														/>
-													</Grid>
-													<Grid item xs={1}>
-														<Box
-															height="100%"
-															display="flex"
-															alignItems="center"
-															justifyContent="center"
-														>
-															{deviceAmount.Unit && `(${deviceAmount.Unit})`}{' '}
-														</Box>
-													</Grid>
+													{(type === 'DEP' || type === 'LAB_INS') && (
+														<>
+															<Grid item xs={3}>
+																<TextField
+																	label={'Số lượng'}
+																	type="number"
+																	InputProps={{ inputProps: { min: 1 } }}
+																	value={deviceAmount.Amount}
+																	onChange={e =>
+																		setDeviceAmount({
+																			...deviceAmount,
+																			Amount: Number(e.target.value),
+																		})
+																	}
+																/>
+															</Grid>
+															<Grid item xs={1}>
+																<Box
+																	height="100%"
+																	display="flex"
+																	alignItems="center"
+																	justifyContent="center"
+																>
+																	{deviceAmount.Unit && `(${deviceAmount.Unit})`}{' '}
+																</Box>
+															</Grid>
+														</>
+													)}
 												</Grid>
 												<Button
 													aria-label="delete"
@@ -292,7 +385,7 @@ const CreateExportDeviceModal = ({
 										<TableCell>STT</TableCell>
 										<TableCell>Mã thiết bị xuất</TableCell>
 										<TableCell>Thiết bị</TableCell>
-										<TableCell>SL</TableCell>
+										{(type === 'DEP' || type === 'LAB_INS') && <TableCell>SL</TableCell>}
 										<TableCell></TableCell>
 									</TableRow>
 								</TableHead>
@@ -307,11 +400,27 @@ const CreateExportDeviceModal = ({
 											</TableCell>
 											<TableCell>{el.ExpDeviceDeptId}</TableCell>
 											<TableCell>
-												{el.DeviceDetailId} - {el.DeviceName}
+												{
+													{
+														DEP: (
+															<>
+																{el?.DeviceDetailId || ''} - {el.DeviceName || ''}
+															</>
+														),
+														LAB_DEV: (
+															<>
+																{el?.SerialNumber || ''} - {el.DeviceName || ''}
+															</>
+														),
+														LAB_INS: <>{el.DeviceName || ''}</>,
+													}[type]
+												}
 											</TableCell>
-											<TableCell>
-												{el.Amount} {el.Unit}
-											</TableCell>
+											{(type === 'DEP' || type === 'LAB_INS') && (
+												<TableCell>
+													{el.Amount || el.Quantity} {el.Unit}
+												</TableCell>
+											)}
 											<TableCell>
 												<IconButton
 													aria-label="delete"
@@ -335,12 +444,7 @@ const CreateExportDeviceModal = ({
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
 				<Button onClick={onClose}>Huỷ</Button>
-				<Button
-					color="primary"
-					onClick={() => handleSubmit(listDeviceAmount, createdRow)}
-					variant="contained"
-					disabled={listDeviceAmount.length === 0}
-				>
+				<Button color="primary" onClick={() => handleSubmit(listDeviceAmount, createdRow)} variant="contained">
 					Tạo
 				</Button>
 			</DialogActions>

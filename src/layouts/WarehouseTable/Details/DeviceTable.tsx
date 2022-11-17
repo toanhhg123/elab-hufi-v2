@@ -1,11 +1,9 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SearchIcon from '@mui/icons-material/Search';
 import {
-	Button,
-	debounce,
-	IconButton,
-	InputAdornment,
+	debounce, InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -13,23 +11,14 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
-	TableRow,
-	TableSortLabel,
-	TextField,
-	Tooltip,
-	Typography,
+	TableRow, TextField, Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
-import { useAppSelector } from '../../../hooks';
-import { RootState } from '../../../store';
 import { IExportDeviceType } from '../../../types/exportDeviceType';
 import { IExportType } from '../../../types/exportType';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import SearchIcon from '@mui/icons-material/Search';
-import moment from 'moment';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -47,9 +36,6 @@ export type ColumnType = {
 };
 
 type DeviceTableProps = {
-	handleOpenCreate: () => void;
-	handleOpenEdit: (exportChemical: any) => void;
-	handleOpenDelete: (exportChemical: any) => void;
 	row: MRT_Row<IExportType>;
 	warehouseData: any;
 	columns: ColumnType[];
@@ -82,9 +68,6 @@ function removeAccents(str: string) {
 }
 
 const DeviceTable = ({
-	handleOpenCreate,
-	handleOpenEdit,
-	handleOpenDelete,
 	row,
 	type,
 	columns,
@@ -239,7 +222,7 @@ const DeviceTable = ({
 											col.id === 'QuantityOriginal'
 										)
 											return (
-												<TableCell align="left">
+												<TableCell align="left" key={col.id}>
 													{`${col.renderValue(
 														`${exportDevice[col.id as keyof typeof exportDevice]}`,
 														exportDevice.Unit,
@@ -258,7 +241,7 @@ const DeviceTable = ({
 										);
 
 									return (
-										<TableCell align="left">
+										<TableCell align="left" key={col.id}>
 											{exportDevice[col.id as keyof typeof exportDevice]
 												? `${exportDevice[col.id as keyof typeof exportDevice]}`
 												: ''}

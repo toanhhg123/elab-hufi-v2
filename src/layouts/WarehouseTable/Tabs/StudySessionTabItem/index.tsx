@@ -1,77 +1,36 @@
-import styled from '@emotion/styled';
-import { ContactlessOutlined, Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {
-	Button,
-	IconButton,
-	Paper,
-	Table,
-	TableBody,
-	TableCell,
-	tableCellClasses,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Tooltip,
-	Typography,
-} from '@mui/material';
+import { Button, IconButton, Tooltip, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setSnackbarMessage } from '../../../../pages/appSlice';
-import { deleteExportChemical } from '../../../../services/exportChemicalServices';
-import { deleteExportDevice } from '../../../../services/exportDeviceServices';
 import {
-	getExportsSubs,
-	postExportSubs,
 	deleteExportSubs,
-	updateExportSubs,
 	getExportsSubById,
+	postExportSubs,
+	updateExportSubs,
 } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
-import { IChemicalType } from '../../../../types/chemicalType';
 import { IExportChemicalType } from '../../../../types/exportChemicalType';
-import { IExportDeviceType } from '../../../../types/exportDeviceType';
 import { dummyExportData, IExportType } from '../../../../types/exportType';
 import ChemicalTable, { ColumnType } from '../../Details/ChemicalTable';
-// import DeviceTable from '../../Details/DeviceTable';
 import CreateExportChemicalModal from '../../Modal/CreateExportChemicalModal';
-// import CreateExportDeviceModal from '../../Modal/CreateExportDeviceModal';
 import CreateExportModal from '../../Modal/CreateExportModal';
-// import DeleteExportChemicalModal from '../../Modal/DeleteExportChemicalModal';
-// import DeleteExportDeviceModal from '../../Modal/DeleteExportDeviceModal';
 import DeleteExportModal from '../../Modal/DeleteExportModal';
-// import EditExportChemicalModal from '../../Modal/EditExportChemicalModal';
-// import EditExportDeviceModal from '../../Modal/EditExportDeviceModal';
 import EditExportModal from '../../Modal/EditExportModal';
 import { setListOfWarehouseStudySession } from '../../warehouseSlice';
-
-const StyledTableCell = styled(TableCell)(theme => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: 'lightgray',
-	},
-}));
 
 const StudySessionTabItem: FC = () => {
 	const warehouseStudySession = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseStudySession);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
-	const chemicalsData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
-	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
-	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
-	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
 	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
 	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
-	const [isEditExportChemicalModal, setIsEditExportChemicalModal] = useState<boolean>(false);
-	const [isDeleteExportChemicalModal, setIsDeleteExportChemicalModal] = useState<boolean>(false);
-	const [isCreateExportDeviceModal, setIsCreateExportDeviceModal] = useState<boolean>(false);
-	const [isEditExportDeviceModal, setIsEditExportDeviceModal] = useState<boolean>(false);
-	const [isDeleteExportDeviceModal, setIsDeleteExportDeviceModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
 	const [isEditModal, setIsEditModal] = useState<boolean>(false);
 	const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
@@ -231,42 +190,22 @@ const StudySessionTabItem: FC = () => {
 		setIsEditModal(false);
 	};
 
-	const handleSubmitEditWarehouseSesModal = async (updatedRow: any) => {
-		const updateData = {
-			ExpSubjectId: updatedRow.ExpSubjectId,
-			ExportDate: updatedRow.ExportDate,
-			Content: updatedRow.Content,
-			Semester: Number(updatedRow.Semester),
-			Schoolyear: updatedRow.Schoolyear,
-			SubjectId: updatedRow.SubjectId,
-			EmployeeInCharge: updatedRow.EmployeeInCharge,
-			EmployeeCreate: updatedRow.EmployeeCreate,
-			listSub: updatedRow.listSub,
-		};
-		const resData = await updateExportSubs(updateData);
-		if (Object.keys(resData).length !== 0) {
-			dispatch(setSnackbarMessage('Cập nhật thông tin thành công'));
-			let updatedIdx = warehouseStudySession.findIndex(x => x.ExpSubjectId === updatedRow.ExpSubjectId);
-			let newListOfStudySession = [
-				...warehouseStudySession.slice(0, updatedIdx),
-				updatedRow,
-				...warehouseStudySession.slice(updatedIdx + 1),
-			];
-			dispatch(setListOfWarehouseStudySession(newListOfStudySession));
-		} else {
-			dispatch(setSnackbarMessage('Cập nhật thông tin không thành công'));
-		}
-	};
-
 	const handleOpenDeleteWarehouseSesModal = (row: any) => {
 		setDeletedRow(row.original);
-		console.log(row.original);
 		setIsDeleteModal(true);
 	};
 
 	const onCloseDeleteWarehouseSesModal = () => {
 		setDeletedRow(dummyExportData);
 		setIsDeleteModal(false);
+	};
+
+	const handleOpenCreateWarehouseSesModal = (row: any) => {
+		setIsCreateModal(true);
+	};
+
+	const onCloseCreateWarehouseSesModal = () => {
+		setIsCreateModal(false);
 	};
 
 	const handleSubmitDeleteWarehouseSesModal = async () => {
@@ -288,19 +227,27 @@ const StudySessionTabItem: FC = () => {
 		}
 	};
 
-	const handleOpenCreateWarehouseSesModal = (row: any) => {
-		setIsCreateModal(true);
-	};
-
-	const onCloseCreateWarehouseSesModal = () => {
-		setIsCreateModal(false);
+	const handleSubmitEditWarehouseSesModal = async (updatedRow: any) => {
+		const updateData = {
+			ExpSubjectId: updatedRow.ExpSubjectId,
+			ExportDate: Number(updatedRow.ExportDate),
+			Content: updatedRow.Content,
+			Semester: Number(updatedRow.Semester),
+			Schoolyear: updatedRow.Schoolyear,
+			SubjectId: updatedRow.SubjectId,
+			EmployeeInCharge: updatedRow.EmployeeInCharge,
+			EmployeeCreate: updatedRow.EmployeeCreate,
+			listSub: updatedRow.listSub,
+		};
+		setCreatedRow(updateData);
+		setIsCreateExportChemicalModal(true);
 	};
 
 	const handleSubmitCreateWarehouseSesModal = async (createdRow: any) => {
 		try {
 			const createData = {
 				ExpSubjectId: createdRow.ExpSubjectId,
-				ExportDate: createdRow.ExportDate,
+				ExportDate: Number(createdRow.ExportDate),
 				Content: createdRow.Content,
 				Semester: Number(createdRow.Semester),
 				Schoolyear: createdRow.Schoolyear,
@@ -358,6 +305,9 @@ const StudySessionTabItem: FC = () => {
 				dispatch(setSnackbarMessage('Tạo thông tin mới không thành công'));
 			}
 		}
+
+		setIsCreateExportChemicalModal(false);
+		setIsCreateModal(false);
 	};
 
 	return (
@@ -430,18 +380,6 @@ const StudySessionTabItem: FC = () => {
 							</Box>
 							<ChemicalTable
 								warehouseData={warehouseStudySession}
-								handleOpenCreate={() => {
-									setCreatedRow(row.original);
-									setIsCreateExportChemicalModal(true);
-								}}
-								handleOpenDelete={() => {
-									setDeletedRow(row.original);
-									setIsDeleteExportChemicalModal(true);
-								}}
-								handleOpenEdit={(exportChemical: any) => {
-									setUpdatedRow(exportChemical);
-									setIsEditExportChemicalModal(true);
-								}}
 								row={row}
 								columns={columnsChemicalTable.current}
 								type="SUB"

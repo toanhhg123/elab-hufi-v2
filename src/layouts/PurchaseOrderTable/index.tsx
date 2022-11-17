@@ -20,13 +20,14 @@ import {
 } from '@mui/material';
 import { deletePurchaseOrder, getPurchaseOrders, postPurchaseOrder, updatePurchaseOrder } from "../../services/purchaseOrderServices";
 import { setListOfPurchaseOrders } from "./purchaseOrderSlice";
-import ChemicalTable from "../ChemicalTable";
-import DeviceTable from "../DeviceTable";
+import PurchaseOrderChemicalTable from "./POChemicalTable";
+import PurchaseOrderDeviceTable from "./PODeviceTable";
 
 export const PurchaseOrderTable: FC = () => {
   const purchaseOrdersData = useAppSelector((state: RootState) => state.purchaseOrder.listOfPurchaseOrders);
   const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
+  const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
   const dispatch = useAppDispatch();
 
   const [tableData, setTableData] = useState<IPurchaseOrderType[]>([]);
@@ -46,11 +47,13 @@ export const PurchaseOrderTable: FC = () => {
     let formatedPurchaseOrderData = purchaseOrdersData.map((order: IPurchaseOrderType) => {
       let supplierInfoIdx = supplierData.findIndex(item => item.SupplierId === order.SupplierId);
       let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeID === order.EmployeeId);
+      let departmentInfoIdx = departmentData.findIndex(item => item.DepartmentId === order.DepartmentId);
       return {
         ...order,
         "formatedOrderDate": moment.unix(order.OrderDate).format('DD/MM/YYYY'),
         "SupplierName": supplierInfoIdx > -1 ? supplierData[supplierInfoIdx].Name : "",
         "EmployeeName": employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : "",
+        "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : "",
       }
     })
     setTableData(formatedPurchaseOrderData);
@@ -86,8 +89,8 @@ export const PurchaseOrderTable: FC = () => {
         size: 140,
       },
       {
-        accessorKey: 'Status',
-        header: 'Trạng thái',
+        accessorKey: 'Note',
+        header: 'Ghi chú',
         size: 100,
       },
       {
@@ -98,6 +101,11 @@ export const PurchaseOrderTable: FC = () => {
       {
         accessorKey: 'EmployeeName',
         header: 'Người nhận',
+        size: 140,
+      },
+      {
+        accessorKey: 'DepartmentName',
+        header: 'Phòng ban',
         size: 140,
       },
     ],
@@ -160,9 +168,12 @@ export const PurchaseOrderTable: FC = () => {
       "OrderId": createdRow.OrderId,
       "OrderDate": createdRow.OrderDate,
       "Content": createdRow.Content,
-      "Status": createdRow.Status,
+      "Note": createdRow.Note,
       "SupplierId": createdRow.SupplierId,
       "EmployeeId": createdRow.EmployeeId,
+      "DepartmentId": createdRow.DepartmentId,
+      "listChemDetail": createdRow.listChemDetail,
+      "listDevDetail": createdRow.listDevDetail,
     })
     if (createdOrder) {
       const newListOfOrders: IPurchaseOrderType[] = await getPurchaseOrders();
@@ -209,13 +220,12 @@ export const PurchaseOrderTable: FC = () => {
             'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(item => item.accessorKey || ''),
-            'mrt-row-actions'
           ]
         }}
         renderDetailPanel={({ row }) => (
           <>
-            <ChemicalTable type="detailOrder" OrderId={row.original.OrderId} />
-            <DeviceTable type="detailOrder" OrderId={row.original.OrderId} />
+            <PurchaseOrderChemicalTable chemicalData={row.original.listChemDetail} />
+            <PurchaseOrderDeviceTable deviceData={row.original.listDevDetail} />
           </>
         )}
         renderTopToolbarCustomActions={() => (

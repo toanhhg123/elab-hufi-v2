@@ -49,6 +49,11 @@ export const getExportsLabs = async () => {
 	const exports: IExportType[] = await API.get<IExportType[]>(url);
 	return exports;
 }
+export const getExportsLabById = async (id: String) => {
+	const url = `${API_ENDPOINT}/api/exportlabs/${id}`;
+	const exports: IExportType = await API.get<IExportType>(url);
+	return exports;
+}
 
 export const updateExportLabs = async (updateData: any) => {
 	const url = `${API_ENDPOINT}/api/exportlabs`;

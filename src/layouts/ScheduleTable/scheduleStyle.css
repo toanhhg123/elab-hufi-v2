@@ -1,0 +1,37 @@
+.dx-scheduler-scrollable-appointments {
+    top: -10px !important
+}
+
+.dx-scheduler-header-panel, .dx-scheduler-header-panel-empty-cell {
+    margin: 0 !important;    
+}
+
+/* .dx-scheduler-work-space.dx-scheduler-timeline .dx-scrollable.dx-scheduler-date-table-scrollable,  
+.dx-scheduler-work-space.dx-scheduler-timeline .dx-scrollable.dx-scheduler-sidebar-scrollable {  
+    padding-bottom: 50px;  
+    margin-bottom: -50px;  
+}   */
+
+.dx-scheduler-work-space.dx-scheduler-timeline-day .dx-scrollable.dx-scheduler-date-table-scrollable,  
+.dx-scheduler-work-space.dx-scheduler-timeline-day .dx-scrollable.dx-scheduler-sidebar-scrollable,
+.dx-scheduler-work-space-both-scrollbar,
+.dx-scheduler-timeline,
+.dx-scheduler-timeline-week {  
+    padding-bottom: 0 !important;  
+    margin-bottom: 0;  
+}  
+
+.dx-scheduler-timeline .dx-scheduler-header-panel .dx-scheduler-header-row:last-child {  
+    display: none;    
+}  
+
+.dx-scheduler-view-switcher,
+.dx-scheduler-view-switcher-label,  
+.dx-scheduler-view-switcher.dx-dropdownmenu {  
+      visibility: hidden;  
+      display: none;
+}
+
+/* .dx-scheduler-cell-sizes-horizontal {  
+    width: 15vh !important;  
+}   */

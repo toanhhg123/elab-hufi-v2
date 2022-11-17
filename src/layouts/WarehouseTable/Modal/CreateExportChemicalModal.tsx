@@ -5,7 +5,6 @@ import {
 	Box,
 	Button,
 	CircularProgress,
-	debounce,
 	Dialog,
 	DialogActions,
 	DialogContent,
@@ -14,7 +13,6 @@ import {
 	Grid,
 	IconButton,
 	TextField,
-	TextFieldProps,
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -26,13 +24,10 @@ import TableRow from '@mui/material/TableRow';
 import { Stack } from '@mui/system';
 import axios from 'axios';
 import { MRT_ColumnDef } from 'material-react-table';
-import { ChangeEvent, Fragment, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setSnackbarMessage } from '../../../pages/appSlice';
-import { getExportChemical, postExportChemicals } from '../../../services/exportChemicalServices';
 import { RootState } from '../../../store';
 import { dummyExportChemicalData, IExportChemicalType } from '../../../types/exportChemicalType';
-import { setListOfExportChemical } from '../../ExportChemicalTable/exportChemicalSlice';
 
 type CreateExportChemicalModalProps = {
 	isOpen: boolean;
@@ -52,6 +47,7 @@ const CreateExportChemicalModal = ({
 	type,
 }: CreateExportChemicalModalProps) => {
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportChemicalData);
+	const warehouseDepartment = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseDepartment);
 	const [chemicalData, setChemicalData] = useState([]);
 
 	const [listChemicalAmount, setListChemicalAmount] = useState<any>([]);
@@ -64,17 +60,43 @@ const CreateExportChemicalModal = ({
 		setExportChemicalIdText(e.target.value);
 
 	useEffect(() => {
-		const listInitChemical = initData?.listChemicalExport?.map((chemical: any) => {
-			return {
-				ExpChemDeptId: chemical?.ExpChemDeptId,
-				ChemDetailId: chemical?.ChemDetailId,
-				ChemicalName: chemical?.ChemicalName,
-				Amount: chemical?.AmountOriginal || chemical?.Amount,
-				Unit: chemical?.Unit,
-			};
-		});
+		let list = [];
 
-		setListChemicalAmount(listInitChemical || []);
+		switch (type) {
+			case 'DEP':
+			case 'REG':
+				list = initData?.listChemicalExport || [];
+				break;
+			case 'SUB':
+				list = initData?.listSub || [];
+				break;
+			default:
+				break;
+		}
+		const listInitChemical = list?.map((chemical: any) => {
+			switch (type) {
+				case 'DEP':
+					case 'REG':
+						return {
+						ExpChemDeptId: chemical?.ExpChemDeptId,
+						ChemDetailId: chemical?.ChemDetailId,
+						ChemicalName: chemical?.ChemicalName,
+						Amount: chemical?.AmountOriginal || chemical?.Amount || 0,
+						Unit: chemical?.Unit,
+					};
+				case 'SUB':
+					return {
+						ExpChemDeptId: chemical?.ExpChemDeptId,
+						Amount: chemical?.Amount,
+						ChemicalName: chemical?.ChemicalName,
+						Unit: chemical?.Unit,
+					};
+					default:
+						break;
+					}
+				});
+
+		setListChemicalAmount(listInitChemical);
 	}, [initData]);
 
 	useEffect(() => {
@@ -102,16 +124,17 @@ const CreateExportChemicalModal = ({
 			case 'SUB':
 			case 'REG': {
 				const getChemicalData = async () => {
-					const res = await axios.get('https://aspsite.somee.com/api/chemicals/1');
+					// const res = await axios.get('https://aspsite.somee.com/api/chemicals/1');
 					const chemicalsDetail: any = [];
-					res.data?.forEach((chemical: any) => {
-						for (let chemicalDetail of chemical?.listChemicalDetail) {
-							for (let chemicalDept of chemicalDetail?.listChemDept) {
+					warehouseDepartment?.forEach(chemical => {
+						if (chemical.Accept === 'Accepted') {
+							const listChemicalExport = chemical?.listChemicalExport || [];
+							for (let chemicalDetail of listChemicalExport) {
 								chemicalsDetail.push({
-									ChemicalName: chemical?.ChemicalName,
+									ChemicalName: chemicalDetail?.ChemicalName,
 									ChemDetailId: chemicalDetail?.ChemDetailId,
-									ExpChemDeptId: chemicalDept?.ExpChemDeptId,
-									Unit: chemical.Unit,
+									ExpChemDeptId: chemicalDetail?.ExpChemDeptId,
+									Unit: chemicalDetail.Unit,
 								});
 							}
 						}
@@ -243,7 +266,6 @@ const CreateExportChemicalModal = ({
 																setExportChemicalIdText(value?.id || '');
 																switch (type) {
 																	case 'DEP':
-																		console.log(1)
 																		setChemicalAmount((prev: any) => ({
 																			...prev,
 																			ChemDetailId: value?.id,
@@ -253,14 +275,13 @@ const CreateExportChemicalModal = ({
 																		break;
 																	case 'SUB':
 																	case 'REG': {
-																		console.log(2)
 																		setChemicalAmount((prev: any) => ({
 																			...prev,
 																			ExpChemDeptId: value?.id,
 																			ChemDetailId: '1',
 																			ChemicalName: value?.name,
 																			Unit: value?.unit,
-																		}))
+																		}));
 																		break;
 																	}
 																	default:
@@ -302,7 +323,6 @@ const CreateExportChemicalModal = ({
 													disabled={!chemicalAmount?.ChemDetailId}
 													onClick={() => {
 														setListChemicalAmount((prev: any) => {
-															console.log(prev);
 															return [
 																...prev,
 																{
@@ -349,7 +369,7 @@ const CreateExportChemicalModal = ({
 											</TableCell>
 											<TableCell>{el?.ExpChemDeptId}</TableCell>
 											<TableCell>
-												{el?.ChemDetailId} - {el?.ChemicalName}
+												{el?.ChemDetailId || el?.ExpChemDeptId} - {el?.ChemicalName}
 											</TableCell>
 											<TableCell>
 												{el?.Amount} {el?.Unit}
@@ -381,7 +401,6 @@ const CreateExportChemicalModal = ({
 					color="primary"
 					onClick={() => handleSubmit(listChemicalAmount, createdRow)}
 					variant="contained"
-					disabled={listChemicalAmount?.length === 0}
 				>
 					Tạo
 				</Button>

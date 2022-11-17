@@ -1,12 +1,9 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SearchIcon from '@mui/icons-material/Search';
 import {
-	Autocomplete,
-	Button,
-	debounce,
-	IconButton,
-	InputAdornment,
+	debounce, InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -15,21 +12,15 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
-	TextField,
-	Tooltip,
-	Typography,
+	TextField, Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
-import { IChemicalType } from '../../../types/chemicalType';
 import { IExportChemicalType } from '../../../types/exportChemicalType';
 import { IExportType } from '../../../types/exportType';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { useCallback, useEffect, useState } from 'react';
-import SearchIcon from '@mui/icons-material/Search';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -46,9 +37,6 @@ export type ColumnType = {
 };
 
 type ChemicalTableProps = {
-	handleOpenCreate: () => void;
-	handleOpenEdit: (exportChemical: any) => void;
-	handleOpenDelete: (exportChemical: any) => void;
 	row: MRT_Row<IExportType>;
 	warehouseData: any;
 	columns: ColumnType[];
@@ -81,9 +69,6 @@ function removeAccents(str: string) {
 }
 
 const ChemicalTable = ({
-	handleOpenCreate,
-	handleOpenEdit,
-	handleOpenDelete,
 	row,
 	warehouseData,
 	columns,
@@ -137,7 +122,6 @@ const ChemicalTable = ({
 
 	useEffect(() => {
 		setChemicalOfExport(prev => {
-			console.log(prev);
 			let data = [...prev];
 			data?.sort((a: ExportChemicalType, b: ExportChemicalType) => {
 				let i =
@@ -230,7 +214,7 @@ const ChemicalTable = ({
 									if (col.renderValue) {
 										if (col.id === 'AmountOriginal' || col.id === 'Amount')
 											return (
-												<TableCell align="left">
+												<TableCell align="left" key={col.id}>
 													{`${col.renderValue(
 														`${exportChemical[col.id as keyof typeof exportChemical]}`,
 														exportChemical.Unit,
@@ -240,7 +224,7 @@ const ChemicalTable = ({
 									}
 
 									return (
-										<TableCell align="left">
+										<TableCell align="left" key={col.id}>
 											{exportChemical[col.id as keyof typeof exportChemical]
 												? `${exportChemical[col.id as keyof typeof exportChemical]}`
 												: ''}

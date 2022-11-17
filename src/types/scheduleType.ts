@@ -11,7 +11,7 @@ export interface IScheduleType {
     ScheduleType: String,
     TotalTime: Number,
     NumOfStudent: Number,
-    DateStudy: String,
+    DateStudy: String | Number,
     LabName: String,
     TeacherName: String,
     Semester: Number,

@@ -25,6 +25,8 @@ import { setListOfLaboratories } from './laboratorySlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import DeviceInLaboratoryTable from './DeviceInLaboratoryTable';
+import InstrumentInLaboratoryTable from './InstrumentInLaboratoryTable';
 
 const LaboratoryTable: FC = () => {
   const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -134,7 +136,9 @@ const LaboratoryTable: FC = () => {
     const createdLab = await postLaboratory({
       "LabName": createdRow.LabName,
       "Location": createdRow.Location,
-      "Note": createdRow.Note
+      "Note": createdRow.Note,
+      "listDevice": [],
+      "listInstrument": []
     })
     if (createdLab) {
       const newListOfLaboratories: ILaboratoryType[] = await getLaboratories();
@@ -178,11 +182,18 @@ const LaboratoryTable: FC = () => {
         initialState={{
           density: 'compact',
           columnOrder: [
+            'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(x => x.accessorKey || ''),
             'mrt-row-actions'
           ]
         }}
+        renderDetailPanel={({ row }) => (
+          <>
+            <DeviceInLaboratoryTable deviceData={row.original.listDevice} />
+            <InstrumentInLaboratoryTable instrumentData={row.original.listInstrument} />
+          </>
+        )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
             <b><KeyboardArrowRightIcon
@@ -324,4 +335,4 @@ const LaboratoryTable: FC = () => {
   );
 };
 
-export default LaboratoryTable;
+export default React.memo(LaboratoryTable);

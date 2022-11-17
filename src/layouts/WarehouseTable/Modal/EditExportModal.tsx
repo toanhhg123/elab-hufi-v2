@@ -11,7 +11,7 @@ import {
 	MenuItem,
 	Select,
 	SelectChangeEvent,
-	TextField,
+	TextField
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -245,6 +245,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
+								const statusList = ['Accepted', 'Pending'];
 								return (
 									<FormControl sx={{ m: 0, minWidth: 120 }} key={column.id}>
 										<InputLabel id="Accept-select-required-label">Chấp nhận</InputLabel>
@@ -252,8 +253,8 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											labelId="Accept-select-required-label"
 											id="Accept-select-required"
 											value={
-												['true', 'false'].findIndex(x => x === updatedRow.Accept) > -1
-													? ['true', 'false']
+												statusList.findIndex(x => x === updatedRow.Accept) > -1
+													? statusList
 															.findIndex(x => x === updatedRow.Accept)
 															.toString()
 													: ''
@@ -262,11 +263,46 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											onChange={(e: SelectChangeEvent) =>
 												setUpdatedRow({
 													...updatedRow,
-													Accept: ['true', 'false'][Number(e.target.value)],
+													Accept: statusList[Number(e.target.value)],
 												})
 											}
 										>
-											{['true', 'false'].map((x, idx) => (
+											{statusList.map((x, idx) => (
+												<MenuItem key={idx} value={idx}>
+													{x}
+												</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+								);
+							} else if (
+								column.id === 'Semester' &&
+								column.enableHiding !== false &&
+								employeeData.length > 0
+							) {
+								const list = ['1', '2', '3'];
+								return (
+									<FormControl sx={{ m: 0, minWidth: 120 }} key={column.id}>
+										<InputLabel id="Semester-select-required-label">Chấp nhận</InputLabel>
+										<Select
+											labelId="Semester-select-required-label"
+											id="Semester-select-required"
+											value={
+												list.findIndex(x => x === updatedRow.Semester) > -1
+													? list
+															.findIndex(x => x === updatedRow.Semester)
+															.toString()
+													: ''
+											}
+											label="Học kỳ"
+											onChange={(e: SelectChangeEvent) =>
+												setUpdatedRow({
+													...updatedRow,
+													Semester: list[Number(e.target.value)],
+												})
+											}
+										>
+											{list.map((x, idx) => (
 												<MenuItem key={idx} value={idx}>
 													{x}
 												</MenuItem>
@@ -426,7 +462,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 			<DialogActions sx={{ p: '1.25rem' }}>
 				<Button onClick={onClose}>Huỷ</Button>
 				<Button color="primary" onClick={handleSubmit} variant="contained">
-					Lưu thay đổi
+					Tiếp theo
 				</Button>
 			</DialogActions>
 		</Dialog>

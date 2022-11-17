@@ -10,9 +10,7 @@ import {
 	InputLabel,
 	MenuItem,
 	Select,
-	SelectChangeEvent,
-	TextareaAutosize,
-	TextField,
+	SelectChangeEvent, TextField
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -294,7 +292,7 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
-								const statusList = ['true', 'false'];
+								const statusList = ['Accepted', 'Pending'];
 								return (
 									<FormControl sx={{ m: 0, minWidth: 120 }} key={column.id}>
 										<InputLabel id="Accept-select-required-label">{column.header}</InputLabel>
@@ -323,6 +321,39 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 									</FormControl>
 								);
 							} else if (
+								column.id === 'Semester' &&
+								column.enableHiding !== false &&
+								employeeData.length > 0
+							) {
+								const list = ['1', '2', '3'];
+								return (
+									<FormControl sx={{ m: 0, minWidth: 120 }} key={column.id}>
+										<InputLabel id="Semester-select-required-label">{column.header}</InputLabel>
+										<Select
+											labelId="Semester-select-required-label"
+											id="Semester-select-required"
+											value={
+												list.findIndex(x => x === createdRow.Semester) > -1
+													? list.findIndex(x => x === createdRow.Semester).toString()
+													: ''
+											}
+											label={column.header}
+											onChange={(e: SelectChangeEvent) =>
+												setCreatedRow({
+													...createdRow,
+													Semester: list[Number(e.target.value)],
+												})
+											}
+										>
+											{list.map((x, idx) => (
+												<MenuItem key={idx} value={idx}>
+													{x}
+												</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+								);
+							}else if (
 								column.id === 'Note' &&
 								column.enableHiding !== false &&
 								registerGeneralData.length > 0

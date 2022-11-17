@@ -7,8 +7,6 @@ import moment from 'moment';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setSnackbarMessage } from '../../../../pages/appSlice';
-import { deleteExportChemical } from '../../../../services/exportChemicalServices';
-import { deleteExportDevice } from '../../../../services/exportDeviceServices';
 import { deleteExport, getExportById, postExport, updateExport } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
 import { IExportChemicalType } from '../../../../types/exportChemicalType';
@@ -19,11 +17,7 @@ import DeviceTable from '../../Details/DeviceTable';
 import CreateExportChemicalModal from '../../Modal/CreateExportChemicalModal';
 import CreateExportDeviceModal from '../../Modal/CreateExportDeviceModal';
 import CreateExportModal from '../../Modal/CreateExportModal';
-// import DeleteExportChemicalModal from '../../Modal/DeleteExportChemicalModal';
-// import DeleteExportDeviceModal from '../../Modal/DeleteExportDeviceModal';
 import DeleteExportModal from '../../Modal/DeleteExportModal';
-import EditExportChemicalModal from '../../Modal/EditExportChemicalModal';
-// import EditExportDeviceModal from '../../Modal/EditExportDeviceModal';
 import EditExportModal from '../../Modal/EditExportModal';
 import { setListOfWarehouseDepartment } from '../../warehouseSlice';
 
@@ -31,20 +25,11 @@ const DepartmentTabItem: FC = () => {
 	const warehouseDepartment = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseDepartment);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
-	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
-	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
-	const chemicalsData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
-	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
-	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
 	const dispatch = useAppDispatch();
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
-	const [isEditExportChemicalModal, setIsEditExportChemicalModal] = useState<boolean>(false);
-	const [isDeleteExportChemicalModal, setIsDeleteExportChemicalModal] = useState<boolean>(false);
 	const [isCreateExportDeviceModal, setIsCreateExportDeviceModal] = useState<boolean>(false);
-	const [isEditExportDeviceModal, setIsEditExportDeviceModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
-	const [isDeleteExportDeviceModal, setIsDeleteExportDeviceModal] = useState<boolean>(false);
 	const [isEditModal, setIsEditModal] = useState<boolean>(false);
 	const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
 	const [tableData, setTableData] = useState<IExportType[]>([]);
@@ -106,17 +91,17 @@ const DepartmentTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'formatedExportDate',
-				header: 'Thời gian xuất',
-				Header: ({ column }) => <span style={{ whiteSpace: 'pre-wrap' }}>{column.columnDef.header}</span>,
-				size: 160,
-			},
-			{
 				accessorKey: 'Content',
 				header: 'Nội dung',
 				Cell: ({ cell, row, column }) => {
 					return <span style={{ whiteSpace: 'pre-wrap' }}>{cell.getValue<String>()}</span>;
 				},
+			},
+			{
+				accessorKey: 'formatedExportDate',
+				header: 'Thời gian xuất',
+				Header: ({ column }) => <span style={{ whiteSpace: 'pre-wrap' }}>{column.columnDef.header}</span>,
+				size: 160,
 			},
 			{
 				accessorKey: 'EmployeeId',
@@ -140,10 +125,6 @@ const DepartmentTabItem: FC = () => {
 				},
 			},
 			{
-				accessorKey: 'Accept',
-				header: 'Chấp nhận',
-			},
-			{
 				accessorKey: 'UserAcceptName',
 				header: 'Người chấp nhận',
 				enableHiding: false,
@@ -163,6 +144,25 @@ const DepartmentTabItem: FC = () => {
 				header: 'Ghi chú',
 				Cell: ({ cell, row, column }) => {
 					return <span style={{ whiteSpace: 'pre-wrap' }}>{cell.getValue<String>()}</span>;
+				},
+			},
+			{
+				accessorKey: 'Accept',
+				header: 'Chấp nhận',
+				Cell: ({ cell, row, column }) => {
+					return (
+						<span
+							style={{
+								whiteSpace: 'pre-wrap',
+								background: cell.getValue<String>() === 'Accepted' ? 'green' : '#fc9003',
+								color: cell.getValue<String>() === 'Accepted' ? 'white' : 'white',
+								padding: '4px 8px',
+								borderRadius: '1000px'
+							}}
+						>
+							{cell.getValue<String>() === 'Accepted' ? "Chấp nhận" : 'Đang chờ'}
+						</span>
+					);
 				},
 			},
 		],
@@ -322,12 +322,12 @@ const DepartmentTabItem: FC = () => {
 	const handleSubmitEditWarehouseDepModal = async (updatedRow: any) => {
 		const updateData: IExportType = {
 			ExportId: updatedRow.ExportId,
-			ExportDate: updatedRow.ExportDate.toString(),
+			ExportDate: Number(updatedRow.ExportDate),
 			Content: updatedRow.Content,
 			Note: updatedRow.Note,
 			EmployeeId: updatedRow.EmployeeId,
 			DepartmentId: updatedRow.DepartmentId,
-			Accept: updatedRow.Accept,
+			Accept: updatedRow.Accept !== 'Accepted' ? '' : 'Accepted',
 			UserAccept: updatedRow.UserAccept,
 			listChemicalExport: updatedRow.listChemicalExport,
 			listDeviceExport: updatedRow.listDeviceExport,
@@ -365,7 +365,7 @@ const DepartmentTabItem: FC = () => {
 				Note: createdRow.Note,
 				EmployeeId: createdRow.EmployeeId,
 				DepartmentId: createdRow.DepartmentId,
-				Accept: createdRow.Accept,
+				Accept: createdRow.Accept !== 'Accepted' ? 'Pending' : 'Accepted',
 				UserAccept: createdRow.UserAccept,
 				listChemicalExport: createdRow.listChemicalExport,
 				listDeviceExport: createdRow.listDeviceExport,
@@ -409,7 +409,7 @@ const DepartmentTabItem: FC = () => {
 			listDeviceExport: listDeviceExportUpdate,
 		};
 
-		const isExist:boolean = warehouseDepartment.findIndex(x => x.ExportId === createData.ExportId) > -1;
+		const isExist: boolean = warehouseDepartment.findIndex(x => x.ExportId === createData.ExportId) > -1;
 		if (isExist) {
 			const resData = await updateExport(createData);
 
@@ -494,36 +494,12 @@ const DepartmentTabItem: FC = () => {
 						<>
 							<ChemicalTable
 								warehouseData={warehouseDepartment}
-								handleOpenCreate={() => {
-									setCreatedRow(row.original);
-									setIsCreateExportChemicalModal(true);
-								}}
-								handleOpenDelete={(exportChemical: any) => {
-									setDeletedRow(exportChemical);
-									setIsDeleteExportChemicalModal(true);
-								}}
-								handleOpenEdit={(exportChemical: any) => {
-									setUpdatedRow(exportChemical);
-									setIsEditExportChemicalModal(true);
-								}}
 								row={row}
 								columns={columnsChemicalTable.current}
 								type="DEP"
 							/>
 							<DeviceTable
 								warehouseData={warehouseDepartment}
-								handleOpenCreate={() => {
-									setCreatedRow(row.original);
-									setIsCreateExportDeviceModal(true);
-								}}
-								handleOpenDelete={(exportDevice: any) => {
-									setUpdatedRow(exportDevice);
-									setIsEditExportDeviceModal(true);
-								}}
-								handleOpenEdit={(exportDevice: any) => {
-									setDeletedRow(exportDevice);
-									setIsDeleteExportDeviceModal(true);
-								}}
 								row={row}
 								columns={columnsDeviceTable.current}
 								type="DEP"
@@ -609,7 +585,7 @@ const DepartmentTabItem: FC = () => {
 
 			{isCreateExportChemicalModal && (
 				<CreateExportChemicalModal
-				type='DEP'
+					type="DEP"
 					initData={createdRow}
 					isOpen={isCreateExportChemicalModal}
 					columns={columnsExportChemicalModal}
@@ -620,7 +596,7 @@ const DepartmentTabItem: FC = () => {
 
 			{isCreateExportDeviceModal && (
 				<CreateExportDeviceModal
-				type='DEP'
+					type="DEP"
 					handleSubmit={handleSumbitCreateExportDevice}
 					initData={createdRow}
 					isOpen={isCreateExportDeviceModal}

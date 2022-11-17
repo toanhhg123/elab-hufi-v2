@@ -5,6 +5,7 @@ import {
 	AppBar,
 	Autocomplete,
 	Button,
+	CircularProgress,
 	Collapse,
 	debounce,
 	Dialog,
@@ -29,6 +30,7 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
+	TablePagination,
 	TableRow,
 	TableSortLabel,
 	TextField,
@@ -38,7 +40,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 
@@ -116,21 +118,31 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 	const [deviceType, setDeviceType] = useState<string>('Thiết bị');
 	const listDeviceType = useRef(['Thiết bị', 'Công cụ', 'Dụng cụ']);
 	const [deviceData, setDeviceData] = useState<any>({});
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [loading, setLoading] = useState<Boolean>(true);
 
 	const [updatedRow, setUpdatedRow] = useState<any>();
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>();
 
 	useEffect(() => {
 		const getDeviceData = async () => {
-			const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
+			try {
+				const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
 
-			if (!deviceData[deviceType]) {
-				deviceData[deviceType] = data;
-				setDeviceData({ ...deviceData });
+				if (!deviceData[deviceType]) {
+					deviceData[deviceType] = data;
+					setDeviceData({ ...deviceData });
+				}
+				if(Array.isArray(data)) {
+					setDevices(data || []);
+					setCloneDevices(data);
+				}
+			} catch (error) {
+				console.log(error);
+			} finally {
+				setLoading(false);
 			}
-
-			setDevices(data);
-			setCloneDevices(data);
 		};
 		getDeviceData();
 	}, [deviceType]);
@@ -151,7 +163,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 						: -descendingComparator<any>(a, b, orderBy);
 				return i;
 			});
-			return data;
+			return data || [];
 		});
 	}, [order, orderBy]);
 
@@ -159,14 +171,39 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		const data = devices.map((device: any) => {
 			let string: String = '';
 
-			Object.keys(device).forEach(key => {
-				if (typeof device[key] === 'string') string += device[key] + ' ';
-				if (typeof device[key] === 'number') string += device[key]?.toString() + ' ';
-			});
+			const isObject = (val: any) => {
+				if (val === null) {
+					return false;
+				}
+
+				return typeof val === 'object';
+			};
+
+			const nestedObject = (obj: any) => {
+				for (const key in obj) {
+					if (isObject(obj[key])) {
+						nestedObject(obj[key]);
+					} else {
+						switch (key) {
+							case 'ExportDate':
+							case 'ManufacturingDate':
+							case 'StartGuarantee':
+							case 'EndGuarantee':
+								string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
+								break;
+							default:
+								string += `${obj[key]} `;
+								break;
+						}
+					}
+				}
+			};
+
+			nestedObject(device);
 
 			return {
 				label: removeAccents(string.toUpperCase()),
-				id: device.DeviceId,
+				id: device.ExpDeviceDeptId,
 			};
 		});
 		setDataSearch(data);
@@ -176,10 +213,10 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
 
 		if (keyword === '') {
-			setDevices(cloneDevices);
+			setDevices(cloneDevices || []);
 		} else {
-			const data = devices.filter((x: any) => listId.indexOf(x?.DeviceId) !== -1);
-			setDevices(data);
+			const data = devices.filter((x: any) => listId.indexOf(x?.ExpDeviceDeptId) !== -1);
+			setDevices(data || []);
 		}
 	}, [keyword]);
 
@@ -207,8 +244,8 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 					...deviceData,
 					[deviceType]: newData,
 				});
-				setDevices(newData);
-				setCloneDevices(newData);
+				setDevices(newData || []);
+				setCloneDevices(newData || []);
 			} else {
 				dispatch(setSnackbarMessage('Xóa thông tin không thành công'));
 			}
@@ -223,59 +260,83 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		{ id: 'DeviceDetailId', header: 'Mã chi tiết TB' },
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
+		{ id: 'Standard', header: 'Qui cách' },
 		{ id: 'HasTrain', header: 'Đã tập huấn' },
-		{ id: 'QuantityExport', header: 'SL xuất' },
 		{ id: 'QuantityOriginal', header: 'SL ban đầu' },
-		{ id: 'QuantityRemain', header: 'SL còn lại' },
-		{ id: 'Standard', header: 'Tiêu chuẩn' },
+		{ id: 'QuantityExport', header: 'SL xuất' },
+		{ id: 'QuantityRemain', header: 'SL tồn' },
 	]);
+
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage);
+	};
 
 	return (
 		<>
-			<Box component="div" alignItems="center" justifyContent="space-between" display="flex" mx={8} mb={2}>
-				<Typography fontWeight="bold" variant="h6">
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap='wrap' mx={8} mb={2}>
+				<Typography fontWeight="bold" variant="h6" whiteSpace='nowrap'>
 					Bảng {deviceType}
 				</Typography>
-				<Box display="flex" alignItems="end">
-					<FormControl>
-						<RadioGroup
-							aria-labelledby="radio-buttons-group-label"
-							defaultValue={listDeviceType.current[0]}
-							name="radio-buttons-group"
-							sx={{ display: 'flex', flexDirection: 'row' }}
-							onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-								setDeviceType((event.target as HTMLInputElement).value);
-							}}
-						>
-							{listDeviceType.current.map((type: string) => (
-								<FormControlLabel
-									value={type}
-									control={<Radio />}
-									label={type}
-									key={type}
-									checked={type === deviceType}
-								/>
-							))}
-						</RadioGroup>
-					</FormControl>
+				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
+					<Box>
+						<FormControl>
+							<RadioGroup
+								aria-labelledby="radio-buttons-group-label"
+								defaultValue={listDeviceType.current[0]}
+								name="radio-buttons-group"
+								sx={{ display: 'flex', flexDirection: 'row' }}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+									setDeviceType((event.target as HTMLInputElement).value);
+								}}
+							>
+								{listDeviceType.current.map((type: string) => (
+									<FormControlLabel
+										value={type}
+										control={<Radio />}
+										label={type}
+										key={type}
+										checked={type === deviceType}
+									/>
+								))}
+							</RadioGroup>
+						</FormControl>
 
-					<TextField
-						id="filled-search"
-						type="search"
-						variant="standard"
-						placeholder="Tìm kiếm..."
-						InputProps={{
-							startAdornment: (
-								<InputAdornment position="start">
-									<SearchIcon />
-								</InputAdornment>
-							),
-						}}
-						onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+						<TextField
+							id="filled-search"
+							type="search"
+							variant="standard"
+							placeholder="Tìm kiếm..."
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position="start">
+										<SearchIcon />
+									</InputAdornment>
+								),
+							}}
+							onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+						/>
+
+						<Tooltip arrow placement="left" title="Sửa">
+							<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
+								<AddIcon />
+							</Button>
+						</Tooltip>
+					</Box>
+					<TablePagination
+						sx={{ width: '100%' }}
+						rowsPerPageOptions={[10, 20, 40, 100]}
+						component="div"
+						count={devices?.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onPageChange={handleChangePage}
+						onRowsPerPageChange={handleChangeRowsPerPage}
 					/>
-					<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-						<AddIcon />
-					</Button>
 				</Box>
 			</Box>
 			<TableContainer component={Paper} sx={{ marginBottom: '24px', overflow: 'overlay' }}>
@@ -293,24 +354,43 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 								</StyledTableCell>
 							))}
 
-							<StyledTableCell align="right">
+							{/* <StyledTableCell align="right">
 								<b>Hành động</b>
-							</StyledTableCell>
+							</StyledTableCell> */}
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{devices.map((exportDevice: IDeviceDepartmentType, index: number) => (
-							<RowDevice
-								device={exportDevice}
-								index={index}
-								key={index}
-								handleOpenDelete={handleOpenDelete}
-								handleOpenEdit={handleOpenEdit}
-							/>
-						))}
+						{!loading &&
+							devices?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+								?.map((exportDevice: IDeviceDepartmentType, index: number) => (
+									<RowDevice
+										device={exportDevice}
+										index={index}
+										key={index}
+										handleOpenDelete={handleOpenDelete}
+										handleOpenEdit={handleOpenEdit}
+									/>
+								))}
+						{loading && (
+							<TableRow>
+								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+									<CircularProgress disableShrink />
+								</TableCell>
+							</TableRow>
+						)}
+						{!loading && devices?.length === 0 && (
+							<TableRow>
+								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+									<Typography variant="h5" gutterBottom align="center" component="div">
+										Trống
+									</Typography>
+								</TableCell>
+							</TableRow>
+						)}
 					</TableBody>
 				</Table>
 			</TableContainer>
+
 			<DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
 			<DialogDelete
 				isOpen={isOpenDeleteModal}
@@ -355,18 +435,18 @@ const RowDevice = ({ index, device, handleOpenEdit, handleOpenDelete }: RowDevic
 					{device?.QuantityRemain?.toString()} {`(${device?.Unit})`}
 				</TableCell>
 				<TableCell align="left">{device?.Standard}</TableCell>
-				<TableCell align="right" size="small">
-					<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất thiết bị">
+				{/* <TableCell align="right" size="small">
+					<Tooltip arrow placement="left" title="Sửa">
 						<IconButton onClick={() => handleOpenEdit(device)}>
 							<Edit />
 						</IconButton>
 					</Tooltip>
-					<Tooltip arrow placement="right" title="Xoá phiếu xuất thiết bị">
+					<Tooltip arrow placement="right" title="Xoá">
 						<IconButton color="error" onClick={() => handleOpenDelete(device)}>
 							<Delete />
 						</IconButton>
 					</Tooltip>
-				</TableCell>
+				</TableCell> */}
 			</TableRow>
 			<TableRow>
 				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={12}>
@@ -430,7 +510,7 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 		{ id: 'ExpDeviceDeptId', header: 'Mã' },
 		{ id: 'LabName', header: 'Phòng' },
 		{ id: 'Location', header: 'Địa chỉ' },
-		{ id: 'ExportDate', header: 'Ngày xuất' },
+		{ id: 'ExportDate', header: 'Ngày xuất', type: 'date' },
 		{ id: 'EmployeeName', header: 'Người xuất' },
 		{ id: 'SerialNumber', header: 'Số Serial' },
 		{ id: 'ManufacturingDate', header: 'Ngày sản xuất', type: 'date' },

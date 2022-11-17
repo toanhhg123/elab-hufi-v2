@@ -14,41 +14,26 @@ import {
 	TableHead,
 	TableRow,
 	Tooltip,
-	Typography,
+	Typography
 } from '@mui/material';
-import { Box } from '@mui/system';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setSnackbarMessage } from '../../../../pages/appSlice';
-import { deleteExportChemical } from '../../../../services/exportChemicalServices';
-import { deleteExportDevice } from '../../../../services/exportDeviceServices';
 import {
-	deleteExport,
 	deleteExportRegs,
 	getExportsRegById,
-	getExportsRegs,
-	postExport,
 	postExportRegs,
-	updateExport,
 	updateExportRegs,
 } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
-import { IChemicalType } from '../../../../types/chemicalType';
 import { IExportChemicalType } from '../../../../types/exportChemicalType';
-import { IExportDeviceType } from '../../../../types/exportDeviceType';
 import { dummyExportData, IExportType } from '../../../../types/exportType';
 import ChemicalTable, { ColumnType } from '../../Details/ChemicalTable';
-// import DeviceTable from './DeviceTable';
 import CreateExportChemicalModal from '../../Modal/CreateExportChemicalModal';
-// import CreateExportDeviceModal from '../../Modal/CreateExportDeviceModal';
 import CreateExportModal from '../../Modal/CreateExportModal';
-// import DeleteExportChemicalModal from '../../Modal/DeleteExportChemicalModal';
-// import DeleteExportDeviceModal from '../../Modal/DeleteExportDeviceModal';
 import DeleteExportModal from '../../Modal/DeleteExportModal';
-// import EditExportChemicalModal from '../../Modal/EditExportChemicalModal';
-// import EditExportDeviceModal from '../../Modal/EditExportDeviceModal';
 import EditExportModal from '../../Modal/EditExportModal';
 import { setListOfWarehouseRegisterGeneral } from '../../warehouseSlice';
 
@@ -63,20 +48,9 @@ const RegisterGeneralTabItem: FC = () => {
 		(state: RootState) => state.warehouse.listOfWarehouseRegisterGeneral,
 	);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
-	const exportChemicalData = useAppSelector((state: RootState) => state.exportChemical.listOfExportChemical);
-	const chemicalsData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
-	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
-	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
-	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
 	const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
-	const [isEditExportChemicalModal, setIsEditExportChemicalModal] = useState<boolean>(false);
-	const [isDeleteExportChemicalModal, setIsDeleteExportChemicalModal] = useState<boolean>(false);
-	const [isCreateExportDeviceModal, setIsCreateExportDeviceModal] = useState<boolean>(false);
-	const [isEditExportDeviceModal, setIsEditExportDeviceModal] = useState<boolean>(false);
-	const [isDeleteExportDeviceModal, setIsDeleteExportDeviceModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
 	const [isEditModal, setIsEditModal] = useState<boolean>(false);
 	const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
@@ -273,7 +247,7 @@ const RegisterGeneralTabItem: FC = () => {
 	const handleSubmitEditWarehouseRegModal = async (updatedRow: any) => {
 		const updateData = {
 			ExpRegGeneralId: updatedRow.ExpRegGeneralId,
-			ExportDate: updatedRow.ExportDate,
+			ExportDate: Number(updatedRow.ExportDate),
 			Content: updatedRow.Content,
 			Semester: Number(updatedRow.Semester),
 			Schoolyear: updatedRow.Schoolyear,
@@ -311,7 +285,7 @@ const RegisterGeneralTabItem: FC = () => {
 		try {
 			const createData = {
 				ExpRegGeneralId: createdRow.ExpRegGeneralId,
-				ExportDate: createdRow.ExportDate,
+				ExportDate: Number(createdRow.ExportDate),
 				Content: createdRow.Content,
 				Semester: Number(createdRow.Semester),
 				Schoolyear: createdRow.Schoolyear,
@@ -339,8 +313,6 @@ const RegisterGeneralTabItem: FC = () => {
 			...createdRow,
 			listChemicalExport: listChemicalExportUpdate,
 		};
-
-		console.log(createData)
 
 		const isExist: boolean =
 			warehouseRegisterGeneral.findIndex(x => x.ExpRegGeneralId === createData.ExpRegGeneralId) > -1;
@@ -372,6 +344,9 @@ const RegisterGeneralTabItem: FC = () => {
 				dispatch(setSnackbarMessage('Tạo thông tin mới không thành công'));
 			}
 		}
+
+		setIsCreateExportChemicalModal(false);
+		setIsCreateModal(false);
 	};
 
 	return (
@@ -457,18 +432,6 @@ const RegisterGeneralTabItem: FC = () => {
 							<ChemicalTable
 								columns={columnsChemicalTable.current}
 								warehouseData={warehouseRegisterGeneral}
-								handleOpenCreate={() => {
-									setCreatedRow(row.original);
-									setIsCreateExportChemicalModal(true);
-								}}
-								handleOpenDelete={(exportChemical: any) => {
-									setDeletedRow(exportChemical);
-									setIsDeleteExportChemicalModal(true);
-								}}
-								handleOpenEdit={(exportChemical: any) => {
-									setUpdatedRow(exportChemical);
-									setIsEditExportChemicalModal(true);
-								}}
 								row={row}
 								type="REG"
 							/>

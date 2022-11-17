@@ -67,7 +67,7 @@ const WarehouseTable: FC = () => {
 			<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
 				<Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
 					{tabData.current.map((x, index) => (
-						<Tab label={x.header} {...a11yProps(index)} />
+						<Tab key={index} label={x.header} {...a11yProps(index)} />
 					))}
 				</Tabs>
 			</Box>

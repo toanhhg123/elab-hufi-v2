@@ -5,6 +5,7 @@ import {
 	AppBar,
 	Autocomplete,
 	Button,
+	CircularProgress,
 	Collapse,
 	debounce,
 	Dialog,
@@ -29,6 +30,7 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
+	TablePagination,
 	TableRow,
 	TableSortLabel,
 	TextField,
@@ -45,7 +47,12 @@ import { RootState } from '../../store';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SearchIcon from '@mui/icons-material/Search';
-import { IDeviceDepartmentType, IDeviceDetailType, IDeviceDeptType, dummyDeviceDepartmentData } from '../../types/deviceDepartmentType';
+import {
+	IDeviceDepartmentType,
+	IDeviceDetailType,
+	IDeviceDeptType,
+	dummyDeviceDepartmentData,
+} from '../../types/deviceDepartmentType';
 import * as API from '../../configs/apiHelper';
 import { IDepartmentType } from '../../types/departmentType';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -118,20 +125,29 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const listDeviceType = useRef(Object.keys(DeviceType).filter(x => Number.isNaN(Number(x))));
 	const [deviceData, setDeviceData] = useState<any>({});
 	const [open, setOpen] = useState<number>(-1);
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(10);
+	const [loading, setLoading] = useState<Boolean>(true);
 
 	const [updatedRow, setUpdatedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
 
 	const getDeviceData = async () => {
-		const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
+		try {
+			const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
 
-		if (!deviceData[deviceType]) {
-			deviceData[deviceType] = data;
-			setDeviceData({ ...deviceData });
+			if (!deviceData[deviceType]) {
+				deviceData[deviceType] = data;
+				setDeviceData({ ...deviceData });
+			}
+
+			setDevices(data || []);
+			setCloneDevices(data);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
 		}
-
-		setDevices(data);
-		setCloneDevices(data);
 	};
 
 	useEffect(() => {
@@ -154,7 +170,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 						: -descendingComparator<any>(a, b, orderBy);
 				return i;
 			});
-			return data;
+			return data || [];
 		});
 	}, [order, orderBy]);
 
@@ -162,10 +178,32 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		const data = devices.map((device: any) => {
 			let string: String = '';
 
-			Object.keys(device).forEach(key => {
-				if (typeof device[key] === 'string') string += device[key] + ' ';
-				if (typeof device[key] === 'number') string += device[key]?.toString() + ' ';
-			});
+			const isObject = (val: any) => {
+				if (val === null) {
+					return false;
+				}
+
+				return typeof val === 'object';
+			};
+
+			const nestedObject = (obj: any) => {
+				for (const key in obj) {
+					if (isObject(obj[key])) {
+						nestedObject(obj[key]);
+					} else {
+						switch (key) {
+							case 'OrderDate':
+								string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
+								break;
+							default:
+								string += `${obj[key]} `;
+								break;
+						}
+					}
+				}
+			};
+
+			nestedObject(device);
 
 			return {
 				label: removeAccents(string.toUpperCase()),
@@ -179,10 +217,10 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
 
 		if (keyword === '') {
-			setDevices(cloneDevices);
+			setDevices(cloneDevices || []);
 		} else {
 			const data = devices.filter((x: any) => listId.indexOf(x?.DeviceId) !== -1);
-			setDevices(data);
+			setDevices(data || []);
 		}
 	}, [keyword]);
 
@@ -211,8 +249,8 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 					...deviceData,
 					[deviceType]: newData,
 				});
-				setDevices(newData);
-				setCloneDevices(newData);
+				setDevices(newData || []);
+				setCloneDevices(newData || []);
 			} else {
 				dispatch(setSnackbarMessage('Xóa thông tin không thành công'));
 			}
@@ -253,55 +291,78 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		{ id: 'HasTrain', header: 'Tập huấn', renderValue: value => (value === 1 ? 'Có' : 'Không') },
 	]);
 
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage);
+	};
+
 	return (
 		<>
-			<Box component="div" alignItems="center" justifyContent="space-between" display="flex" mx={8} mb={2}>
+			<Box component="div" justifyContent="space-between" display="flex" mx={8} mb={2}>
 				<Typography fontWeight="bold" variant="h6">
 					Bảng {deviceType}
 				</Typography>
-				<Box display="flex" alignItems="end">
-					<FormControl>
-						<RadioGroup
-							aria-labelledby="radio-buttons-group-label"
-							defaultValue={listDeviceType.current[0]}
-							name="radio-buttons-group"
-							sx={{ display: 'flex', flexDirection: 'row' }}
-							onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-								setDeviceType((event.target as HTMLInputElement).value);
-							}}
-						>
-							{listDeviceType.current.map((type: string) => (
-								<FormControlLabel
-									value={type}
-									control={<Radio />}
-									label={type}
-									key={type}
-									checked={type === deviceType}
-								/>
-							))}
-						</RadioGroup>
-					</FormControl>
+				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
+					<Box>
+						<FormControl>
+							<RadioGroup
+								aria-labelledby="radio-buttons-group-label"
+								defaultValue={listDeviceType.current[0]}
+								name="radio-buttons-group"
+								sx={{ display: 'flex', flexDirection: 'row' }}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+									setDeviceType((event.target as HTMLInputElement).value);
+								}}
+							>
+								{listDeviceType.current.map((type: string) => (
+									<FormControlLabel
+										value={type}
+										control={<Radio />}
+										label={type}
+										key={type}
+										checked={type === deviceType}
+									/>
+								))}
+							</RadioGroup>
+						</FormControl>
 
-					<TextField
-						id="filled-search"
-						type="search"
-						variant="standard"
-						placeholder="Tìm kiếm..."
-						InputProps={{
-							startAdornment: (
-								<InputAdornment position="start">
-									<SearchIcon />
-								</InputAdornment>
-							),
-						}}
-						onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+						<TextField
+							id="filled-search"
+							type="search"
+							variant="standard"
+							placeholder="Tìm kiếm..."
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position="start">
+										<SearchIcon />
+									</InputAdornment>
+								),
+							}}
+							onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+						/>
+						<Tooltip arrow placement="left" title="Tạo mới">
+							<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
+								<AddIcon />
+							</Button>
+						</Tooltip>
+					</Box>
+					<TablePagination
+						sx={{ width: '100%' }}
+						rowsPerPageOptions={[10, 20, 40, 100]}
+						component="div"
+						count={devices?.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onPageChange={handleChangePage}
+						onRowsPerPageChange={handleChangeRowsPerPage}
 					/>
-					<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-						<AddIcon />
-					</Button>
 				</Box>
 			</Box>
-			<TableContainer component={Paper} sx={{ overflow: 'overlay' }}>
+			<TableContainer component={Paper} sx={{ overflow: 'overlay', flex: '1', marginBottom: '24px' }}>
 				<Table sx={{ minWidth: 900 }} stickyHeader size="small">
 					<TableHead>
 						<TableRow>
@@ -328,18 +389,37 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{devices.map((exportDevice: IDeviceDepartmentType, index: number) => (
-							<RowDevice
-								device={exportDevice}
-								index={index}
-								key={index}
-								handleOpenDelete={handleOpenDelete}
-								handleOpenEdit={handleOpenEdit}
-								columns={columns.current}
-								handleOpen={(index: number) => setOpen(open === index ? -1 : index)}
-								openIndex={open}
-							/>
-						))}
+						{!loading &&
+							devices
+								?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+								?.map((exportDevice: IDeviceDepartmentType, index: number) => (
+									<RowDevice
+										device={exportDevice}
+										index={index}
+										key={index}
+										handleOpenDelete={handleOpenDelete}
+										handleOpenEdit={handleOpenEdit}
+										columns={columns.current}
+										handleOpen={(index: number) => setOpen(open === index ? -1 : index)}
+										openIndex={open}
+									/>
+								))}
+						{loading && (
+							<TableRow>
+								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+									<CircularProgress disableShrink />
+								</TableCell>
+							</TableRow>
+						)}
+						{!loading && devices.length === 0 && (
+							<TableRow>
+								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+									<Typography variant="h5" gutterBottom align="center" component="div">
+										Trống
+									</Typography>
+								</TableCell>
+							</TableRow>
+						)}
 					</TableBody>
 				</Table>
 			</TableContainer>
@@ -419,12 +499,12 @@ const RowDevice = ({
 				})}
 
 				<TableCell align="right" size="small">
-					<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất thiết bị">
+					<Tooltip arrow placement="left" title="Sửa">
 						<IconButton onClick={() => handleOpenEdit(device)}>
 							<Edit />
 						</IconButton>
 					</Tooltip>
-					<Tooltip arrow placement="right" title="Xoá phiếu xuất thiết bị">
+					<Tooltip arrow placement="right" title="Xoá">
 						<IconButton color="error" onClick={() => handleOpenDelete(device)}>
 							<Delete />
 						</IconButton>
@@ -432,7 +512,7 @@ const RowDevice = ({
 				</TableCell>
 			</TableRow>
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={10}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ margin: 1 }}>
 							{device?.listDeviceDetail?.length !== 0 ? (

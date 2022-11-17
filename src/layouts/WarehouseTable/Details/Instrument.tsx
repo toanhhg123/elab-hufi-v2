@@ -1,11 +1,9 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SearchIcon from '@mui/icons-material/Search';
 import {
-	Button,
-	debounce,
-	IconButton,
-	InputAdornment,
+	debounce, InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -13,23 +11,14 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
-	TableRow,
-	TableSortLabel,
-	TextField,
-	Tooltip,
-	Typography,
+	TableRow, TextField, Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
-import { useAppSelector } from '../../../hooks';
-import { RootState } from '../../../store';
 import { IExportDeviceType } from '../../../types/exportDeviceType';
 import { IExportType } from '../../../types/exportType';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import SearchIcon from '@mui/icons-material/Search';
-import moment from 'moment';
 import { ColumnType } from './DeviceTable';
 
 const StyledTableCell = styled(TableCell)(theme => ({
@@ -41,9 +30,6 @@ const StyledTableCell = styled(TableCell)(theme => ({
 type ExportDeviceType = IExportDeviceType | undefined;
 
 type InstrumentTableProps = {
-	handleOpenCreate: () => void;
-	handleOpenEdit: (exportDevice: any) => void;
-	handleOpenDelete: (exportDevice: any) => void;
 	row: MRT_Row<IExportType>;
 	warehouseData: any;
 	columns: ColumnType[];
@@ -76,9 +62,6 @@ function removeAccents(str: string) {
 }
 
 const InstrumentTable = ({
-	handleOpenCreate,
-	handleOpenEdit,
-	handleOpenDelete,
 	row,
 	warehouseData,
 	columns,
@@ -237,7 +220,7 @@ const InstrumentTable = ({
 											col.id === 'QuantityOriginal'
 										)
 											return (
-												<TableCell align="left">
+												<TableCell align="left" key={col.id}>
 													{`${col.renderValue(
 														`${exportDevice[col.id as keyof typeof exportDevice]}`,
 														exportDevice.Unit,
@@ -256,7 +239,7 @@ const InstrumentTable = ({
 										);
 
 									return (
-										<TableCell align="left">
+										<TableCell align="left" key={col.id}>
 											{exportDevice[col.id as keyof typeof exportDevice]
 												? `${exportDevice[col.id as keyof typeof exportDevice]}`
 												: ''}
