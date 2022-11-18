@@ -1,17 +1,25 @@
 export interface IExportChemicalType {
-    "ExportId": String,
-    "ChemicalId": String,
-    "Amount": Number,
-    "Origin"?: String,
-    "ChemicalName"?: String,
-    "ManufacturerName"?: String,
+	ChemicalName: String;
+	ExpChemDeptId: String;
+	ExportLabId?: String;
+	AmountOriginal?: Number;
+	ExpRegGeneralId?: String;
+	Unit: String;
+	ChemDetailId?: String;
+	ExportId?: String;
+	ExpSubjectId?: String;
+	Amount?: Number;
 }
 
 export const dummyExportChemicalData: IExportChemicalType = {
-    "ExportId": "",
-    "ChemicalId": "",
-    "Amount": -1,
-    "Origin": "",
-    "ChemicalName": "",
-    "ManufacturerName": "",
-}
+	ChemicalName: '',
+	Unit: '',
+	ExpChemDeptId: '',
+	AmountOriginal: 0,
+	ChemDetailId: '',
+	ExportId: '',
+	ExpSubjectId: '',
+	Amount: 0,
+	ExpRegGeneralId: '',
+	ExportLabId: '',
+};

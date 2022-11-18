@@ -25,7 +25,6 @@ import {
 import { IntegratedGrouping } from '@devexpress/dx-react-scheduler';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { appointments } from './appointments';
 import moment from 'moment';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -34,6 +33,7 @@ import { RootState } from '../../store';
 import { IScheduleType } from '../../types/scheduleType';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Tooltip } from '@mui/material';
 import { Stack } from '@mui/system';
+import { convertPeriodToHourAndMin, convertPeriodToTimestamp } from './utils';
 
 const PREFIX = "Demo";
 
@@ -156,8 +156,11 @@ const AppointmentContent = (restProps: any) => {
                 <b>{restProps.data.LessonName}</b>
             </div>
             <div style={{ "margin": "0px 0px" }}>
-                {restProps.data.ClassId} - {restProps.data.ClassName}
+                {restProps.data.ClassCode} - {restProps.data.ClassName}
             </div>
+            {/* <div style={{ "margin": "0px 0px" }}>
+                {'Tiết: '} {restProps.data.StartTime} - {restProps.data.EndTime}
+            </div> */}
             <div style={{ "margin": "3px 0px" }}>
                 {'GV: '} {restProps.data.TeacherName}
             </div>
@@ -195,7 +198,7 @@ const resources = [{
     fieldName: 'session',
     title: 'Ca',
     instances: [
-        { text: 'Ca sáng', id: 1, color: 'blue' },
+        { text: 'Ca sáng', id: 1, color: '#3388FF' },
         { text: 'Ca chiều', id: 2, color: 'orange' },
     ],
 }];
@@ -204,6 +207,7 @@ const groupOrientation = (viewName: any) => viewName.split(' ')[0];
 const grouping = [{
     resourceName: 'session',
 }];
+// const grouping = [ 'session'];
 
 const ScheduleTable: FC = () => {
     const scheduleData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
@@ -239,18 +243,22 @@ const ScheduleTable: FC = () => {
             </div>
         </StyledToolbarFlexibleSpace>
     );
+
     useEffect(() => {
         let formatedScheduleData = scheduleData.map((sche: IScheduleType) => {
+            let lessonDate = new Date(Number(sche.DateStudy) * 1000);
+
             return {
                 ...sche,
                 "id": sche.SessionId,
                 "title": sche.SubjectName,
-                "startDate": new Date((Number(sche.DateStudy) + Number(sche.StartTime) * 3600) * 1000),
-                "endDate": new Date((Number(sche.DateStudy) + Number(sche.EndTime) * 3600) * 1000),
-                "rRule": 'FREQ=WEEKLY;COUNT=6',
-                "session": (Number(sche.StartTime) > 6) ? 1 : 2
+                "startDate": new Date(lessonDate.getFullYear(), lessonDate.getMonth(), lessonDate.getDate(), ...convertPeriodToHourAndMin(Number(sche.StartTime))[0]),
+                "endDate": new Date(lessonDate.getFullYear(), lessonDate.getMonth(), lessonDate.getDate(), ...convertPeriodToHourAndMin(Number(sche.EndTime))[1]),
+                // "rRule": 'FREQ=WEEKLY;COUNT=6',
+                "session": (Number(sche.StartTime) < 7) ? 1 : 2
             }
         })
+        console.log("formatedScheduleData :", formatedScheduleData)
         setTableData(formatedScheduleData);
     }, [scheduleData])
 
@@ -268,15 +276,17 @@ const ScheduleTable: FC = () => {
                     {/* <GroupingState
                         grouping={grouping}
                         groupOrientation={groupOrientation}
+                       
                     /> */}
                     <ViewState />
                     <WeekView
                         displayName={'Tuần'}
                         startDayHour={7}
-                        endDayHour={21}
+                        endDayHour={22}
                         // cellDuration={60}
                         timeTableCellComponent={TimeTableCell}
-                        dayScaleCellComponent={DayScaleCell}
+                        dayScaleCellComponent={(itemData) => <DayScaleCell itemData={itemData} />}
+                        name="Vertical Orientation"
                     />
                     <MonthView
                         displayName={'Tháng'}
@@ -288,12 +298,12 @@ const ScheduleTable: FC = () => {
                         appointmentComponent={Appointment}
                         appointmentContentComponent={AppointmentContent}
                     />
-                    {/* <Resources
+                    <Resources
                         data={resources}
                         mainResourceName="session"
-                    /> */}
-                    {/* <IntegratedGrouping /> */}
-                    {/* <GroupingPanel /> */}
+                    />
+                    {/* <IntegratedGrouping />
+                    <GroupingPanel /> */}
                     <Toolbar
                         flexibleSpaceComponent={FlexibleSpace}
                     />

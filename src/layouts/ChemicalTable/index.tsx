@@ -29,14 +29,9 @@ import { setListOfChemicals } from './chemicalSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
-import { IOrderChemicalType } from '../../types/orderChemicalType';
-import { detailOrderColumns, generalOrderColumns, normalColumns } from './const';
-import { deleteOrderChemical, getOrderChemicals, postOrderChemicals, updateOrderChemical } from '../../services/orderChemicalServices';
-import { setListOfOrderChemicals } from './orderChemicalSlice';
 
-const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }) => {
+const ChemicalTable: FC = () => {
   const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
-  const orderChemicalData = useAppSelector((state: RootState) => state.orderChemical.listOfOrderChemicals);
   const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
   const dispatch = useAppDispatch();
 
@@ -53,35 +48,8 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
   const [createdRow, setCreatedRow] = useState<any>(dummyChemicalData);
 
   useEffect(() => {
-    let formatedData: IChemicalType[] = [];
-    if (type === "normal") {
-      formatedData = chemicalData.map((chemical: IChemicalType) => {
-        let manufacturerInfoIdx = manufacturersData.findIndex(item => item.ManufacturerId === chemical.ManufacturerId);
-        return {
-          ...chemical,
-          "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
-        }
-      })
-    }
-    if (type === "generalOrder" || type === "detailOrder") {
-      formatedData =
-        (type === "detailOrder" ? orderChemicalData.filter(item => item.OrderId === OrderId) : orderChemicalData)
-          .map((chemical: IOrderChemicalType) => {
-            let chemicalInfo = chemicalData.find(item => item.ChemicalId === chemical.ChemicalId);
-            let manufacturerInfoIdx = manufacturersData.findIndex(item => item.ManufacturerId === chemicalInfo?.ManufacturerId);
-            return {
-              ...chemical,
-              "ChemicalName": chemicalInfo ? chemicalInfo.ChemicalName : "",
-              "Specifications": chemicalInfo ? chemicalInfo.Specifications : "",
-              "Origin": chemicalInfo ? chemicalInfo.Origin : "",
-              "Unit": chemicalInfo ? chemicalInfo.Unit : "",
-              "ManufacturerId": chemicalInfo ? chemicalInfo.ManufacturerId : -1,
-              "ManufacturerName": chemicalInfo ? manufacturersData[manufacturerInfoIdx].Name : "",
-            }
-          })
-    }
-    setTableData(formatedData);
-  }, [chemicalData, orderChemicalData])
+    setTableData(chemicalData);
+  }, [chemicalData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
@@ -96,9 +64,34 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
   );
 
   const columns = useMemo<MRT_ColumnDef<IChemicalType>[]>(
-    () => type === "normal" ? normalColumns :
-      type === "generalOrder" ? generalOrderColumns : detailOrderColumns
-    , [getCommonEditTextFieldProps],
+    () => [
+      {
+        accessorKey: 'ChemicalId',
+        header: 'Id hoá chất',
+        size: 100,
+      },
+      {
+        accessorKey: 'ChemicalName',
+        header: 'Tên hoá chất',
+        size: 100,
+      },
+      {
+        accessorKey: 'Specifications',
+        header: 'Thông số',
+        size: 100,
+      },
+      {
+        accessorKey: 'Origin',
+        header: 'Nguồn gốc',
+        size: 100,
+      },
+      {
+        accessorKey: 'Unit',
+        header: 'Đơn vị',
+        size: 100,
+      }
+    ],
+    [getCommonEditTextFieldProps],
   );
 
   const handleOpenEditModal = (row: any) => {
@@ -112,24 +105,6 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
   }
 
   const handleSubmitEditModal = async () => {
-    if (type === "generalOrder" || type === "detailOrder") {
-      const isUpdatedSuccessOrder = await updateOrderChemical(
-        type === "generalOrder" ? updatedRow.OrderId : OrderId,
-        updatedRow.ChemicalId,
-        {
-          "OrderId": updatedRow.OrderId,
-          "ChemicalId": updatedRow.ChemicalId,
-          "Amount": updatedRow.Amount,
-          "Price": updatedRow.Price,
-        }
-      );
-      if (isUpdatedSuccessOrder) {
-        dispatch(setSnackbarMessage("Cập nhật thông tin phiếu nhập hoá chất thành công"));
-        let updatedIdx = orderChemicalData.findIndex(item => item.ChemicalId === updatedRow.ChemicalId);
-        let newListOfOrderChemicals = [...orderChemicalData.slice(0, updatedIdx), updatedRow, ...orderChemicalData.slice(updatedIdx + 1,)]
-        dispatch(setListOfOrderChemicals(newListOfOrderChemicals));
-      }
-    }
     const isUpdatedSuccess = await updateChemical({
       "ChemicalId": updatedRow.ChemicalId,
       "ChemicalName": updatedRow.ChemicalName,
@@ -141,7 +116,7 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
     });
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin hoá chất thành công"));
-      let updatedIdx = chemicalData.findIndex(item => item.ChemicalId === updatedRow.ChemicalId);
+      let updatedIdx = chemicalData.findIndex(x => x.ChemicalId === updatedRow.ChemicalId);
       let newListOfChemicals = [...chemicalData.slice(0, updatedIdx), updatedRow, ...chemicalData.slice(updatedIdx + 1,)]
       dispatch(setListOfChemicals(newListOfChemicals));
     }
@@ -160,16 +135,9 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
   }
 
   const handleSubmitDeleteModal = async () => {
-    if (type === "generalOrder" || type === "detailOrder") {
-      await deleteOrderChemical(type === "generalOrder" ? deletedRow.OrderId : OrderId, deletedRow.ChemicalId);
-      dispatch(setSnackbarMessage("Xóa thông tin phiếu nhập hoá chất thành công"));
-      let deletedIdx = orderChemicalData.findIndex(item => item.ChemicalId === deletedRow.ChemicalId);
-      let newListOfOrderChemicals = [...orderChemicalData.slice(0, deletedIdx), ...orderChemicalData.slice(deletedIdx + 1,)]
-      dispatch(setListOfOrderChemicals(newListOfOrderChemicals));
-    }
     await deleteChemical(deletedRow.ChemicalId);
     dispatch(setSnackbarMessage("Xóa thông tin hoá chất thành công"));
-    let deletedIdx = chemicalData.findIndex(item => item.ChemicalId === deletedRow.ChemicalId);
+    let deletedIdx = chemicalData.findIndex(x => x.ChemicalId === deletedRow.ChemicalId);
     let newListOfChemicals = [...chemicalData.slice(0, deletedIdx), ...chemicalData.slice(deletedIdx + 1,)]
     dispatch(setListOfChemicals(newListOfChemicals));
 
@@ -203,23 +171,6 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
         dispatch(setListOfChemicals(newListOfChemicals));
       }
     }
-
-    if (type === "generalOrder" || type === "detailOrder") {
-      const createdOrderChemical = await postOrderChemicals([{
-        "OrderId": type === "generalOrder" ? createdRow.OrderId : OrderId,
-        "ChemicalId": createdRow.ChemicalId,
-        "Amount": createdRow.Amount,
-        "Price": createdRow.Price,
-      }])
-      if (createdOrderChemical) {
-        const newListOfOrderChemicals: IOrderChemicalType[] = await getOrderChemicals();
-        if (newListOfOrderChemicals) {
-          dispatch(setSnackbarMessage("Tạo thông tin phiếu nhập hoá chất mới thành công"));
-          dispatch(setListOfOrderChemicals(newListOfOrderChemicals));
-        }
-      }
-    }
-
     onCloseCreateModal();
   }
 
@@ -279,7 +230,7 @@ const ChemicalTable: FC<{ type: String, OrderId?: String }> = ({ type, OrderId }
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin {type === "generalOrder" ? "nhập" : ""} hoá chất {type === "detailOrder" ? `của ${OrderId}` : ""}</span>
+            <span>Danh mục hoá chất</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (

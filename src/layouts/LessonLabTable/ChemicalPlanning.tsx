@@ -17,14 +17,14 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
-import { ILessonLabType } from '../../types/lessonLabType';
+import { IChemicalsBelongingToLessonLabType, ILessonLabType } from '../../types/lessonLabType';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IChemicalType } from '../../types/chemicalType';
 
 const ChemicalPlanning: FC<{
     isOpen: boolean,
     currentLessonLab: ILessonLabType,
-    defaultCurrentValue: IChemicalType[],
+    defaultCurrentValue: IChemicalsBelongingToLessonLabType[],
     onClose: () => void,
     handleSubmit: (ChemicalPlanningData: any) => void,
 }> = ({ isOpen, currentLessonLab, onClose, handleSubmit, defaultCurrentValue }) => {
@@ -68,18 +68,32 @@ const ChemicalPlanning: FC<{
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
+                accessorKey: 'ChemicalId',
+                header: 'Mã hóa chất',
+                enableEditing: false,
+            },
+            {
                 accessorKey: 'ChemicalName',
                 header: 'Tên hoá chất',
                 enableEditing: false,
-                size: 100,
             },
-
+            {
+                accessorKey: 'Specifications',
+                header: 'Đặc tả',
+                enableEditing: false,
+            },
             {
                 accessorKey: 'Amount',
                 header: 'Số lượng',
-                size: 100,
             },
-
+            {
+                accessorKey: 'Unit',
+                header: 'Đơn vị',
+            },
+            {
+                accessorKey: 'Note',
+                header: 'Ghi chú',
+            },
         ],
         [getCommonEditTextFieldProps],
     );
@@ -90,16 +104,27 @@ const ChemicalPlanning: FC<{
 
     const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
         async ({ exitEditingMode, row, values }) => {
-            //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here.
+            //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here
+            let updatedData = [...tableData];
+            updatedData.splice(Number(row.id), 1, values);
 
             //send/receive api updates here
-            setTableData([...tableData]);
+            setTableData([...updatedData]);
             exitEditingMode(); //required to exit editing mode
         };
 
     return (
         <>
-            <Dialog open={isOpen}>
+            <Dialog open={isOpen}
+                sx={{
+                    "& .MuiDialog-container": {
+                        "& .MuiPaper-root": {
+                            width: "100%",
+                            maxWidth: "800px",  // Set your width here
+                        },
+                    },
+                }}
+            >
                 <DialogTitle textAlign="center"><b>Dự trù hoá chất cho bài thí nghiệm</b></DialogTitle>
                 <DialogContent>
                     <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
@@ -123,7 +148,7 @@ const ChemicalPlanning: FC<{
                                 options={chemicalData}
                                 value={tableData}
                                 isOptionEqualToValue={(option, value) => option.ChemicalId === value.ChemicalId}
-                                getOptionLabel={(option: IChemicalType) => option?.ChemicalName ? option.ChemicalName.toString() : ''}
+                                getOptionLabel={(option: IChemicalType) => option?.ChemicalName ? option.ChemicalId + ' - ' + option.ChemicalName.toString() : ''}
                                 id="auto-complete"
                                 autoComplete
                                 includeInputInList
