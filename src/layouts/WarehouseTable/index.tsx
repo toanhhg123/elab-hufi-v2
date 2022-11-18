@@ -1,10 +1,11 @@
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import LaboratoryTabItem from './Tabs/LaboratoryTabItem';
 import StudySessionTabItem from './Tabs/StudySessionTabItem';
 import RegisterGeneralTabItem from './Tabs/RegisterGeneralTabItem';
+import DepartmentTabItem from './Tabs/DepartmentTabItem';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -38,6 +39,25 @@ function a11yProps(index: number) {
 const WarehouseTable: FC = () => {
 	const [value, setValue] = useState(0);
 
+	const tabData = useRef([
+		{
+			header: 'Khoa',
+			comp: DepartmentTabItem,
+		},
+		{
+			header: 'Phòng thí nghiệm',
+			comp: LaboratoryTabItem,
+		},
+		{
+			header: 'Đăng ký chung',
+			comp: RegisterGeneralTabItem,
+		},
+		{
+			header: 'Buổi học',
+			comp: StudySessionTabItem,
+		},
+	]);
+
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
@@ -46,20 +66,21 @@ const WarehouseTable: FC = () => {
 		<Box sx={{ width: '100%' }}>
 			<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
 				<Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-					<Tab label="Phòng thí nghiệm" {...a11yProps(0)} />
-					<Tab label="Đăng ký chung" {...a11yProps(1)} />
-					<Tab label="Buổi học" {...a11yProps(2)} />
+					{tabData.current.map((x, index) => (
+						<Tab key={index} label={x.header} {...a11yProps(index)} />
+					))}
 				</Tabs>
 			</Box>
-			<TabPanel value={value} index={0}>
-				<LaboratoryTabItem />
-			</TabPanel>
-			<TabPanel value={value} index={1}>
-				<RegisterGeneralTabItem />
-			</TabPanel>
-			<TabPanel value={value} index={2}>
-				<StudySessionTabItem />
-			</TabPanel>
+			{tabData.current.map((x, index) => {
+				const Comp = x.comp;
+				return (
+					<>
+						<TabPanel key={index} value={value} index={index}>
+							<Comp />
+						</TabPanel>
+					</>
+				);
+			})}
 		</Box>
 	);
 };

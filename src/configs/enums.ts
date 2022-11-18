@@ -8,4 +8,10 @@ export enum Genders {
 	Khác 
 }
 
+export enum DeviceType {
+	"Thiết bị" = 0,
+	"Công cụ" = 1,
+	"Dụng cụ" = 2,
+}
+
 export default enums;

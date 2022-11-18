@@ -1,16 +1,18 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
-import { IWarehouseType } from '../../types/warehouseType';
+import { IExportType } from '../../types/exportType';
 
 // Define a type for the slice state
-interface IWarehouseState {
-	listOfWarehouseLaboratory: IWarehouseType[];
-	listOfWarehouseRegisterGeneral: IWarehouseType[];
-	listOfWarehouseStudySession: IWarehouseType[];
+interface IExportState {
+	listOfWarehouseDepartment: IExportType[];
+	listOfWarehouseLaboratory: IExportType[];
+	listOfWarehouseRegisterGeneral: IExportType[];
+	listOfWarehouseStudySession: IExportType[];
 }
 
 // Define the initial state using that type
-const initialState: IWarehouseState = {
+const initialState: IExportState = {
+	listOfWarehouseDepartment: [],
 	listOfWarehouseLaboratory: [],
 	listOfWarehouseRegisterGeneral: [],
 	listOfWarehouseStudySession: [],
@@ -20,21 +22,29 @@ export const warehouseSlice = createSlice({
 	name: 'warehouse',
 	initialState,
 	reducers: {
-		setListOfWarehouseLaboratory: (state: IWarehouseState, action: PayloadAction<IWarehouseType[]>) => {
+		setListOfWarehouseDepartment: (state: IExportState, action: PayloadAction<IExportType[]>) => {
+			state.listOfWarehouseDepartment = action.payload;
+		},
+
+		setListOfWarehouseLaboratory: (state: IExportState, action: PayloadAction<IExportType[]>) => {
 			state.listOfWarehouseLaboratory = action.payload;
 		},
 
-		setListOfWarehouseRegisterGeneral: (state: IWarehouseState, action: PayloadAction<IWarehouseType[]>) => {
+		setListOfWarehouseRegisterGeneral: (state: IExportState, action: PayloadAction<IExportType[]>) => {
 			state.listOfWarehouseRegisterGeneral = action.payload;
 		},
 
-		setListOfWarehouseStudySession: (state: IWarehouseState, action: PayloadAction<IWarehouseType[]>) => {
+		setListOfWarehouseStudySession: (state: IExportState, action: PayloadAction<IExportType[]>) => {
 			state.listOfWarehouseStudySession = action.payload;
 		},
 	},
 });
 
-export const { setListOfWarehouseLaboratory, setListOfWarehouseRegisterGeneral, setListOfWarehouseStudySession } =
-	warehouseSlice.actions;
+export const {
+	setListOfWarehouseLaboratory,
+	setListOfWarehouseRegisterGeneral,
+	setListOfWarehouseStudySession,
+	setListOfWarehouseDepartment,
+} = warehouseSlice.actions;
 
 export default warehouseSlice.reducer;

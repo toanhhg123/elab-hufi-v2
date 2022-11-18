@@ -1,11 +1,9 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SearchIcon from '@mui/icons-material/Search';
 import {
-	Button,
-	debounce,
-	IconButton,
-	InputAdornment,
+	debounce, InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -13,22 +11,14 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
-	TableRow,
-	TableSortLabel,
-	TextField,
-	Tooltip,
-	Typography,
+	TableRow, TextField, Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
-import { useAppSelector } from '../../../hooks';
-import { RootState } from '../../../store';
 import { IExportDeviceType } from '../../../types/exportDeviceType';
-import { IWarehouseType } from '../../../types/warehouseType';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import SearchIcon from '@mui/icons-material/Search';
+import { IExportType } from '../../../types/exportType';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -36,11 +26,20 @@ const StyledTableCell = styled(TableCell)(theme => ({
 	},
 }));
 
+type ExportDeviceType = IExportDeviceType | undefined;
+
+export type ColumnType = {
+	id: string;
+	header: string;
+	renderValue?: (...arg: any[]) => void;
+	type?: string;
+};
+
 type DeviceTableProps = {
-	handleOpenCreate: () => void;
-	handleOpenEdit: (exportDevice: any) => void;
-	handleOpenDelete: (exportDevice: any) => void;
-	row: MRT_Row<IWarehouseType>;
+	row: MRT_Row<IExportType>;
+	warehouseData: any;
+	columns: ColumnType[];
+	type: string;
 };
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -68,33 +67,60 @@ function removeAccents(str: string) {
 		.replace(/Đ/g, 'D');
 }
 
-const DeviceTable = ({ handleOpenCreate, handleOpenEdit, handleOpenDelete, row }: DeviceTableProps) => {
-	const exportDeviceData = useAppSelector((state: RootState) => state.exportDevice.listOfExportDevice);
-	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
-	const [deviceOfExport, setDeviceOfExport] = useState<any>([]);
+const DeviceTable = ({
+	row,
+	type,
+	columns,
+	warehouseData,
+}: DeviceTableProps) => {
+	const [deviceOfExport, setDeviceOfExport] = useState<IExportDeviceType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
 	const [orderBy, setOrderBy] = useState<string>('DeviceId');
 	const [keyword, setKeyword] = useState<string>('');
 	const [dataSearch, setDataSearch] = useState<any>([]);
 
 	const getExportDeviceData = useCallback(() => {
-		return exportDeviceData
-			.filter((x: IExportDeviceType) => x.ExportId === row.original.ExportId)
-			.map((x: IExportDeviceType) => {
-				let deviceIdx = deviceData.findIndex(y => y.DeviceId === x.DeviceId);
-				return {
-					...x,
-					DeviceName: deviceIdx > -1 ? deviceData[deviceIdx].DeviceName : '',
-					Unit: deviceIdx > -1 ? deviceData[deviceIdx].Unit : '',
-					Origin: deviceIdx > -1 ? deviceData[deviceIdx].Origin : '',
-					Model: deviceIdx > -1 ? deviceData[deviceIdx].Model : '',
-				};
-			});
-	}, [deviceData, exportDeviceData, row.original.ExportId]);
+		let index = warehouseData.findIndex((x: IExportType) => {
+			switch (type) {
+				case 'DEP':
+					return x.ExportId === row.original.ExportId;
+				case 'REG':
+					return x.ExpRegGeneralId === row.original.ExpRegGeneralId;
+				case 'SUB':
+					return x.ExpSubjectId === row.original.ExpSubjectId;
+				case 'LAB':
+					return x.ExportLabId === row.original.ExportLabId;
+				default:
+					break;
+			}
+		});
+		if (index !== -1) {
+			switch (type) {
+				case 'DEP':
+					return warehouseData[index].listDeviceExport;
+				case 'REG':
+					return warehouseData[index].listChemicalExport;
+				case 'SUB':
+					return warehouseData[index].listSub;
+				case 'LAB':
+					return warehouseData[index].listDevice;
+				default:
+					return [];
+			}
+		} else {
+			return [];
+		}
+	}, [
+		row.original.ExportId,
+		row.original.ExpRegGeneralId,
+		row.original.ExpSubjectId,
+		row.original.ExportLabId,
+		warehouseData,
+	]);
 
 	useEffect(() => {
-		setDeviceOfExport(getExportDeviceData());
-	}, [deviceData, exportDeviceData, row.original.ExportId]);
+		setDeviceOfExport(getExportDeviceData() || []);
+	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId, row.original.ExportLabId]);
 
 	const handleRequestSort = (property: string) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -103,31 +129,41 @@ const DeviceTable = ({ handleOpenCreate, handleOpenEdit, handleOpenDelete, row }
 	};
 
 	useEffect(() => {
-		setDeviceOfExport((prev: any) => [
-			...prev.sort((a: any, b: any) => {
-				let i = order === 'desc' ? descendingComparator(a, b, orderBy) : -descendingComparator(a, b, orderBy);
+		setDeviceOfExport(prev => {
+			let data = [...prev];
+			data?.sort((a: ExportDeviceType, b: ExportDeviceType) => {
+				let i =
+					order === 'desc'
+						? descendingComparator<any>(a, b, orderBy)
+						: -descendingComparator<any>(a, b, orderBy);
 				return i;
-			}),
-		]);
+			});
+			return data;
+		});
 	}, [order, orderBy]);
 
 	useEffect(() => {
-		const exportDevices = getExportDeviceData();
-		const data = exportDevices.map((x: any) => ({
-			label: removeAccents(`${x.DeviceId} ${x.DeviceName} ${x.Quantity} ${x.Model} ${x.Origin}`.toUpperCase()),
-			id: x.DeviceId,
-		}));
+		const exportDevices: IExportDeviceType[] = getExportDeviceData() || [];
+		const data = exportDevices.map((x: any) => {
+			let string: String = '';
+
+			Object.keys(x).forEach(key => {
+				if (typeof x[key] === 'string') string += x[key] + ' ';
+				if (typeof x[key] === 'number') string += x[key]?.toString() + ' ';
+			});
+			return { label: removeAccents(string.toUpperCase()), id: x.ExpDeviceDeptId };
+		});
 		setDataSearch(data);
 	}, []);
 
 	useEffect(() => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
-		const exportDevices = getExportDeviceData();
+		const exportDevices: IExportDeviceType[] = getExportDeviceData() || [];
 
 		if (keyword === '') {
 			setDeviceOfExport(exportDevices);
 		} else {
-			const data = exportDevices.filter((x: any) => listId.indexOf(x?.DeviceId) !== -1);
+			const data = exportDevices.filter((x: any) => listId.indexOf(x?.ExpDeviceDeptId) !== -1);
 			setDeviceOfExport(data);
 		}
 	}, [keyword, dataSearch]);
@@ -151,64 +187,67 @@ const DeviceTable = ({ handleOpenCreate, handleOpenEdit, handleOpenDelete, row }
 						}}
 						onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
 					/>
-					<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-						<AddIcon />
-					</Button>
 				</Box>
 			</Box>
-			<TableContainer component={Paper} sx={{ maxHeight: '280px', marginBottom: '24px', overflow: 'overlay' }}>
+			<TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
 				<Table sx={{ minWidth: 650 }} stickyHeader size="small">
 					<TableHead>
 						<TableRow>
 							<StyledTableCell align="left">
 								<b>#</b>
 							</StyledTableCell>
-							<StyledTableCell align="left" onClick={() => handleRequestSort('DeviceId')}>
-								<b>Mã thiết bị</b>
-								{renderArrowSort(order, orderBy, 'DeviceId')}
-							</StyledTableCell>
-							<StyledTableCell align="left" onClick={() => handleRequestSort('DeviceName')}>
-								<b>Tên thiết bị</b>
-								{renderArrowSort(order, orderBy, 'DeviceName')}
-							</StyledTableCell>
-							<StyledTableCell align="left" onClick={() => handleRequestSort('Quantity')}>
-								<b>Số lượng</b>
-								{renderArrowSort(order, orderBy, 'Quantity')}
-							</StyledTableCell>
-							<StyledTableCell align="left" onClick={() => handleRequestSort('Model')}>
-								<b>Mẫu</b>
-								{renderArrowSort(order, orderBy, 'Model')}
-							</StyledTableCell>
-							<StyledTableCell align="left" onClick={() => handleRequestSort('Origin')}>
-								<b>Xuất xứ</b>
-								{renderArrowSort(order, orderBy, 'Origin')}
-							</StyledTableCell>
-							<StyledTableCell align="left"></StyledTableCell>
+							{columns.map(col => {
+								return (
+									<StyledTableCell
+										align="left"
+										key={col.id}
+										onClick={() => handleRequestSort(col.id)}
+									>
+										<b>{col.header}</b>
+										{renderArrowSort(order, orderBy, col.id)}
+									</StyledTableCell>
+								);
+							})}
 						</TableRow>
 					</TableHead>
 					<TableBody>
 						{deviceOfExport.map((exportDevice: any, index: number) => (
 							<TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 								<TableCell align="left">{index + 1}</TableCell>
-								<TableCell align="left">{exportDevice.DeviceId}</TableCell>
-								<TableCell align="left">{exportDevice.DeviceName}</TableCell>
-								<TableCell align="left">
-									{exportDevice.Quantity.toString()} {`(${exportDevice.Unit})`}
-								</TableCell>
-								<TableCell align="left">{exportDevice.Model}</TableCell>
-								<TableCell align="left">{exportDevice.Origin}</TableCell>
-								<TableCell align="right" size="small">
-									<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất thiết bị">
-										<IconButton onClick={() => handleOpenEdit(exportDevice)}>
-											<Edit />
-										</IconButton>
-									</Tooltip>
-									<Tooltip arrow placement="right" title="Xoá phiếu xuất thiết bị">
-										<IconButton color="error" onClick={() => handleOpenDelete(exportDevice)}>
-											<Delete />
-										</IconButton>
-									</Tooltip>
-								</TableCell>
+								{columns.map(col => {
+									if (col.renderValue) {
+										if (
+											col.id === 'AmountOriginal' ||
+											col.id === 'Amount' ||
+											col.id === 'QuantityOriginal'
+										)
+											return (
+												<TableCell align="left" key={col.id}>
+													{`${col.renderValue(
+														`${exportDevice[col.id as keyof typeof exportDevice]}`,
+														exportDevice.Unit,
+													)}`}
+												</TableCell>
+											);
+									}
+
+									if (col.type === 'date')
+										return (
+											<TableCell align="left" key={col.id}>
+												{moment
+													.unix(Number(exportDevice[col.id as keyof typeof exportDevice]))
+													.format('DD/MM/YYYY')}
+											</TableCell>
+										);
+
+									return (
+										<TableCell align="left" key={col.id}>
+											{exportDevice[col.id as keyof typeof exportDevice]
+												? `${exportDevice[col.id as keyof typeof exportDevice]}`
+												: ''}
+										</TableCell>
+									);
+								})}
 							</TableRow>
 						))}
 					</TableBody>

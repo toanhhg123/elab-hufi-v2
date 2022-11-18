@@ -11,16 +11,15 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
-	TableRow,
-	TextField, Typography
+	TableRow, TextField, Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
-import { useAppSelector } from '../../../hooks';
-import { RootState } from '../../../store';
-import { IExportChemicalType } from '../../../types/exportChemicalType';
+import { IExportDeviceType } from '../../../types/exportDeviceType';
 import { IExportType } from '../../../types/exportType';
+import { ColumnType } from './DeviceTable';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -28,15 +27,9 @@ const StyledTableCell = styled(TableCell)(theme => ({
 	},
 }));
 
-type ExportChemicalType = IExportChemicalType | undefined;
+type ExportDeviceType = IExportDeviceType | undefined;
 
-export type ColumnType = {
-	id: string;
-	header: string;
-	renderValue?: (...arg: any[]) => void;
-};
-
-type ChemicalTableProps = {
+type InstrumentTableProps = {
 	row: MRT_Row<IExportType>;
 	warehouseData: any;
 	columns: ColumnType[];
@@ -68,20 +61,19 @@ function removeAccents(str: string) {
 		.replace(/Đ/g, 'D');
 }
 
-const ChemicalTable = ({
+const InstrumentTable = ({
 	row,
 	warehouseData,
 	columns,
 	type,
-}: ChemicalTableProps) => {
-	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
-	const [chemicalOfExport, setChemicalOfExport] = useState<IExportChemicalType[]>([]);
+}: InstrumentTableProps) => {
+	const [deviceOfExport, setDeviceOfExport] = useState<IExportDeviceType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
-	const [orderBy, setOrderBy] = useState<string>('ChemDetailId');
+	const [orderBy, setOrderBy] = useState<string>('ExpDeviceDeptId');
 	const [keyword, setKeyword] = useState<string>('');
 	const [dataSearch, setDataSearch] = useState<any>([]);
 
-	const getExportChemicalData = useCallback(() => {
+	const getExportDeviceData = useCallback(() => {
 		let index = warehouseData.findIndex((x: IExportType) => {
 			switch (type) {
 				case 'DEP':
@@ -90,6 +82,8 @@ const ChemicalTable = ({
 					return x.ExpRegGeneralId === row.original.ExpRegGeneralId;
 				case 'SUB':
 					return x.ExpSubjectId === row.original.ExpSubjectId;
+				case 'LAB':
+					return x.ExportLabId === row.original.ExportLabId;
 				default:
 					break;
 			}
@@ -97,22 +91,30 @@ const ChemicalTable = ({
 		if (index !== -1) {
 			switch (type) {
 				case 'DEP':
-					return warehouseData[index].listChemicalExport;
+					return warehouseData[index].listDeviceExport;
 				case 'REG':
 					return warehouseData[index].listChemicalExport;
 				case 'SUB':
 					return warehouseData[index].listSub;
+				case 'LAB':
+					return warehouseData[index].listInstrument;
 				default:
 					return [];
 			}
 		} else {
 			return [];
 		}
-	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId,row.original.ExportLabId, warehouseData]);
+	}, [
+		row.original.ExportId,
+		row.original.ExpRegGeneralId,
+		row.original.ExpSubjectId,
+		row.original.ExportLabId,
+		warehouseData,
+	]);
 
 	useEffect(() => {
-		setChemicalOfExport(getExportChemicalData());
-	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId,row.original.ExportLabId, warehouseData]);
+		setDeviceOfExport(getExportDeviceData() || []);
+	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId, row.original.ExportLabId]);
 
 	const handleRequestSort = (property: string) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -121,9 +123,9 @@ const ChemicalTable = ({
 	};
 
 	useEffect(() => {
-		setChemicalOfExport(prev => {
+		setDeviceOfExport(prev => {
 			let data = [...prev];
-			data?.sort((a: ExportChemicalType, b: ExportChemicalType) => {
+			data?.sort((a: ExportDeviceType, b: ExportDeviceType) => {
 				let i =
 					order === 'desc'
 						? descendingComparator<any>(a, b, orderBy)
@@ -135,39 +137,37 @@ const ChemicalTable = ({
 	}, [order, orderBy]);
 
 	useEffect(() => {
-		const exportChemicals: IExportChemicalType[] = getExportChemicalData() || [];
-		const data = exportChemicals?.map((x: IExportChemicalType) => {
+		const exportDevices: IExportDeviceType[] = getExportDeviceData();
+		const data = exportDevices.map((x: any) => {
 			let string: String = '';
 
 			Object.keys(x).forEach(key => {
-				if (typeof x[key as keyof typeof x] === 'string') string += x[key as keyof typeof x] + ' ';
-				if (typeof x[key as keyof typeof x] === 'number') string += x[key as keyof typeof x]?.toString() + ' ';
+				if (key === 'EndGuarantee' || key === 'StartGuarantee' || key === 'ManufacturingDate')
+					string += moment.unix(x[key]).format('DD/MM/YYYY') + ' ';
+				if (typeof x[key] === 'string') string += x[key] + ' ';
+				if (typeof x[key] === 'number') string += x[key]?.toString() + ' ';
 			});
-
-			return {
-				label: removeAccents(string.toUpperCase()),
-				id: x?.ExpChemDeptId,
-			};
+			return { label: removeAccents(string.toUpperCase()), id: x.ExpDeviceDeptId };
 		});
 		setDataSearch(data);
 	}, []);
 
 	useEffect(() => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
-		const exportChemicals: IExportChemicalType[] = getExportChemicalData() || [];
+		const exportDevices: IExportDeviceType[] = getExportDeviceData();
 
 		if (keyword === '') {
-			setChemicalOfExport(exportChemicals);
+			setDeviceOfExport(exportDevices);
 		} else {
-			const data = exportChemicals?.filter((x: any) => listId.indexOf(x?.ExpChemDeptId) !== -1);
-			setChemicalOfExport(data);
+			const data = exportDevices.filter((x: any) => listId.indexOf(x?.ExpDeviceDeptId) !== -1);
+			setDeviceOfExport(data);
 		}
 	}, [keyword, dataSearch]);
 
 	return (
 		<>
 			<Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
-				<Typography fontWeight="bold">Bảng hóa chất</Typography>
+				<Typography fontWeight="bold">Bảng Dụng cụ</Typography>
 				<Box display="flex" alignItems="end">
 					<TextField
 						id="filled-search"
@@ -185,18 +185,19 @@ const ChemicalTable = ({
 					/>
 				</Box>
 			</Box>
-			<TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
+			<TableContainer component={Paper} sx={{ maxHeight: '280px', marginBottom: '24px', overflow: 'overlay' }}>
 				<Table sx={{ minWidth: 650 }} stickyHeader size="small">
 					<TableHead>
 						<TableRow>
 							<StyledTableCell align="left">
 								<b>#</b>
 							</StyledTableCell>
+
 							{columns.map(col => {
 								return (
 									<StyledTableCell
-										align="left"
 										key={col.id}
+										align="left"
 										onClick={() => handleRequestSort(col.id)}
 									>
 										<b>{col.header}</b>
@@ -207,26 +208,40 @@ const ChemicalTable = ({
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{chemicalOfExport?.map((exportChemical: IExportChemicalType, index: number) => (
+						{deviceOfExport.map((exportDevice: any, index: number) => (
 							<TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 								<TableCell align="left">{index + 1}</TableCell>
 								{columns.map(col => {
 									if (col.renderValue) {
-										if (col.id === 'AmountOriginal' || col.id === 'Amount')
+										if (
+											col.id === 'AmountOriginal' ||
+											col.id === 'Amount' ||
+											col.id === 'Quantity' ||
+											col.id === 'QuantityOriginal'
+										)
 											return (
 												<TableCell align="left" key={col.id}>
 													{`${col.renderValue(
-														`${exportChemical[col.id as keyof typeof exportChemical]}`,
-														exportChemical.Unit,
+														`${exportDevice[col.id as keyof typeof exportDevice]}`,
+														exportDevice.Unit,
 													)}`}
 												</TableCell>
 											);
 									}
 
+									if (col.type === 'date')
+										return (
+											<TableCell align="left" key={col.id}>
+												{moment
+													.unix(Number(exportDevice[col.id as keyof typeof exportDevice]))
+													.format('DD/MM/YYYY')}
+											</TableCell>
+										);
+
 									return (
 										<TableCell align="left" key={col.id}>
-											{exportChemical[col.id as keyof typeof exportChemical]
-												? `${exportChemical[col.id as keyof typeof exportChemical]}`
+											{exportDevice[col.id as keyof typeof exportDevice]
+												? `${exportDevice[col.id as keyof typeof exportDevice]}`
 												: ''}
 										</TableCell>
 									);
@@ -240,4 +255,4 @@ const ChemicalTable = ({
 	);
 };
 
-export default ChemicalTable;
+export default InstrumentTable;

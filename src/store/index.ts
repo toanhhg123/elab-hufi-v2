@@ -14,8 +14,6 @@ import classSubjectReducer from '../layouts/ClassSubjectTable/classSubjectSlice'
 import lessonLabReducer from '../layouts/LessonLabTable/lessonLabSlice';
 import warehouseReducer from '../layouts/WarehouseTable/warehouseSlice';
 import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import exportChemicalReducer from '../layouts/ExportChemicalTable/exportChemicalSlice';
-import exportDeviceReducer from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
 
@@ -36,8 +34,6 @@ export const store = configureStore({
 		lessonLab: lessonLabReducer,
 		warehouse: warehouseReducer,
 		registerGeneral: registerGeneralReducer,
-		exportChemical: exportChemicalReducer,
-		exportDevice: exportDeviceReducer,
 		purchaseOrder: purchaseOrderReducer,
 		schedule: scheduleReducer,
 	},
