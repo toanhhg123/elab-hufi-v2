@@ -1,22 +1,24 @@
 export interface IOrderDeviceType {
-  OrderId: String,
-  DeviceId: String,
-  DeviceName?: String,
-  DeviceType?: String,
-  Model?: String,
-  Origin?: String,
-  Unit?: String,
-  Standard?: String,
-  Quantity: Number,
-  HasTrain?: Number,
-  ManufacturerId?: Number,
-  ManufacturerName?: String
+  DeviceName: String,
+  Unit: String,
+  DeviceDetailId: String,
+  QuantityOriginal: Number,
   Price: Number,
+  Model: String,
+  Origin: String,
+  ManufacturerId: Number,
+  DeviceId: String
+  ManufacturerName?: String
 }
 
 export const dummyOrderDeviceData = {
-  "OrderId": "",
-  "DeviceId": "",
-  "Quantity": 0,
+  "DeviceName": "",
+  "Unit": "",
+  "DeviceDetailId": "",
+  "QuantityOriginal": -1,
   "Price": -1,
+  "Model": "",
+  "Origin": "",
+  "ManufacturerId": -1,
+  "DeviceId": ""
 }

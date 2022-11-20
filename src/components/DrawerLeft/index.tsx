@@ -71,7 +71,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-export default function PersistentDrawerLeft() {
+function PersistentDrawerLeft() {
   const dispatch = useAppDispatch()
   const theme = useTheme();
   const { isOpenDrawer, sidebarItems } = useAppSelector((state: RootState) => state.app);
@@ -97,7 +97,7 @@ export default function PersistentDrawerLeft() {
         <List>
           {defaultSidebarItems.map((item, index) => (
             <>
-              {[7, 11].includes(index) && <div style={{ "paddingTop": "7px" }} />}
+              {[4, 8, 12].includes(index) && <div style={{ "paddingTop": "7px" }} />}
               <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
                 {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
                   <ListItemButton
@@ -156,7 +156,7 @@ export default function PersistentDrawerLeft() {
                   </ListItemButton>
                 }
               </ListItem>
-              {[6, 10].includes(index) && <div style={{ "paddingTop": "7px" }}><Divider /></div>}
+              {[3, 7, 11].includes(index) && <div style={{ "paddingTop": "7px" }}><Divider /></div>}
             </>
           ))}
         </List>
@@ -164,3 +164,5 @@ export default function PersistentDrawerLeft() {
     </Box>
   );
 }
+
+export default React.memo(PersistentDrawerLeft);

@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import ChemicalTable from '../layouts/ChemicalTable';
 import { setListOfChemicals } from '../layouts/ChemicalTable/chemicalSlice';
+import ChemicalWarehouseTable from '../layouts/ChemicalWarehouseTable';
+import { setListOfChemicalWarehouse } from '../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice';
 import ClassSubjectTable from '../layouts/ClassSubjectTable';
 import { setListOfClassSubjects } from '../layouts/ClassSubjectTable/classSubjectSlice';
 import DepartmentTable from '../layouts/DepartmentTable';
@@ -11,64 +13,54 @@ import DeviceTable from '../layouts/DeviceTable';
 import { setListOfDevices, setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
-import { setListOfExportChemical } from '../layouts/ExportChemicalTable/exportChemicalSlice';
-import { setListOfExportDevice } from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
 import { setListOfLaboratories } from '../layouts/LaboratoryTable/laboratorySlice';
 import LessonLabTable from '../layouts/LessonLabTable';
 import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
-import { setListOfOrderDevices } from '../layouts/DeviceTable/orderDeviceSlice';
 import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
-import { setListOfOrderChemicals } from '../layouts/ChemicalTable/orderChemicalSlice';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import ScheduleTable from '../layouts/ScheduleTable';
 import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
+import ScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
 import { setListOfSuppliers } from '../layouts/SupplierTable/supplierSlice';
 import WarehouseTable from '../layouts/WarehouseTable';
-import { setListOfWarehouseLaboratory, setListOfWarehouseRegisterGeneral, setListOfWarehouseStudySession } from '../layouts/WarehouseTable/warehouseSlice';
+import { setListOfWarehouseDepartment, setListOfWarehouseLaboratory, setListOfWarehouseRegisterGeneral, setListOfWarehouseStudySession } from '../layouts/WarehouseTable/warehouseSlice';
 import { getChemicals } from '../services/chemicalServices';
+import { getChemicalWarehouseById } from '../services/chemicalWarehouseServices';
 import { getClassSubjects } from '../services/clasSubjectServices';
 import { getDepartments } from '../services/departmentServices';
 import { getDevices, getDeviceSpec } from '../services/deviceServices';
 import { getEmployees } from '../services/employeeServices';
-import { getExportChemical } from '../services/exportChemicalServices';
-import { getExportDevice } from '../services/exportDeviceServices';
+import { getExportsDep, getExportsLabs, getExportsRegs, getExportsSubs } from '../services/exportsServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
-import { getOrderChemicals } from '../services/orderChemicalServices';
-import { getOrderDevices } from '../services/orderDeviceServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
 import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
-import { getWarehouseFeildId } from '../services/warehouseServices';
 import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
+import { IChemicalWarehouseType } from '../types/chemicalWarehouseType';
 import { IClassSubjectType } from '../types/classSubjectType';
 import { IDepartmentType } from '../types/departmentType';
 import { IDeviceSpecType, IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
-import { IExportChemicalType } from '../types/exportChemicalType';
-import { IExportDeviceType } from '../types/exportDeviceType';
+import { IExportType } from '../types/exportType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
-import { IOrderChemicalType } from '../types/orderChemicalType';
-import { IOrderDeviceType } from '../types/orderDeviceType';
 import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
 import { IScheduleType } from '../types/scheduleType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
-import { IWarehouseType } from '../types/warehouseType';
 import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
 
@@ -138,6 +130,13 @@ export function Dashboard() {
         }
     }
 
+    const getChemicalWarehouseData = async (id: Number) => {
+        const listOfChemicalWarehouse: IChemicalWarehouseType[] = await getChemicalWarehouseById(id);
+        if (listOfChemicalWarehouse) {
+            dispatch(setListOfChemicalWarehouse(listOfChemicalWarehouse));
+        }
+    }
+
     const getDeviceData = async () => {
         const listOfDevices: IDeviceType[] = await getDevices();
         if (listOfDevices) {
@@ -167,25 +166,32 @@ export function Dashboard() {
     }
 
     const getWarehouseLaboratoryData = async () => {
-        const listOfWarehouseLaboratorys: IWarehouseType[] = await getWarehouseFeildId('lab');
-        if (listOfWarehouseLaboratorys) {
-            dispatch(setListOfWarehouseLaboratory(listOfWarehouseLaboratorys));
-        }
-    }
+		const listOfExport: IExportType[] = await getExportsLabs();
+		if (listOfExport) {
+			dispatch(setListOfWarehouseLaboratory(listOfExport));
+		}
+	};
 
-    const getWarehouseRegisterGeneralData = async () => {
-        const listOfWarehouseRegisterGeneral: IWarehouseType[] = await getWarehouseFeildId('reg');
-        if (listOfWarehouseRegisterGeneral) {
-            dispatch(setListOfWarehouseRegisterGeneral(listOfWarehouseRegisterGeneral));
-        }
-    }
+	const getWarehouseRegisterGeneralData = async () => {
+		const listOfExport: IExportType[] = await getExportsRegs();
+		if (listOfExport) {
+			dispatch(setListOfWarehouseRegisterGeneral(listOfExport));
+		}
+	};
+	const getWarehouseSubjectData = async () => {
+		const listOfExport: IExportType[] = await getExportsSubs();
+		if (listOfExport) {
+			dispatch(setListOfWarehouseStudySession(listOfExport));
+		}
+	};
 
-    const getWarehouseStudySessionData = async () => {
-        const listOfWarehouseStudySession: IWarehouseType[] = await getWarehouseFeildId('ses');
-        if (listOfWarehouseStudySession) {
-            dispatch(setListOfWarehouseStudySession(listOfWarehouseStudySession));
-        }
-    }
+	const getWarehouseDepartmentData = async () => {
+		const listOfExportDepartment: IExportType[] = await getExportsDep();
+		if (listOfExportDepartment) {
+			dispatch(setListOfWarehouseDepartment(listOfExportDepartment));
+		}
+	};
+
 
     const getRegisterGeneralsData = async () => {
         const listOfRegisterGeneral: IRegisterGeneralType[] = await getRegisterGeneral();
@@ -194,37 +200,10 @@ export function Dashboard() {
         }
     }
 
-    const getExportChemicalData = async () => {
-        const listOfExportChemical: IExportChemicalType[] = await getExportChemical();
-        if (listOfExportChemical) {
-            dispatch(setListOfExportChemical(listOfExportChemical));
-        }
-    }
-    const getExportDeviceData = async () => {
-        const listOfExportDevice: IExportDeviceType[] = await getExportDevice();
-        if (listOfExportDevice) {
-            dispatch(setListOfExportDevice(listOfExportDevice));
-        }
-    }
-
     const getPurchaseOrderData = async () => {
         const listOfPurchaseOrders: IPurchaseOrderType[] = await getPurchaseOrders();
         if (listOfPurchaseOrders) {
             dispatch(setListOfPurchaseOrders(listOfPurchaseOrders));
-        }
-    }
-
-    const getOrderChemicalData = async () => {
-        const listOfOrderChemicals: IOrderChemicalType[] = await getOrderChemicals();
-        if (listOfOrderChemicals) {
-            dispatch(setListOfOrderChemicals(listOfOrderChemicals));
-        }
-    }
-
-    const getOrderDeviceData = async () => {
-        const listOfOrderDevices: IOrderDeviceType[] = await getOrderDevices();
-        if (listOfOrderDevices) {
-            dispatch(setListOfOrderDevices(listOfOrderDevices));
         }
     }
 
@@ -242,6 +221,7 @@ export function Dashboard() {
         getManufacturerData();
         getSupplierData();
         getChemicalData();
+        getChemicalWarehouseData(1);
         getDeviceData();
         getDeviceSpecData();
         getSubjectData();
@@ -250,12 +230,9 @@ export function Dashboard() {
         getWarehouseRegisterGeneralData();
         getWarehouseLaboratoryData();
         getRegisterGeneralsData();
-        getExportChemicalData();
-        getWarehouseStudySessionData();
-        getExportDeviceData();
+        getWarehouseSubjectData();
+		getWarehouseDepartmentData();
         getPurchaseOrderData();
-        getOrderChemicalData();
-        getOrderDeviceData();
         getScheduleData();
     }, [])
 
@@ -279,18 +256,17 @@ export function Dashboard() {
                 {sidebarItems[0].isOpen && laboratoriesData?.length > 0 && <LaboratoryTable />}
                 {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
                 {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
-                {sidebarItems[3].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable type="normal" />}
-                {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-                {sidebarItems[6].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable type="normal" />}
-                {sidebarItems[7].isOpen && <ScheduleTable />}
-                {sidebarItems[8].isOpen && subjectData?.length > 0 && <SubjectTable />}
-                {sidebarItems[9].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-                {sidebarItems[10].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
-                {sidebarItems[11].isOpen && <WarehouseTable />}
-                {sidebarItems[12].isOpen && <PurchaseOrderTable />}
-                {sidebarItems[13].isOpen && <ChemicalTable type="generalOrder" />}
-                {sidebarItems[14].isOpen && <DeviceTable type="generalOrder" />}
+                {sidebarItems[3].isOpen && <ChemicalWarehouseTable />}
+                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
+                {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
+                {sidebarItems[6].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
+                {sidebarItems[7].isOpen && supplierData?.length > 0 && <SupplierTable />}
+                {sidebarItems[8].isOpen && <ScheduleTable />}
+                {sidebarItems[9].isOpen && subjectData?.length > 0 && <SubjectTable />}
+                {sidebarItems[10].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+                {sidebarItems[11].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+                {sidebarItems[12].isOpen && <WarehouseTable />}
+                {sidebarItems[13].isOpen && <PurchaseOrderTable />}
             </div>
             <Snackbar
                 anchorOrigin={{

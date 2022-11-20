@@ -9,7 +9,7 @@ type DeleteExportModalProps = {
 	children: React.ReactNode;
 };
 
-export const DeleteExportModal = ({ isOpen, onClose, title, handleSubmit, children }: DeleteExportModalProps) => {
+const DeleteExportModal = ({ isOpen, onClose, title, handleSubmit, children }: DeleteExportModalProps) => {
 	return (
 		<Dialog open={isOpen}>
 			<DialogTitle textAlign="center">
@@ -34,3 +34,5 @@ export const DeleteExportModal = ({ isOpen, onClose, title, handleSubmit, childr
 		</Dialog>
 	);
 };
+
+export default DeleteExportModal

@@ -6,6 +6,7 @@ import employeeReducer from '../layouts/EmployeeTable/employeeSlice';
 import departmentReducer from '../layouts/DepartmentTable/departmentSlice';
 import manufacturerReducer from '../layouts/ManufacturerTable/manufacturerSlice';
 import chemicalReducer from '../layouts/ChemicalTable/chemicalSlice';
+import chemicalWarehouseReducer from '../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice';
 import supplierReducer from '../layouts/SupplierTable/supplierSlice';
 import deviceReducer from '../layouts/DeviceTable/deviceSlice';
 import subjectReducer from '../layouts/SubjectTable/subjectSlice';
@@ -13,11 +14,7 @@ import classSubjectReducer from '../layouts/ClassSubjectTable/classSubjectSlice'
 import lessonLabReducer from '../layouts/LessonLabTable/lessonLabSlice';
 import warehouseReducer from '../layouts/WarehouseTable/warehouseSlice';
 import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import exportChemicalReducer from '../layouts/ExportChemicalTable/exportChemicalSlice';
-import exportDeviceReducer from '../layouts/ExportDeviceTable/exportDeviceSlice';
 import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
-import orderChemicalReducer from '../layouts/ChemicalTable/orderChemicalSlice';
-import orderDeviceReducer from '../layouts/DeviceTable/orderDeviceSlice';
 import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
 
 export const store = configureStore({
@@ -29,6 +26,7 @@ export const store = configureStore({
 		department: departmentReducer,
 		manufacturer: manufacturerReducer,
 		chemical: chemicalReducer,
+		chemicalWarehouse: chemicalWarehouseReducer,
 		supplier: supplierReducer,
 		device: deviceReducer,
 		subject: subjectReducer,
@@ -36,11 +34,7 @@ export const store = configureStore({
 		lessonLab: lessonLabReducer,
 		warehouse: warehouseReducer,
 		registerGeneral: registerGeneralReducer,
-		exportChemical: exportChemicalReducer,
-		exportDevice: exportDeviceReducer,
 		purchaseOrder: purchaseOrderReducer,
-		orderChemical: orderChemicalReducer,
-		orderDevice: orderDeviceReducer,
 		schedule: scheduleReducer,
 	},
 });
