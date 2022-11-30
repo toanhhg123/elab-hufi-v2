@@ -1,7 +1,9 @@
-interface IChemDept {
+export interface IChemDeptType {
 	AmountExport: Number,
 	AmountRemain: Number,
-	ExpChemDeptId: String,
+	DepartmentId: Number,
+	DepartmentName: String,
+	ChemDeptId: String,
 	AmountOriginal: Number,
 	Unit: String,
 	ChemDetailId: String
@@ -12,18 +14,40 @@ export interface IChemicalDetailType {
 	AmountRemain: Number,
 	OrderDate: String,
 	formatedOrderDate?: String,
-	ManufacturerName: String,
-	listChemDept: IChemDept[],
 	OrderId: String,
 	ChemDetailId: String,
-	AmountOriginal: Number,
+	AmountOriginal: 450,
 	ManufacturingDate: String,
 	ExpiryDate: String,
 	formatedExpiryDate: String,
 	LotNumber: String,
 	Price: Number,
 	ChemicalId: String,
-	ManufacturerId: Number
+	ManufacturerId: 1,
+	ManufacturerName: String,
+	listChemDept: IChemDeptType[],
+}
+
+export interface IExportChemicalType {
+	SubjectId: String,
+	SubjectName: String,
+	Semester: Number,
+	Schoolyear: String,
+	EmployeeInCharge: String,
+	EmployeeCreate: String,
+	ExpSubjectId: String,
+	ChemDeptId: String,
+	Amount: Number
+}
+
+export interface IExportChemRegType {
+	RegisterGeneralId: Number,
+	Instructor: String,
+	ThesisName: String,
+	Semester: Number,
+	Schoolyear: String,
+	ChemDeptId: String,
+	Amount: Number
 }
 
 export interface IChemicalWarehouseType {
@@ -36,6 +60,12 @@ export interface IChemicalWarehouseType {
 	Specifications: String,
 	Origin: String,
 	Unit: String,
+	DepartmentId?: Number,
+	DepartmentName?: String,
+	ChemDeptId?: String,
+	ChemDetailId?: String,
+	listExportChemical?: IExportChemicalType[],
+	listExportChemReg?: IExportChemRegType[]
 }
 
 export const dummyChemicalWarehouseData: IChemicalWarehouseType = {

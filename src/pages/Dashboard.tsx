@@ -79,6 +79,8 @@ export function Dashboard() {
     const snackbarState = useAppSelector((state: RootState) => state.app.snackbarState);
     const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
+    const role = Number(localStorage.getItem("role") || 1)
+
     const dispatch = useAppDispatch();
 
     const getLaboratoryData = async () => {
@@ -130,8 +132,8 @@ export function Dashboard() {
         }
     }
 
-    const getChemicalWarehouseData = async (id: Number) => {
-        const listOfChemicalWarehouse: IChemicalWarehouseType[] = await getChemicalWarehouseById(id);
+    const getChemicalWarehouseData = async () => {
+        const listOfChemicalWarehouse: IChemicalWarehouseType[] = await getChemicalWarehouseById(role);
         if (listOfChemicalWarehouse) {
             dispatch(setListOfChemicalWarehouse(listOfChemicalWarehouse));
         }
@@ -221,7 +223,7 @@ export function Dashboard() {
         getManufacturerData();
         getSupplierData();
         getChemicalData();
-        getChemicalWarehouseData(1);
+        getChemicalWarehouseData();
         getDeviceData();
         getDeviceSpecData();
         getSubjectData();
@@ -256,7 +258,7 @@ export function Dashboard() {
                 {sidebarItems[0].isOpen && laboratoriesData?.length > 0 && <LaboratoryTable />}
                 {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
                 {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
-                {sidebarItems[3].isOpen && <ChemicalWarehouseTable />}
+                {sidebarItems[3].isOpen && <ChemicalWarehouseTable role={role} />}
                 {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
                 {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
                 {sidebarItems[6].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
