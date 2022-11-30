@@ -97,7 +97,7 @@ function PersistentDrawerLeft() {
         <List>
           {defaultSidebarItems.map((item, index) => (
             <>
-              {[4, 8, 12].includes(index) && <div style={{ "paddingTop": "7px" }} />}
+              {[6, 10].includes(index) && <div style={{ "paddingTop": "7px" }} />}
               <ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
                 {!isOpenDrawer ? <Tooltip arrow placement="right" title={item.name}>
                   <ListItemButton
@@ -156,7 +156,7 @@ function PersistentDrawerLeft() {
                   </ListItemButton>
                 }
               </ListItem>
-              {[3, 7, 11].includes(index) && <div style={{ "paddingTop": "7px" }}><Divider /></div>}
+              {[5, 9].includes(index) && <div style={{ "paddingTop": "7px" }}><Divider /></div>}
             </>
           ))}
         </List>

@@ -259,16 +259,16 @@ export function Dashboard() {
                 {sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
                 {sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
                 {sidebarItems[3].isOpen && <ChemicalWarehouseTable role={role} />}
-                {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />}
-                {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />}
-                {sidebarItems[6].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-                {sidebarItems[7].isOpen && supplierData?.length > 0 && <SupplierTable />}
-                {sidebarItems[8].isOpen && <ScheduleTable />}
-                {sidebarItems[9].isOpen && subjectData?.length > 0 && <SubjectTable />}
-                {sidebarItems[10].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-                {sidebarItems[11].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
-                {sidebarItems[12].isOpen && <WarehouseTable />}
-                {sidebarItems[13].isOpen && <PurchaseOrderTable />}
+                {/* {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />} */}
+                {/* {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />} */}
+                {sidebarItems[4].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
+                {sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
+                {sidebarItems[6].isOpen && <ScheduleTable />}
+                {sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
+                {sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
+                {sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+                {sidebarItems[10].isOpen && <WarehouseTable />}
+                {sidebarItems[11].isOpen && <PurchaseOrderTable />}
             </div>
             <Snackbar
                 anchorOrigin={{

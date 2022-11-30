@@ -166,10 +166,10 @@ const DevicePlanning: FC<{
                     </form>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={onClose}>Huỷ</Button>
-                    <Button color="primary" onClick={() => handleSubmit(tableData)} variant="contained">
+                    <Button onClick={onClose}>Đóng</Button>
+                    {/* <Button color="primary" onClick={() => handleSubmit(tableData)} variant="contained">
                         Lưu thay đổi
-                    </Button>
+                    </Button> */}
                 </DialogActions>
             </Dialog>
         </>
