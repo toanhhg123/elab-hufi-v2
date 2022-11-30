@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import MaterialReactTable, {
-    MaterialReactTableProps,
     MRT_Cell,
     MRT_ColumnDef,
 } from 'material-react-table';
@@ -12,11 +11,13 @@ import {
     DialogTitle,
     Stack,
     TextField,
+    Tooltip,
+    IconButton,
 } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Delete } from '@mui/icons-material';
+import { useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { setSnackbarMessage } from '../../pages/appSlice';
 import { IDevicesBelongingToLessonLab, ILessonLabType } from '../../types/lessonLabType';
 import Autocomplete from '@mui/material/Autocomplete';
 import { IDeviceType } from '../../types/deviceType';
@@ -36,7 +37,8 @@ const DevicePlanning: FC<{
 
     useEffect(() => {
         if (isOpen && currentLessonLab?.LessonId) {
-            setTableData(defaultCurrentValue);
+            let temp = defaultCurrentValue.map(item => { return { ...item } });
+            setTableData(temp);
         }
 
         return () => {
@@ -60,9 +62,23 @@ const DevicePlanning: FC<{
 
     const handleSaveCell = (cell: MRT_Cell<any>, value: any) => {
         //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here
-        tableData[cell.row.index][cell.column.id as keyof any] = value;
+        let updatedData = [...tableData];
+        if (tableData[cell.row.index].hasOwnProperty(cell.column.id)) {
+            updatedData[cell.row.index][cell.column.id as keyof any] = value;
+        } else {
+            updatedData = tableData.map((item, idx) => {
+                if (idx === Number(cell.row.index)) {
+                    return {
+                        ...item,
+                        [cell.column.id]: value
+                    }
+                } else {
+                    return item;
+                }
+            })
+        }
         //send/receive api updates here
-        setTableData([...tableData]); //re-render with new data
+        setTableData([...updatedData]); //re-render with new data
     };
 
     const columns = useMemo<MRT_ColumnDef<any>[]>(
@@ -102,19 +118,15 @@ const DevicePlanning: FC<{
         setTableData(val);
     }
 
-    const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
-        async ({ exitEditingMode, row, values }) => {
-            let updatedData = [...tableData];
-            updatedData.splice(Number(row.id), 1, values);
-            //send/receive api updates here
-            setTableData([...updatedData]);
-            exitEditingMode(); //required to exit editing mode
-        };
+    const handleDeletePlanning = (row: any) => {
+        let updatedData = [...tableData];
+        updatedData.splice(Number(row.id), 1);
+        setTableData([...updatedData]);
+    };
 
     return (
         <>
-            <Dialog
-                open={isOpen}
+            <Dialog open={isOpen}
                 sx={{
                     "& .MuiDialog-container": {
                         "& .MuiPaper-root": {
@@ -122,8 +134,7 @@ const DevicePlanning: FC<{
                             maxWidth: "800px",  // Set your width here
                         },
                     },
-                }}
-            >
+                }}>
                 <DialogTitle textAlign="center"><b>Dự trù dụng cụ cho bài thí nghiệm</b></DialogTitle>
                 <DialogContent>
                     <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
@@ -151,6 +162,12 @@ const DevicePlanning: FC<{
                                 id="auto-complete"
                                 autoComplete
                                 includeInputInList
+                                disableClearable
+                                renderTags={(value: readonly IDeviceType[], getTagProps) =>
+                                    value.map((option: IDeviceType, index: number) => (
+                                        <></>
+                                    ))
+                                }
                                 renderInput={(params) => (
                                     <TextField {...params} placeholder="Chọn dụng cụ..." variant="standard" />
                                 )}
@@ -179,13 +196,12 @@ const DevicePlanning: FC<{
                                 }}
                                 columns={columns}
                                 data={tableData}
-                                editingMode="row"
+                                editingMode="cell"
                                 enableTopToolbar={false}
                                 enableEditing
                                 enableColumnOrdering
                                 enableRowNumbers
                                 enablePinning
-                                onEditingRowSave={handleSaveRow}
                                 initialState={{
                                     density: 'compact',
                                     columnOrder: [
@@ -207,6 +223,13 @@ const DevicePlanning: FC<{
                                         ></KeyboardArrowRightIcon></b>
                                         <span>Thông tin dụng cụ</span>
                                     </h3>
+                                )}
+                                renderRowActions={({ row, table }) => (
+                                    <Tooltip arrow placement="right" title="Xoá">
+                                        <IconButton color="error" onClick={() => handleDeletePlanning(row)}>
+                                            <Delete />
+                                        </IconButton>
+                                    </Tooltip>
                                 )}
                             />
                         </Stack>

@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import MaterialReactTable, {
-    MaterialReactTableProps,
     MRT_Cell,
     MRT_ColumnDef,
 } from 'material-react-table';
@@ -13,13 +12,10 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { setSnackbarMessage } from '../../pages/appSlice';
 import { IDevicesBelongingToSubjectType, ISubjectType } from '../../types/subjectType';
-import Autocomplete from '@mui/material/Autocomplete';
-import { IDeviceType } from '../../types/deviceType';
 
 const DevicePlanning: FC<{
     isOpen: boolean,
@@ -98,19 +94,6 @@ const DevicePlanning: FC<{
         [getCommonEditTextFieldProps],
     );
 
-    const handleSelectAutocomplete = (e: any, val: IDeviceType[]) => {
-        setTableData(val);
-    }
-
-    const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
-        async ({ exitEditingMode, row, values }) => {
-            let updatedData = [...tableData];
-            updatedData.splice(Number(row.id), 1, values);
-            //send/receive api updates here
-            setTableData([...updatedData]);
-            exitEditingMode(); //required to exit editing mode
-        };
-
     return (
         <>
             <Dialog open={isOpen}
@@ -139,33 +122,8 @@ const DevicePlanning: FC<{
                                 defaultValue={currentSubject.SubjectName}
                                 disabled
                             />
-                            <Autocomplete
-                                multiple
-                                filterSelectedOptions
-                                options={deviceData}
-                                value={tableData}
-                                isOptionEqualToValue={(option, value) => option.DeviceId === value.DeviceId}
-                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceId + ' - ' + option.DeviceName.toString() : ''}
-                                id="auto-complete"
-                                autoComplete
-                                includeInputInList
-                                renderInput={(params) => (
-                                    <TextField {...params} placeholder="Chọn thiết bị..." variant="standard" />
-                                )}
-                                onChange={(e: any, val) => handleSelectAutocomplete(e, val)}
-                            />
-
                             <MaterialReactTable
                                 displayColumnDefOptions={{
-                                    'mrt-row-actions': {
-                                        header: 'Các hành động',
-                                        muiTableHeadCellProps: {
-                                            align: 'center',
-                                        },
-                                        muiTableBodyCellProps: {
-                                            align: 'center',
-                                        },
-                                    },
                                     'mrt-row-numbers': {
                                         muiTableHeadCellProps: {
                                             align: 'center',
@@ -177,23 +135,19 @@ const DevicePlanning: FC<{
                                 }}
                                 columns={columns}
                                 data={tableData}
-                                editingMode="row"
                                 enableTopToolbar={false}
                                 enableEditing
                                 enableColumnOrdering
                                 enableRowNumbers
                                 enablePinning
-                                onEditingRowSave={handleSaveRow}
                                 initialState={{
                                     density: 'compact',
                                     columnOrder: [
                                         'mrt-row-numbers',
                                         ...columns.map(x => x.accessorKey ? x.accessorKey.toString() : ''),
-                                        'mrt-row-actions'
                                     ]
                                 }}
                                 muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-                                    //onBlur is more efficient, but could use onChange instead
                                     onBlur: (event) => {
                                         handleSaveCell(cell, event.target.value);
                                     },

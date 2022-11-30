@@ -71,7 +71,7 @@ const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratory
         () => [
             {
                 accessorKey: 'ExpDeviceDeptId',
-                header: 'Ngày hết hạn',
+                header: 'Mã thiết bị',
                 size: 100,
             },
             {
@@ -91,7 +91,7 @@ const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratory
             },
             {
                 accessorKey: 'ExportDate',
-                header: 'Ngày xuất',
+                header: 'Ngày nhập',
                 size: 100,
             },
         ],

@@ -40,7 +40,7 @@ const InstrumentInLaboratoryTable: FC<{ instrumentData: IListInstrumentBeloingTo
     () => [
       {
         accessorKey: 'ExpDeviceDeptId',
-        header: 'Ngày hết hạn',
+        header: 'Mã thiết bị',
         size: 100,
       },
       {
@@ -60,7 +60,7 @@ const InstrumentInLaboratoryTable: FC<{ instrumentData: IListInstrumentBeloingTo
       },
       {
         accessorKey: 'ExportDate',
-        header: 'Ngày xuất',
+        header: 'Ngày nhập',
         size: 100,
       },
     ],
