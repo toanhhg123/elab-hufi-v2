@@ -97,7 +97,7 @@ const InstrumentInLaboratoryTable: FC<InstrumentInLaboratoryTableProps> = ({ ins
   return (
     <>
       <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
-        <Typography fontWeight="bold">Bảng thiết bị</Typography>
+        <Typography fontWeight="bold">Bảng dụng cụ</Typography>
         <Box display="flex" alignItems="end">
           <TextField
             id="filled-search"

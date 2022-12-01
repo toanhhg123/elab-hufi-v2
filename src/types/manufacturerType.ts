@@ -4,7 +4,6 @@ export interface IManufacturerType {
     Email: String,
     PhoneNumber: String,
     Address: String,
-    Status: String
 }
 
 export const dummyManufacturerData: IManufacturerType = { 
@@ -13,5 +12,4 @@ export const dummyManufacturerData: IManufacturerType = {
     "Email": "", 
     "PhoneNumber": "", 
     "Address": "", 
-    "Status": ""
  }

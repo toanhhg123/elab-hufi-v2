@@ -25,7 +25,7 @@ export const getEmployeeById = async (id: String) => {
 }
 
 export const updateEmployee = async (updatedData: IEmployeeType) => {    
-    const url = `${API_ENDPOINT}/api/employees/${updatedData.EmployeeID}`;
+    const url = `${API_ENDPOINT}/api/employees`;
 	const lab: IEmployeeType = await API.put<IEmployeeType, IEmployeeType>(url, updatedData);
 	return lab;
 }

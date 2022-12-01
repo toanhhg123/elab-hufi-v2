@@ -79,11 +79,6 @@ const ManufacturersTable: FC = () => {
         header: 'Địa chỉ',
         size: 140,
       },
-      {
-        accessorKey: 'Status',
-        header: 'Trạng thái',
-        size: 140,
-      },
     ],
     [getCommonEditTextFieldProps],
   );
@@ -145,7 +140,6 @@ const ManufacturersTable: FC = () => {
       "Email": createdRow.Email,
       "PhoneNumber": createdRow.PhoneNumber,
       "Address": createdRow.Address,
-      "Status": createdRow.Status
     })
     if (createdManufacturer) {
       const newListOfManufacturers: IManufacturerType[] = await getManufacturers();

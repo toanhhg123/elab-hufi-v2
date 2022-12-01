@@ -79,16 +79,6 @@ const SupplierTable: FC = () => {
         header: 'Địa chỉ',
         size: 140,
       },
-      {
-        accessorKey: 'Status',
-        header: 'Trạng thái',
-        size: 140,
-      },
-      // {
-      //   accessorKey: 'PurchaseOrders',
-      //   header: 'Đơn mua hàng',
-      //   size: 140,
-      // },
     ],
     [getCommonEditTextFieldProps],
   );
@@ -150,8 +140,6 @@ const SupplierTable: FC = () => {
       "Email": createdRow.Email,
       "PhoneNumber": createdRow.PhoneNumber,
       "Address": createdRow.Address,
-      "Status": createdRow.Status,
-      "PurchaseOrders": createdRow.PurchaseOrders
     })
 
     if (createdSupplier) {
