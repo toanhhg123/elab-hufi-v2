@@ -472,7 +472,7 @@ const DeviceTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Huỷ</Button>
+          <Button onClick={onCloseEditModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
             Lưu thay đổi
           </Button>
@@ -485,7 +485,7 @@ const DeviceTable: FC = () => {
           <div>Bạn có chắc muốn xoá thông tin thiết bị {`${deletedRow.DeviceName}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Huỷ</Button>
+          <Button onClick={onCloseDeleteModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
             Xác nhận
           </Button>
@@ -544,7 +544,7 @@ const DeviceTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Huỷ</Button>
+          <Button onClick={onCloseCreateModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
             Tạo
           </Button>
@@ -674,7 +674,7 @@ const DeviceTable: FC = () => {
                   </form>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                  <Button onClick={onCloseDeviceSpecEditModal}>Huỷ</Button>
+                  <Button onClick={onCloseDeviceSpecEditModal}>Hủy</Button>
                   <Button color="primary" onClick={handleSubmitDeviceSpecEditModal} variant="contained">
                     Lưu thay đổi
                   </Button>
@@ -687,7 +687,7 @@ const DeviceTable: FC = () => {
                   <div>Bạn có chắc muốn xoá thông tin thông số {`${deviceSpecDeletedRow.SpecsID}`} của thiết bị {`${deviceSpecDeletedRow.DeviceId}`} không?</div>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                  <Button onClick={onCloseDeviceSpecDeleteModal}>Huỷ</Button>
+                  <Button onClick={onCloseDeviceSpecDeleteModal}>Hủy</Button>
                   <Button color="primary" onClick={handleSubmitDeviceSpecDeleteModal} variant="contained">
                     Xác nhận
                   </Button>
@@ -721,7 +721,7 @@ const DeviceTable: FC = () => {
                   </form>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                  <Button onClick={onCloseDeviceSpecCreateModal}>Huỷ</Button>
+                  <Button onClick={onCloseDeviceSpecCreateModal}>Hủy</Button>
                   <Button color="primary" onClick={handleSubmitDeviceSpecCreateModal} variant="contained">
                     Tạo
                   </Button>

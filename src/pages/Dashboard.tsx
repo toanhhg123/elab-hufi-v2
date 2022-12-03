@@ -19,6 +19,8 @@ import LessonLabTable from '../layouts/LessonLabTable';
 import { setListOfLessonLabs } from '../layouts/LessonLabTable/lessonLabSlice';
 import ManufacturersTable from '../layouts/ManufacturerTable';
 import { setListOfManufacturers } from '../layouts/ManufacturerTable/manufacturerSlice';
+import PlanSubjectTable from '../layouts/PlanSubjectTable';
+import { setListOfPlanSubjects } from '../layouts/PlanSubjectTable/planSubjectSlice';
 import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
@@ -40,6 +42,7 @@ import { getExportsDep, getExportsLabs, getExportsRegs, getExportsSubs } from '.
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
+import { getPlanSubjects } from '../services/planSubjectServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGeneral } from '../services/registerGeneralServices';
 import { getSchedules } from '../services/scheduleServices';
@@ -56,6 +59,7 @@ import { IExportType } from '../types/exportType';
 import { ILaboratoryType } from '../types/laboratoryType';
 import { ILessonLabType } from '../types/lessonLabType';
 import { IManufacturerType } from '../types/manufacturerType';
+import { IPlanSubjectType } from '../types/planSubjectType';
 import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
 import { IScheduleType } from '../types/scheduleType';
@@ -216,6 +220,13 @@ export function Dashboard() {
         }
     }
 
+    const getPlanSubjectData = async () => {
+        const listOfPlanSubjects: IPlanSubjectType[] = await getPlanSubjects();
+        if (listOfPlanSubjects) {
+            dispatch(setListOfPlanSubjects(listOfPlanSubjects));
+        }
+    }
+
     useEffect(() => {
         getLaboratoryData();
         getEmployeeData();
@@ -236,6 +247,7 @@ export function Dashboard() {
 		getWarehouseDepartmentData();
         getPurchaseOrderData();
         getScheduleData();
+        getPlanSubjectData();
     }, [])
 
     const snackbarFunc = () => setTimeout(() => {
@@ -269,6 +281,8 @@ export function Dashboard() {
                 {sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
                 {sidebarItems[10].isOpen && <WarehouseTable />}
                 {sidebarItems[11].isOpen && <PurchaseOrderTable />}
+                {sidebarItems[12].isOpen && <PlanSubjectTable />}
+            
             </div>
             <Snackbar
                 anchorOrigin={{

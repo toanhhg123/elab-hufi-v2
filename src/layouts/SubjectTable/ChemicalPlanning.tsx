@@ -51,13 +51,6 @@ const ChemicalPlanning: FC<{
         [validationErrors],
     );
 
-    const handleSaveCell = (cell: MRT_Cell<any>, value: any) => {
-        //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here
-        tableData[cell.row.index][cell.column.id as keyof any] = value;
-        //send/receive api updates here
-        setTableData([...tableData]); //re-render with new data
-    };
-
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
@@ -72,7 +65,7 @@ const ChemicalPlanning: FC<{
             },
             {
                 accessorKey: 'Specifications',
-                header: 'Đặc tả',
+                header: 'CTHH',
                 enableEditing: false,
             },
             {
@@ -145,11 +138,6 @@ const ChemicalPlanning: FC<{
                                         ...columns.map(x => x.accessorKey ? x.accessorKey.toString() : ''),
                                     ]
                                 }}
-                                muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-                                    onBlur: (event) => {
-                                        handleSaveCell(cell, event.target.value);
-                                    },
-                                })}
                                 renderTopToolbarCustomActions={() => (
                                     <h3 style={{ "margin": "0px" }}>
                                         <b><KeyboardArrowRightIcon

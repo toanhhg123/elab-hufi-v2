@@ -300,7 +300,7 @@ export const PurchaseOrderTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Huỷ</Button>
+          <Button onClick={onCloseEditModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
             Lưu thay đổi
           </Button>
@@ -313,7 +313,7 @@ export const PurchaseOrderTable: FC = () => {
           <div>Bạn có chắc muốn xoá thông tin phiếu nhập {`${deletedRow.OrderId}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Huỷ</Button>
+          <Button onClick={onCloseDeleteModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
             Xác nhận
           </Button>
@@ -357,7 +357,7 @@ export const PurchaseOrderTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Huỷ</Button>
+          <Button onClick={onCloseCreateModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
             Tạo
           </Button>

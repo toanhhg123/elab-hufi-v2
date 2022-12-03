@@ -19,7 +19,7 @@ const DeleteExportModal = ({ isOpen, onClose, title, handleSubmit, children }: D
 				<div>{children}</div>
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
-				<Button onClick={onClose}>Huỷ</Button>
+				<Button onClick={onClose}>Hủy</Button>
 				<Button
 					color="primary"
 					onClick={() => {

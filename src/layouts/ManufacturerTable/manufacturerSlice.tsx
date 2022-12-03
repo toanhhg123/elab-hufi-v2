@@ -14,7 +14,7 @@ const initialState: IManufacturerState = {
 }
 
 export const laboratoriesSlice = createSlice({
-  name: 'laboratories',
+  name: 'manufacturer',
   initialState,
   reducers: {
     setListOfManufacturers: (state: IManufacturerState, action: PayloadAction<IManufacturerType[]>) => {
