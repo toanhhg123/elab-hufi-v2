@@ -1,14 +1,19 @@
 import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { Button, IconButton, Tooltip, Typography } from '@mui/material';
+import { Autocomplete, Button, IconButton, TextField, Tooltip, Typography } from '@mui/material';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { setSnackbarMessage } from '../../../../pages/appSlice';
-import { deleteExportLabs, getExportsLabById, getExportsLabs, postExportLabs, updateExportLabs } from '../../../../services/exportsServices';
+import {
+	deleteExportLabs,
+	getExportsLabById,
+	getExportsLabs,
+	postExportLabs,
+	updateExportLabs
+} from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
 import { IExportDeviceType } from '../../../../types/exportDeviceType';
 import { dummyExportData, IExportType } from '../../../../types/exportType';
@@ -22,7 +27,6 @@ import { setListOfWarehouseLaboratory } from '../../warehouseSlice';
 
 const LaboratoryTabItem: FC = () => {
 	const warehouseLaboratoriesData = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseLaboratory);
-	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 	const dispatch = useAppDispatch();
@@ -36,32 +40,39 @@ const LaboratoryTabItem: FC = () => {
 	const [validationErrors, setValidationErrors] = useState<{
 		[cellId: string]: string;
 	}>({});
+	const [departmentActive, setDepartmentActive] = useState<Number>(2);
 
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportData);
 	const [updatedRow, setUpdatedRow] = useState<any>(dummyExportData);
 	const [deletedRow, setDeletedRow] = useState<any>(dummyExportData);
 
 	useEffect(() => {
-		let formatedData = warehouseLaboratoriesData.map((x: IExportType) => {
-			let employeeInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeId)
-				: -1;
+		const getWarehouseLaboratoryData = async () => {
+			try {
+				const listOfExport: IExportType[] = await getExportsLabs(departmentActive);
+				if (listOfExport) {
+					dispatch(setListOfWarehouseLaboratory(listOfExport));
+				}
+			} catch (error) {
+				dispatch(setListOfWarehouseLaboratory([]));
+			}
+		};
+		getWarehouseLaboratoryData();
+	}, [departmentActive]);
+
+	useEffect(() => {
+		let formatedData = warehouseLaboratoriesData?.map((x: IExportType) => {
 			let laboratoryInfoIdx = Array.isArray(laboratoriesData)
 				? laboratoriesData.findIndex(y => y.LabId === x.LabId)
 				: -1;
-			let departmentInfoIdx = Array.isArray(departmentData)
-				? departmentData.findIndex(y => y.DepartmentId === x.DepartmentId)
-				: -1;
 			return {
 				...x,
-				EmployeeName: employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : '',
 				LabName: laboratoryInfoIdx > -1 ? laboratoriesData[laboratoryInfoIdx].LabName : '',
-				DepartmentName: departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : '',
 				formatedExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY'),
 			};
 		});
 		formatedData.sort((x, y) => y.ExportDate - x.ExportDate);
-		setTableData(formatedData);
+		setTableData(formatedData || []);
 	}, [warehouseLaboratoriesData]);
 
 	const getCommonEditTextFieldProps = useCallback(
@@ -113,7 +124,7 @@ const LaboratoryTabItem: FC = () => {
 			},
 			{
 				accessorKey: 'LabId',
-				header: 'LabId',
+				header: 'Phòng',
 				size: 140,
 			},
 			{
@@ -124,6 +135,7 @@ const LaboratoryTabItem: FC = () => {
 			},
 			{
 				accessorKey: 'DepartmentId',
+				enableEditing: false,
 				header: 'Khoa',
 				size: 140,
 			},
@@ -142,7 +154,7 @@ const LaboratoryTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'ExpDeviceDeptId',
+				accessorKey: 'DeviceDeptId',
 				header: 'Mã xuất Thiết bị',
 				size: 100,
 			},
@@ -202,7 +214,7 @@ const LaboratoryTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'ExpDeviceDeptId',
+				accessorKey: 'DeviceDeptId',
 				header: 'Mã xuất Thiết bị',
 				size: 100,
 			},
@@ -252,7 +264,7 @@ const LaboratoryTabItem: FC = () => {
 	);
 
 	const columsDeviceTable = useRef([
-		{ id: 'ExpDeviceDeptId', header: 'ID' },
+		{ id: 'DeviceDeptId', header: 'ID' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
 		{ id: 'SerialNumber', header: 'Số Serial' },
 		{ id: 'Unit', header: 'Đơn vị' },
@@ -265,7 +277,7 @@ const LaboratoryTabItem: FC = () => {
 
 	const columnsInstrumentTable = useRef<ColumnType[]>([
 		{
-			id: 'ExpDeviceDeptId',
+			id: 'DeviceDeptId',
 			header: 'Mã xuất thiết bị',
 		},
 		{
@@ -368,7 +380,7 @@ const LaboratoryTabItem: FC = () => {
 
 	const handleSubmitCreateDeviceModal = (listDevice: any, row: any) => {
 		const listDeviceExportUpdate = listDevice?.map((device: any) => ({
-			ExpDeviceDeptId: device.ExpDeviceDeptId,
+			DeviceDeptId: device.DeviceDeptId,
 			DeviceName: device.DeviceName,
 			Unit: device.Unit,
 			SerialNumber: device.SerialNumber,
@@ -390,10 +402,10 @@ const LaboratoryTabItem: FC = () => {
 
 	const handleSubmitCreateInstrumentModal = async (listDevice: any, row: any) => {
 		const listDeviceExportUpdate = listDevice?.map((device: any) => ({
-			ExpDeviceDeptId: device.ExpDeviceDeptId,
+			DeviceDeptId: device.DeviceDeptId,
 			DeviceName: device.DeviceName,
 			Unit: device.Unit,
-			Quantity: device.Amount,
+			Quantity: device.Amount || device.Quantity,
 		}));
 
 		const createData: IExportType = {
@@ -401,9 +413,10 @@ const LaboratoryTabItem: FC = () => {
 			listInstrument: listDeviceExportUpdate,
 		};
 
-		const isExist: boolean = warehouseLaboratoriesData.findIndex(x => x.ExportLabId === createData.ExportLabId) > -1;
+		const isExist: boolean =
+			warehouseLaboratoriesData.findIndex(x => x.ExportLabId === createData.ExportLabId) > -1;
 		if (isExist) {
-			const resData = await updateExportLabs(createData);
+			const resData = await updateExportLabs(createData, departmentActive);
 
 			if (Object.keys(resData).length !== 0) {
 				dispatch(setSnackbarMessage('Cập nhật thông tin thành công'));
@@ -413,14 +426,17 @@ const LaboratoryTabItem: FC = () => {
 					createData,
 					...warehouseLaboratoriesData.slice(updatedIdx + 1),
 				];
-				dispatch(setListOfWarehouseLaboratory(newListOfLab));
+				dispatch(setListOfWarehouseLaboratory([...newListOfLab]));
 			} else {
 				dispatch(setSnackbarMessage('Cập nhật thông tin không thành công'));
 			}
 		} else {
-			const resData = await postExportLabs(createData);
+			const resData = await postExportLabs(createData, departmentActive);
 			if (Object.keys(resData).length !== 0) {
-				const newListOfLabs: IExportType = await getExportsLabById(createData?.ExportLabId || '');
+				const newListOfLabs: IExportType = await getExportsLabById(
+					createData?.ExportLabId || '',
+					departmentActive,
+				);
 				if (newListOfLabs) {
 					dispatch(setSnackbarMessage('Tạo thông tin mới thành công'));
 					dispatch(setListOfWarehouseLaboratory([...warehouseLaboratoriesData, newListOfLabs]));
@@ -430,7 +446,10 @@ const LaboratoryTabItem: FC = () => {
 			}
 		}
 
-		console.log(createData);
+		setCreatedRow(dummyExportData)
+		setIsCreateModal(false);
+		setIsCreateExportDeviceModal(false);
+		setIsCreateExportInstrumentModal(false);
 	};
 
 	return (
@@ -458,11 +477,10 @@ const LaboratoryTabItem: FC = () => {
 				columns={columns}
 				data={tableData}
 				editingMode="modal" //default
-				enableColumnOrdering
 				enableEditing
+				enableGrouping={false}
 				enableRowNumbers
 				enablePinning
-				enableGrouping
 				enableRowActions
 				enableExpanding
 				muiTableDetailPanelProps={{
@@ -504,6 +522,22 @@ const LaboratoryTabItem: FC = () => {
 							></KeyboardArrowRightIcon>
 						</b>
 						<span>Quản lý phiếu xuất phòng thí nghiệm</span>
+						<Autocomplete
+							sx={{ marginBottom: '8px', marginTop: '16px' }}
+							size="small"
+							autoComplete={true}
+							options={departmentData.filter(x => x.DepartmentId !== 1).map(y => y.DepartmentName)}
+							onChange={(event, value) => {
+								setDepartmentActive(
+									departmentData.find(x => x.DepartmentName === value)?.DepartmentId || -1,
+								);
+							}}
+							disableClearable={true}
+							noOptionsText="Không có kết quả trùng khớp"
+							defaultValue={departmentData.filter(x => x.DepartmentId !== 1)[0].DepartmentName || 0}
+							value={departmentData.find(x => x.DepartmentId === departmentActive)?.DepartmentName || ''}
+							renderInput={params => <TextField {...params} label="Khoa" />}
+						/>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
@@ -555,57 +589,19 @@ const LaboratoryTabItem: FC = () => {
 					columns={columns}
 					isCreateModal={isCreateModal}
 					handleSubmitCreateModal={handleSubmitCreateWarehouseLabModal}
+					initData={{ ...createdRow, DepartmentId: departmentActive }}
 				/>
 			)}
 
 			{isEditModal && (
 				<EditExportModal
-					initData={updatedRow}
+					initData={{ ...updatedRow, DepartmentId: departmentActive }}
 					isEditModal={isEditModal}
 					columns={columns}
 					onClose={onCloseEditWarehouseLab}
 					handleSubmitEditModal={handleSubmitEditWarehouseLabModal}
 				/>
 			)}
-
-			{/* <CreateExportDeviceModal
-				isOpen={isCreateExportDeviceModal}
-				onClose={() => setIsCreateExportDeviceModal(false)}
-			/> */}
-
-			{/* {isDeleteExportChemicalModal && (
-				<DeleteExportChemicalModal
-					isOpen={isDeleteExportChemicalModal}
-					initData={deletedRow}
-					onClose={() => setIsDeleteExportChemicalModal(false)}
-				/>
-			)} */}
-
-			{/* {isCreateExportChemicalModal && (
-				<CreateExportChemicalModal
-					initData={createdRow}
-					isOpen={isCreateExportChemicalModal}
-					columns={columnsExportChemical}
-					onClose={() => setIsCreateExportChemicalModal(false)}
-				/>
-			)} */}
-
-			{/* {isEditExportChemicalModal && (
-				<EditExportChemicalModal
-					initData={updatedRow}
-					isOpen={isEditExportChemicalModal}
-					columns={columnsExportChemical}
-					onClose={() => setIsEditExportChemicalModal(false)}
-				/>
-			)} */}
-
-			{/* {isDeleteExportDeviceModal && (
-				<DeleteExportDeviceModal
-					isOpen={isDeleteExportDeviceModal}
-					initData={deletedRow}
-					onClose={() => setIsDeleteExportDeviceModal(false)}
-				/>
-			)} */}
 
 			{isCreateExportDeviceModal && (
 				<CreateExportDeviceModal
@@ -628,15 +624,6 @@ const LaboratoryTabItem: FC = () => {
 					onClose={() => setIsCreateExportInstrumentModal(false)}
 				/>
 			)}
-
-			{/* {isEditExportDeviceModal && (
-				<EditExportDeviceModal
-					initData={updatedRow}
-					isOpen={isEditExportDeviceModal}
-					columns={columnsExportDevice}
-					onClose={() => setIsEditExportDeviceModal(false)}
-				/>
-			)} */}
 		</>
 	);
 };

@@ -11,6 +11,7 @@ import DepartmentTable from '../layouts/DepartmentTable';
 import { setListOfDepartments } from '../layouts/DepartmentTable/departmentSlice';
 import DeviceTable from '../layouts/DeviceTable';
 import { setListOfDevices, setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
+import DeviceTransfer from '../layouts/DeviceTransfer';
 import EmployeeTable from '../layouts/EmployeeTable';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
 import LaboratoryTable from '../layouts/LaboratoryTable';
@@ -35,6 +36,7 @@ import { getChemicalWarehouseById } from '../services/chemicalWarehouseServices'
 import { getClassSubjects } from '../services/clasSubjectServices';
 import { getDepartments } from '../services/departmentServices';
 import { getDevices, getDeviceSpec } from '../services/deviceServices';
+import { getDevicesTransfer } from '../services/deviceTransfer';
 import { getEmployees } from '../services/employeeServices';
 import { getExportsDep, getExportsLabs, getExportsRegs, getExportsSubs } from '../services/exportsServices';
 import { getLaboratories } from '../services/laboratoryServices';
@@ -50,6 +52,7 @@ import { IChemicalType } from '../types/chemicalType';
 import { IChemicalWarehouseType } from '../types/chemicalWarehouseType';
 import { IClassSubjectType } from '../types/classSubjectType';
 import { IDepartmentType } from '../types/departmentType';
+import { IDeviceTransfer } from '../types/deviceTransferType';
 import { IDeviceSpecType, IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
 import { IExportType } from '../types/exportType';
@@ -165,26 +168,6 @@ export function Dashboard() {
         }
     }
 
-    const getWarehouseLaboratoryData = async () => {
-		const listOfExport: IExportType[] = await getExportsLabs();
-		if (listOfExport) {
-			dispatch(setListOfWarehouseLaboratory(listOfExport));
-		}
-	};
-
-	const getWarehouseRegisterGeneralData = async () => {
-		const listOfExport: IExportType[] = await getExportsRegs();
-		if (listOfExport) {
-			dispatch(setListOfWarehouseRegisterGeneral(listOfExport));
-		}
-	};
-	const getWarehouseSubjectData = async () => {
-		const listOfExport: IExportType[] = await getExportsSubs();
-		if (listOfExport) {
-			dispatch(setListOfWarehouseStudySession(listOfExport));
-		}
-	};
-
 	const getWarehouseDepartmentData = async () => {
 		const listOfExportDepartment: IExportType[] = await getExportsDep();
 		if (listOfExportDepartment) {
@@ -227,10 +210,7 @@ export function Dashboard() {
         getSubjectData();
         getClassSubjectData();
         getLessonLabData();
-        getWarehouseRegisterGeneralData();
-        getWarehouseLaboratoryData();
         getRegisterGeneralsData();
-        getWarehouseSubjectData();
 		getWarehouseDepartmentData();
         getPurchaseOrderData();
         getScheduleData();
@@ -267,6 +247,7 @@ export function Dashboard() {
                 {sidebarItems[11].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
                 {sidebarItems[12].isOpen && <WarehouseTable />}
                 {sidebarItems[13].isOpen && <PurchaseOrderTable />}
+                {sidebarItems[14].isOpen && <DeviceTransfer />}
             </div>
             <Snackbar
                 anchorOrigin={{

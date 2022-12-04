@@ -94,6 +94,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
     "name": "Quản lý nhập",
     "icon": ""
   },
+  {
+    "isOpen": false,
+    "name": "Chuyển đổi thiết bị",
+    "icon": ""
+  },
 ]
 
 // Define the initial state using that type

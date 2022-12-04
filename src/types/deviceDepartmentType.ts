@@ -4,6 +4,7 @@ export interface IDeviceDepartmentType {
 	QuantityOriginal: Number;
 	QuantityExport: Number;
 	QuantityRemain: Number;
+	QuantityLiquidate: Number;
 	listDeviceDetail?: IDeviceDetailType[];
 	listExportDevice?: IExportDeviceType[];
 	DeviceId: String;
@@ -13,12 +14,15 @@ export interface IDeviceDepartmentType {
 	Unit: String;
 	HasTrain: String;
 	DeviceDetailId?: String;
+	ImportDate: String;
+	ImportId: String;
 }
 
 export const dummyDeviceDepartmentData: IDeviceDepartmentType = {
 	QuantityOriginal: -1,
 	QuantityExport: -1,
 	QuantityRemain: -1,
+	QuantityLiquidate: -1,
 	listDeviceDetail: [],
 	DeviceId: '',
 	DeviceName: '',
@@ -27,12 +31,15 @@ export const dummyDeviceDepartmentData: IDeviceDepartmentType = {
 	Unit: '',
 	HasTrain: '',
 	DeviceDetailId: '',
-	listExportDevice:[]
+	listExportDevice: [],
+	ImportId: '',
+	ImportDate: '',
 };
 
 export interface IDeviceDetailType {
 	QuantityExport: Number;
 	QuantityRemain: Number;
+	QuantityLiquidate: Number;
 	OrderDate: String;
 	ManufacturerName: String;
 	listDeviceDept: IDeviceDeptType[];
@@ -49,6 +56,7 @@ export interface IDeviceDetailType {
 export const dummyDeviceDetailData: IDeviceDetailType = {
 	QuantityExport: -1,
 	QuantityRemain: -1,
+	QuantityLiquidate: -1,
 	OrderDate: '',
 	ManufacturerName: '',
 	listDeviceDept: [],
@@ -69,7 +77,9 @@ export interface IDeviceDeptType {
 	QuantityOriginal: Number;
 	Unit: String;
 	DeviceDetailId: String;
+	DepartmentName: String;
 	DepartmentId: Number;
+	DeviceDeptId?: String;
 }
 
 export const dummyIDeviceDeptData: IDeviceDeptType = {
@@ -79,5 +89,7 @@ export const dummyIDeviceDeptData: IDeviceDeptType = {
 	QuantityOriginal: -1,
 	Unit: '',
 	DeviceDetailId: '',
+	DepartmentName: '',
 	DepartmentId: 0,
+	DeviceDeptId: '',
 };
