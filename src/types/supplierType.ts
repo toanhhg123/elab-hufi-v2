@@ -4,8 +4,6 @@ export interface ISupplierType {
     Email: String,
     PhoneNumber: String,
     Address: String,
-    Status: String,
-    PurchaseOrders: any
 }
 
 export const dummySupplierData: ISupplierType = {
@@ -14,6 +12,4 @@ export const dummySupplierData: ISupplierType = {
     "Email": "",
     "PhoneNumber": "",
     "Address": "",
-    "Status": "",
-    "PurchaseOrders": null
 }

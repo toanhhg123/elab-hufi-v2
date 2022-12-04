@@ -1,59 +1,60 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import MaterialReactTable, {
-    MRT_Cell,
-    MRT_ColumnDef,
-} from 'material-react-table';
+import React, { FC, useEffect, useMemo, useState, useCallback } from 'react';
+import styled from '@emotion/styled';
+import SearchIcon from '@mui/icons-material/Search';
 import {
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    Stack,
-    TextField,
-    Tooltip,
+    debounce, 
+    IconButton, 
+    InputAdornment,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    tableCellClasses,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField, 
+    Tooltip, 
+    Typography
 } from '@mui/material';
+import { Box } from '@mui/system';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import moment from 'moment';
-import { dummyDeviceData, IDeviceSpecType } from '../../../types/deviceType';
+import { MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import { useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { IListDeviceBelongingToLaboratoryType } from '../../../types/laboratoryType';
+import { ILaboratoryType, IListDeviceBelongingToLaboratoryType } from '../../../types/laboratoryType';
+import { dummyDeviceData, IDeviceSpecType } from '../../../types/deviceType';
+import DeviceSpecDialog from './DeviceSpecDialog';
+import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
 
-const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratoryType[] }> = ({ deviceData }) => {
+const StyledTableCell = styled(TableCell)(theme => ({
+    [`&.${tableCellClasses.head}`]: {
+        backgroundColor: 'lightgray',
+    },
+}));
+
+type ListDeviceBelongingToLaboratoryType = IListDeviceBelongingToLaboratoryType | undefined;
+
+type DeviceInLaboratoryTableProps = {
+    deviceData: IListDeviceBelongingToLaboratoryType[];
+    columns: ColumnType[];
+    row: MRT_Row<ILaboratoryType>
+};
+
+const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData, columns }) => {
     const deviceSpecData = useAppSelector((state: RootState) => state.device.listOfDeviceSpecs);
-
     const [isDetailModal, setIsDetailModal] = useState(false);
     const [tableData, setTableData] = useState<IListDeviceBelongingToLaboratoryType[]>(deviceData);
+    const [order, setOrder] = useState<string>('asc');
+    const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
+    const [keyword, setKeyword] = useState<string>('');
+    const [dataSearch, setDataSearch] = useState<any>([]);
+    const [selectedRow, setSelectedRow] = useState<any>(dummyDeviceData);
     const [deviceSpecTableData, setDeviceSpecTableData] = useState<IDeviceSpecType[]>([]);
-
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
-    }>({});
-
-    const [selectedRow, setSelectedRow] = useState<any>(dummyDeviceData);
-
-    useEffect(() => {
-        let formatedDeviceData = deviceData.map((x: any) => {
-            return {
-                ...x,
-                ExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY')
-            }
-        })
-        setTableData(formatedDeviceData);
-    }, [deviceData])
-
-    useEffect(() => {
-        if (selectedRow.DeviceId) {
-            let formatedDeviceSpecData = deviceSpecData.filter(x => x.DeviceId === selectedRow.DeviceId);
-            setDeviceSpecTableData(formatedDeviceSpecData);
-        }
-
-    }, [selectedRow, deviceSpecData])
-
+    }>({})
 
     const getCommonEditTextFieldProps = useCallback(
         (
@@ -65,37 +66,6 @@ const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratory
             };
         },
         [validationErrors],
-    );
-
-    const columns = useMemo<MRT_ColumnDef<IListDeviceBelongingToLaboratoryType>[]>(
-        () => [
-            {
-                accessorKey: 'ExpDeviceDeptId',
-                header: 'Ngày hết hạn',
-                size: 100,
-            },
-            {
-                accessorKey: 'SerialNumber',
-                header: 'Số seri',
-                size: 100,
-            },
-            {
-                accessorKey: 'DeviceName',
-                header: 'Tên thiết bị',
-                size: 100,
-            },
-            {
-                accessorKey: 'Unit',
-                header: 'Đơn vị',
-                size: 100,
-            },
-            {
-                accessorKey: 'ExportDate',
-                header: 'Ngày xuất',
-                size: 100,
-            },
-        ],
-        [getCommonEditTextFieldProps],
     );
 
     const deviceSpecColumns = useMemo<MRT_ColumnDef<IDeviceSpecType>[]>(
@@ -119,8 +89,67 @@ const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratory
         [getCommonEditTextFieldProps],
     );
 
-    const handleOpenDetailModal = (row: any) => {
-        setSelectedRow(row.original);
+    const handleRequestSort = (property: string) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
+    useEffect(() => {
+        setTableData(prev => {
+            let data = [...prev];
+            data?.sort((a: ListDeviceBelongingToLaboratoryType, b: ListDeviceBelongingToLaboratoryType) => {
+                let i =
+                    order === 'desc'
+                        ? descendingComparator<any>(a, b, orderBy)
+                        : -descendingComparator<any>(a, b, orderBy);
+                return i;
+            });
+            return data;
+        });
+    }, [order, orderBy]);
+
+    useEffect(() => {
+        const deviceItems: IListDeviceBelongingToLaboratoryType[] = deviceData || [];
+        const data = deviceItems?.map((x: IListDeviceBelongingToLaboratoryType) => {
+            let string: String = '';
+
+            Object.keys(x).forEach(key => {
+                if (typeof x[key as keyof typeof x] === 'string') string += x[key as keyof typeof x] + ' ';
+                if (typeof x[key as keyof typeof x] === 'number') string += x[key as keyof typeof x]?.toString() + ' ';
+            });
+
+            return {
+                label: removeAccents(string.toUpperCase()),
+                id: x?.DeviceDeptId,
+            };
+        });
+        setDataSearch(data);
+    }, []);
+
+    useEffect(() => {
+        const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
+        const deviceItems: IListDeviceBelongingToLaboratoryType[] = deviceData || [];
+
+        if (keyword === '') {
+            setTableData(deviceItems);
+        } else {
+            const data = deviceItems?.filter((x: any) => listId.indexOf(x?.DeviceDeptId) !== -1);
+            setTableData(data);
+        }
+    }, [keyword, dataSearch]);
+
+    useEffect(() => {
+        if (selectedRow.DeviceDeptId) {
+            let idx = selectedRow.DeviceDeptId.split('_');
+            let formatedDeviceSpecData = deviceSpecData.filter(x => x.DeviceId === idx[0]);
+            setDeviceSpecTableData(formatedDeviceSpecData);
+        }
+
+    }, [selectedRow, deviceSpecData])
+
+    const handleOpenDetailModal = (index: number) => {
+        setSelectedRow(deviceData[index]);
         setIsDetailModal(true);
     }
 
@@ -131,136 +160,111 @@ const DeviceInLaboratoryTable: FC<{ deviceData: IListDeviceBelongingToLaboratory
 
     return (
         <>
-            <MaterialReactTable
-                displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                        header: 'Các hành động',
-                        muiTableHeadCellProps: {
-                            align: 'center',
-                        },
-                        muiTableBodyCellProps: {
-                            align: 'center',
-                        },
-                    },
-                    'mrt-row-numbers': {
-                        muiTableHeadCellProps: {
-                            align: 'center',
-                        },
-                        muiTableBodyCellProps: {
-                            align: 'center',
-                        },
-                    }
-                }}
-                columns={columns}
-                data={tableData}
-                editingMode="modal" //default
-                enableColumnOrdering
-                enableEditing
-                enableRowNumbers
-                enablePinning
-                initialState={{
-                    density: 'compact',
-                    columnOrder: [
-                        'mrt-row-numbers',
-                        ...columns.map(x => x.accessorKey || ''),
-                        'mrt-row-actions'
-                    ]
-                }}
-                renderRowActions={({ row, table }) => (
-                    <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-                        <Tooltip arrow placement="left" title="Xem chi tiết thông số">
-                            <IconButton style={{ "paddingRight": "0px" }} onClick={() => handleOpenDetailModal(row)}>
-                                <RemoveRedEyeIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-                )}
-                renderTopToolbarCustomActions={() => (
-                    <h3 style={{ "margin": "0px" }}>
-                        <b><KeyboardArrowRightIcon
-                            style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-                        ></KeyboardArrowRightIcon></b>
-                        <span>Thông tin thiết bị</span>
-                    </h3>
-                )}
-            />
-
-            <Dialog open={isDetailModal}>
-                <DialogTitle textAlign="center"><b>Thông tin chi tiết thiết bị</b></DialogTitle>
-                <DialogContent>
-                    <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
-                        <Stack
-                            sx={{
-                                width: '100%',
-                                minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                                gap: '1.5rem',
-                            }}
-                        >
-                            {columns.map((column) => {
-                                if (column.id === "DeviceId" || column.id === "DeviceName") {
-                                    return <TextField
-                                        disabled
-                                        key={column.accessorKey}
-                                        label={column.header}
-                                        name={column.accessorKey}
-                                        defaultValue={column.id && selectedRow[column.id]}
-                                    />
-                                }
-                            }
-                            )}
-
-                            <MaterialReactTable
-                                displayColumnDefOptions={{
-                                    'mrt-row-actions': {
-                                        header: 'Các hành động',
-                                        muiTableHeadCellProps: {
-                                            align: 'center',
-                                        },
-                                        muiTableBodyCellProps: {
-                                            align: 'center',
-                                        },
-                                    },
-                                    'mrt-row-numbers': {
-                                        muiTableHeadCellProps: {
-                                            align: 'center',
-                                        },
-                                        muiTableBodyCellProps: {
-                                            align: 'center',
-                                        },
+            <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
+                <Typography fontWeight="bold">Bảng thiết bị</Typography>
+                <Box display="flex" alignItems="end">
+                    <TextField
+                        id="filled-search"
+                        type="search"
+                        variant="standard"
+                        placeholder="Tìm kiếm..."
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                        onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+                    />
+                </Box>
+            </Box>
+            <TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
+                <Table sx={{ minWidth: 650 }} stickyHeader size="small">
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell align="left">
+                                <b>#</b>
+                            </StyledTableCell>
+                            {columns.map(col => {
+                                return (
+                                    <StyledTableCell
+                                        align="left"
+                                        key={col.id}
+                                        onClick={() => handleRequestSort(col.id)}
+                                    >
+                                        <b>{col.header}</b>
+                                        {renderArrowSort(order, orderBy, col.id)}
+                                    </StyledTableCell>
+                                );
+                            })}
+                            <StyledTableCell align="right">
+                                <b>Hành động</b>
+                            </StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {tableData.length > 0 ? tableData?.map((deviceItem: IListDeviceBelongingToLaboratoryType, index: number) => (
+                            <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                <TableCell align="left">{index + 1}</TableCell>
+                                {columns.map(col => {
+                                    if (col.renderValue) {
+                                        return (
+                                            <TableCell align="left" key={col.id}>
+                                                {`${col.renderValue(
+                                                    `${deviceItem[col.id as keyof typeof deviceItem]}`
+                                                )}`}
+                                            </TableCell>
+                                        );
                                     }
-                                }}
-                                columns={deviceSpecColumns}
-                                data={deviceSpecTableData}
-                                editingMode="modal" //default
-                                enableColumnOrdering
-                                enableEditing
-                                enableRowNumbers
-                                enablePinning
-                                initialState={{
-                                    density: 'compact',
-                                    columnOrder: [
-                                        'mrt-row-numbers',
-                                        ...deviceSpecColumns.map(x => x.accessorKey || ''),
-                                    ]
-                                }}
-                                renderTopToolbarCustomActions={() => (
-                                    <h3 style={{ "margin": "0px" }}>
-                                        <b><KeyboardArrowRightIcon
-                                            style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-                                        ></KeyboardArrowRightIcon></b>
-                                        <span>Thông số thiết bị</span>
-                                    </h3>
-                                )}
-                            />
-                        </Stack>
-                    </form>
-                </DialogContent>
-                <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={onCloseDetailModal}>Đóng</Button>
-                </DialogActions>
-            </Dialog>
+                                    if (col.type === 'date')
+                                        return (
+                                            <TableCell align="left" key={col.id}>
+                                                {moment
+                                                    .unix(Number(deviceItem[col.id as keyof typeof deviceItem]))
+                                                    .format('DD/MM/YYYY')}
+                                            </TableCell>
+                                        );
+
+                                    return (
+                                        <TableCell align="left" key={col.id}>
+                                            {deviceItem[col.id as keyof typeof deviceItem]
+                                                ? `${deviceItem[col.id as keyof typeof deviceItem]}`
+                                                : ''}
+                                        </TableCell>
+                                    );
+                                })}
+                                <TableCell align="right" size="small">
+                                    <Tooltip arrow placement="left" title="Xem chi tiết">
+                                        <IconButton>
+                                            <RemoveRedEyeIcon onClick={() => handleOpenDetailModal(index)} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                            :
+                            <TableRow>
+                                <TableCell colSpan={12} sx={{ textAlign: 'center' }}>
+                                    <Typography variant="h5" gutterBottom align="center" component="div">
+                                        Trống
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        }
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <DeviceSpecDialog
+                isOpen={isDetailModal}
+                columns={columns}
+                deviceSpecColumns={deviceSpecColumns}
+                onClose={onCloseDetailModal}
+                selectedDeivce={selectedRow}
+                deviceSpecData={deviceSpecTableData}
+            />
         </>
     );
-}
+};
 
 export default React.memo(DeviceInLaboratoryTable);

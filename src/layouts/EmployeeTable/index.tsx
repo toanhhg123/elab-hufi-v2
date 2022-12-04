@@ -369,7 +369,7 @@ const EmployeeTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Huỷ</Button>
+          <Button onClick={onCloseEditModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
             Lưu thay đổi
           </Button>
@@ -382,7 +382,7 @@ const EmployeeTable: FC = () => {
           <div>Bạn có chắc muốn xoá thông tin nhân viên {`${deletedRow.EmployeeID}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Huỷ</Button>
+          <Button onClick={onCloseDeleteModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
             Xác nhận
           </Button>
@@ -472,7 +472,7 @@ const EmployeeTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Huỷ</Button>
+          <Button onClick={onCloseCreateModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
             Tạo
           </Button>

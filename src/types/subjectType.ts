@@ -4,7 +4,8 @@ export interface IChemicalsBelongingToSubjectType {
     Specifications: string,
     Unit: string,
     Amount: number,
-    Note: string
+    Note: string,
+    AmountTotal?: number
 }
 
 export interface IDevicesBelongingToSubjectType {

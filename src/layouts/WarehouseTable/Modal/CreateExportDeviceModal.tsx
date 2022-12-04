@@ -443,7 +443,7 @@ const CreateExportDeviceModal = ({
 				</form>
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
-				<Button onClick={onClose}>Huỷ</Button>
+				<Button onClick={onClose}>Hủy</Button>
 				<Button color="primary" onClick={() => handleSubmit(listDeviceAmount, createdRow)} variant="contained">
 					Tạo
 				</Button>
