@@ -26,12 +26,12 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { dummyPlanSubjectData, IPlanSubjectType } from '../../types/planSubjectType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { 
-  deletePlanSubject, 
-  getPlanningSuggestion, 
-  getPlanSubjects, 
-  postPlanSubject, 
-  updatePlanSubject 
+import {
+  deletePlanSubject,
+  getPlanningSuggestion,
+  getPlanSubjects,
+  postPlanSubject,
+  updatePlanSubject
 } from '../../services/planSubjectServices';
 import { RootState } from '../../store';
 import { setListOfPlanSubjects } from './planSubjectSlice';
@@ -187,22 +187,22 @@ const PlanSubjectTable: FC = () => {
       id: 'Content',
       name: 'Nội dung',
     },
-    {
-      id: 'NumClass',
-      name: 'SL lớp',
-    },
-    {
-      id: 'NumGroupOfClass',
-      name: 'SL nhóm',
-    },
-    {
-      id: 'EmployeeName',
-      name: 'Người lập',
-    },
-    {
-      id: 'Note',
-      name: 'Ghi chú',
-    },
+    // {
+    //   id: 'NumClass',
+    //   name: 'SL lớp',
+    // },
+    // {
+    //   id: 'NumGroupOfClass',
+    //   name: 'SL nhóm',
+    // },
+    // {
+    //   id: 'EmployeeName',
+    //   name: 'Người lập',
+    // },
+    // {
+    //   id: 'Note',
+    //   name: 'Ghi chú',
+    // },
   ]
 
   const chemicalInPlanSubjectTableColumns = useRef<ColumnType[]>([
@@ -787,30 +787,6 @@ const PlanSubjectTable: FC = () => {
                           setCreatedRow({ ...createdRow, "Note": e.target.value })
                         }
                       />
-                    } else if (item.id === "EmployeeName") {
-                      return <Autocomplete
-                        key={"EmployeeName"}
-                        options={employeeDataValue}
-                        noOptionsText="Không có kết quả trùng khớp"
-                        value={employeeDataValue.find((x: any) => x.id === createdRow.EmployeeId) || null}
-                        getOptionLabel={option => option?.label}
-                        renderInput={params => {
-                          return (
-                            <TextField
-                              {...params}
-                              label={item.name}
-                              placeholder="Nhập để tìm kiếm"
-                            />
-                          );
-                        }}
-                        onChange={(event, value) => {
-                          setCreatedRow({
-                            ...createdRow,
-                            "EmployeeId": value?.id,
-                            "EmployeeName": value?.name,
-                          });
-                        }}
-                      />
                     }
                     else {
                       return <TextField
@@ -822,6 +798,59 @@ const PlanSubjectTable: FC = () => {
                       />
                     }
                   })}
+                  <div className="planningGroup" style={{ "display": "flex" }}>
+                    <TextField
+                      key={"NumClass"}
+                      label={'SL lớp'}
+                      name={"NumClass"}
+                      sx={{ "minWidth": "250px", "marginRight": "10px" }}
+                      defaultValue={createdRow["NumClass"]}
+                      disabled
+                    />
+                    <TextField
+                      key={"NumGroupOfClass"}
+                      label={'SL nhóm'}
+                      name={"NumGroupOfClass"}
+                      sx={{ "minWidth": "250px", "marginRight": "10px" }}
+                      defaultValue={createdRow["NumGroupOfClass"]}
+                      disabled
+                    />
+                    <Autocomplete
+                      key={"EmployeeName"}
+                      options={employeeDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      sx={{ "width": "450px" }}
+                      value={employeeDataValue.find((x: any) => x.id === createdRow.EmployeeId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={"Người lập"}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
+                        setCreatedRow({
+                          ...createdRow,
+                          "EmployeeId": value?.id,
+                          "EmployeeName": value?.name,
+                        });
+                      }}
+                    />
+                  </div>
+
+
+                  <TextareaAutosize
+                    aria-label="minimum height"
+                    minRows={3}
+                    placeholder="Nhập ghi chú..."
+                    defaultValue={createdRow["Note"]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, "Note": e.target.value })
+                    }
+                  />
                   <ChemicalPlanning
                     isOpen={true}
                     currentValue={createdRow.listChemical}

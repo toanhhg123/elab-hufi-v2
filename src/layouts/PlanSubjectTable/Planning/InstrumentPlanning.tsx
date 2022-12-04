@@ -20,7 +20,13 @@ const InstrumentPlanning: FC<{
 
     useEffect(() => {
         if (isOpen) {
-            setTableData(currentValue);
+            let formatValue = currentValue.map(item => {
+                return {
+                    ...item,
+                    "Quantity": item.Quantity + ` (${item.Unit})`
+                }
+            })
+            setTableData(formatValue);
         }
 
         return () => {
@@ -62,10 +68,6 @@ const InstrumentPlanning: FC<{
             {
                 accessorKey: 'Quantity',
                 header: 'Số lượng',
-            },
-            {
-                accessorKey: 'Unit',
-                header: 'Đơn vị',
             },
             {
                 accessorKey: 'Note',

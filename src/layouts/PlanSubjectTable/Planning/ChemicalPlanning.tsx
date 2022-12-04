@@ -20,7 +20,13 @@ const ChemicalPlanning: FC<{
 
     useEffect(() => {
         if (isOpen) {
-            setTableData(currentValue);
+            let formatValue = currentValue.map(item => {
+                return {
+                    ...item,
+                    "Amount": item.Amount + ` (${item.Unit})`
+                }
+            })
+            setTableData(formatValue);
         }
 
         return () => {
@@ -56,17 +62,17 @@ const ChemicalPlanning: FC<{
             },
             {
                 accessorKey: 'Specifications',
-                header: 'CTHH',
+                header: 'Công thức',
                 enableEditing: false,
             },
             {
                 accessorKey: 'Amount',
                 header: 'Số lượng',
             },
-            {
-                accessorKey: 'Unit',
-                header: 'Đơn vị',
-            },
+            // {
+            //     accessorKey: 'Unit',
+            //     header: 'Đơn vị',
+            // },
             {
                 accessorKey: 'Note',
                 header: 'Ghi chú',
