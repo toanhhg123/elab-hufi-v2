@@ -3,6 +3,7 @@ import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
+	Autocomplete,
 	Button,
 	IconButton,
 	Paper,
@@ -13,8 +14,9 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
+	TextField,
 	Tooltip,
-	Typography
+	Typography,
 } from '@mui/material';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
@@ -24,6 +26,7 @@ import { setSnackbarMessage } from '../../../../pages/appSlice';
 import {
 	deleteExportRegs,
 	getExportsRegById,
+	getExportsRegs,
 	postExportRegs,
 	updateExportRegs,
 } from '../../../../services/exportsServices';
@@ -48,7 +51,7 @@ const RegisterGeneralTabItem: FC = () => {
 		(state: RootState) => state.warehouse.listOfWarehouseRegisterGeneral,
 	);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
+	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
@@ -60,13 +63,29 @@ const RegisterGeneralTabItem: FC = () => {
 	}>({});
 
 	const dispatch = useAppDispatch();
+	const [departmentActive, setDepartmentActive] = useState<Number>(2);
 
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportData);
 	const [updatedRow, setUpdatedRow] = useState<any>(dummyExportData);
 	const [deletedRow, setDeletedRow] = useState<any>(dummyExportData);
 
 	useEffect(() => {
-		let formatedData = warehouseRegisterGeneral.map((x: IExportType) => {
+		const getWarehouseRegisterGeneralData = async () => {
+			try {
+				const listOfExport: IExportType[] = await getExportsRegs(departmentActive);
+				if (listOfExport) {
+					dispatch(setListOfWarehouseRegisterGeneral(listOfExport));
+				}
+			} catch (error) {
+				dispatch(setListOfWarehouseRegisterGeneral([]));
+			}
+		};
+
+		getWarehouseRegisterGeneralData();
+	}, [departmentActive]);
+
+	useEffect(() => {
+		let formatedData = warehouseRegisterGeneral?.map((x: IExportType) => {
 			let employeeInfoIdx = Array.isArray(employeeData)
 				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeId)
 				: -1;
@@ -78,7 +97,7 @@ const RegisterGeneralTabItem: FC = () => {
 			};
 		});
 		formatedData.sort((x, y) => y.ExportDate - x.ExportDate);
-		setTableData(formatedData);
+		setTableData(formatedData || []);
 	}, [warehouseRegisterGeneral]);
 
 	const getCommonEditTextFieldProps = useCallback(
@@ -125,6 +144,7 @@ const RegisterGeneralTabItem: FC = () => {
 			{
 				accessorKey: 'RegisterGeneralId',
 				header: 'RegisterGeneralId',
+				enableHiding: false,
 				size: 140,
 			},
 			{
@@ -141,20 +161,9 @@ const RegisterGeneralTabItem: FC = () => {
 		[getCommonEditTextFieldProps],
 	);
 
-	const columnsReg = useRef([
-		{ id: 'RegisterGeneralId', header: 'Mã đăng kí chung' },
-		{ id: 'DateCreate', header: 'Ngày tạo' },
-		{ id: 'Instructor', header: 'Người hướng dẫn' },
-		{ id: 'ThesisName', header: 'Tên luận văn' },
-		{ id: 'ResearchSubject', header: 'Đối tượng nghiên cứu' },
-		{ id: 'StartDate', header: 'Ngày bắt đầu' },
-		{ id: 'EndDate', header: 'Ngày kết thúc' },
-		{ id: 'Status', header: 'Trạng thái' },
-	]);
-
 	const columnsChemicalTable = useRef<ColumnType[]>([
 		{
-			id: 'ExpChemDeptId',
+			id: 'ChemDeptId',
 			header: 'Mã xuất hoá chất',
 		},
 		{
@@ -179,7 +188,7 @@ const RegisterGeneralTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'ExpChemDeptId',
+				accessorKey: 'ChemDeptId',
 				header: 'Mã xuất hoá chất',
 				size: 140,
 			},
@@ -206,12 +215,6 @@ const RegisterGeneralTabItem: FC = () => {
 				enableEditing: false,
 				size: 140,
 			},
-			// 		{
-			// 			accessorKey: 'Origin',
-			// 			header: 'Xuất xứ',
-			// 			enableEditing: false,
-			// 			size: 140,
-			// 		},
 		],
 		[getCommonEditTextFieldProps],
 	);
@@ -303,7 +306,7 @@ const RegisterGeneralTabItem: FC = () => {
 
 	const handleSumbitCreateExportChemical = async (listChemical: any, row: any) => {
 		const listChemicalExportUpdate = listChemical.map((chemical: any) => ({
-			ExpChemDeptId: chemical.ExpChemDeptId,
+			ChemDeptId: chemical.ChemDeptId,
 			ChemicalName: chemical.ChemicalName,
 			Amount: chemical.Amount,
 			Unit: chemical.Unit,
@@ -318,7 +321,7 @@ const RegisterGeneralTabItem: FC = () => {
 			warehouseRegisterGeneral.findIndex(x => x.ExpRegGeneralId === createData.ExpRegGeneralId) > -1;
 
 		if (isExist) {
-			const resData = await updateExportRegs(createData);
+			const resData = await updateExportRegs(createData, departmentActive);
 
 			if (Object.keys(resData).length !== 0) {
 				dispatch(setSnackbarMessage('Cập nhật thông tin thành công'));
@@ -333,9 +336,12 @@ const RegisterGeneralTabItem: FC = () => {
 				dispatch(setSnackbarMessage('Cập nhật thông tin không thành công'));
 			}
 		} else {
-			const resData = await postExportRegs(createData);
+			const resData = await postExportRegs(createData, departmentActive);
 			if (Object.keys(resData).length !== 0) {
-				const newListOfRegs: IExportType = await getExportsRegById(createData?.ExpRegGeneralId || '');
+				const newListOfRegs: IExportType = await getExportsRegById(
+					createData?.ExpRegGeneralId || '',
+					departmentActive,
+				);
 				if (newListOfRegs) {
 					dispatch(setSnackbarMessage('Tạo thông tin mới thành công'));
 					dispatch(setListOfWarehouseRegisterGeneral([...warehouseRegisterGeneral, newListOfRegs]));
@@ -374,11 +380,10 @@ const RegisterGeneralTabItem: FC = () => {
 				columns={columns}
 				data={tableData}
 				editingMode="modal" //default
-				enableColumnOrdering
 				enableEditing
 				enableRowNumbers
 				enablePinning
-				enableGrouping
+				enableGrouping={false}
 				enableRowActions
 				enableExpanding
 				initialState={{
@@ -395,76 +400,14 @@ const RegisterGeneralTabItem: FC = () => {
 					sx: { background: '#f3f3f3' },
 				}}
 				renderDetailPanel={({ row }) => {
-					let registerGeneralInfoIdx = registerGeneralsData.findIndex(
-						y => y.RegisterGeneralId === row.original.RegisterGeneralId,
-					);
 					return (
 						<>
-							<TableContainer component={Paper} sx={{ marginBottom: '24px' }}>
-								<Table sx={{ minWidth: 650 }} aria-label="simple table">
-									<TableHead>
-										<TableRow>
-											{columnsReg.current.map(col => {
-												return (
-													<StyledTableCell key={col.id} align="left">
-														<b>{col.header}</b>
-													</StyledTableCell>
-												);
-											})}
-										</TableRow>
-									</TableHead>
-									<TableBody>
-										<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-											{columnsReg.current.map(col => {
-												const data = registerGeneralsData[registerGeneralInfoIdx];
-												return (
-													<TableCell key={col.id} align="left">
-														{data[col.id as keyof typeof data]
-															? `${data[col.id as keyof typeof data]}`
-															: ''}
-													</TableCell>
-												);
-											})}
-										</TableRow>
-									</TableBody>
-								</Table>
-							</TableContainer>
 							<ChemicalTable
 								columns={columnsChemicalTable.current}
 								warehouseData={warehouseRegisterGeneral}
 								row={row}
 								type="REG"
 							/>
-							{/* <ChemicalTable
-								handleOpenCreate={() => {
-									setCreatedRow(row.original);
-									setIsCreateExportChemicalModal(true);
-								}}
-								handleOpenDelete={(exportChemical: any) => {
-									setDeletedRow(exportChemical);
-									setIsDeleteExportChemicalModal(true);
-								}}
-								handleOpenEdit={(exportChemical: any) => {
-									setUpdatedRow(exportChemical);
-									setIsEditExportChemicalModal(true);
-								}}
-								row={row}
-							/>
-							<DeviceTable
-								handleOpenCreate={() => {
-									setCreatedRow(row.original);
-									setIsCreateExportDeviceModal(true);
-								}}
-								handleOpenDelete={(exportDevice: any) => {
-									setUpdatedRow(exportDevice);
-									setIsEditExportDeviceModal(true);
-								}}
-								handleOpenEdit={(exportDevice: any) => {
-									setDeletedRow(exportDevice);
-									setIsDeleteExportDeviceModal(true);
-								}}
-								row={row}
-							/> */}
 						</>
 					);
 				}}
@@ -476,6 +419,22 @@ const RegisterGeneralTabItem: FC = () => {
 							></KeyboardArrowRightIcon>
 						</b>
 						<span>Quản lý phiếu xuất đăng kí chung</span>
+						<Autocomplete
+							sx={{ marginBottom: '8px', marginTop: '16px' }}
+							size="small"
+							autoComplete={true}
+							options={departmentData.filter(x => x.DepartmentId !== 1).map(y => y.DepartmentName)}
+							onChange={(event, value) => {
+								setDepartmentActive(
+									departmentData.find(x => x.DepartmentName === value)?.DepartmentId || -1,
+								);
+							}}
+							disableClearable={true}
+							noOptionsText="Không có kết quả trùng khớp"
+							defaultValue={departmentData.filter(x => x.DepartmentId !== 1)[0].DepartmentName || 0}
+							value={departmentData.find(x => x.DepartmentId === departmentActive)?.DepartmentName || ''}
+							renderInput={params => <TextField {...params} label="Khoa" />}
+						/>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
@@ -527,6 +486,7 @@ const RegisterGeneralTabItem: FC = () => {
 					columns={columns}
 					isCreateModal={isCreateModal}
 					handleSubmitCreateModal={handleSubmitCreateWarehouseRegModal}
+					initData={{...createdRow, DepartmentId: departmentActive}}
 				/>
 			)}
 
@@ -540,14 +500,6 @@ const RegisterGeneralTabItem: FC = () => {
 				/>
 			)}
 
-			{/* {isDeleteExportChemicalModal && (
-				<DeleteExportChemicalModal
-					isOpen={isDeleteExportChemicalModal}
-					initData={deletedRow}
-					onClose={() => setIsDeleteExportChemicalModal(false)}
-				/>
-			)} */}
-
 			{isCreateExportChemicalModal && (
 				<CreateExportChemicalModal
 					type="REG"
@@ -558,41 +510,6 @@ const RegisterGeneralTabItem: FC = () => {
 					handleSubmit={handleSumbitCreateExportChemical}
 				/>
 			)}
-
-			{/* {isEditExportChemicalModal && (
-				<EditExportChemicalModal
-					initData={updatedRow}
-					isOpen={isEditExportChemicalModal}
-					columns={columnsExportChemicalModal}
-					onClose={() => setIsEditExportChemicalModal(false)}
-				/>
-			)} */}
-
-			{/* {isCreateExportDeviceModal && (
-				<CreateExportDeviceModal
-					initData={createdRow}
-					isOpen={isCreateExportDeviceModal}
-					columns={columnsExportDeviceModal}
-					onClose={() => setIsCreateExportDeviceModal(false)}
-				/>
-			)} */}
-
-			{/* {isDeleteExportDeviceModal && (
-				<DeleteExportDeviceModal
-					isOpen={isDeleteExportDeviceModal}
-					initData={deletedRow}
-					onClose={() => setIsDeleteExportDeviceModal(false)}
-				/>
-			)} */}
-
-			{/* {isEditExportDeviceModal && (
-				<EditExportDeviceModal
-					initData={updatedRow}
-					isOpen={isEditExportDeviceModal}
-					columns={columnsExportDeviceModal}
-					onClose={() => setIsEditExportDeviceModal(false)}
-				/>
-			)} */}
 		</>
 	);
 	return <></>;

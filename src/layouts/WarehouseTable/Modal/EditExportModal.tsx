@@ -84,7 +84,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 								return (
 									<LocalizationProvider dateAdapter={AdapterMoment} key={column.id}>
 										<DatePicker
-											label="Ngày xuất"
+											label={column.header}
 											value={new Date(updatedRow.ExportDate * 1000)}
 											onChange={(val: any) =>
 												setUpdatedRow({
@@ -122,7 +122,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											return (
 												<TextField
 													{...params}
-													label="Người xuất"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -157,7 +157,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											return (
 												<TextField
 													{...params}
-													label="Đăng kí chung"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -192,7 +192,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											return (
 												<TextField
 													{...params}
-													label="Phòng thí nghiệm"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -259,7 +259,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 															.toString()
 													: ''
 											}
-											label="Chấp nhận"
+											label={column.header}
 											onChange={(e: SelectChangeEvent) =>
 												setUpdatedRow({
 													...updatedRow,
@@ -280,10 +280,10 @@ const EditExportModal: FC<EditExportModalProps> = ({
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
-								const list = ['1', '2', '3'];
+								const list = [1, 2, 3];
 								return (
 									<FormControl sx={{ m: 0, minWidth: 120 }} key={column.id}>
-										<InputLabel id="Semester-select-required-label">Chấp nhận</InputLabel>
+										<InputLabel id="Semester-select-required-label">Học kỳ</InputLabel>
 										<Select
 											labelId="Semester-select-required-label"
 											id="Semester-select-required"
@@ -294,7 +294,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 															.toString()
 													: ''
 											}
-											label="Học kỳ"
+											label={column.header}
 											onChange={(e: SelectChangeEvent) =>
 												setUpdatedRow({
 													...updatedRow,
@@ -324,6 +324,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 									<Autocomplete
 										key={column.id}
 										options={list}
+										disabled={!column?.enableEditing}
 										noOptionsText="Không có kết quả trùng khớp"
 										defaultValue={list.find(x => x.id === updatedRow['DepartmentId']) || null}
 										value={list.find(x => x.id === updatedRow['DepartmentId']) || null}
@@ -367,7 +368,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											return (
 												<TextField
 													{...params}
-													label="Người chấp nhận"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -406,7 +407,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 											return (
 												<TextField
 													{...params}
-													label="Buổi học"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);

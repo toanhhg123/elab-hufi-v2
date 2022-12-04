@@ -1,7 +1,7 @@
 import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { Button, IconButton, Tooltip, Typography } from '@mui/material';
+import { Autocomplete, Button, IconButton, TextField, Tooltip, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
@@ -11,8 +11,9 @@ import { setSnackbarMessage } from '../../../../pages/appSlice';
 import {
 	deleteExportSubs,
 	getExportsSubById,
+	getExportsSubs,
 	postExportSubs,
-	updateExportSubs,
+	updateExportSubs
 } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
 import { IExportChemicalType } from '../../../../types/exportChemicalType';
@@ -28,7 +29,9 @@ const StudySessionTabItem: FC = () => {
 	const warehouseStudySession = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseStudySession);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
+	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
+	const [departmentActive, setDepartmentActive] = useState<Number>(2);
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
@@ -46,7 +49,21 @@ const StudySessionTabItem: FC = () => {
 	const [deletedRow, setDeletedRow] = useState<any>(dummyExportData);
 
 	useEffect(() => {
-		let formatedData = warehouseStudySession.map((x: IExportType) => {
+		const getWarehouseSubjectData = async () => {
+			try {
+				const listOfExport: IExportType[] = await getExportsSubs(departmentActive);
+				if (listOfExport) {
+					dispatch(setListOfWarehouseStudySession(listOfExport));
+				}
+			} catch (error) {
+				dispatch(setListOfWarehouseStudySession([]));
+			}
+		};
+		getWarehouseSubjectData();
+	}, [departmentActive]);
+
+	useEffect(() => {
+		let formatedData = warehouseStudySession?.map((x: IExportType) => {
 			let employeeInChargeInfoIdx = Array.isArray(employeeData)
 				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeInCharge)
 				: -1;
@@ -67,8 +84,8 @@ const StudySessionTabItem: FC = () => {
 			};
 		});
 		formatedData.sort((x, y) => y.ExportDate - x.ExportDate);
-		setTableData(formatedData);
-	}, [warehouseStudySession, studySessionData]);
+		setTableData(formatedData || []);
+	}, [warehouseStudySession]);
 
 	const getCommonEditTextFieldProps = useCallback(
 		(cell: MRT_Cell<IExportType>): MRT_ColumnDef<IExportType>['muiTableBodyCellEditTextFieldProps'] => {
@@ -131,7 +148,7 @@ const StudySessionTabItem: FC = () => {
 
 	const columnsChemicalTable = useRef<ColumnType[]>([
 		{
-			id: 'ExpChemDeptId',
+			id: 'ChemDeptId',
 			header: 'Mã xuất hoá chất',
 		},
 		{
@@ -156,7 +173,7 @@ const StudySessionTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'ExpChemDeptId',
+				accessorKey: 'ChemDeptId',
 				header: 'Mã xuất hoá chất',
 				enableEditing: false,
 				size: 140,
@@ -237,7 +254,7 @@ const StudySessionTabItem: FC = () => {
 			SubjectId: updatedRow.SubjectId,
 			EmployeeInCharge: updatedRow.EmployeeInCharge,
 			EmployeeCreate: updatedRow.EmployeeCreate,
-			listSub: updatedRow.listSub,
+			listChemical: updatedRow.listChemical,
 		};
 		setCreatedRow(updateData);
 		setIsCreateExportChemicalModal(true);
@@ -254,7 +271,7 @@ const StudySessionTabItem: FC = () => {
 				SubjectId: createdRow.SubjectId,
 				EmployeeInCharge: createdRow.EmployeeInCharge,
 				EmployeeCreate: createdRow.EmployeeCreate,
-				listSub: createdRow.listSub,
+				listChemical: createdRow.listChemical,
 			};
 
 			setCreatedRow(createData);
@@ -266,7 +283,7 @@ const StudySessionTabItem: FC = () => {
 
 	const handleSumbitCreateExportChemical = async (listChemical: any, row: any) => {
 		const listChemicalExportUpdate = listChemical.map((chemical: any) => ({
-			ExpChemDeptId: chemical.ExpChemDeptId,
+			ChemDeptId: chemical.ChemDeptId,
 			ChemicalName: chemical.ChemicalName,
 			Amount: chemical.Amount,
 			Unit: chemical.Unit,
@@ -275,11 +292,11 @@ const StudySessionTabItem: FC = () => {
 
 		const createData: IExportType = {
 			...createdRow,
-			listSub: listChemicalExportUpdate,
+			listChemical: listChemicalExportUpdate,
 		};
 		const isExist: boolean = warehouseStudySession.findIndex(x => x.ExpSubjectId === createData.ExpSubjectId) > -1;
 		if (isExist) {
-			const resData = await updateExportSubs(createData);
+			const resData = await updateExportSubs(createData, departmentActive);
 
 			if (Object.keys(resData).length !== 0) {
 				dispatch(setSnackbarMessage('Cập nhật thông tin thành công'));
@@ -294,9 +311,12 @@ const StudySessionTabItem: FC = () => {
 				dispatch(setSnackbarMessage('Cập nhật thông tin không thành công'));
 			}
 		} else {
-			const resData = await postExportSubs(createData);
+			const resData = await postExportSubs(createData, departmentActive);
 			if (Object.keys(resData).length !== 0) {
-				const newListOfSubs: IExportType = await getExportsSubById(createData?.ExpSubjectId || '');
+				const newListOfSubs: IExportType = await getExportsSubById(
+					createData?.ExpSubjectId || '',
+					departmentActive,
+				);
 				if (newListOfSubs) {
 					dispatch(setSnackbarMessage('Tạo thông tin mới thành công'));
 					dispatch(setListOfWarehouseStudySession([...warehouseStudySession, newListOfSubs]));
@@ -335,11 +355,10 @@ const StudySessionTabItem: FC = () => {
 				columns={columns}
 				data={tableData}
 				editingMode="modal" //default
-				enableColumnOrdering
 				enableEditing
 				enableRowNumbers
 				enablePinning
-				enableGrouping
+				enableGrouping={false}
 				enableRowActions
 				enableExpanding
 				muiTableDetailPanelProps={{
@@ -396,6 +415,22 @@ const StudySessionTabItem: FC = () => {
 						</b>
 
 						<span>Quản lý phiếu xuất buổi học</span>
+						<Autocomplete
+							sx={{ marginBottom: '8px', marginTop: '16px' }}
+							size="small"
+							autoComplete={true}
+							options={departmentData.filter(x => x.DepartmentId !== 1).map(y => y.DepartmentName)}
+							onChange={(event, value) => {
+								setDepartmentActive(
+									departmentData.find(x => x.DepartmentName === value)?.DepartmentId || -1,
+								);
+							}}
+							disableClearable={true}
+							noOptionsText="Không có kết quả trùng khớp"
+							defaultValue={departmentData.filter(x => x.DepartmentId !== 1)[0].DepartmentName || 0}
+							value={departmentData.find(x => x.DepartmentId === departmentActive)?.DepartmentName || ''}
+							renderInput={params => <TextField {...params} label="Khoa" />}
+						/>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
@@ -447,8 +482,10 @@ const StudySessionTabItem: FC = () => {
 					columns={columns}
 					isCreateModal={isCreateModal}
 					handleSubmitCreateModal={handleSubmitCreateWarehouseSesModal}
+					initData={{...createdRow, DepartmentId: departmentActive}}
 				/>
 			)}
+			
 			{isEditModal && (
 				<EditExportModal
 					initData={updatedRow}
@@ -458,14 +495,6 @@ const StudySessionTabItem: FC = () => {
 					handleSubmitEditModal={handleSubmitEditWarehouseSesModal}
 				/>
 			)}
-
-			{/* {isDeleteExportChemicalModal && (
-				<DeleteExportChemicalModal
-					isOpen={isDeleteExportChemicalModal}
-					initData={deletedRow}
-					onClose={() => setIsDeleteExportChemicalModal(false)}
-				/>
-			)} */}
 
 			{isCreateExportChemicalModal && (
 				<CreateExportChemicalModal
@@ -477,41 +506,6 @@ const StudySessionTabItem: FC = () => {
 					handleSubmit={handleSumbitCreateExportChemical}
 				/>
 			)}
-
-			{/* {isEditExportChemicalModal && (
-				<EditExportChemicalModal
-					initData={updatedRow}
-					isOpen={isEditExportChemicalModal}
-					columns={columnsExportChemical}
-					onClose={() => setIsEditExportChemicalModal(false)}
-				/>
-			)}
-
-			{isCreateExportDeviceModal && (
-				<CreateExportDeviceModal
-					initData={createdRow}
-					isOpen={isCreateExportDeviceModal}
-					columns={columnsExportDevice}
-					onClose={() => setIsCreateExportDeviceModal(false)}
-				/>
-			)}
-
-			{isDeleteExportDeviceModal && (
-				<DeleteExportDeviceModal
-					isOpen={isDeleteExportDeviceModal}
-					initData={deletedRow}
-					onClose={() => setIsDeleteExportDeviceModal(false)}
-				/>
-			)}
-
-			{isEditExportDeviceModal && (
-				<EditExportDeviceModal
-					initData={updatedRow}
-					isOpen={isEditExportDeviceModal}
-					columns={columnsExportDevice}
-					onClose={() => setIsEditExportDeviceModal(false)}
-				/>
-			)} */}
 		</>
 	);
 

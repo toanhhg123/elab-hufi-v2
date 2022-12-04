@@ -51,7 +51,7 @@ const CreateExportChemicalModal = ({
 	const [chemicalData, setChemicalData] = useState([]);
 
 	const [listChemicalAmount, setListChemicalAmount] = useState<any>([]);
-	const [chemicalAmount, setChemicalAmount] = useState<any>({ ExpChemDeptId: '', ChemDetailId: '', Amount: 0 });
+	const [chemicalAmount, setChemicalAmount] = useState<any>({ ChemDeptId: '', ChemDetailId: '', Amount: 0 });
 	const dispatch = useAppDispatch();
 	const [exportChemicalIdText, setExportChemicalIdText] = useState('');
 	const [loading, setLoading] = useState<boolean>(true);
@@ -68,7 +68,7 @@ const CreateExportChemicalModal = ({
 				list = initData?.listChemicalExport || [];
 				break;
 			case 'SUB':
-				list = initData?.listSub || [];
+				list = initData?.listChemical || [];
 				break;
 			default:
 				break;
@@ -78,7 +78,7 @@ const CreateExportChemicalModal = ({
 				case 'DEP':
 					case 'REG':
 						return {
-						ExpChemDeptId: chemical?.ExpChemDeptId,
+						ChemDeptId: chemical?.ChemDeptId,
 						ChemDetailId: chemical?.ChemDetailId,
 						ChemicalName: chemical?.ChemicalName,
 						Amount: chemical?.AmountOriginal || chemical?.Amount || 0,
@@ -86,7 +86,7 @@ const CreateExportChemicalModal = ({
 					};
 				case 'SUB':
 					return {
-						ExpChemDeptId: chemical?.ExpChemDeptId,
+						ChemDeptId: chemical?.ChemDeptId,
 						Amount: chemical?.Amount,
 						ChemicalName: chemical?.ChemicalName,
 						Unit: chemical?.Unit,
@@ -133,7 +133,7 @@ const CreateExportChemicalModal = ({
 								chemicalsDetail.push({
 									ChemicalName: chemicalDetail?.ChemicalName,
 									ChemDetailId: chemicalDetail?.ChemDetailId,
-									ExpChemDeptId: chemicalDetail?.ExpChemDeptId,
+									ChemDeptId: chemicalDetail?.ChemDeptId,
 									Unit: chemicalDetail.Unit,
 								});
 							}
@@ -183,14 +183,14 @@ const CreateExportChemicalModal = ({
 										defaultValue={column.accessorKey && initData[column.accessorKey]}
 									/>
 								);
-							} else if (column.accessorKey === 'ExpChemDeptId') {
+							} else if (column.accessorKey === 'ChemDeptId') {
 								const list = chemicalData
 									.map((x: any) => {
 										return {
 											label: `${
-												x?.ExpChemDeptId ? `${x?.ExpChemDeptId} - ` : `${x?.ChemDetailId} - `
+												x?.ChemDeptId ? `${x?.ChemDeptId} - ` : `${x?.ChemDetailId} - `
 											}${x?.ChemicalName}`,
-											id: type === 'REG' || type === 'SUB' ? x?.ExpChemDeptId : x?.ChemDetailId,
+											id: type === 'REG' || type === 'SUB' ? x?.ChemDeptId : x?.ChemDetailId,
 											name: x?.ChemicalName,
 											unit: x?.Unit,
 										};
@@ -221,7 +221,7 @@ const CreateExportChemicalModal = ({
 																		x?.id ===
 																		chemicalAmount[
 																			type === 'REG' || type === 'SUB'
-																				? 'ExpChemDeptId'
+																				? 'ChemDeptId'
 																				: 'ChemDetailId'
 																		],
 																) || null
@@ -232,7 +232,7 @@ const CreateExportChemicalModal = ({
 																		x?.id ===
 																		chemicalAmount[
 																			type === 'REG' || type === 'SUB'
-																				? 'ExpChemDeptId'
+																				? 'ChemDeptId'
 																				: 'ChemDetailId'
 																		],
 																) || null
@@ -277,7 +277,7 @@ const CreateExportChemicalModal = ({
 																	case 'REG': {
 																		setChemicalAmount((prev: any) => ({
 																			...prev,
-																			ExpChemDeptId: value?.id,
+																			ChemDeptId: value?.id,
 																			ChemDetailId: '1',
 																			ChemicalName: value?.name,
 																			Unit: value?.unit,
@@ -327,12 +327,12 @@ const CreateExportChemicalModal = ({
 																...prev,
 																{
 																	...chemicalAmount,
-																	ExpChemDeptId: exportChemicalIdText,
+																	ChemDeptId: exportChemicalIdText,
 																},
 															];
 														});
 														setChemicalAmount({
-															ExpChemDeptId: '',
+															ChemDeptId: '',
 															ChemDetailId: '',
 															Amount: 0,
 														});
@@ -367,9 +367,9 @@ const CreateExportChemicalModal = ({
 											<TableCell component="th" scope="row">
 												{index + 1}
 											</TableCell>
-											<TableCell>{el?.ExpChemDeptId}</TableCell>
+											<TableCell>{el?.ChemDeptId}</TableCell>
 											<TableCell>
-												{el?.ChemDetailId || el?.ExpChemDeptId} - {el?.ChemicalName}
+												{el?.ChemDetailId || el?.ChemDeptId} - {el?.ChemicalName}
 											</TableCell>
 											<TableCell>
 												{el?.Amount} {el?.Unit}
