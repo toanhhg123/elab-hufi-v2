@@ -57,3 +57,18 @@ export const dummyPlanSubjectData: IPlanSubjectType = {
     "listDevice": [],
     "listInstrument": []
 }
+
+export interface IChemicalSubjectType {
+    PlanId: string,
+    SubjectName: string,
+    AmountSubTotal: number
+}
+
+export interface IDeptSummaryType {
+    ChemicalId: string,
+    ChemicalName: string,
+    Specifications: string,
+    Unit: string,
+    AmountTotal: number,
+    listSubject: IChemicalSubjectType[] | []
+}

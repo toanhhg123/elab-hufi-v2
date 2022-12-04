@@ -26,7 +26,13 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { dummyPlanSubjectData, IPlanSubjectType } from '../../types/planSubjectType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deletePlanSubject, getPlanningSuggestion, getPlanSubjects, postPlanSubject, updatePlanSubject } from '../../services/planSubjectServices';
+import { 
+  deletePlanSubject, 
+  getPlanningSuggestion, 
+  getPlanSubjects, 
+  postPlanSubject, 
+  updatePlanSubject 
+} from '../../services/planSubjectServices';
 import { RootState } from '../../store';
 import { setListOfPlanSubjects } from './planSubjectSlice';
 import AddIcon from '@mui/icons-material/Add';
@@ -39,6 +45,7 @@ import DetailChemicalTable from './Details/DetailChemicalTable';
 import ChemicalPlanning from './Planning/ChemicalPlanning';
 import DevicePlanning from './Planning/DevicePlanning';
 import InstrumentPlanning from './Planning/InstrumentPlanning';
+import SummaryTable from './Details/SummaryTable';
 
 const semesterValue = ['1', '2', '3'];
 const schoolYearValue = ['2020-2021', '2021-2022', '2022-2023'];
@@ -77,6 +84,7 @@ const PlanSubjectTable: FC = () => {
   const [subjectDataValue, setSubjectDataValue] = useState<any>([]);
   const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
   const [suggestedPlanning, setSuggestedPlanning] = useState<SuggestionProps>(dummyPlanSubjectSuggestion);
+  const [isSummaryModal, setIsSummaryModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -208,16 +216,16 @@ const PlanSubjectTable: FC = () => {
     },
     {
       id: 'Specifications',
-      header: 'CTHH',
+      header: 'Công thức',
     },
     {
       id: 'Amount',
-      header: 'Số lượng',
+      header: 'Số lượng chuẩn/1 nhóm lớp',
       renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
     },
     {
       id: 'AmountTotal',
-      header: 'Số lượng',
+      header: 'Số lượng tổng/Học kỳ',
       renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
     },
     {
@@ -363,7 +371,14 @@ const PlanSubjectTable: FC = () => {
       console.log("planningData :", planningData);
       setCreatedRow(planningData);
     }
+  }
 
+  const onOpenSummaryModal = () => {
+    setIsSummaryModal(true);
+  }
+
+  const onCloseSummaryModal = () => {
+    setIsSummaryModal(false);
   }
 
   return (
@@ -443,16 +458,28 @@ const PlanSubjectTable: FC = () => {
           </>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Tooltip title="Tạo phiếu dự trù mới" placement="right-start">
-            <Button
-              color="primary"
-              onClick={handleOpenCreateModal}
-              variant="contained"
-              style={{ "margin": "10px" }}
-            >
-              <AddIcon fontSize="small" />
-            </Button>
-          </Tooltip>
+          <div className='bottomButton' style={{ "display": "flex" }}>
+            <Tooltip title="Tạo phiếu dự trù mới" placement="top">
+              <Button
+                color="primary"
+                onClick={handleOpenCreateModal}
+                variant="contained"
+                style={{ "margin": "10px" }}
+              >
+                <AddIcon fontSize="small" />
+              </Button>
+            </Tooltip>
+            <Tooltip title=" Xem tổng hợp dự trù" placement="right-start">
+              <Button
+                color="success"
+                onClick={onOpenSummaryModal}
+                variant="contained"
+                style={{ "margin": "10px" }}
+              >
+                Xem tổng hợp
+              </Button>
+            </Tooltip>
+          </div>
         )}
       />
 
@@ -693,7 +720,7 @@ const PlanSubjectTable: FC = () => {
                         ? schoolYearValue
                           .findIndex(x => x === suggestedPlanning.Schoolyear.toString())
                           .toString()
-                        : '1'
+                        : '2022-2023'
                     }
                     label="Năm học"
                     onChange={(e: SelectChangeEvent) =>
@@ -832,6 +859,10 @@ const PlanSubjectTable: FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <SummaryTable
+        isOpen={isSummaryModal}
+        onClose={onCloseSummaryModal}
+      />
     </>
   );
 };

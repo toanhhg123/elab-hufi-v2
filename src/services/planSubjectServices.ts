@@ -1,6 +1,6 @@
 import config from "../configs/app"
 import * as API from "../configs/apiHelper";
-import { IPlanSubjectType } from '../types/planSubjectType';
+import { IDeptSummaryType, IPlanSubjectType } from '../types/planSubjectType';
 
 const { isProd } = config;
 const API_ENDPOINT = "https://www.aspsite.somee.com";
@@ -44,5 +44,11 @@ export const postPlanSubject = async (newLabData: IPlanSubjectType) => {
 export const getPlanningSuggestion = async (semster: string, schoolyear: string, subjectId: string) => {
     const url = `${API_ENDPOINT}/api/plansubjects/${semster}/${schoolyear}/${subjectId}`;
     const suggestion = await API.get<IPlanSubjectType>(url);
+    return suggestion;
+}
+
+export const getPlanningSummary = async (semster: string, schoolyear: string, deptId: string) => {
+    const url = `${API_ENDPOINT}/api/plansubjects/dept/${semster}/${schoolyear}/${deptId}`;
+    const suggestion = await API.get<IDeptSummaryType[]>(url);
     return suggestion;
 }
