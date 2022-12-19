@@ -25,7 +25,7 @@ export const getSupplierById = async (id: Number) => {
 }
 
 export const updateSupplier = async (updatedData: ISupplierType) => {    
-    const url = `${API_ENDPOINT}/api/suppliers/${updatedData.SupplierId}`;
+    const url = `${API_ENDPOINT}/api/suppliers`;
 	const lab: ISupplierType = await API.put<ISupplierType, ISupplierType>(url, updatedData);
 	return lab;
 }

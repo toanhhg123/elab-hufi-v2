@@ -368,7 +368,7 @@ const ScheduleTable: FC = () => {
                     </form>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={onCloseCreateModal}>Huỷ</Button>
+                    <Button onClick={onCloseCreateModal}>Hủy</Button>
                     <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
                         Tạo
                     </Button>

@@ -3,7 +3,8 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-	debounce, InputAdornment,
+	debounce,
+	InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -12,7 +13,8 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
-	TextField, Typography
+	TextField,
+	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
@@ -68,13 +70,7 @@ function removeAccents(str: string) {
 		.replace(/Đ/g, 'D');
 }
 
-const ChemicalTable = ({
-	row,
-	warehouseData,
-	columns,
-	type,
-}: ChemicalTableProps) => {
-	const nanufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
+const ChemicalTable = ({ row, warehouseData, columns, type }: ChemicalTableProps) => {
 	const [chemicalOfExport, setChemicalOfExport] = useState<IExportChemicalType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
 	const [orderBy, setOrderBy] = useState<string>('ChemDetailId');
@@ -97,22 +93,34 @@ const ChemicalTable = ({
 		if (index !== -1) {
 			switch (type) {
 				case 'DEP':
-					return warehouseData[index].listChemicalExport;
+					return warehouseData[index]?.listChemicalExport || [];
 				case 'REG':
-					return warehouseData[index].listChemicalExport;
+					return warehouseData[index]?.listChemicalExport || [];
 				case 'SUB':
-					return warehouseData[index].listSub;
+					return warehouseData[index]?.listChemical || [];
 				default:
 					return [];
 			}
 		} else {
 			return [];
 		}
-	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId,row.original.ExportLabId, warehouseData]);
+	}, [
+		row.original.ExportId,
+		row.original.ExpRegGeneralId,
+		row.original.ExpSubjectId,
+		warehouseData,
+		type,
+	]);
 
 	useEffect(() => {
-		setChemicalOfExport(getExportChemicalData());
-	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId,row.original.ExportLabId, warehouseData]);
+		setChemicalOfExport(getExportChemicalData() || []);
+	}, [
+		row.original.ExportId,
+		row.original.ExpRegGeneralId,
+		row.original.ExpSubjectId,
+		row.original.ExportLabId,
+		warehouseData,
+	]);
 
 	const handleRequestSort = (property: string) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -146,7 +154,7 @@ const ChemicalTable = ({
 
 			return {
 				label: removeAccents(string.toUpperCase()),
-				id: x?.ExpChemDeptId,
+				id: x?.ChemDeptId,
 			};
 		});
 		setDataSearch(data);
@@ -159,7 +167,7 @@ const ChemicalTable = ({
 		if (keyword === '') {
 			setChemicalOfExport(exportChemicals);
 		} else {
-			const data = exportChemicals?.filter((x: any) => listId.indexOf(x?.ExpChemDeptId) !== -1);
+			const data = exportChemicals?.filter((x: any) => listId.indexOf(x?.ChemDeptId) !== -1);
 			setChemicalOfExport(data);
 		}
 	}, [keyword, dataSearch]);

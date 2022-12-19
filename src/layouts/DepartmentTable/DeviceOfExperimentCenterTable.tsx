@@ -97,7 +97,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 function renderArrowSort(order: string, orderBy: string, property: string) {
 	if (orderBy === property) {
-		return order === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />;
+		return order === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />;
 	}
 	return null;
 }
@@ -109,6 +109,37 @@ function removeAccents(str: string) {
 		.replace(/đ/g, 'd')
 		.replace(/Đ/g, 'D');
 }
+
+const isObject = (val: any) => {
+	if (val === null) {
+		return false;
+	}
+
+	return typeof val === 'object';
+};
+
+const nestedObject = (obj: any, string: String) => {
+	for (const key in obj) {
+		if (isObject(obj[key])) {
+			nestedObject(obj[key], string);
+		} else {
+			switch (key) {
+				case 'ExportDate':
+				case 'ManufacturingDate':
+				case 'StartGuarantee':
+				case 'EndGuarantee':
+				case 'DateTranferTo':
+				case 'DateStartUsage':
+					string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
+					break;
+				default:
+					string += `${obj[key]} `;
+					break;
+			}
+		}
+	}
+	return string;
+};
 
 const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const dispatch = useAppDispatch();
@@ -178,32 +209,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		const data = devices.map((device: any) => {
 			let string: String = '';
 
-			const isObject = (val: any) => {
-				if (val === null) {
-					return false;
-				}
-
-				return typeof val === 'object';
-			};
-
-			const nestedObject = (obj: any) => {
-				for (const key in obj) {
-					if (isObject(obj[key])) {
-						nestedObject(obj[key]);
-					} else {
-						switch (key) {
-							case 'OrderDate':
-								string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
-								break;
-							default:
-								string += `${obj[key]} `;
-								break;
-						}
-					}
-				}
-			};
-
-			nestedObject(device);
+			string = nestedObject(device, string);
 
 			return {
 				label: removeAccents(string.toUpperCase()),
@@ -285,9 +291,26 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
 		{ id: 'Standard', header: 'Qui cách' },
-		{ id: 'QuantityOriginal', header: 'SL ban đầu', renderValue: (qty: any, unit: any) => `${qty} (${unit})` },
-		{ id: 'QuantityExport', header: 'SL xuất', renderValue: (qty: any, unit: any) => `${qty} (${unit})` },
-		{ id: 'QuantityRemain', header: 'SL tồn', renderValue: (qty: any, unit: any) => `${qty} (${unit})` },
+		{
+			id: 'QuantityOriginal',
+			header: 'SL ban đầu',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityExport',
+			header: 'SL xuất',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityRemain',
+			header: 'SL tồn',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityLiquidate',
+			header: 'SL thanh lý',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
 		{ id: 'HasTrain', header: 'Tập huấn', renderValue: value => (value === 1 ? 'Có' : 'Không') },
 	]);
 
@@ -406,14 +429,14 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 								))}
 						{loading && (
 							<TableRow>
-								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
 									<CircularProgress disableShrink />
 								</TableCell>
 							</TableRow>
 						)}
 						{!loading && devices.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
 									<Typography variant="h5" gutterBottom align="center" component="div">
 										Trống
 									</Typography>
@@ -477,7 +500,12 @@ const RowDevice = ({
 
 				{columns.map(col => {
 					if (col.renderValue !== undefined) {
-						if (col.id === 'QuantityExport' || col.id === 'QuantityOriginal' || col.id === 'QuantityRemain')
+						if (
+							col.id === 'QuantityExport' ||
+							col.id === 'QuantityOriginal' ||
+							col.id === 'QuantityRemain' ||
+							col.id === 'QuantityLiquidate'
+						)
 							return (
 								<TableCell align="left" key={col.id}>
 									{col.renderValue(device[col.id as keyof typeof device], device.Unit)}
@@ -512,14 +540,11 @@ const RowDevice = ({
 				</TableCell>
 			</TableRow>
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={10}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={11}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ margin: 1 }}>
 							{device?.listDeviceDetail?.length !== 0 ? (
 								<>
-									<Typography variant="h6" gutterBottom component="div">
-										Nhập kho
-									</Typography>
 									<DeviceDetailTable data={device?.listDeviceDetail || []} unit={device.Unit} />
 								</>
 							) : (
@@ -541,22 +566,86 @@ type DeviceDetailTableProps = {
 };
 
 const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
-	const [deviceDetails, setDeviceDetails] = useState<IDeviceDetailType[]>();
+	const [deviceDetails, setDeviceDetails] = useState<IDeviceDetailType[]>([]);
 	const [open, setOpen] = useState<number>(-1);
+	const [order, setOrder] = useState<string>('asc');
+	const [orderBy, setOrderBy] = useState<string>('DeviceId');
+	const [keyword, setKeyword] = useState<string>('');
+	const [dataSearch, setDataSearch] = useState<any>([]);
+
+	const handleRequestSort = (property: string) => {
+		const isAsc = orderBy === property && order === 'asc';
+		setOrder(isAsc ? 'desc' : 'asc');
+		setOrderBy(property);
+	};
+
+	useEffect(() => {
+		setDeviceDetails(prev => {
+			let data = [...prev];
+			data?.sort((a: IDeviceDetailType, b: IDeviceDetailType) => {
+				let i =
+					order === 'desc'
+						? descendingComparator<any>(a, b, orderBy)
+						: -descendingComparator<any>(a, b, orderBy);
+				return i;
+			});
+			return data;
+		});
+	}, [order, orderBy]);
 
 	useEffect(() => {
 		setDeviceDetails(() => {
 			return data?.sort((a, b) => +b.OrderDate - +a.OrderDate);
 		});
-	});
+	}, []);
+
+	useEffect(() => {
+		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
+
+		if (keyword === '') {
+			setDeviceDetails(data || []);
+		} else {
+			const results = data?.filter(x => listId.indexOf(x?.DeviceDetailId) !== -1);
+			setDeviceDetails(results || []);
+		}
+	}, [keyword]);
+
+	useEffect(() => {
+		const searchArr = data?.map((device: any) => {
+			let string: String = '';
+			string = nestedObject(device, string);
+			return {
+				label: removeAccents(string.toUpperCase()),
+				id: device.DeviceDetailId,
+			};
+		});
+		setDataSearch(searchArr);
+	}, [data]);
 
 	const columns = useRef<DeviceColumnType[]>([
 		{ id: 'DeviceDetailId', header: 'Mã chi tiết TB' },
 		{ id: 'Model', header: 'Model' },
 		{ id: 'Price', header: 'Giá' },
-		{ id: 'QuantityOriginal', header: 'SL ban đầu', renderValue: (qty: any, unit: any) => `${qty} (${unit})` },
-		{ id: 'QuantityExport', header: 'SL xuất', renderValue: (qty: any, unit: any) => `${qty} (${unit})` },
-		{ id: 'QuantityRemain', header: 'SL còn lại', renderValue: (qty: any, unit: any) => `${qty} (${unit})` },
+		{
+			id: 'QuantityOriginal',
+			header: 'SL ban đầu',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityExport',
+			header: 'SL xuất',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityRemain',
+			header: 'SL còn lại',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityLiquidate',
+			header: 'SL thanh lý',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
 		{ id: 'OrderId', header: 'Mã PN' },
 		{ id: 'OrderDate', header: 'Ngày nhập', type: 'date' },
 		{ id: 'ManufacturerName', header: 'Nhà sản xuất' },
@@ -566,6 +655,25 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 
 	return (
 		<>
+			<Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+				<Typography variant="h6" gutterBottom component="div">
+					Nhập kho
+				</Typography>
+				<TextField
+					size="small"
+					type="search"
+					placeholder="Tìm kiếm...."
+					InputProps={{
+						startAdornment: (
+							<InputAdornment position="start">
+								<SearchIcon />
+							</InputAdornment>
+						),
+					}}
+					variant="standard"
+					onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+				/>
+			</Box>
 			<TableContainer component={Paper} sx={{ marginBottom: '24px', overflow: 'overlay' }}>
 				<Table size="small" aria-label="purchases" sx={{ padding: '8px' }}>
 					<TableHead>
@@ -574,15 +682,16 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 							{columns.current.map(col => {
 								if (col.hide === true) return null;
 								return (
-									<StyledTableCell key={col.id}>
+									<StyledTableCell key={col.id} onClick={() => handleRequestSort(col.id)}>
 										<b>{col.header}</b>
+										{renderArrowSort(order, orderBy, col.id)}
 									</StyledTableCell>
 								);
 							})}
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{data?.map((deviceDetailType: IDeviceDetailType, index: number) => {
+						{deviceDetails?.map((deviceDetailType: IDeviceDetailType, index: number) => {
 							return (
 								<RowOfDeviceDetailTable
 									deviceDetailType={deviceDetailType}
@@ -602,7 +711,7 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 	);
 };
 
-type RowOfDeviceDetailTable = {
+type RowOfDeviceDetailTableProps = {
 	deviceDetailType: IDeviceDetailType;
 	unit: String;
 	columns: DeviceColumnType[];
@@ -618,23 +727,88 @@ const RowOfDeviceDetailTable = ({
 	index,
 	openIndex,
 	handleOpen,
-}: RowOfDeviceDetailTable) => {
-	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
+}: RowOfDeviceDetailTableProps) => {
+	const [deviceDetails, setDeviceDetails] = useState<IDeviceDeptType[]>([]);
+	const [order, setOrder] = useState<string>('asc');
+	const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
+	const [keyword, setKeyword] = useState<string>('');
+	const [dataSearch, setDataSearch] = useState<any>([]);
+
+	useEffect(() => {
+		setDeviceDetails(deviceDetailType?.listDeviceDept || []);
+	}, [deviceDetailType]);
+
+	const handleRequestSort = (property: string) => {
+		const isAsc = orderBy === property && order === 'asc';
+		setOrder(isAsc ? 'desc' : 'asc');
+		setOrderBy(property);
+	};
+
+	useEffect(() => {
+		setDeviceDetails(prev => {
+			let data = [...prev];
+			data?.sort((a: IDeviceDeptType, b: IDeviceDeptType) => {
+				let i =
+					order === 'desc'
+						? descendingComparator<any>(a, b, orderBy)
+						: -descendingComparator<any>(a, b, orderBy);
+				return i;
+			});
+			return data;
+		});
+	}, [order, orderBy]);
+
+	useEffect(() => {
+		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
+
+		if (keyword === '') {
+			setDeviceDetails(deviceDetailType.listDeviceDept || []);
+		} else {
+			const results = deviceDetailType?.listDeviceDept.filter(x => listId.indexOf(x?.DeviceDeptId) !== -1);
+			setDeviceDetails(results || []);
+		}
+	}, [keyword]);
+
+	useEffect(() => {
+		const searchArr = deviceDetailType?.listDeviceDept.map((device: any) => {
+			let string: String = '';
+			string = nestedObject(device, string);
+			return {
+				label: removeAccents(string.toUpperCase()),
+				id: device.DeviceDeptId,
+			};
+		});
+		setDataSearch(searchArr);
+	}, [deviceDetailType]);
 
 	const columnsExport = useRef<DeviceColumnType[]>([
 		{
-			id: 'ExpDeviceDeptId',
+			id: 'DeviceDeptId',
 			header: 'Mã TB xuất',
 		},
 		{
-			id: 'QuantityOriginal',
-			header: 'Số lượng xuất',
-			renderValue: (qty: any, unit: any) => `${qty} (${unit})`,
+			id: 'DepartmentName',
+			header: 'Khoa',
 		},
 		{
-			id: 'DepartmentId',
-			header: 'Khoa',
-			renderValue: value => `${value}`,
+			id: 'QuantityOriginal',
+			header: 'SL ban đầu',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityExport',
+			header: 'SL xuất',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityRemain',
+			header: 'SL tồn',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityLiquidate',
+			header: 'SL thanh lý',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
 		},
 	]);
 
@@ -650,16 +824,22 @@ const RowOfDeviceDetailTable = ({
 					if (col.hide === true) return null;
 
 					if (col.renderValue !== undefined) {
-						if (col.id === 'QuantityExport' || col.id === 'QuantityOriginal' || col.id === 'QuantityRemain')
+						if (
+							col.id === 'QuantityExport' ||
+							col.id === 'QuantityOriginal' ||
+							col.id === 'QuantityRemain' ||
+							col.id === 'QuantityLiquidate'
+						)
 							return (
 								<TableCell align="left" key={col.id}>
-									{col.renderValue(deviceDetailType[col.id as keyof typeof deviceDetailType], unit)}
+									{col.renderValue(deviceDetailType[col.id as keyof typeof deviceDetailType], unit) ||
+										''}
 								</TableCell>
 							);
 						if (col.id === 'HasTrain')
 							return (
 								<TableCell align="left" key={col.id}>
-									{col.renderValue(deviceDetailType[col.id as keyof typeof deviceDetailType])}
+									{col.renderValue(deviceDetailType[col.id as keyof typeof deviceDetailType]) || ''}
 								</TableCell>
 							);
 					}
@@ -675,7 +855,7 @@ const RowOfDeviceDetailTable = ({
 
 					return (
 						<TableCell align="left" key={col.id}>{`${
-							deviceDetailType[col.id as keyof typeof deviceDetailType]
+							deviceDetailType[col.id as keyof typeof deviceDetailType] || ''
 						}`}</TableCell>
 					);
 				})}
@@ -687,9 +867,28 @@ const RowOfDeviceDetailTable = ({
 						<Box sx={{ padding: 1 }}>
 							{deviceDetailType?.listDeviceDept?.length !== 0 ? (
 								<>
-									<Typography variant="h6" gutterBottom component="div">
-										Xuất kho
-									</Typography>
+									<Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+										<Typography variant="h6" gutterBottom component="div">
+											Nhập kho
+										</Typography>
+										<TextField
+											size="small"
+											type="search"
+											placeholder="Tìm kiếm...."
+											InputProps={{
+												startAdornment: (
+													<InputAdornment position="start">
+														<SearchIcon />
+													</InputAdornment>
+												),
+											}}
+											variant="standard"
+											onChange={debounce(
+												e => setKeyword(removeAccents(e.target.value.toUpperCase())),
+												300,
+											)}
+										/>
+									</Box>
 									<TableContainer
 										component={Paper}
 										sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}
@@ -699,55 +898,53 @@ const RowOfDeviceDetailTable = ({
 												<TableRow>
 													{columnsExport.current.map(col => {
 														return (
-															<StyledTableCell key={col.id}>
+															<StyledTableCell
+																key={col.id}
+																onClick={() => handleRequestSort(col.id)}
+															>
 																<b>{col.header}</b>
+																{renderArrowSort(order, orderBy, col.id)}
 															</StyledTableCell>
 														);
 													})}
 												</TableRow>
 											</TableHead>
 											<TableBody>
-												{deviceDetailType?.listDeviceDept?.map(
-													(deviceDept: IDeviceDeptType, index: number) => {
-														let departmentName = departmentData.find(
-															x => x.DepartmentId === deviceDept.DepartmentId,
-														)?.DepartmentName;
-														return (
-															<TableRow key={index}>
-																{columnsExport.current.map(col => {
-																	if (col.renderValue !== undefined) {
-																		if (col.id === 'DepartmentId')
-																			return (
-																				<TableCell align="left" key={col.id}>
-																					{col.renderValue(departmentName)}
-																				</TableCell>
-																			);
-																		if (col.id === 'QuantityOriginal')
-																			return (
-																				<TableCell align="left" key={col.id}>
-																					{col.renderValue(
-																						deviceDetailType[
-																							col.id as keyof typeof deviceDetailType
-																						],
-																						unit,
-																					)}
-																				</TableCell>
-																			);
-																	}
-																	return (
-																		<TableCell align="left" key={col.id}>
-																			{`${
-																				deviceDept[
-																					col.id as keyof typeof deviceDept
-																				]
-																			}`}
-																		</TableCell>
-																	);
-																})}
-															</TableRow>
-														);
-													},
-												)}
+												{deviceDetails?.map((deviceDept: IDeviceDeptType, index: number) => {
+													return (
+														<TableRow key={index}>
+															{columnsExport.current.map(col => {
+																if (col.renderValue !== undefined) {
+																	if (
+																		col.id === 'QuantityOriginal' ||
+																		col.id === 'QuantityRemain' ||
+																		col.id === 'QuantityLiquidate' ||
+																		col.id === 'QuantityExport'
+																	)
+																		return (
+																			<TableCell align="left" key={col.id}>
+																				{col.renderValue(
+																					deviceDept[
+																						col.id as keyof typeof deviceDept
+																					],
+																					unit,
+																				) || ''}
+																			</TableCell>
+																		);
+																}
+																return (
+																	<TableCell align="left" key={col.id}>
+																		{`${
+																			deviceDept[
+																				col.id as keyof typeof deviceDept
+																			] || ''
+																		}`}
+																	</TableCell>
+																);
+															})}
+														</TableRow>
+													);
+												})}
 											</TableBody>
 										</Table>
 									</TableContainer>

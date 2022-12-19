@@ -79,16 +79,6 @@ const SupplierTable: FC = () => {
         header: 'Địa chỉ',
         size: 140,
       },
-      {
-        accessorKey: 'Status',
-        header: 'Trạng thái',
-        size: 140,
-      },
-      // {
-      //   accessorKey: 'PurchaseOrders',
-      //   header: 'Đơn mua hàng',
-      //   size: 140,
-      // },
     ],
     [getCommonEditTextFieldProps],
   );
@@ -150,8 +140,6 @@ const SupplierTable: FC = () => {
       "Email": createdRow.Email,
       "PhoneNumber": createdRow.PhoneNumber,
       "Address": createdRow.Address,
-      "Status": createdRow.Status,
-      "PurchaseOrders": createdRow.PurchaseOrders
     })
 
     if (createdSupplier) {
@@ -273,7 +261,7 @@ const SupplierTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Huỷ</Button>
+          <Button onClick={onCloseEditModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
             Lưu thay đổi
           </Button>
@@ -286,7 +274,7 @@ const SupplierTable: FC = () => {
           <div>Bạn có chắc muốn xoá thông tin nhà cung cấp {`${deletedRow.Name}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Huỷ</Button>
+          <Button onClick={onCloseDeleteModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
             Xác nhận
           </Button>
@@ -320,7 +308,7 @@ const SupplierTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Huỷ</Button>
+          <Button onClick={onCloseCreateModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
             Tạo
           </Button>

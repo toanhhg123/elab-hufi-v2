@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import MaterialReactTable, {
-    MaterialReactTableProps,
     MRT_Cell,
     MRT_ColumnDef,
 } from 'material-react-table';
@@ -13,13 +12,8 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { setSnackbarMessage } from '../../pages/appSlice';
 import { IChemicalsBelongingToSubjectType, ISubjectType } from '../../types/subjectType';
-import Autocomplete from '@mui/material/Autocomplete';
-import { IChemicalType } from '../../types/chemicalType';
 
 const ChemicalPlanning: FC<{
     isOpen: boolean,
@@ -28,7 +22,6 @@ const ChemicalPlanning: FC<{
     onClose: () => void,
     handleSubmit: (ChemicalPlanningData: any) => void,
 }> = ({ isOpen, currentSubject, onClose, handleSubmit, defaultCurrentValue }) => {
-    const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
     const [tableData, setTableData] = useState<any[]>([]);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
@@ -58,13 +51,6 @@ const ChemicalPlanning: FC<{
         [validationErrors],
     );
 
-    const handleSaveCell = (cell: MRT_Cell<any>, value: any) => {
-        //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here
-        tableData[cell.row.index][cell.column.id as keyof any] = value;
-        //send/receive api updates here
-        setTableData([...tableData]); //re-render with new data
-    };
-
     const columns = useMemo<MRT_ColumnDef<any>[]>(
         () => [
             {
@@ -79,7 +65,7 @@ const ChemicalPlanning: FC<{
             },
             {
                 accessorKey: 'Specifications',
-                header: 'Đặc tả',
+                header: 'CTHH',
                 enableEditing: false,
             },
             {
@@ -98,20 +84,6 @@ const ChemicalPlanning: FC<{
         [getCommonEditTextFieldProps],
     );
 
-    const handleSelectAutocomplete = (e: any, val: IChemicalType[]) => {
-        setTableData(val);
-    }
-
-    const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
-        async ({ exitEditingMode, row, values }) => {
-            //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here
-            let updatedData = [...tableData];
-            updatedData.splice(Number(row.id), 1, values);
-
-            //send/receive api updates here
-            setTableData([...updatedData]);
-            exitEditingMode(); //required to exit editing mode
-        };
 
     return (
         <>
@@ -142,33 +114,8 @@ const ChemicalPlanning: FC<{
                                 defaultValue={currentSubject.SubjectName}
                                 disabled
                             />
-                            <Autocomplete
-                                multiple
-                                filterSelectedOptions
-                                options={chemicalData}
-                                value={tableData}
-                                isOptionEqualToValue={(option, value) => option.ChemicalId === value.ChemicalId}
-                                getOptionLabel={(option: IChemicalType) => option?.ChemicalName ? option.ChemicalId + ' - ' + option.ChemicalName.toString() : ''}
-                                id="auto-complete"
-                                autoComplete
-                                includeInputInList
-                                renderInput={(params) => (
-                                    <TextField {...params} placeholder="Chọn hoá chất..." variant="standard" />
-                                )}
-                                onChange={(e: any, val) => handleSelectAutocomplete(e, val)}
-                            />
-
                             <MaterialReactTable
                                 displayColumnDefOptions={{
-                                    'mrt-row-actions': {
-                                        header: 'Các hành động',
-                                        muiTableHeadCellProps: {
-                                            align: 'center',
-                                        },
-                                        muiTableBodyCellProps: {
-                                            align: 'center',
-                                        },
-                                    },
                                     'mrt-row-numbers': {
                                         muiTableHeadCellProps: {
                                             align: 'center',
@@ -180,27 +127,17 @@ const ChemicalPlanning: FC<{
                                 }}
                                 columns={columns}
                                 data={tableData}
-                                editingMode="row"
                                 enableTopToolbar={false}
-                                enableEditing
                                 enableColumnOrdering
                                 enableRowNumbers
                                 enablePinning
-                                onEditingRowSave={handleSaveRow}
                                 initialState={{
                                     density: 'compact',
                                     columnOrder: [
                                         'mrt-row-numbers',
                                         ...columns.map(x => x.accessorKey ? x.accessorKey.toString() : ''),
-                                        'mrt-row-actions'
                                     ]
                                 }}
-                                muiTableBodyCellEditTextFieldProps={({ cell }) => ({
-                                    //onBlur is more efficient, but could use onChange instead
-                                    onBlur: (event) => {
-                                        handleSaveCell(cell, event.target.value);
-                                    },
-                                })}
                                 renderTopToolbarCustomActions={() => (
                                     <h3 style={{ "margin": "0px" }}>
                                         <b><KeyboardArrowRightIcon
@@ -214,10 +151,7 @@ const ChemicalPlanning: FC<{
                     </form>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={onClose}>Huỷ</Button>
-                    <Button color="primary" onClick={() => handleSubmit(tableData)} variant="contained">
-                        Lưu thay đổi
-                    </Button>
+                    <Button onClick={onClose}>Đóng</Button>
                 </DialogActions>
             </Dialog>
         </>

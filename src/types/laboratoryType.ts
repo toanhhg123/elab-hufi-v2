@@ -1,16 +1,21 @@
 export interface IListDeviceBelongingToLaboratoryType {
-    ExpDeviceDeptId: string,
-    SerialNumber: string,
     DeviceName: string,
     Unit: string,
-    ExportDate: number
+    DateStartUsage: string,
+    DeviceDeptId: string,
+    EndGuarantee: string,
+    HoursUsageTotal: number,
+    ManufacturingDate: string,
+    PeriodicMaintenance: number,
+    SerialNumber: string,
+    StartGuarantee: string,
+    Status: string,
 }
 
-export interface IListInstrumentBeloingToLaboratoryType {
-    ExportDate: string,
+export interface IListInstrumentBelongingToLaboratoryType {
     DeviceName: string,
     Unit: string,
-    ExpDeviceDeptId: string,
+    DeviceDeptId: string,
     Quantity: number
 }
 
@@ -20,7 +25,7 @@ export interface ILaboratoryType {
     Location: String,
     Note: String,
     listDevice: IListDeviceBelongingToLaboratoryType[] | []
-    listInstrument: IListInstrumentBeloingToLaboratoryType[] | []
+    listInstrument: IListInstrumentBelongingToLaboratoryType[] | []
 }
 
 export const dummyLaboratoryData: ILaboratoryType = {

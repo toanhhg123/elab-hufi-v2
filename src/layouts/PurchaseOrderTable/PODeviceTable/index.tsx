@@ -20,7 +20,7 @@ import { useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { IOrderDeviceType } from '../../../types/orderDeviceType';
+import { IOrderDeviceType } from "../../../types/purchaseOrderType";
 
 const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ deviceData }) => {
   const deviceSpecData = useAppSelector((state: RootState) => state.device.listOfDeviceSpecs);
@@ -37,14 +37,7 @@ const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ devi
   const [selectedRow, setSelectedRow] = useState<any>(dummyDeviceData);
 
   useEffect(() => {
-    let formatedDeviceData = deviceData.map((x: IOrderDeviceType) => {
-      let manufacturerInfoIdx = manufacturersData.findIndex(y => y.ManufacturerId === x.ManufacturerId);
-      return {
-        ...x,
-        "ManufacturerName": manufacturerInfoIdx > -1 ? manufacturersData[manufacturerInfoIdx].Name : ""
-      }
-    })
-    setTableData(formatedDeviceData);
+    setTableData(deviceData);
   }, [deviceData])
 
   useEffect(() => {
@@ -72,7 +65,12 @@ const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ devi
     () => [
       {
         accessorKey: 'DeviceDetailId',
-        header: 'Id thiết bị',
+        header: 'Mã nhập',
+        size: 100,
+      },
+      {
+        accessorKey: 'DeviceId',
+        header: 'Mã thiết bị',
         size: 100,
       },
       {
@@ -81,18 +79,13 @@ const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ devi
         size: 100,
       },
       {
+        accessorKey: 'QuantityOriginal',
+        header: 'SL nhập',
+        size: 100,
+      },
+      {
         accessorKey: 'Unit',
         header: 'Đơn vị',
-        size: 100,
-      },
-      {
-        accessorKey: 'QuantityOriginal',
-        header: 'Số lượng',
-        size: 100,
-      },
-      {
-        accessorKey: 'Price',
-        header: 'Giá',
         size: 100,
       },
       {
@@ -105,16 +98,15 @@ const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ devi
         header: 'Xuất xứ',
         size: 100,
       },
-
       {
-        accessorKey: 'DeviceId',
-        header: 'Id gốc',
+        accessorKey: 'Price',
+        header: 'Giá',
         size: 100,
       },
       {
         accessorKey: 'ManufacturerName',
         header: 'Nhà sản xuất',
-        size: 100,
+        size: 140,
       },
     ],
     [getCommonEditTextFieldProps],

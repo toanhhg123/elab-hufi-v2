@@ -7,6 +7,7 @@ import moment from 'moment';
 
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { IChemicalDetailType } from '../../../types/chemicalWarehouseType';
+import ChemicalDeptTable from './ChemicalDeptTable';
 
 const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[] }> = ({ chemicalDetail }) => {
   const [tableData, setTableData] = useState<IChemicalDetailType[]>([]);
@@ -41,22 +42,32 @@ const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[] }> = ({ ch
     () => [
       {
         accessorKey: 'ChemDetailId',
-        header: 'Id hoá chất',
-        size: 100,
+        header: 'Mã lô',
+        size: 50,
+      },
+      {
+        accessorKey: 'LotNumber',
+        header: 'Số lô',
+        size: 50,
       },
       {
         accessorKey: 'AmountOriginal',
-        header: 'Lượng ban đầu',
-        size: 100,
+        header: 'SL nhập',
+        size: 50,
       },
       {
         accessorKey: 'AmountExport',
-        header: 'Lượng xuất',
-        size: 100,
+        header: 'SL xuất',
+        size: 50,
       },
       {
         accessorKey: 'AmountRemain',
-        header: 'Lượng còn lại',
+        header: 'SL tồn',
+        size: 50,
+      },
+      {
+        accessorKey: 'OrderId',
+        header: 'Phiếu nhập',
         size: 100,
       },
       {
@@ -65,23 +76,13 @@ const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[] }> = ({ ch
         size: 100,
       },
       {
-        accessorKey: 'OrderId',
-        header: 'Id phiếu nhập',
-        size: 100,
-      },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
-        size: 100,
-      },
-      {
         accessorKey: 'formatedExpiryDate',
         header: 'Ngày hết hạn',
         size: 100,
       },
       {
-        accessorKey: 'LotNumber',
-        header: 'Số lô',
+        accessorKey: 'ManufacturerName',
+        header: 'Nhà sản xuất',
         size: 100,
       },
       {
@@ -125,17 +126,20 @@ const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[] }> = ({ ch
         initialState={{
           density: 'compact',
           columnOrder: [
+            'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(item => item.accessorKey || ''),
-            'mrt-row-actions'
           ]
         }}
+        renderDetailPanel={({ row }) => (
+          <ChemicalDeptTable chemicalDept={row.original.listChemDept} />
+        )}
         renderTopToolbarCustomActions={() => (
           <h3 style={{ "margin": "0px" }}>
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Thông tin chi tiết</span>
+            <span>Thông tin lô hóa chất</span>
           </h3>
         )}
       />

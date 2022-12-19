@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
@@ -14,10 +14,14 @@ import {
   Stack,
   TextField,
   Tooltip,
-  TextareaAutosize
+  TextareaAutosize,
+  TableRow,
+  TableCell,
+  CircularProgress,
+  Typography
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyLaboratoryData, ILaboratoryType } from '../../types/laboratoryType';
+import { dummyLaboratoryData, ILaboratoryType, IListDeviceBelongingToLaboratoryType } from '../../types/laboratoryType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteLaboratory, getLaboratories, postLaboratory, updateLaboratory } from '../../services/laboratoryServices';
 import { RootState } from '../../store';
@@ -27,6 +31,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import DeviceInLaboratoryTable from './DeviceInLaboratoryTable';
 import InstrumentInLaboratoryTable from './InstrumentInLaboratoryTable';
+import { ColumnType } from './Utils';
 
 const LaboratoryTable: FC = () => {
   const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -43,9 +48,21 @@ const LaboratoryTable: FC = () => {
   const [updatedRow, setUpdatedRow] = useState<any>(dummyLaboratoryData);
   const [deletedRow, setDeletedRow] = useState<any>(dummyLaboratoryData);
   const [createdRow, setCreatedRow] = useState<any>(dummyLaboratoryData);
+  const [loading, setLoading] = useState<Boolean>(true);
+
+  const timeoutRequestingLabData = () => setTimeout(() => {
+    setLoading(false);
+  }, 5000)
 
   useEffect(() => {
-    setTableData(laboratoriesData);
+    timeoutRequestingLabData();
+    if (laboratoriesData.length > 0) {
+      setTableData(laboratoriesData);
+      setLoading(false);
+    }
+    return () => {
+      clearTimeout(timeoutRequestingLabData());
+    }
   }, [laboratoriesData])
 
   const getCommonEditTextFieldProps = useCallback(
@@ -80,6 +97,75 @@ const LaboratoryTable: FC = () => {
     ],
     [getCommonEditTextFieldProps],
   );
+
+  const deviceInLaboratoryTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'DeviceDeptId',
+      header: 'Mã TB',
+    },
+    {
+      id: 'SerialNumber',
+      header: 'Số seri',
+    },
+    {
+      id: 'DeviceName',
+      header: 'Tên TB',
+    },
+    {
+      id: 'Unit',
+      header: 'Đơn vị',
+    },
+    {
+      id: 'ManufacturingDate',
+      header: 'NSX',
+      type: 'date'
+    },
+    {
+      id: 'StartGuarantee',
+      header: 'Ngày BĐ bảo dưỡng',
+      type: 'date'
+    },
+    {
+      id: 'EndGuarantee',
+      header: 'Ngày KT bảo dưỡng',
+      type: 'date'
+    },
+    {
+      id: 'DateStartUsage',
+      header: 'Ngày BĐ sử dụng',
+      type: 'date'
+    },
+    {
+      id: 'HoursUsageTotal',
+      header: 'Số giờ sử dụng',
+      renderValue: (HoursUsageTotal) => `${HoursUsageTotal} (h)`
+    },
+    {
+      id: 'PeriodicMaintenance',
+      header: 'Chu kỳ bảo dưỡng',
+      renderValue: (PeriodicMaintenance) => `${PeriodicMaintenance} (tháng)`
+    },
+    {
+      id: 'Status',
+      header: 'Tình trạng',
+    },
+  ]);
+
+  const instrumentInLaboratoryTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'DeviceDeptId',
+      header: 'Mã dụng cụ',
+    },
+    {
+      id: 'DeviceName',
+      header: 'Tên dụng cụ',
+    },
+    {
+      id: 'Quantity',
+      header: 'Số lượng',
+      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
+    }
+  ])
 
   const handleOpenEditModal = (row: any) => {
     setUpdatedRow(row.original);
@@ -152,83 +238,104 @@ const LaboratoryTable: FC = () => {
 
   return (
     <>
-      <MaterialReactTable
-        displayColumnDefOptions={{
-          'mrt-row-actions': {
-            header: 'Các hành động',
-            muiTableHeadCellProps: {
-              align: 'center',
+      {loading ? (
+        <CircularProgress disableShrink sx={{ marginTop: '50px' }} />
+      ) :
+        <MaterialReactTable
+          displayColumnDefOptions={{
+            'mrt-row-actions': {
+              header: 'Các hành động',
+              muiTableHeadCellProps: {
+                align: 'center',
+              },
+              muiTableBodyCellProps: {
+                align: 'center',
+              },
             },
-            muiTableBodyCellProps: {
-              align: 'center',
-            },
-          },
-          'mrt-row-numbers': {
-            muiTableHeadCellProps: {
-              align: 'center',
-            },
-            muiTableBodyCellProps: {
-              align: 'center',
-            },
-          }
-        }}
-        columns={columns}
-        data={tableData}
-        editingMode="modal" //default
-        enableColumnOrdering
-        enableEditing
-        enableRowNumbers
-        enablePinning
-        initialState={{
-          density: 'compact',
-          columnOrder: [
-            'mrt-row-expand',
-            'mrt-row-numbers',
-            ...columns.map(x => x.accessorKey || ''),
-            'mrt-row-actions'
-          ]
-        }}
-        renderDetailPanel={({ row }) => (
-          <>
-            <DeviceInLaboratoryTable deviceData={row.original.listDevice} />
-            <InstrumentInLaboratoryTable instrumentData={row.original.listInstrument} />
-          </>
-        )}
-        renderTopToolbarCustomActions={() => (
-          <h3 style={{ "margin": "0px" }}>
-            <b><KeyboardArrowRightIcon
-              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-            ></KeyboardArrowRightIcon></b>
-            <span>Thông tin phòng lab</span>
-          </h3>
-        )}
-        renderRowActions={({ row, table }) => (
-          <>
-            <Tooltip arrow placement="left" title="Sửa thông tin Lab">
-              <IconButton onClick={() => handleOpenEditModal(row)}>
-                <Edit />
-              </IconButton>
+            'mrt-row-numbers': {
+              muiTableHeadCellProps: {
+                align: 'center',
+              },
+              muiTableBodyCellProps: {
+                align: 'center',
+              },
+            }
+          }}
+          columns={columns}
+          data={tableData}
+          editingMode="modal" //default
+          enableColumnOrdering
+          enableEditing
+          enableRowNumbers
+          enablePinning
+          initialState={{
+            density: 'compact',
+            columnOrder: [
+              'mrt-row-expand',
+              'mrt-row-numbers',
+              ...columns.map(x => x.accessorKey || ''),
+              'mrt-row-actions'
+            ]
+          }}
+          renderDetailPanel={({ row }) => (
+            <>
+              <DeviceInLaboratoryTable
+                deviceData={row.original.listDevice}
+                columns={deviceInLaboratoryTableColumns.current}
+                row={row}
+              />
+              <InstrumentInLaboratoryTable
+                instrumentData={row.original.listInstrument}
+                columns={instrumentInLaboratoryTableColumns.current}
+                row={row}
+              />
+            </>
+          )}
+          renderTopToolbarCustomActions={() => (
+            <h3 style={{ "margin": "0px" }}>
+              <b><KeyboardArrowRightIcon
+                style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
+              ></KeyboardArrowRightIcon></b>
+              <span>Thông tin phòng lab</span>
+            </h3>
+          )}
+          renderRowActions={({ row, table }) => (
+            <>
+              <Tooltip arrow placement="left" title="Sửa thông tin Lab">
+                <IconButton onClick={() => handleOpenEditModal(row)}>
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+              <Tooltip arrow placement="right" title="Xoá Lab">
+                <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
+                  <Delete />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+          renderBottomToolbarCustomActions={() => (
+            <Tooltip title="Tạo Lab mới" placement="right-start">
+              <Button
+                color="primary"
+                onClick={handleOpenCreateModal}
+                variant="contained"
+                style={{ "margin": "10px" }}
+              >
+                <AddIcon fontSize="small" />
+              </Button>
             </Tooltip>
-            <Tooltip arrow placement="right" title="Xoá Lab">
-              <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </>
-        )}
-        renderBottomToolbarCustomActions={() => (
-          <Tooltip title="Tạo Lab mới" placement="right-start">
-            <Button
-              color="primary"
-              onClick={handleOpenCreateModal}
-              variant="contained"
-              style={{ "margin": "10px" }}
-            >
-              <AddIcon fontSize="small" />
-            </Button>
-          </Tooltip>
-        )}
-      />
+          )}
+        />
+      }
+      {!loading && laboratoriesData.length === 0 && (
+        <TableRow>
+          <TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+            <Typography variant="h5" gutterBottom align="center" component="div">
+              Trống
+            </Typography>
+          </TableCell>
+        </TableRow>
+      )}
 
       <Dialog open={isEditModal}>
         <DialogTitle textAlign="center"><b>Sửa thông tin Lab</b></DialogTitle>
@@ -267,7 +374,7 @@ const LaboratoryTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Huỷ</Button>
+          <Button onClick={onCloseEditModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
             Lưu thay đổi
           </Button>
@@ -280,7 +387,7 @@ const LaboratoryTable: FC = () => {
           <div>Bạn có chắc muốn xoá thông tin Lab {`${deletedRow.LabName}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Huỷ</Button>
+          <Button onClick={onCloseDeleteModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
             Xác nhận
           </Button>
@@ -324,7 +431,7 @@ const LaboratoryTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Huỷ</Button>
+          <Button onClick={onCloseCreateModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
             Tạo
           </Button>

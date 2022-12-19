@@ -27,10 +27,11 @@ type CreateExportModalProps = {
 	columns: MRT_ColumnDef<IExportType>[];
 	onClose: () => void;
 	handleSubmitCreateModal: Function;
+	initData: any
 };
 
-const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreateModal }: CreateExportModalProps) => {
-	const [createdRow, setCreatedRow] = useState<any>(dummyExportData);
+const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreateModal, initData }: CreateExportModalProps) => {
+	const [createdRow, setCreatedRow] = useState<any>(initData);
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
@@ -266,6 +267,7 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 									<Autocomplete
 										key={column.id}
 										options={list}
+										disabled={!column?.enableEditing}
 										noOptionsText="Không có kết quả trùng khớp"
 										defaultValue={list.find(x => x.id === createdRow['DepartmentId']) || null}
 										value={list.find(x => x.id === createdRow['DepartmentId']) || null}
@@ -394,7 +396,7 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 				</form>
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
-				<Button onClick={onClose}>Huỷ</Button>
+				<Button onClick={onClose}>Hủy</Button>
 				<Button color="primary" onClick={handleSubmit} variant="contained">
 					Tiếp theo
 				</Button>
