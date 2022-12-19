@@ -2,16 +2,12 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
 import {
 	AppBar,
-	Box,
 	Button,
 	Dialog,
 	DialogActions,
 	DialogContent,
 	DialogTitle,
 	IconButton,
-	List,
-	ListItem,
-	ListItemText,
 	Stack,
 	TextField,
 	Toolbar,
@@ -272,7 +268,7 @@ const DepartmentTable: FC = () => {
 					</form>
 				</DialogContent>
 				<DialogActions sx={{ p: '1.25rem' }}>
-					<Button onClick={onCloseEditModal}>Huỷ</Button>
+					<Button onClick={onCloseEditModal}>Hủy</Button>
 					<Button color="primary" onClick={handleSubmitEditModal} variant="contained">
 						Lưu thay đổi
 					</Button>
@@ -287,7 +283,7 @@ const DepartmentTable: FC = () => {
 					<div>Bạn có chắc muốn xoá thông tin phòng ban {`${deletedRow.DepartmentName}`} không?</div>
 				</DialogContent>
 				<DialogActions sx={{ p: '1.25rem' }}>
-					<Button onClick={onCloseDeleteModal}>Huỷ</Button>
+					<Button onClick={onCloseDeleteModal}>Hủy</Button>
 					<Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
 						Xác nhận
 					</Button>
@@ -320,7 +316,7 @@ const DepartmentTable: FC = () => {
 					</form>
 				</DialogContent>
 				<DialogActions sx={{ p: '1.25rem' }}>
-					<Button onClick={onCloseCreateModal}>Huỷ</Button>
+					<Button onClick={onCloseCreateModal}>Hủy</Button>
 					<Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
 						Tạo
 					</Button>

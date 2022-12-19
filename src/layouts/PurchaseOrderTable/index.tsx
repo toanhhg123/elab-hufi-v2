@@ -79,34 +79,29 @@ export const PurchaseOrderTable: FC = () => {
         size: 100,
       },
       {
-        accessorKey: 'formatedOrderDate',
-        header: 'Ngày Nhập',
-        size: 140,
-      },
-      {
         accessorKey: 'Content',
         header: 'Nội dung',
         size: 140,
       },
       {
-        accessorKey: 'Note',
-        header: 'Ghi chú',
-        size: 100,
-      },
-      {
-        accessorKey: 'SupplierName',
-        header: 'Nhà cung cấp',
+        accessorKey: 'formatedOrderDate',
+        header: 'Thời gian Nhập',
         size: 140,
       },
       {
         accessorKey: 'EmployeeName',
-        header: 'Người nhận',
+        header: 'Người nhập',
         size: 140,
       },
       {
         accessorKey: 'DepartmentName',
         header: 'Phòng ban',
         size: 140,
+      },
+      {
+        accessorKey: 'Note',
+        header: 'Ghi chú',
+        size: 100,
       },
     ],
     [getCommonEditTextFieldProps],
@@ -170,8 +165,11 @@ export const PurchaseOrderTable: FC = () => {
       "Content": createdRow.Content,
       "Note": createdRow.Note,
       "SupplierId": createdRow.SupplierId,
+      "SupplierName": createdRow.SupplierName,
       "EmployeeId": createdRow.EmployeeId,
+      "EmployeeName": createdRow.EmployeeName,
       "DepartmentId": createdRow.DepartmentId,
+      "DepartmentName": createdRow.DepartmentName,
       "listChemDetail": createdRow.listChemDetail,
       "listDevDetail": createdRow.listDevDetail,
     })
@@ -220,12 +218,13 @@ export const PurchaseOrderTable: FC = () => {
             'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(item => item.accessorKey || ''),
+            'mrt-row-actions'
           ]
         }}
         renderDetailPanel={({ row }) => (
           <>
-            <PurchaseOrderChemicalTable chemicalData={row.original.listChemDetail} />
-            <PurchaseOrderDeviceTable deviceData={row.original.listDevDetail} />
+            {row.original.listChemDetail.length > 0 && <PurchaseOrderChemicalTable chemicalData={row.original.listChemDetail} />}
+            {row.original.listDevDetail.length > 0 && <PurchaseOrderDeviceTable deviceData={row.original.listDevDetail} />}
           </>
         )}
         renderTopToolbarCustomActions={() => (
@@ -301,7 +300,7 @@ export const PurchaseOrderTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Huỷ</Button>
+          <Button onClick={onCloseEditModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
             Lưu thay đổi
           </Button>
@@ -314,7 +313,7 @@ export const PurchaseOrderTable: FC = () => {
           <div>Bạn có chắc muốn xoá thông tin phiếu nhập {`${deletedRow.OrderId}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Huỷ</Button>
+          <Button onClick={onCloseDeleteModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
             Xác nhận
           </Button>
@@ -358,7 +357,7 @@ export const PurchaseOrderTable: FC = () => {
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Huỷ</Button>
+          <Button onClick={onCloseCreateModal}>Hủy</Button>
           <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
             Tạo
           </Button>

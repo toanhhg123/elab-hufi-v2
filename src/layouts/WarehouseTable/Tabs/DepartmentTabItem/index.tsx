@@ -43,20 +43,12 @@ const DepartmentTabItem: FC = () => {
 
 	useEffect(() => {
 		let formatedData = warehouseDepartment?.map((x: IExportType) => {
-			let employeeInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeId)
-				: -1;
-			let departmentInfoIdx = Array.isArray(departmentData)
-				? departmentData.findIndex(y => y.DepartmentId === x.DepartmentId)
-				: -1;
 			let userAcceptInfoIdx = Array.isArray(employeeData)
 				? employeeData.findIndex(y => y.EmployeeID === x.UserAccept)
 				: -1;
 			return {
 				...x,
-				EmployeeName: employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : '',
 				formatedExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY'),
-				DepartmentName: departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : '',
 				UserAcceptName: userAcceptInfoIdx > -1 ? employeeData[userAcceptInfoIdx].Fullname : '',
 			};
 		});
@@ -157,10 +149,10 @@ const DepartmentTabItem: FC = () => {
 								background: cell.getValue<String>() === 'Accepted' ? 'green' : '#fc9003',
 								color: cell.getValue<String>() === 'Accepted' ? 'white' : 'white',
 								padding: '4px 8px',
-								borderRadius: '1000px'
+								borderRadius: '1000px',
 							}}
 						>
-							{cell.getValue<String>() === 'Accepted' ? "Chấp nhận" : 'Đang chờ'}
+							{cell.getValue<String>() === 'Accepted' ? 'Chấp nhận' : 'Đang chờ'}
 						</span>
 					);
 				},
@@ -180,7 +172,7 @@ const DepartmentTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'ExpChemDeptId',
+				accessorKey: 'ChemDeptId',
 				header: 'Mã xuất hoá chất',
 				size: 140,
 			},
@@ -221,7 +213,7 @@ const DepartmentTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'ExpDeviceDeptId',
+				accessorKey: 'DeviceDeptId',
 				header: 'Mã Thiết bị',
 				enableEditing: false,
 				size: 140,
@@ -253,7 +245,7 @@ const DepartmentTabItem: FC = () => {
 
 	const columnsChemicalTable = useRef<ColumnType[]>([
 		{
-			id: 'ExpChemDeptId',
+			id: 'ChemDeptId',
 			header: 'Mã xuất hoá chất',
 		},
 		{
@@ -273,7 +265,7 @@ const DepartmentTabItem: FC = () => {
 
 	const columnsDeviceTable = useRef<ColumnType[]>([
 		{
-			id: 'ExpDeviceDeptId',
+			id: 'DeviceDeptId',
 			header: 'Mã xuất thiết bị',
 		},
 		{
@@ -326,7 +318,9 @@ const DepartmentTabItem: FC = () => {
 			Content: updatedRow.Content,
 			Note: updatedRow.Note,
 			EmployeeId: updatedRow.EmployeeId,
+			EmployeeName: updatedRow.EmployeeName,
 			DepartmentId: updatedRow.DepartmentId,
+			DepartmentName: updatedRow.DepartmentName,
 			Accept: updatedRow.Accept !== 'Accepted' ? '' : 'Accepted',
 			UserAccept: updatedRow.UserAccept,
 			listChemicalExport: updatedRow.listChemicalExport,
@@ -364,8 +358,10 @@ const DepartmentTabItem: FC = () => {
 				Content: createdRow.Content,
 				Note: createdRow.Note,
 				EmployeeId: createdRow.EmployeeId,
+				DepartmentName: createdRow.DepartmentName,
+				EmployeeName: createdRow.EmployeeName,
 				DepartmentId: createdRow.DepartmentId,
-				Accept: createdRow.Accept !== 'Accepted' ? 'Pending' : 'Accepted',
+				Accept: createdRow.Accept !== 'Accepted' ? '' : 'Accepted',
 				UserAccept: createdRow.UserAccept,
 				listChemicalExport: createdRow.listChemicalExport,
 				listDeviceExport: createdRow.listDeviceExport,
@@ -379,7 +375,7 @@ const DepartmentTabItem: FC = () => {
 
 	const handleSumbitCreateExportChemical = async (listChemical: any, row: any) => {
 		const listChemicalExportUpdate = listChemical.map((chemical: any) => ({
-			ExpChemDeptId: chemical.ExpChemDeptId,
+			ChemDeptId: chemical.ChemDeptId,
 			ChemDetailId: chemical.ChemDetailId,
 			ChemicalName: chemical.ChemicalName,
 			AmountOriginal: chemical.Amount,
@@ -397,7 +393,7 @@ const DepartmentTabItem: FC = () => {
 
 	const handleSumbitCreateExportDevice = async (listDevice: any, row: any) => {
 		const listDeviceExportUpdate = listDevice.map((device: any) => ({
-			ExpDeviceDeptId: device.ExpDeviceDeptId,
+			DeviceDeptId: device.DeviceDeptId,
 			DeviceDetailId: device.DeviceDetailId,
 			DeviceName: device.DeviceName,
 			QuantityOriginal: device.Amount,
@@ -469,11 +465,10 @@ const DepartmentTabItem: FC = () => {
 				columns={columns}
 				data={tableData}
 				editingMode="modal" //default
-				enableColumnOrdering
 				enableEditing
 				enableRowNumbers
 				enablePinning
-				enableGrouping
+				enableGrouping={false}
 				enableRowActions
 				enableExpanding
 				muiTableDetailPanelProps={{
@@ -570,6 +565,7 @@ const DepartmentTabItem: FC = () => {
 					columns={columns}
 					isCreateModal={isCreateModal}
 					handleSubmitCreateModal={handleSubmitCreateWarehouseDepModal}
+					initData={createdRow}
 				/>
 			)}
 

@@ -12,7 +12,7 @@ import {
 	FormControl,
 	Grid,
 	IconButton,
-	TextField
+	TextField,
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -50,7 +50,7 @@ const CreateExportDeviceModal = ({
 	const [deviceData, setDeviceData] = useState([]);
 
 	const [listDeviceAmount, setListDeviceAmount] = useState<any>([]);
-	const [deviceAmount, setDeviceAmount] = useState<any>({ ExpDeviceDeptId: '', DeviceDetailId: '', Amount: 0 });
+	const [deviceAmount, setDeviceAmount] = useState<any>({ DeviceDeptId: '', DeviceDetailId: '', Amount: 0 });
 	const dispatch = useAppDispatch();
 	const [exportDeviceIdText, setExportDeviceIdText] = useState('');
 	const [loading, setLoading] = useState<boolean>(true);
@@ -78,7 +78,7 @@ const CreateExportDeviceModal = ({
 			switch (type) {
 				case 'DEP':
 					return {
-						ExpDeviceDeptId: device?.ExpDeviceDeptId,
+						DeviceDeptId: device?.DeviceDeptId,
 						DeviceDetailId: device?.DeviceDetailId,
 						DeviceName: device?.DeviceName,
 						Amount: device?.QuantityOriginal,
@@ -86,7 +86,7 @@ const CreateExportDeviceModal = ({
 					};
 				case 'LAB_DEV':
 					return {
-						ExpDeviceDeptId: device?.ExpDeviceDeptId,
+						DeviceDeptId: device?.DeviceDeptId,
 						DeviceDetailId: device?.DeviceDetailId,
 						DeviceName: device?.DeviceName,
 						Unit: device?.Unit,
@@ -94,7 +94,7 @@ const CreateExportDeviceModal = ({
 					};
 				case 'LAB_INS':
 					return {
-						ExpDeviceDeptId: device?.ExpDeviceDeptId,
+						DeviceDeptId: device?.DeviceDeptId,
 						DeviceDetailId: device?.DeviceDetailId,
 						DeviceName: device?.DeviceName,
 						Unit: device?.Unit,
@@ -113,11 +113,11 @@ const CreateExportDeviceModal = ({
 			const devicesDetail: any = [];
 			Promise.all([
 				await getDevices(DepartmentId, 'Thiết bị'),
-				await getDevices(DepartmentId, 'Dụng cụ - Công cụ'),
+				await getDevices(DepartmentId, 'Công cụ'),
+				await getDevices(DepartmentId, 'Dụng cụ'),
 			])
 				.then(resData => {
 					resData.forEach((data: IDeviceDepartmentType[]) => {
-						console.log(data);
 						data?.forEach((devices: any) => {
 							switch (type) {
 								case 'DEP':
@@ -133,7 +133,7 @@ const CreateExportDeviceModal = ({
 									for (let x of devices.listExportDevice) {
 										devicesDetail.push({
 											DeviceName: devices?.DeviceName,
-											ExpDeviceDeptId: x?.ExpDeviceDeptId,
+											DeviceDeptId: x?.DeviceDeptId,
 											Unit: devices.Unit,
 											SerialNumber: x?.SerialNumber,
 											...x,
@@ -141,10 +141,10 @@ const CreateExportDeviceModal = ({
 									}
 									break;
 								case 'LAB_INS':
-									if (devices.DeviceType === 'Dụng cụ - Công cụ') {
+									if (devices.DeviceType === 'Công cụ' || devices.DeviceType === 'Dụng cụ' ) {
 										devicesDetail.push({
 											DeviceName: devices?.DeviceName,
-											ExpDeviceDeptId: devices?.ExpDeviceDeptId,
+											DeviceDeptId: devices?.DeviceDeptId,
 											Unit: devices.Unit,
 											Quantity: devices?.Quantity,
 										});
@@ -206,7 +206,7 @@ const CreateExportDeviceModal = ({
 									/>
 								);
 							}
-							if (column.accessorKey === 'ExpDeviceDeptId') {
+							if (column.accessorKey === 'DeviceDeptId') {
 								const list = deviceData
 									.map((x: any) => {
 										const isExistInListAdded =
@@ -216,7 +216,7 @@ const CreateExportDeviceModal = ({
 														return y.DeviceDetailId === x?.DeviceDetailId;
 													case 'LAB_DEV':
 													case 'LAB_INS':
-														return y.ExpDeviceDeptId === x?.ExpDeviceDeptId;
+														return y.DeviceDeptId === x?.DeviceDeptId;
 
 													default:
 														break;
@@ -233,10 +233,10 @@ const CreateExportDeviceModal = ({
 													};
 												case 'LAB_DEV':
 													return {
-														label: `${x?.ExpDeviceDeptId || ''} - ${
-															x?.DeviceName || ''
-														} - ${x?.SerialNumber || ''} `,
-														id: x?.ExpDeviceDeptId,
+														label: `${x?.DeviceDeptId || ''} - ${x?.DeviceName || ''} - ${
+															x?.SerialNumber || ''
+														} `,
+														id: x?.DeviceDeptId,
 														name: x?.DeviceName,
 														SerialNumber: x?.SerialNumber,
 														unit: x?.Unit,
@@ -245,8 +245,8 @@ const CreateExportDeviceModal = ({
 
 												case 'LAB_INS':
 													return {
-														label: `${x?.ExpDeviceDeptId || ''} - ${x?.DeviceName || ''}`,
-														id: x?.ExpDeviceDeptId,
+														label: `${x?.DeviceDeptId || ''} - ${x?.DeviceName || ''}`,
+														id: x?.DeviceDeptId,
 														name: x?.DeviceName,
 														unit: x?.Unit,
 														...x,
@@ -364,7 +364,7 @@ const CreateExportDeviceModal = ({
 													onClick={() => {
 														setListDeviceAmount((prev: any) => [
 															...prev,
-															{ ...deviceAmount, ExpDeviceDeptId: exportDeviceIdText },
+															{ ...deviceAmount, DeviceDeptId: exportDeviceIdText },
 														]);
 														setDeviceAmount({ DeviceDetailId: '', Amount: 0 });
 														setExportDeviceIdText('');
@@ -398,7 +398,7 @@ const CreateExportDeviceModal = ({
 											<TableCell component="th" scope="row">
 												{index + 1}
 											</TableCell>
-											<TableCell>{el.ExpDeviceDeptId}</TableCell>
+											<TableCell>{el.DeviceDeptId}</TableCell>
 											<TableCell>
 												{
 													{
@@ -443,7 +443,7 @@ const CreateExportDeviceModal = ({
 				</form>
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
-				<Button onClick={onClose}>Huỷ</Button>
+				<Button onClick={onClose}>Hủy</Button>
 				<Button color="primary" onClick={() => handleSubmit(listDeviceAmount, createdRow)} variant="contained">
 					Tạo
 				</Button>

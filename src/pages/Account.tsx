@@ -333,7 +333,7 @@ const Account: React.FC = () => {
 
 							{isChanged && (
 								<Box sx={{ textAlign: 'right', marginTop: '24px' }}>
-									<Button onClick={() => setCreatedRow(employee)}>Huỷ</Button>
+									<Button onClick={() => setCreatedRow(employee)}>Hủy</Button>
 									<Button color="primary" variant="contained" onClick={handleSubmitEdit}>
 										Lưu thay đổi
 									</Button>

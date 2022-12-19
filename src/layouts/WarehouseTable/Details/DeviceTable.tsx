@@ -97,13 +97,13 @@ const DeviceTable = ({
 		if (index !== -1) {
 			switch (type) {
 				case 'DEP':
-					return warehouseData[index].listDeviceExport;
+					return warehouseData[index].listDeviceExport || [];
 				case 'REG':
-					return warehouseData[index].listChemicalExport;
+					return warehouseData[index].listChemicalExport || [];
 				case 'SUB':
-					return warehouseData[index].listSub;
+					return warehouseData[index].listSub || [];
 				case 'LAB':
-					return warehouseData[index].listDevice;
+					return warehouseData[index].listDevice || [];
 				default:
 					return [];
 			}
@@ -116,6 +116,7 @@ const DeviceTable = ({
 		row.original.ExpSubjectId,
 		row.original.ExportLabId,
 		warehouseData,
+		type,
 	]);
 
 	useEffect(() => {
@@ -151,7 +152,7 @@ const DeviceTable = ({
 				if (typeof x[key] === 'string') string += x[key] + ' ';
 				if (typeof x[key] === 'number') string += x[key]?.toString() + ' ';
 			});
-			return { label: removeAccents(string.toUpperCase()), id: x.ExpDeviceDeptId };
+			return { label: removeAccents(string.toUpperCase()), id: x.DeviceDeptId };
 		});
 		setDataSearch(data);
 	}, []);
@@ -163,7 +164,7 @@ const DeviceTable = ({
 		if (keyword === '') {
 			setDeviceOfExport(exportDevices);
 		} else {
-			const data = exportDevices.filter((x: any) => listId.indexOf(x?.ExpDeviceDeptId) !== -1);
+			const data = exportDevices.filter((x: any) => listId.indexOf(x?.DeviceDeptId) !== -1);
 			setDeviceOfExport(data);
 		}
 	}, [keyword, dataSearch]);
@@ -211,7 +212,7 @@ const DeviceTable = ({
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{deviceOfExport.map((exportDevice: any, index: number) => (
+						{deviceOfExport?.map((exportDevice, index: number) => (
 							<TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 								<TableCell align="left">{index + 1}</TableCell>
 								{columns.map(col => {

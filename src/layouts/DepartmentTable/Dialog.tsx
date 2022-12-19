@@ -208,7 +208,7 @@ const DialogDelete = ({ isOpen, onClose, dataDelete, handleSubmitDelete }: Dialo
 					</div>
 				</DialogContent>
 				<DialogActions sx={{ p: '1.25rem' }}>
-					<Button onClick={onClose}>Huỷ</Button>
+					<Button onClick={onClose}>Hủy</Button>
 					<Button
 						color="primary"
 						onClick={() => handleSubmitDelete?.(dataDelete?.DeviceId || '')}
@@ -339,7 +339,7 @@ const DialogEdit = ({ isOpen, onClose, dataUpdate, handleSubmitUpdate }: DialogP
 				</form>
 			</DialogContent>
 			<DialogActions sx={{ p: '1.25rem' }}>
-				<Button onClick={onClose}>Huỷ</Button>
+				<Button onClick={onClose}>Hủy</Button>
 				<Button color="primary" onClick={() => handleSubmitUpdate?.(updatedRow)} variant="contained">
 					Lưu thay đổi
 				</Button>

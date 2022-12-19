@@ -91,13 +91,13 @@ const InstrumentTable = ({
 		if (index !== -1) {
 			switch (type) {
 				case 'DEP':
-					return warehouseData[index].listDeviceExport;
+					return warehouseData[index].listDeviceExport || [];
 				case 'REG':
-					return warehouseData[index].listChemicalExport;
+					return warehouseData[index].listChemicalExport || [];
 				case 'SUB':
-					return warehouseData[index].listSub;
+					return warehouseData[index].listSub || [];
 				case 'LAB':
-					return warehouseData[index].listInstrument;
+					return warehouseData[index].listInstrument || [];
 				default:
 					return [];
 			}
@@ -110,11 +110,12 @@ const InstrumentTable = ({
 		row.original.ExpSubjectId,
 		row.original.ExportLabId,
 		warehouseData,
+		type
 	]);
 
 	useEffect(() => {
 		setDeviceOfExport(getExportDeviceData() || []);
-	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId, row.original.ExportLabId]);
+	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId, row.original.ExportLabId, type , warehouseData]);
 
 	const handleRequestSort = (property: string) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -208,7 +209,7 @@ const InstrumentTable = ({
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{deviceOfExport.map((exportDevice: any, index: number) => (
+						{deviceOfExport?.map((exportDevice: any, index: number) => (
 							<TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 								<TableCell align="left">{index + 1}</TableCell>
 								{columns.map(col => {

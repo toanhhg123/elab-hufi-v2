@@ -1,6 +1,6 @@
 export interface IExportDeviceType {
 	DeviceName: String;
-	ExpDeviceDeptId: String;
+	DeviceDeptId: String;
 	ExportLabId?: String;
 	QuantityOriginal: Number;
 	ExpRegGeneralId?: String;
@@ -13,17 +13,22 @@ export interface IExportDeviceType {
 	YearStartUsage?: Number;
 	HoursUsage?: Number;
 	Quantity?: Number;
-	LabId?: Number;
+	LabId?: String;
 	LabName?: String;
 	Location?: String;
 	ExportDate?: String;
+	DateTranferTo?: String;
+	DateStartUsage?: String;
+	HoursUsageTotal?: Number;
+	PeriodicMaintenance?: Number;
 	EmployeeName?: String;
 	ExportId?: String;
+	WarningMaintenace?: String;
 }
 
 export const dummyExportDevice: IExportDeviceType = {
 	DeviceName: '',
-	ExpDeviceDeptId: '',
+	DeviceDeptId: '',
 	QuantityOriginal: 0,
 	Unit: '',
 	DeviceDetailId: '',
@@ -34,12 +39,17 @@ export const dummyExportDevice: IExportDeviceType = {
 	YearStartUsage: 0,
 	HoursUsage: 0,
 	Quantity: 0,
-	LabId: 0,
+	LabId: '',
 	LabName: '',
 	Location: '',
 	ExportDate: '',
+	DateTranferTo: '',
 	EmployeeName: '',
 	ExportId: '',
 	ExportLabId: '',
-	ExpRegGeneralId: ''
+	DateStartUsage: '',
+	ExpRegGeneralId: '',
+	HoursUsageTotal: 0,
+	PeriodicMaintenance: 0,
+	WarningMaintenace: '',
 };

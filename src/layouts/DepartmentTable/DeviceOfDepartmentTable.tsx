@@ -1,29 +1,17 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import {
-	AppBar,
-	Autocomplete,
 	Button,
 	CircularProgress,
 	Collapse,
 	debounce,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
 	FormControl,
 	FormControlLabel,
 	IconButton,
 	InputAdornment,
-	InputLabel,
-	MenuItem,
 	Paper,
 	Radio,
 	RadioGroup,
-	Select,
-	SelectChangeEvent,
-	Stack,
 	Table,
 	TableBody,
 	TableCell,
@@ -32,31 +20,25 @@ import {
 	TableHead,
 	TablePagination,
 	TableRow,
-	TableSortLabel,
 	TextField,
-	Toolbar,
 	Tooltip,
-	Typography,
+	Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { MRT_Row } from 'material-react-table';
-import { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import SearchIcon from '@mui/icons-material/Search';
-import { IDeviceDepartmentType, IDeviceDeptType, dummyDeviceDepartmentData } from '../../types/deviceDepartmentType';
-import * as API from '../../configs/apiHelper';
-import { IDepartmentType } from '../../types/departmentType';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { deleteDevice, getDevices, postDevice, updateDevice } from '../../services/deviveDepartmentServices';
+import SearchIcon from '@mui/icons-material/Search';
+import WarningIcon from '@mui/icons-material/Warning';
 import moment from 'moment';
-import { DeviceType } from '../../configs/enums';
-import CloseIcon from '@mui/icons-material/Close';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import { deleteDevice, getDevices } from '../../services/deviveDepartmentServices';
+import { IDeviceDepartmentType } from '../../types/deviceDepartmentType';
 import { IExportDeviceType } from '../../types/exportDeviceType';
 import { DialogCreate, DialogDelete } from './Dialog';
 
@@ -70,7 +52,7 @@ type DeviceTableProps = {
 	id: Number | undefined;
 };
 
-type DeviceColumnType = {
+export type DeviceColumnType = {
 	id: string;
 	header: String;
 	type?: string;
@@ -90,7 +72,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 function renderArrowSort(order: string, orderBy: string, property: string) {
 	if (orderBy === property) {
-		return order === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />;
+		return order === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />;
 	}
 	return null;
 }
@@ -102,6 +84,37 @@ function removeAccents(str: string) {
 		.replace(/đ/g, 'd')
 		.replace(/Đ/g, 'D');
 }
+
+const isObject = (val: any) => {
+	if (val === null) {
+		return false;
+	}
+
+	return typeof val === 'object';
+};
+
+const nestedObject = (obj: any, string: String) => {
+	for (const key in obj) {
+		if (isObject(obj[key])) {
+			nestedObject(obj[key], string);
+		} else {
+			switch (key) {
+				case 'ExportDate':
+				case 'ManufacturingDate':
+				case 'StartGuarantee':
+				case 'EndGuarantee':
+				case 'DateTranferTo':
+				case 'DateStartUsage':
+					string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
+					break;
+				default:
+					string += `${obj[key]} `;
+					break;
+			}
+		}
+	}
+	return string;
+};
 
 const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 	const warehouseLaboratoriesData = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseLaboratory);
@@ -121,29 +134,31 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [loading, setLoading] = useState<Boolean>(true);
+	const [open, setOpen] = useState<number>(-1);
 
 	const [updatedRow, setUpdatedRow] = useState<any>();
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>();
 
-	useEffect(() => {
-		const getDeviceData = async () => {
-			try {
-				const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
+	const getDeviceData = async () => {
+		try {
+			const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
 
-				if (!deviceData[deviceType]) {
-					deviceData[deviceType] = data;
-					setDeviceData({ ...deviceData });
-				}
-				if(Array.isArray(data)) {
-					setDevices(data || []);
-					setCloneDevices(data);
-				}
-			} catch (error) {
-				console.log(error);
-			} finally {
-				setLoading(false);
+			if (!deviceData[deviceType]) {
+				deviceData[deviceType] = data;
+				setDeviceData({ ...deviceData });
 			}
-		};
+			if (Array.isArray(data)) {
+				setDevices(data || []);
+				setCloneDevices(data);
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
 		getDeviceData();
 	}, [deviceType]);
 
@@ -189,6 +204,8 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 							case 'ManufacturingDate':
 							case 'StartGuarantee':
 							case 'EndGuarantee':
+							case 'DateTranferTo':
+							case 'DateStartUsage':
 								string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
 								break;
 							default:
@@ -203,7 +220,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 
 			return {
 				label: removeAccents(string.toUpperCase()),
-				id: device.ExpDeviceDeptId,
+				id: device.DeviceDetailId,
 			};
 		});
 		setDataSearch(data);
@@ -215,10 +232,19 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		if (keyword === '') {
 			setDevices(cloneDevices || []);
 		} else {
-			const data = devices.filter((x: any) => listId.indexOf(x?.ExpDeviceDeptId) !== -1);
+			const data = devices.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
 			setDevices(data || []);
 		}
 	}, [keyword]);
+
+	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
+
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage);
+	};
 
 	const handleOpenCreate = () => {
 		setIsOpenCreateModal(true);
@@ -257,7 +283,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 	};
 
 	const columns = useRef([
-		{ id: 'DeviceDetailId', header: 'Mã chi tiết TB' },
+		{ id: 'DeviceDeptId', header: 'Mã chi tiết TB' },
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
 		{ id: 'Standard', header: 'Qui cách' },
@@ -267,19 +293,10 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		{ id: 'QuantityRemain', header: 'SL tồn' },
 	]);
 
-	const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setRowsPerPage(parseInt(event.target.value, 10));
-		setPage(0);
-	};
-
-	const handleChangePage = (event: unknown, newPage: number) => {
-		setPage(newPage);
-	};
-
 	return (
 		<>
-			<Box component="div" justifyContent="space-between" display="flex" flexWrap='wrap' mx={8} mb={2}>
-				<Typography fontWeight="bold" variant="h6" whiteSpace='nowrap'>
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={8} mb={2}>
+				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
 				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
@@ -361,7 +378,8 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 					</TableHead>
 					<TableBody>
 						{!loading &&
-							devices?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+							devices
+								?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 								?.map((exportDevice: IDeviceDepartmentType, index: number) => (
 									<RowDevice
 										device={exportDevice}
@@ -369,6 +387,8 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 										key={index}
 										handleOpenDelete={handleOpenDelete}
 										handleOpenEdit={handleOpenEdit}
+										handleOpen={(index: number) => setOpen(open === index ? -1 : index)}
+										openIndex={open}
 									/>
 								))}
 						{loading && (
@@ -407,17 +427,17 @@ type RowDeviceProps = {
 	handleOpenDelete: (exportDevice: any) => void;
 	device: IDeviceDepartmentType;
 	index: number;
+	openIndex: number;
+	handleOpen: (index: number) => void;
 };
 
-const RowDevice = ({ index, device, handleOpenEdit, handleOpenDelete }: RowDeviceProps) => {
-	const [open, setOpen] = useState(false);
-
+const RowDevice = ({ index, device, handleOpenEdit, handleOpenDelete, handleOpen, openIndex }: RowDeviceProps) => {
 	return (
 		<>
 			<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 }, '& > *': { borderBottom: 'unset' } }}>
 				<TableCell>
-					<IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-						{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+					<IconButton aria-label="expand row" size="small" onClick={() => handleOpen(index)}>
+						{openIndex === index ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 					</IconButton>
 				</TableCell>
 				<TableCell align="left">{index + 1}</TableCell>
@@ -435,28 +455,13 @@ const RowDevice = ({ index, device, handleOpenEdit, handleOpenDelete }: RowDevic
 					{device?.QuantityRemain?.toString()} {`(${device?.Unit})`}
 				</TableCell>
 				<TableCell align="left">{device?.Standard}</TableCell>
-				{/* <TableCell align="right" size="small">
-					<Tooltip arrow placement="left" title="Sửa">
-						<IconButton onClick={() => handleOpenEdit(device)}>
-							<Edit />
-						</IconButton>
-					</Tooltip>
-					<Tooltip arrow placement="right" title="Xoá">
-						<IconButton color="error" onClick={() => handleOpenDelete(device)}>
-							<Delete />
-						</IconButton>
-					</Tooltip>
-				</TableCell> */}
 			</TableRow>
 			<TableRow>
 				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={12}>
-					<Collapse in={open} timeout="auto" unmountOnExit>
+					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ margin: 1 }}>
 							{device?.listExportDevice?.length !== 0 ? (
 								<>
-									<Typography variant="h6" gutterBottom component="div">
-										Chi tiết thiết bị
-									</Typography>
 									<DeviceDetailTable data={device?.listExportDevice || []} unit={device.Unit} />
 								</>
 							) : (
@@ -480,7 +485,9 @@ type DeviceDetailTableProps = {
 const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 	const [deviceDetails, setDeviceDetails] = useState<IExportDeviceType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
-	const [orderBy, setOrderBy] = useState<string>('DeviceId');
+	const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
+	const [keyword, setKeyword] = useState<string>('');
+	const [dataSearch, setDataSearch] = useState<any>([]);
 
 	useEffect(() => {
 		setDeviceDetails(data);
@@ -506,22 +513,71 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 		});
 	}, [order, orderBy]);
 
+	useEffect(() => {
+		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
+
+		if (keyword === '') {
+			setDeviceDetails(data || []);
+		} else {
+			const results = data?.filter((x) => listId.indexOf(x?.DeviceDeptId) !== -1);
+			setDeviceDetails(results || []);
+		}
+	}, [keyword]);
+
+	useEffect(() => {
+		const searchArr = data?.map((device: any) => {
+			let string: String = '';
+			string = nestedObject(device, string);
+			return {
+				label: removeAccents(string.toUpperCase()),
+				id: device.DeviceDeptId,
+			};
+		});
+		setDataSearch(searchArr);
+	}, [data]);
+
 	const columns = useRef([
-		{ id: 'ExpDeviceDeptId', header: 'Mã' },
-		{ id: 'LabName', header: 'Phòng' },
-		{ id: 'Location', header: 'Địa chỉ' },
-		{ id: 'ExportDate', header: 'Ngày xuất', type: 'date' },
+		{ id: 'DeviceDeptId', header: 'Mã' },
+		{
+			id: 'LabName',
+			header: 'Phòng',
+			sx: { minWidth: '120px' },
+			renderValue: (...args: String[]) => args.join(' - '),
+		},
+		{ id: 'Location', header: 'Địa chỉ', sx: { minWidth: '150px' } },
+		{ id: 'DateTranferTo', header: 'Ngày nhập', type: 'date' },
 		{ id: 'EmployeeName', header: 'Người xuất' },
 		{ id: 'SerialNumber', header: 'Số Serial' },
 		{ id: 'ManufacturingDate', header: 'Ngày sản xuất', type: 'date' },
 		{ id: 'StartGuarantee', header: 'Bắt đầu bảo hành', type: 'date' },
 		{ id: 'EndGuarantee', header: 'Kết thúc bảo hành', type: 'date' },
-		{ id: 'YearStartUsage', header: 'Năm sử dụng' },
-		{ id: 'HoursUsage', header: 'Giờ sử dụng' },
+		{ id: 'DateStartUsage', header: 'Bắt đầu sử dụng', type: 'date' },
+		{ id: 'HoursUsageTotal', header: 'Giờ sử dụng' },
+		{ id: 'PeriodicMaintenance', header: 'Bảo dưỡng định kỳ' },
+		{ id: 'WarningMaintenace', header: 'Cảnh báo' },
 	]);
 
 	return (
 		<>
+			<Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+				<Typography variant="h6" gutterBottom component="div" mb={0}>
+					Chi tiết thiết bị
+				</Typography>
+				<TextField
+					size="small"
+					type="search"
+					placeholder="Tìm kiếm...."
+					InputProps={{
+						startAdornment: (
+							<InputAdornment position="start">
+								<SearchIcon />
+							</InputAdornment>
+						),
+					}}
+					variant="standard"
+					onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+				/>
+			</Box>
 			<TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
 				<Table size="small" aria-label="purchases" sx={{ padding: '8px' }}>
 					<TableHead>
@@ -543,11 +599,27 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 					<TableBody>
 						{deviceDetails?.map((deviceDetailType: IExportDeviceType, index: number) => {
 							return (
-								<TableRow key={index}>
+								<TableRow
+									key={index}
+									sx={{
+										background: deviceDetailType?.WarningMaintenace === 'warning' ? '#fff3e0' : '',
+									}}
+								>
 									{columns.current.map(col => {
+										if (col.id === 'LabName') {
+											return (
+												<TableCell align="left" key={col.id} sx={{ ...(col?.sx || {}) }}>
+													{col?.renderValue?.(
+														deviceDetailType?.LabId || '',
+														deviceDetailType?.LabName || '',
+													) || ''}
+												</TableCell>
+											);
+										}
+
 										if (col.type === 'date')
 											return (
-												<TableCell align="left" key={col.id}>
+												<TableCell align="left" key={col.id} sx={{ ...(col?.sx || {}) }}>
 													{moment
 														.unix(
 															Number(
@@ -559,8 +631,45 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 														.format('DD/MM/YYYY')}
 												</TableCell>
 											);
+										if (col.id === 'WarningMaintenace') {
+											return (
+												<TableCell align="left" sx={{ ...col?.sx }}>
+													{deviceDetailType[col.id as keyof typeof deviceDetailType] ===
+														'warning' && (
+														<Tooltip
+															title={
+																<span style={{ color: '#663c00', fontSize: '12px' }}>
+																	Cảnh báo tới hạn bảo dưỡng
+																</span>
+															}
+															slotProps={{
+																tooltip: {
+																	sx: { background: '#fff4e5' },
+																},
+															}}
+														>
+															<span>
+																<WarningIcon color="warning" />
+															</span>
+														</Tooltip>
+													)}
+												</TableCell>
+											);
+										}
+
+										if (col.id === 'PeriodicMaintenance') {
+											return (
+												<TableCell align="left" sx={{ ...col?.sx }}>
+													{deviceDetailType[col.id as keyof typeof deviceDetailType] !==
+														null &&
+														`${
+															deviceDetailType[col.id as keyof typeof deviceDetailType]
+														} tháng`}
+												</TableCell>
+											);
+										}
 										return (
-											<TableCell align="left">
+											<TableCell align="left" sx={{ ...col?.sx }}>
 												{deviceDetailType[col.id as keyof typeof deviceDetailType] !== null &&
 													`${deviceDetailType[col.id as keyof typeof deviceDetailType]}`}
 											</TableCell>

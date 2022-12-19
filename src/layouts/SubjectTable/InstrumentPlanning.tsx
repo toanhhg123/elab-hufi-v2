@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import MaterialReactTable, {
-    MaterialReactTableProps,
     MRT_Cell,
     MRT_ColumnDef,
 } from 'material-react-table';
@@ -13,13 +12,8 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { RootState } from '../../store';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { setSnackbarMessage } from '../../pages/appSlice';
 import { IDevicesBelongingToSubjectType, ISubjectType } from '../../types/subjectType';
-import Autocomplete from '@mui/material/Autocomplete';
-import { IDeviceType } from '../../types/deviceType';
 
 const DevicePlanning: FC<{
     isOpen: boolean,
@@ -28,7 +22,6 @@ const DevicePlanning: FC<{
     onClose: () => void,
     handleSubmit: (DevicePlanningData: any) => void,
 }> = ({ isOpen, currentSubject, onClose, handleSubmit, defaultCurrentValue }) => {
-    const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
     const [tableData, setTableData] = useState<any[]>([]);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
@@ -98,19 +91,6 @@ const DevicePlanning: FC<{
         [getCommonEditTextFieldProps],
     );
 
-    const handleSelectAutocomplete = (e: any, val: IDeviceType[]) => {
-        setTableData(val);
-    }
-
-    const handleSaveRow: MaterialReactTableProps<any>['onEditingRowSave'] =
-        async ({ exitEditingMode, row, values }) => {
-            let updatedData = [...tableData];
-            updatedData.splice(Number(row.id), 1, values);
-            //send/receive api updates here
-            setTableData([...updatedData]);
-            exitEditingMode(); //required to exit editing mode
-        };
-
     return (
         <>
             <Dialog
@@ -141,33 +121,9 @@ const DevicePlanning: FC<{
                                 defaultValue={currentSubject.SubjectName}
                                 disabled
                             />
-                            <Autocomplete
-                                multiple
-                                filterSelectedOptions
-                                options={deviceData}
-                                value={tableData}
-                                isOptionEqualToValue={(option, value) => option.DeviceId === value.DeviceId}
-                                getOptionLabel={(option: IDeviceType) => option?.DeviceName ? option.DeviceId + ' - ' + option.DeviceName.toString() : ''}
-                                id="auto-complete"
-                                autoComplete
-                                includeInputInList
-                                renderInput={(params) => (
-                                    <TextField {...params} placeholder="Chọn dụng cụ..." variant="standard" />
-                                )}
-                                onChange={(e: any, val) => handleSelectAutocomplete(e, val)}
-                            />
 
                             <MaterialReactTable
                                 displayColumnDefOptions={{
-                                    'mrt-row-actions': {
-                                        header: 'Các hành động',
-                                        muiTableHeadCellProps: {
-                                            align: 'center',
-                                        },
-                                        muiTableBodyCellProps: {
-                                            align: 'center',
-                                        },
-                                    },
                                     'mrt-row-numbers': {
                                         muiTableHeadCellProps: {
                                             align: 'center',
@@ -181,17 +137,14 @@ const DevicePlanning: FC<{
                                 data={tableData}
                                 editingMode="row"
                                 enableTopToolbar={false}
-                                enableEditing
                                 enableColumnOrdering
                                 enableRowNumbers
                                 enablePinning
-                                onEditingRowSave={handleSaveRow}
                                 initialState={{
                                     density: 'compact',
                                     columnOrder: [
                                         'mrt-row-numbers',
                                         ...columns.map(x => x.accessorKey ? x.accessorKey.toString() : ''),
-                                        'mrt-row-actions'
                                     ]
                                 }}
                                 muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -213,10 +166,10 @@ const DevicePlanning: FC<{
                     </form>
                 </DialogContent>
                 <DialogActions sx={{ p: '1.25rem' }}>
-                    <Button onClick={onClose}>Huỷ</Button>
-                    <Button color="primary" onClick={() => handleSubmit(tableData)} variant="contained">
+                    <Button onClick={onClose}>Đóng</Button>
+                    {/* <Button color="primary" onClick={() => handleSubmit(tableData)} variant="contained">
                         Lưu thay đổi
-                    </Button>
+                    </Button> */}
                 </DialogActions>
             </Dialog>
         </>

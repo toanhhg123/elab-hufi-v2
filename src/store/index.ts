@@ -16,6 +16,7 @@ import warehouseReducer from '../layouts/WarehouseTable/warehouseSlice';
 import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
+import planSubjectReducer from '../layouts/PlanSubjectTable/planSubjectSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -36,6 +37,7 @@ export const store = configureStore({
 		registerGeneral: registerGeneralReducer,
 		purchaseOrder: purchaseOrderReducer,
 		schedule: scheduleReducer,
+		planSubject: planSubjectReducer
 	},
 });
 

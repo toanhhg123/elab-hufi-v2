@@ -1,6 +1,6 @@
 export interface IExportChemicalType {
 	ChemicalName: String;
-	ExpChemDeptId: String;
+	ChemDeptId: String;
 	ExportLabId?: String;
 	AmountOriginal?: Number;
 	ExpRegGeneralId?: String;
@@ -14,7 +14,7 @@ export interface IExportChemicalType {
 export const dummyExportChemicalData: IExportChemicalType = {
 	ChemicalName: '',
 	Unit: '',
-	ExpChemDeptId: '',
+	ChemDeptId: '',
 	AmountOriginal: 0,
 	ChemDetailId: '',
 	ExportId: '',
