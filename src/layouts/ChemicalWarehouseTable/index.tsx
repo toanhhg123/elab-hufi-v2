@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
@@ -10,6 +10,8 @@ import { IChemicalWarehouseType } from '../../types/chemicalWarehouseType';
 import ChemicalDetailTable from './ChemicalDetailTable';
 import ExportChemicalTable from './ExportChemicalTable';
 import ExportChemRegTable from './ExportChemRegTable';
+import { ColumnType } from './Utils';
+import moment from 'moment';
 
 const ChemicalWarehouseTable: FC<{ role: number }> = ({ role }) => {
   const chemicalWarehouseData: IChemicalWarehouseType[] = useAppSelector((state: RootState) => state.chemicalWarehouse.listOfChemicalWarehouse);
@@ -20,7 +22,12 @@ const ChemicalWarehouseTable: FC<{ role: number }> = ({ role }) => {
   }>({});
 
   useEffect(() => {
-    setTableData(chemicalWarehouseData);
+    let formatedChemicalWarehouseData = (role === 1) ? chemicalWarehouseData : chemicalWarehouseData.map(item => Object.assign({}, {
+      ...item,
+      ImportDate: moment.unix(Number(item.ImportDate)).format('DD/MM/YYYY'),
+      ExpiryDate: moment.unix(Number(item.ExpiryDate)).format('DD/MM/YYYY'),
+    }))
+    setTableData(formatedChemicalWarehouseData);
   }, [chemicalWarehouseData])
 
   const getCommonEditTextFieldProps = useCallback(
@@ -40,92 +47,224 @@ const ChemicalWarehouseTable: FC<{ role: number }> = ({ role }) => {
       {
         accessorKey: 'ChemicalId',
         header: 'Mã HC',
-        size: 50,
       },
       {
         accessorKey: 'ChemicalName',
         header: 'Tên HC',
-        size: 100,
       },
       {
         accessorKey: 'AmountOriginal',
         header: 'SL nhập',
-        size: 50,
       },
       {
         accessorKey: 'AmountExport',
         header: 'SL xuất',
-        size: 50,
       },
       {
         accessorKey: 'AmountRemain',
         header: 'SL tồn',
-        size: 50,
+      },
+      {
+        accessorKey: 'AmountLiquidate',
+        header: 'SL thanh lý',
       },
       {
         accessorKey: 'Specifications',
-        header: 'Thông số',
-        size: 50,
-      },
-      {
-        accessorKey: 'Origin',
-        header: 'Nguồn gốc',
-        size: 100,
+        header: 'Công thức',
       },
       {
         accessorKey: 'Unit',
-        header: 'Đơn vị',
-        size: 50,
+        header: 'ĐVT',
       },
+      {
+        accessorKey: 'CASnumber',
+        header: 'Mã CAS',
+      },
+      {
+        accessorKey: 'AllowRegister',
+        header: 'SV được ĐK',
+      }
     ] : [
       {
         accessorKey: 'ChemicalId',
         header: 'Mã HC',
-        size: 50,
       },
       {
         accessorKey: 'ChemDeptId',
         header: 'Mã HC nhập',
-        size: 50,
       },
       {
         accessorKey: 'ChemicalName',
         header: 'Tên HC',
-        size: 100,
       },
       {
         accessorKey: 'AmountOriginal',
         header: 'SL nhập',
-        size: 50,
       },
       {
         accessorKey: 'AmountExport',
         header: 'SL xuất',
-        size: 50,
       },
       {
         accessorKey: 'AmountRemain',
         header: 'SL tồn',
-        size: 50,
+      },
+      {
+        accessorKey: 'AmountLiquidate',
+        header: 'SL thanh lý',
       },
       {
         accessorKey: 'Specifications',
-        header: 'Thông số',
-        size: 50,
+        header: 'CTHH',
       },
       {
         accessorKey: 'Origin',
-        header: 'Nguồn gốc',
+        header: 'Xuất xứ',
         size: 100,
       },
       {
         accessorKey: 'Unit',
-        header: 'Đơn vị',
-        size: 50,
+        header: 'ĐVT',
+      },
+      {
+        accessorKey: 'CASnumber',
+        header: 'Mã CAS',
+      },
+      {
+        accessorKey: 'ImportDate',
+        header: 'Ngày nhập',
+      },
+      {
+        accessorKey: 'ExpiryDate',
+        header: 'Ngày hết hạn',
+      },
+      {
+        accessorKey: 'WarningExpiry',
+        header: 'Cảnh báo hết hạn',
       },
     ],
     [getCommonEditTextFieldProps],
   );
+
+  const chemicalDetailTablecolumns = useRef<ColumnType[]>([
+    {
+      id: 'ChemDetailId',
+      header: 'Mã lô',
+    },
+    {
+      id: 'LotNumber',
+      header: 'Số lô',
+    },
+    {
+      id: 'AmountOriginal',
+      header: 'SL nhập',
+    },
+    {
+      id: 'AmountExport',
+      header: 'SL xuất',
+    },
+    {
+      id: 'AmountRemain',
+      header: 'SL tồn',
+    },
+    {
+      id: 'AmountLiquidate',
+      header: 'SL thanh lý',
+    },
+    {
+      id: 'OrderId',
+      header: 'Phiếu nhập',
+    },
+    {
+      id: 'ManufacturerName',
+      header: 'Đơn vị cung cấp',
+    },
+    {
+      id: 'Origin',
+      header: 'Xuất xứ',
+    },
+    {
+      id: 'Price',
+      header: 'Giá',
+    },
+    {
+      id: 'OrderDate',
+      header: 'Ngày nhập',
+      type: 'date'
+    },
+    {
+      id: 'ExpiryDate',
+      header: 'Ngày hết hạn',
+      type: 'date'
+    },
+    {
+      id: 'WarningExpiry',
+      header: 'Cảnh báo hết hạn',
+    },
+  ]
+  );
+
+  const exportChemical2SubjectTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'ExpSubjectId',
+      header: 'Mã phiếu xuất',
+    },
+    {
+      id: 'SubjectId',
+      header: 'Mã môn học',
+    },
+    {
+      id: 'SubjectName',
+      header: 'Tên môn học',
+    },
+    {
+      id: 'Semester',
+      header: 'Học kỳ',
+    },
+    {
+      id: 'Schoolyear',
+      header: 'Năm học',
+    },
+    {
+      id: 'Amount',
+      header: 'SL xuất',
+    },
+    {
+      id: 'EmployeeCreate',
+      header: 'Người tạo đơn',
+    },
+    {
+      id: 'EmployeeInCharge',
+      header: 'Người phụ trách',
+    },
+  ]);
+
+  const exportChemical2ActivityTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'RegisterGeneralId',
+      header: 'Mã phiếu xuất',
+    },
+    {
+      id: 'ThesisName',
+      header: 'Tên đề tài',
+    },
+    {
+      id: 'Semester',
+      header: 'Học kỳ',
+    },
+    {
+      id: 'Schoolyear',
+      header: 'Năm học',
+    },
+    {
+      id: 'Instructor',
+      header: 'Người đăng ký',
+    },
+    {
+      id: 'Amount',
+      header: 'SL xuất',
+    },
+  ]);
 
   return (
     <>
@@ -165,12 +304,20 @@ const ChemicalWarehouseTable: FC<{ role: number }> = ({ role }) => {
           ]
         }}
         renderDetailPanel={({ row }) => (
-          role == 1 ? <ChemicalDetailTable chemicalDetail={row.original.listChemicalDetail} /> :
+          role == 1 ? <ChemicalDetailTable
+            chemicalDetail={row.original.listChemicalDetail}
+            columns={chemicalDetailTablecolumns.current} /> :
             <>
               {row.original.listExportChemical && row.original.listExportChemical.length > 0 &&
-                <ExportChemicalTable exportChemical={row.original.listExportChemical} />}
+                <ExportChemicalTable
+                  exportChemical={row.original.listExportChemical}
+                  columns={exportChemical2SubjectTableColumns.current}
+                />}
               {row.original.listExportChemReg && row.original.listExportChemReg.length > 0 &&
-                <ExportChemRegTable exportChemReg={row.original.listExportChemReg} />}
+                <ExportChemRegTable
+                  exportChemReg={row.original.listExportChemReg}
+                  columns={exportChemical2ActivityTableColumns.current}
+                />}
             </>
         )}
         renderTopToolbarCustomActions={() => (
