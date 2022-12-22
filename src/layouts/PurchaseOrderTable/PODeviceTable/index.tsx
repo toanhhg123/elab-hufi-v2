@@ -1,279 +1,181 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import MaterialReactTable, {
-  MRT_Cell,
-  MRT_ColumnDef,
-} from 'material-react-table';
+import React, { FC, useEffect, useState } from 'react';
+import styled from '@emotion/styled';
+import SearchIcon from '@mui/icons-material/Search';
+import moment from 'moment';
+
 import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Stack,
+  debounce,
+  InputAdornment,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  tableCellClasses,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
-  Tooltip,
+  Typography
 } from '@mui/material';
-import { dummyDeviceData, IDeviceSpecType } from '../../../types/deviceType';
-import { useAppSelector } from '../../../hooks';
-import { RootState } from '../../../store';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { IOrderDeviceType } from "../../../types/purchaseOrderType";
+import { Box } from '@mui/system';
+import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
+import { IOrderDeviceType } from '../../../types/purchaseOrderType';
 
-const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[] }> = ({ deviceData }) => {
-  const deviceSpecData = useAppSelector((state: RootState) => state.device.listOfDeviceSpecs);
-  const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
+const StyledTableCell = styled(TableCell)(theme => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: 'lightgray',
+  },
+}));
 
-  const [isDetailModal, setIsDetailModal] = useState(false);
-  const [tableData, setTableData] = useState<IOrderDeviceType[]>([]);
-  const [deviceSpecTableData, setDeviceSpecTableData] = useState<IDeviceSpecType[]>([]);
+const PurchaseOrderDeviceTable: FC<{ deviceData: IOrderDeviceType[]; columns: ColumnType[]; }> = ({ deviceData, columns }) => {
+  const [tableData, setTableData] = useState<IOrderDeviceType[]>(deviceData);
+  const [order, setOrder] = useState<string>('asc');
+  const [orderBy, setOrderBy] = useState<string>('ChemDetailId');
+  const [keyword, setKeyword] = useState<string>('');
+  const [dataSearch, setDataSearch] = useState<any>([]);
 
-  const [validationErrors, setValidationErrors] = useState<{
-    [cellId: string]: string;
-  }>({});
 
-  const [selectedRow, setSelectedRow] = useState<any>(dummyDeviceData);
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
   useEffect(() => {
-    setTableData(deviceData);
-  }, [deviceData])
+    setTableData(prev => {
+      let data = [...prev];
+      data?.sort((a: IOrderDeviceType, b: IOrderDeviceType) => {
+        let i =
+          order === 'desc'
+            ? descendingComparator<any>(a, b, orderBy)
+            : -descendingComparator<any>(a, b, orderBy);
+        return i;
+      });
+      return data;
+    });
+  }, [order, orderBy]);
+
 
   useEffect(() => {
-    if (selectedRow.DeviceId) {
-      let formatedDeviceSpecData = deviceSpecData.filter(x => x.DeviceId === selectedRow.DeviceId);
-      setDeviceSpecTableData(formatedDeviceSpecData);
-    }
+    const deviceDataItems: IOrderDeviceType[] = deviceData || [];
+    const data = deviceDataItems?.map((x: IOrderDeviceType) => {
+      let string: String = '';
 
-  }, [selectedRow, deviceSpecData])
+      Object.keys(x).forEach(key => {
+        if (typeof x[key as keyof typeof x] === 'string') string += x[key as keyof typeof x] + ' ';
+        if (typeof x[key as keyof typeof x] === 'number') string += x[key as keyof typeof x]?.toString() + ' ';
+      });
 
-
-  const getCommonEditTextFieldProps = useCallback(
-    (
-      cell: MRT_Cell<IOrderDeviceType>,
-    ): MRT_ColumnDef<IOrderDeviceType>['muiTableBodyCellEditTextFieldProps'] => {
       return {
-        error: !!validationErrors[cell.id],
-        helperText: validationErrors[cell.id],
+        label: removeAccents(string.toUpperCase()),
+        id: x?.DeviceDetailId,
       };
-    },
-    [validationErrors],
-  );
+    });
+    setDataSearch(data);
+  }, []);
 
-  const columns = useMemo<MRT_ColumnDef<IOrderDeviceType>[]>(
-    () => [
-      {
-        accessorKey: 'DeviceDetailId',
-        header: 'Mã nhập',
-        size: 100,
-      },
-      {
-        accessorKey: 'DeviceId',
-        header: 'Mã thiết bị',
-        size: 100,
-      },
-      {
-        accessorKey: 'DeviceName',
-        header: 'Tên thiết bị',
-        size: 100,
-      },
-      {
-        accessorKey: 'QuantityOriginal',
-        header: 'SL nhập',
-        size: 100,
-      },
-      {
-        accessorKey: 'Unit',
-        header: 'Đơn vị',
-        size: 100,
-      },
-      {
-        accessorKey: 'Model',
-        header: 'Mẫu',
-        size: 100,
-      },
-      {
-        accessorKey: 'Origin',
-        header: 'Xuất xứ',
-        size: 100,
-      },
-      {
-        accessorKey: 'Price',
-        header: 'Giá',
-        size: 100,
-      },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
-        size: 140,
-      },
-    ],
-    [getCommonEditTextFieldProps],
-  );
+  useEffect(() => {
+    const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
+    const deviceDataItems: IOrderDeviceType[] = deviceData || [];
 
-  const deviceSpecColumns = useMemo<MRT_ColumnDef<IDeviceSpecType>[]>(
-    () => [
-      {
-        accessorKey: 'SpecsID',
-        header: 'Id thông số',
-        size: 100,
-      },
-      {
-        accessorKey: 'SpecsName',
-        header: 'Tên thông số',
-        size: 100,
-      },
-      {
-        accessorKey: 'SpecsValue',
-        header: 'Giá trị',
-        size: 100,
-      },
-    ],
-    [getCommonEditTextFieldProps],
-  );
-
-  const handleOpenDetailModal = (row: any) => {
-    setSelectedRow(row.original);
-    setIsDetailModal(true);
-  }
-
-  const onCloseDetailModal = () => {
-    setSelectedRow(dummyDeviceData);
-    setIsDetailModal(false);
-  }
+    if (keyword === '') {
+      setTableData(deviceDataItems);
+    } else {
+      const data = deviceDataItems?.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
+      setTableData(data);
+    }
+  }, [keyword, dataSearch]);
 
   return (
     <>
-      <MaterialReactTable
-        displayColumnDefOptions={{
-          'mrt-row-actions': {
-            header: 'Các hành động',
-            muiTableHeadCellProps: {
-              align: 'center',
-            },
-            muiTableBodyCellProps: {
-              align: 'center',
-            },
-          },
-          'mrt-row-numbers': {
-            muiTableHeadCellProps: {
-              align: 'center',
-            },
-            muiTableBodyCellProps: {
-              align: 'center',
-            },
-          }
-        }}
-        columns={columns}
-        data={tableData}
-        editingMode="modal" //default
-        enableColumnOrdering
-        enableEditing
-        enableRowNumbers
-        enablePinning
-        initialState={{
-          density: 'compact',
-          columnOrder: [
-            'mrt-row-numbers',
-            ...columns.map(x => x.accessorKey || ''),
-          ]
-        }}
-        renderRowActions={({ row, table }) => (
-          <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-            <Tooltip arrow placement="left" title="Xem chi tiết thông số">
-              <IconButton style={{ "paddingRight": "0px" }} onClick={() => handleOpenDetailModal(row)}>
-                <RemoveRedEyeIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
-        renderTopToolbarCustomActions={() => (
-          <h3 style={{ "margin": "0px" }}>
-            <b><KeyboardArrowRightIcon
-              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-            ></KeyboardArrowRightIcon></b>
-            <span>Thông tin thiết bị</span>
-          </h3>
-        )}
-      />
-
-      <Dialog open={isDetailModal}>
-        <DialogTitle textAlign="center"><b>Thông tin chi tiết thiết bị</b></DialogTitle>
-        <DialogContent>
-          <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
-            <Stack
-              sx={{
-                width: '100%',
-                minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                gap: '1.5rem',
-              }}
-            >
-              {columns.map((column) => {
-                if (column.id === "DeviceId" || column.id === "DeviceName") {
-                  return <TextField
-                    disabled
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && selectedRow[column.id]}
-                  />
-                }
-              }
-              )}
-
-              <MaterialReactTable
-                displayColumnDefOptions={{
-                  'mrt-row-actions': {
-                    header: 'Các hành động',
-                    muiTableHeadCellProps: {
-                      align: 'center',
-                    },
-                    muiTableBodyCellProps: {
-                      align: 'center',
-                    },
-                  },
-                  'mrt-row-numbers': {
-                    muiTableHeadCellProps: {
-                      align: 'center',
-                    },
-                    muiTableBodyCellProps: {
-                      align: 'center',
-                    },
+      <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
+        <Typography fontWeight="bold">Thông tin nhập thiết bị</Typography>
+        <Box display="flex" alignItems="end">
+          <TextField
+            id="filled-search"
+            type="search"
+            variant="standard"
+            placeholder="Tìm kiếm..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+          />
+        </Box>
+      </Box>
+      <TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
+        <Table sx={{ minWidth: 650 }} stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell align="left">
+                <b>#</b>
+              </StyledTableCell>
+              {columns.map(col => {
+                return (
+                  <StyledTableCell
+                    align="left"
+                    key={col.id}
+                    onClick={() => handleRequestSort(col.id)}
+                  >
+                    <b>{col.header}</b>
+                    {renderArrowSort(order, orderBy, col.id)}
+                  </StyledTableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tableData.length > 0 ? tableData?.map((chemDeptItem: IOrderDeviceType, index: number) => (
+              <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                <TableCell align="left">{index + 1}</TableCell>
+                {columns.map(col => {
+                  if (col.renderValue) {
+                    return (
+                      <TableCell align="left" key={col.id}>
+                        {`${col.renderValue(
+                          `${chemDeptItem[col.id as keyof typeof chemDeptItem]}`,
+                          chemDeptItem.Unit
+                        )}`}
+                      </TableCell>
+                    );
                   }
-                }}
-                columns={deviceSpecColumns}
-                data={deviceSpecTableData}
-                editingMode="modal" //default
-                enableColumnOrdering
-                enableEditing
-                enableRowNumbers
-                enablePinning
-                initialState={{
-                  density: 'compact',
-                  columnOrder: [
-                    'mrt-row-numbers',
-                    ...deviceSpecColumns.map(x => x.accessorKey || ''),
-                  ]
-                }}
-                renderTopToolbarCustomActions={() => (
-                  <h3 style={{ "margin": "0px" }}>
-                    <b><KeyboardArrowRightIcon
-                      style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-                    ></KeyboardArrowRightIcon></b>
-                    <span>Thông số thiết bị</span>
-                  </h3>
-                )}
-              />
-            </Stack>
-          </form>
-        </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDetailModal}>Đóng</Button>
-        </DialogActions>
-      </Dialog>
+                  if (col.type === 'date')
+                    return (
+                      <TableCell align="left" key={col.id}>
+                        {moment
+                          .unix(Number(chemDeptItem[col.id as keyof typeof chemDeptItem]))
+                          .format('DD/MM/YYYY')}
+                      </TableCell>
+                    );
+
+                  return (
+                    <TableCell align="left" key={col.id}>
+                      {chemDeptItem[col.id as keyof typeof chemDeptItem]
+                        ? `${chemDeptItem[col.id as keyof typeof chemDeptItem]}`
+                        : ''}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))
+              :
+              <TableRow>
+                <TableCell colSpan={12} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h5" gutterBottom align="center" component="div">
+                    Trống
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            }
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   );
-}
+};
 
-export default PurchaseOrderDeviceTable;
+export default React.memo(PurchaseOrderDeviceTable);

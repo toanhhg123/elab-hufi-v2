@@ -84,8 +84,8 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 								employeeData.length > 0
 							) {
 								const list = employeeData.map(x => ({
-									label: `${x.EmployeeID} - ${x.Fullname}`,
-									id: x.EmployeeID,
+									label: `${x.EmployeeId} - ${x.Fullname}`,
+									id: x.EmployeeId,
 								}));
 
 								return (
@@ -224,8 +224,8 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 								employeeData.length > 0
 							) {
 								const list = employeeData.map(x => ({
-									label: `${x.EmployeeID} - ${x.Fullname}`,
-									id: x.EmployeeID,
+									label: `${x.EmployeeId} - ${x.Fullname}`,
+									id: x.EmployeeId,
 								}));
 
 								return (

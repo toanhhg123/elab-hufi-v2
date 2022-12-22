@@ -8,7 +8,7 @@ export interface IRegisterGeneralType {
     "EndDate": number,
     "Status": String,
     "ResearcherID": String,
-    "EmployeeID": String,
+    "EmployeeId": String,
 }
 
 export const dummyWarehouseRegisterGeneralData: IRegisterGeneralType = {
@@ -21,5 +21,5 @@ export const dummyWarehouseRegisterGeneralData: IRegisterGeneralType = {
     "EndDate": 0,
     "Status": "",
     "ResearcherID": "",
-    "EmployeeID": "",
+    "EmployeeId": "",
 }

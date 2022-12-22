@@ -1,5 +1,5 @@
 export interface IEmployeeType {
-    EmployeeID?: String,
+    EmployeeId?: String,
     Fullname: String,
     Birthday: number,
     Gender: "Nam" | "Nữ" | "Khác",
@@ -12,7 +12,7 @@ export interface IEmployeeType {
 }
 
 export const dummyEmployeeData: IEmployeeType = { 
-    "EmployeeID": "", 
+    "EmployeeId": "", 
     "Fullname": "", 
     "Birthday": 0, 
     "Gender": "Nam", 

@@ -24,6 +24,7 @@ export interface IExportDeviceType {
 	EmployeeName?: String;
 	ExportId?: String;
 	WarningMaintenace?: String;
+	Status?: String;
 }
 
 export const dummyExportDevice: IExportDeviceType = {

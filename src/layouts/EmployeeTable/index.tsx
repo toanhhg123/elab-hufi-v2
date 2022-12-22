@@ -78,7 +78,7 @@ const EmployeeTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IEmployeeType>[]>(
     () => [
       {
-        accessorKey: 'EmployeeID',
+        accessorKey: 'EmployeeId',
         header: 'ID',
         enableColumnOrdering: true,
         enableEditing: false, //disable editing on this column
@@ -135,7 +135,7 @@ const EmployeeTable: FC = () => {
 
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updateEmployee({
-      "EmployeeID": updatedRow.EmployeeID,
+      "EmployeeId": updatedRow.EmployeeId,
       "Fullname": updatedRow.Fullname,
       "Birthday": updatedRow.Birthday,
       "Gender": updatedRow.Gender,
@@ -146,7 +146,7 @@ const EmployeeTable: FC = () => {
     });
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin nhân viên thành công"));
-      let updatedIdx = employeeData.findIndex(x => x.EmployeeID === updatedRow.EmployeeID);
+      let updatedIdx = employeeData.findIndex(x => x.EmployeeId === updatedRow.EmployeeId);
       let newListOfEmployees = [...employeeData.slice(0, updatedIdx), updatedRow, ...employeeData.slice(updatedIdx + 1,)]
       dispatch(setListOfEmployees(newListOfEmployees));
     }
@@ -166,9 +166,9 @@ const EmployeeTable: FC = () => {
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteEmployee(deletedRow.EmployeeID);
+    await deleteEmployee(deletedRow.EmployeeId);
     dispatch(setSnackbarMessage("Xóa thông tin nhân viên thành công"));
-    let deletedIdx = employeeData.findIndex(x => x.EmployeeID === deletedRow.EmployeeID);
+    let deletedIdx = employeeData.findIndex(x => x.EmployeeId === deletedRow.EmployeeId);
     let newListOfEmployees = [...employeeData.slice(0, deletedIdx), ...employeeData.slice(deletedIdx + 1,)]
     dispatch(setListOfEmployees(newListOfEmployees));
 
@@ -185,7 +185,7 @@ const EmployeeTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     const createdEmployee = await postEmployee({
-      "EmployeeID": createdRow.EmployeeID,
+      "EmployeeId": createdRow.EmployeeId,
       "Fullname": createdRow.Fullname,
       "Birthday": createdRow.Birthday,
       "Gender": createdRow.Gender,
@@ -290,13 +290,13 @@ const EmployeeTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "EmployeeID") {
+                if (column.id === "EmployeeId") {
                   return <TextField
                     disabled
-                    key="EmployeeID"
-                    label="EmployeeID"
-                    name="EmployeeID"
-                    defaultValue={updatedRow["EmployeeID"]}
+                    key="EmployeeId"
+                    label="EmployeeId"
+                    name="EmployeeId"
+                    defaultValue={updatedRow["EmployeeId"]}
                   />
                 } else if (column.id === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
@@ -379,7 +379,7 @@ const EmployeeTable: FC = () => {
       <Dialog open={isDeleteModal}>
         <DialogTitle textAlign="center"><b>Xoá thông tin nhân viên</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin nhân viên {`${deletedRow.EmployeeID}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin nhân viên {`${deletedRow.EmployeeId}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Hủy</Button>

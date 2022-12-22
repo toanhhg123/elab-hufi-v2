@@ -44,7 +44,7 @@ const DepartmentTabItem: FC = () => {
 	useEffect(() => {
 		let formatedData = warehouseDepartment?.map((x: IExportType) => {
 			let userAcceptInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeID === x.UserAccept)
+				? employeeData.findIndex(y => y.EmployeeId === x.UserAccept)
 				: -1;
 			return {
 				...x,

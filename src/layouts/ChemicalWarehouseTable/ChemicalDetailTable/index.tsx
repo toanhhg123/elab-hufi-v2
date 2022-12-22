@@ -1,148 +1,226 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
 } from 'material-react-table';
+import styled from '@emotion/styled';
+import SearchIcon from '@mui/icons-material/Search';
 import moment from 'moment';
-
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { IChemicalDetailType } from '../../../types/chemicalWarehouseType';
 import ChemicalDeptTable from './ChemicalDeptTable';
+import {
+  debounce,
+  IconButton,
+  InputAdornment,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  tableCellClasses,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+  Collapse,
+} from '@mui/material';
+import { Box } from '@mui/system';
+import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
 
-const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[] }> = ({ chemicalDetail }) => {
-  const [tableData, setTableData] = useState<IChemicalDetailType[]>([]);
-  const [validationErrors, setValidationErrors] = useState<{
-    [cellId: string]: string;
-  }>({});
+const StyledTableCell = styled(TableCell)(theme => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: 'lightgray',
+  },
+}));
+
+const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[]; columns: ColumnType[]; }> = ({ chemicalDetail, columns }) => {
+  const [tableData, setTableData] = useState<IChemicalDetailType[]>(chemicalDetail);
+  const [order, setOrder] = useState<string>('asc');
+  const [orderBy, setOrderBy] = useState<string>('ChemDetailId');
+  const [keyword, setKeyword] = useState<string>('');
+  const [dataSearch, setDataSearch] = useState<any>([]);
+
+
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
   useEffect(() => {
-    let formatedchemicalDetailData = chemicalDetail.map((x: IChemicalDetailType) => {
-      return {
-        ...x,
-        "formatedOrderDate": moment.unix(Number(x.OrderDate)).format('DD/MM/YYYY'),
-        "formatedExpiryDate": moment.unix(Number(x.ExpiryDate)).format('DD/MM/YYYY')
-      }
-    })
-    setTableData(formatedchemicalDetailData);
-  }, [chemicalDetail])
+    setTableData(prev => {
+      let data = [...prev];
+      data?.sort((a: IChemicalDetailType, b: IChemicalDetailType) => {
+        let i =
+          order === 'desc'
+            ? descendingComparator<any>(a, b, orderBy)
+            : -descendingComparator<any>(a, b, orderBy);
+        return i;
+      });
+      return data;
+    });
+  }, [order, orderBy]);
 
-  const getCommonEditTextFieldProps = useCallback(
-    (
-      cell: MRT_Cell<IChemicalDetailType>,
-    ): MRT_ColumnDef<IChemicalDetailType>['muiTableBodyCellEditTextFieldProps'] => {
+
+  useEffect(() => {
+    const chemicalDeptItems: IChemicalDetailType[] = chemicalDetail || [];
+    const data = chemicalDeptItems?.map((x: IChemicalDetailType) => {
+      let string: String = '';
+
+      Object.keys(x).forEach(key => {
+        if (typeof x[key as keyof typeof x] === 'string') string += x[key as keyof typeof x] + ' ';
+        if (typeof x[key as keyof typeof x] === 'number') string += x[key as keyof typeof x]?.toString() + ' ';
+      });
+
       return {
-        error: !!validationErrors[cell.id],
-        helperText: validationErrors[cell.id],
+        label: removeAccents(string.toUpperCase()),
+        id: x?.ChemDetailId,
       };
-    },
-    [validationErrors],
-  );
+    });
+    setDataSearch(data);
+  }, []);
 
-  const columns = useMemo<MRT_ColumnDef<IChemicalDetailType>[]>(
-    () => [
-      {
-        accessorKey: 'ChemDetailId',
-        header: 'Mã lô',
-        size: 50,
-      },
-      {
-        accessorKey: 'LotNumber',
-        header: 'Số lô',
-        size: 50,
-      },
-      {
-        accessorKey: 'AmountOriginal',
-        header: 'SL nhập',
-        size: 50,
-      },
-      {
-        accessorKey: 'AmountExport',
-        header: 'SL xuất',
-        size: 50,
-      },
-      {
-        accessorKey: 'AmountRemain',
-        header: 'SL tồn',
-        size: 50,
-      },
-      {
-        accessorKey: 'OrderId',
-        header: 'Phiếu nhập',
-        size: 100,
-      },
-      {
-        accessorKey: 'formatedOrderDate',
-        header: 'Ngày nhập',
-        size: 100,
-      },
-      {
-        accessorKey: 'formatedExpiryDate',
-        header: 'Ngày hết hạn',
-        size: 100,
-      },
-      {
-        accessorKey: 'ManufacturerName',
-        header: 'Nhà sản xuất',
-        size: 100,
-      },
-      {
-        accessorKey: 'Price',
-        header: 'Giá',
-        size: 100,
-      },
-    ],
-    [getCommonEditTextFieldProps],
-  );
+  useEffect(() => {
+    const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
+    const chemicalDeptItems: IChemicalDetailType[] = chemicalDetail || [];
+
+    if (keyword === '') {
+      setTableData(chemicalDeptItems);
+    } else {
+      const data = chemicalDeptItems?.filter((x: any) => listId.indexOf(x?.ChemDetailId) !== -1);
+      setTableData(data);
+    }
+  }, [keyword, dataSearch]);
+
+
+  const chemicalDeptTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'ChemDeptId',
+      header: 'Mã xuất',
+    },
+    {
+      id: 'DepartmentName',
+      header: 'Khoa',
+    },
+    {
+      id: 'AmountExport',
+      header: 'SL xuất',
+      renderValue: (AmountExport, Unit) => `${AmountExport} (${Unit})`
+    },
+  ])
 
   return (
     <>
-      <MaterialReactTable
-        displayColumnDefOptions={{
-          'mrt-row-actions': {
-            header: 'Các hành động',
-            muiTableHeadCellProps: {
-              align: 'center',
-            },
-            muiTableBodyCellProps: {
-              align: 'center',
-            },
-          },
-          'mrt-row-numbers': {
-            muiTableHeadCellProps: {
-              align: 'center',
-            },
-            muiTableBodyCellProps: {
-              align: 'center',
-            },
-          }
-        }}
-        columns={columns}
-        data={tableData}
-        editingMode="modal" //default
-        enableColumnOrdering
-        enableEditing
-        enableRowNumbers
-        enablePinning
-        initialState={{
-          density: 'compact',
-          columnOrder: [
-            'mrt-row-expand',
-            'mrt-row-numbers',
-            ...columns.map(item => item.accessorKey || ''),
-          ]
-        }}
-        renderDetailPanel={({ row }) => (
-          <ChemicalDeptTable chemicalDept={row.original.listChemDept} />
-        )}
-        renderTopToolbarCustomActions={() => (
-          <h3 style={{ "margin": "0px" }}>
-            <b><KeyboardArrowRightIcon
-              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-            ></KeyboardArrowRightIcon></b>
-            <span>Thông tin lô hóa chất</span>
-          </h3>
-        )}
-      />
+      <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
+        <Typography fontWeight="bold">Thông tin lô hóa chất</Typography>
+        <Box display="flex" alignItems="end">
+          <TextField
+            id="filled-search"
+            type="search"
+            variant="standard"
+            placeholder="Tìm kiếm..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+          />
+        </Box>
+      </Box>
+      <TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
+        <Table sx={{ minWidth: 650 }} stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell align="left">
+                <b>#</b>
+              </StyledTableCell>
+              {columns.map(col => {
+                return (
+                  <StyledTableCell
+                    align="left"
+                    key={col.id}
+                    onClick={() => handleRequestSort(col.id)}
+                  >
+                    <b>{col.header}</b>
+                    {renderArrowSort(order, orderBy, col.id)}
+                  </StyledTableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tableData.length > 0 ? tableData?.map((chemDeptItem: IChemicalDetailType, index: number) => (
+              <>
+                <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <TableCell align="left">{index + 1}</TableCell>
+                  {columns.map(col => {
+                    if (col.renderValue) {
+                      return (
+                        <TableCell align="left" key={col.id}>
+                          {`${col.renderValue(
+                            `${chemDeptItem[col.id as keyof typeof chemDeptItem]}`
+                            // chemDeptItem.Unit
+                          )}`}
+                        </TableCell>
+                      );
+                    }
+                    if (col.type === 'date')
+                      return (
+                        <TableCell align="left" key={col.id}>
+                          {moment
+                            .unix(Number(chemDeptItem[col.id as keyof typeof chemDeptItem]))
+                            .format('DD/MM/YYYY')}
+                        </TableCell>
+                      );
+
+                    return (
+                      <TableCell align="left" key={col.id}>
+                        {  `${chemDeptItem[col.id as keyof typeof chemDeptItem] }` }
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+                <TableRow>
+                  <TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={14}>
+                    <Collapse in={true} timeout="auto" unmountOnExit>
+                      <Box sx={{ margin: 1 }}>
+                        {chemicalDetail.length !== 0 ? (
+                          chemicalDetail.map(item => (
+                            <>
+                              <ChemicalDeptTable
+                                chemicalDept={item.listChemDept}
+                                columns={chemicalDeptTableColumns.current}
+                              />
+                            </>
+                          )
+                          )) : (
+                          <Typography variant="h5" gutterBottom align="center" component="div">
+                            Trống
+                          </Typography>
+                        )}
+                      </Box>
+                    </Collapse>
+                  </TableCell>
+                </TableRow>
+              </>
+            ))
+              :
+              <TableRow>
+                <TableCell colSpan={12} sx={{ textAlign: 'center' }}>
+                  <Typography variant="h5" gutterBottom align="center" component="div">
+                    Trống
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            }
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   );
 };

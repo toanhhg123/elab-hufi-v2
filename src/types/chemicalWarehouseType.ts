@@ -12,6 +12,7 @@ export interface IChemDeptType {
 export interface IChemicalDetailType {
 	AmountExport: Number,
 	AmountRemain: Number,
+	AmountLiquidate: Number,
 	OrderDate: String,
 	formatedOrderDate?: String,
 	OrderId: String,
@@ -26,6 +27,7 @@ export interface IChemicalDetailType {
 	ManufacturerId: 1,
 	ManufacturerName: String,
 	listChemDept: IChemDeptType[],
+	WarningExpiry: String,
 }
 
 export interface IExportChemicalType {
@@ -54,12 +56,18 @@ export interface IChemicalWarehouseType {
 	AmountOriginal: Number,
 	AmountExport: Number,
 	AmountRemain: Number,
+	AmountLiquidate: Number,
+	CASnumber: String,
+	AllowRegister: String,
 	listChemicalDetail: IChemicalDetailType[],
 	ChemicalId: String,
 	ChemicalName: String,
 	Specifications: String,
 	Origin: String,
 	Unit: String,
+	WarningExpiry?: String,
+	ImportDate?: String,
+	ExpiryDate?: String,
 	DepartmentId?: Number,
 	DepartmentName?: String,
 	ChemDeptId?: String,
@@ -69,13 +77,16 @@ export interface IChemicalWarehouseType {
 }
 
 export const dummyChemicalWarehouseData: IChemicalWarehouseType = {
-	"AmountOriginal": -1,
-	"AmountExport": -1,
-	"AmountRemain": -1,
+	"AmountOriginal": 0,
+	"AmountExport": 0,
+	"AmountRemain": 0,
+	"AmountLiquidate": 0,
+	"CASnumber": "",
 	"listChemicalDetail": [],
 	"ChemicalId": "",
 	"ChemicalName": "",
 	"Specifications": "",
 	"Origin": "",
 	"Unit": "",
+	AllowRegister: 'Có'
 }

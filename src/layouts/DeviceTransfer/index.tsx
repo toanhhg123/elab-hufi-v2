@@ -761,7 +761,7 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 					}
 				}, []);
 				const listId = newList.map(x => x.SerialNumber) || [];
-				const result = remove([...deviceTransfered, ...(lab?.listSerial || [])], function (n) {
+				const result = remove([...deviceTransfered, ...(lab?.listSerial || [])], function (n: any) {
 					return !listId.includes(n.SerialNumber);
 				});
 				setData([...result, ...newList]);
