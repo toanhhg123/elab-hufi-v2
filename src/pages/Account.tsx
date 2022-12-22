@@ -118,7 +118,7 @@ const Account: React.FC = () => {
 
 	const handleSubmitEdit = async () => {
 		const isUpdatedSuccess = await updateEmployee({
-			EmployeeID: createdRow.EmployeeID + 1,
+			EmployeeId: createdRow.EmployeeId + 1,
 			Fullname: createdRow.Fullname,
 			Birthday: createdRow.Birthday,
 			Gender: createdRow.Gender,
@@ -130,7 +130,7 @@ const Account: React.FC = () => {
 
 		if (Object.keys(isUpdatedSuccess).length !== 0) {
 			dispatch(setSnackbarMessage('Cập nhật thông tin nhân viên thành công'));
-			let updatedIdx = employeeData.findIndex(x => x.EmployeeID === createdRow.EmployeeID);
+			let updatedIdx = employeeData.findIndex(x => x.EmployeeId === createdRow.EmployeeId);
 			let newListOfEmployees = [
 				...employeeData.slice(0, updatedIdx),
 				createdRow,
@@ -200,9 +200,9 @@ const Account: React.FC = () => {
 										/>
 									</Button>
 								</Box>
-								{createdRow.EmployeeID && (
+								{createdRow.EmployeeId && (
 									<Typography variant="body1" align="center">
-										ID: <b>{createdRow.EmployeeID}</b>
+										ID: <b>{createdRow.EmployeeId}</b>
 									</Typography>
 								)}
 								<Grid container spacing={4}>

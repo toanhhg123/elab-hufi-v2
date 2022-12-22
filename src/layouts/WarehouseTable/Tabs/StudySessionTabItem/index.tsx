@@ -65,10 +65,10 @@ const StudySessionTabItem: FC = () => {
 	useEffect(() => {
 		let formatedData = warehouseStudySession?.map((x: IExportType) => {
 			let employeeInChargeInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeInCharge)
+				? employeeData.findIndex(y => y.EmployeeId === x.EmployeeInCharge)
 				: -1;
 			let employeeCreateInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeCreate)
+				? employeeData.findIndex(y => y.EmployeeId === x.EmployeeCreate)
 				: -1;
 			let subjectInfoIdx = Array.isArray(subjectData)
 				? subjectData?.findIndex(y => y.SubjectId === x.SubjectId)

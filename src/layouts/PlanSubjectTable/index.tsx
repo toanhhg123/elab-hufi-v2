@@ -101,8 +101,8 @@ const PlanSubjectTable: FC = () => {
   useEffect(() => {
     if (employeeData.length > 0) {
       const list = employeeData.map(x => ({
-        label: `${x.EmployeeID} - ${x.Fullname}`,
-        id: x.EmployeeID,
+        label: `${x.EmployeeId} - ${x.Fullname}`,
+        id: x.EmployeeId,
         name: x.Fullname
       }));
       setEmployeeDataValue(list);
@@ -112,7 +112,7 @@ const PlanSubjectTable: FC = () => {
   useEffect(() => {
     if (planSubjectsData.length > 0) {
       let formatedPlanSubjectsData = planSubjectsData.map((emp: IPlanSubjectType) => {
-        let employeeInfoIdx = employeeData.findIndex(y => y.EmployeeID === emp.EmployeeId);
+        let employeeInfoIdx = employeeData.findIndex(y => y.EmployeeId === emp.EmployeeId);
         let subjectInfoIdx = subjectData.findIndex(y => y.SubjectId === emp.SubjectId);
         return {
           ...emp,
