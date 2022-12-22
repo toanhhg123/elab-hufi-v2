@@ -7,6 +7,7 @@ export interface IDeviceDepartmentType {
 	QuantityLiquidate: Number;
 	listDeviceDetail?: IDeviceDetailType[];
 	listExportDevice?: IExportDeviceType[];
+	listExportInstrument?: IExportDeviceType[];
 	DeviceId: String;
 	DeviceName: String;
 	DeviceType: 'Thiết bị' | 'Công cụ' | 'Dụng cụ';
@@ -24,6 +25,7 @@ export const dummyDeviceDepartmentData: IDeviceDepartmentType = {
 	QuantityRemain: -1,
 	QuantityLiquidate: -1,
 	listDeviceDetail: [],
+	listExportInstrument: [],
 	DeviceId: '',
 	DeviceName: '',
 	DeviceType: 'Thiết bị',

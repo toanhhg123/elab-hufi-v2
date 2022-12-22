@@ -87,7 +87,7 @@ const RegisterGeneralTabItem: FC = () => {
 	useEffect(() => {
 		let formatedData = warehouseRegisterGeneral?.map((x: IExportType) => {
 			let employeeInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeID === x.EmployeeId)
+				? employeeData.findIndex(y => y.EmployeeId === x.EmployeeId)
 				: -1;
 
 			return {

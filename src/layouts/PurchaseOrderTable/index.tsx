@@ -1,5 +1,5 @@
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from "material-react-table";
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { RootState } from "../../store";
 import moment from 'moment';
@@ -16,12 +16,14 @@ import {
   Stack,
   TextField,
   Tooltip,
-  TextareaAutosize
+  TextareaAutosize,
+  Autocomplete
 } from '@mui/material';
 import { deletePurchaseOrder, getPurchaseOrders, postPurchaseOrder, updatePurchaseOrder } from "../../services/purchaseOrderServices";
 import { setListOfPurchaseOrders } from "./purchaseOrderSlice";
 import PurchaseOrderChemicalTable from "./POChemicalTable";
 import PurchaseOrderDeviceTable from "./PODeviceTable";
+import { ColumnType } from "./Utils";
 
 export const PurchaseOrderTable: FC = () => {
   const purchaseOrdersData = useAppSelector((state: RootState) => state.purchaseOrder.listOfPurchaseOrders);
@@ -31,6 +33,7 @@ export const PurchaseOrderTable: FC = () => {
   const dispatch = useAppDispatch();
 
   const [tableData, setTableData] = useState<IPurchaseOrderType[]>([]);
+  const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -46,7 +49,7 @@ export const PurchaseOrderTable: FC = () => {
   useEffect(() => {
     let formatedPurchaseOrderData = purchaseOrdersData.map((order: IPurchaseOrderType) => {
       let supplierInfoIdx = supplierData.findIndex(item => item.SupplierId === order.SupplierId);
-      let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeID === order.EmployeeId);
+      let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeId === order.EmployeeId);
       let departmentInfoIdx = departmentData.findIndex(item => item.DepartmentId === order.DepartmentId);
       return {
         ...order,
@@ -58,6 +61,17 @@ export const PurchaseOrderTable: FC = () => {
     })
     setTableData(formatedPurchaseOrderData);
   }, [purchaseOrdersData]);
+
+  useEffect(() => {
+    if (employeeData.length > 0) {
+      const list = employeeData.map(x => ({
+        label: `${x.EmployeeId} - ${x.Fullname}`,
+        id: x.EmployeeId,
+        name: x.Fullname
+      }));
+      setEmployeeDataValue(list);
+    }
+  }, [employeeData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
@@ -106,6 +120,90 @@ export const PurchaseOrderTable: FC = () => {
     ],
     [getCommonEditTextFieldProps],
   );
+
+  const POChemicalTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'ChemDetailId',
+      header: 'Mã nhập',
+    },
+    {
+      id: 'ChemicalId',
+      header: 'Mã hoá chất',
+    },
+    {
+      id: 'ChemicalName',
+      header: 'Tên hoá chất',
+    },
+    {
+      id: 'AmountOriginal',
+      header: 'SL nhập',
+    },
+    {
+      id: 'Unit',
+      header: 'Đơn vị',
+    },
+    {
+      id: 'ManufacturingDate',
+      header: 'Ngày sản xuất',
+      type: 'date'
+    },
+    {
+      id: 'ExpiryDate',
+      header: 'Ngày hết hạn',
+      type: 'date'
+    },
+    {
+      id: 'LotNumber',
+      header: 'Số lô',
+    },
+    {
+      id: 'Price',
+      header: 'Giá',
+    },
+    {
+      id: 'ManufacturerName',
+      header: 'Nhà sản xuất',
+    },
+  ]);
+
+  const PODeviceTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'DeviceDetailId',
+      header: 'Mã nhập',
+    },
+    {
+      id: 'DeviceId',
+      header: 'Mã thiết bị',
+    },
+    {
+      id: 'DeviceName',
+      header: 'Tên thiết bị',
+    },
+    {
+      id: 'QuantityOriginal',
+      header: 'SL nhập',
+    },
+    {
+      id: 'Unit',
+      header: 'Đơn vị',
+    },
+    {
+      id: 'Model',
+      header: 'Mẫu',
+    },
+    {
+      id: 'Origin',
+      header: 'Xuất xứ',
+    },
+    {
+      id: 'Price',
+      header: 'Giá',
+    },
+    {
+      id: 'ManufacturerName',
+      header: 'Nhà sản xuất',
+    },
+  ]);
 
   const handleOpenEditModal = (row: any) => {
     setUpdatedRow(row.original);
@@ -223,8 +321,16 @@ export const PurchaseOrderTable: FC = () => {
         }}
         renderDetailPanel={({ row }) => (
           <>
-            {row.original.listChemDetail.length > 0 && <PurchaseOrderChemicalTable chemicalData={row.original.listChemDetail} />}
-            {row.original.listDevDetail.length > 0 && <PurchaseOrderDeviceTable deviceData={row.original.listDevDetail} />}
+            {row.original.listChemDetail.length > 0 &&
+              <PurchaseOrderChemicalTable
+                chemicalData={row.original.listChemDetail}
+                columns={POChemicalTableColumns.current}
+              />}
+            {row.original.listDevDetail.length > 0 &&
+              <PurchaseOrderDeviceTable
+                deviceData={row.original.listDevDetail}
+                columns={PODeviceTableColumns.current}
+              />}
           </>
         )}
         renderTopToolbarCustomActions={() => (
@@ -274,9 +380,9 @@ export const PurchaseOrderTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                column.id === "Note" ?
-                  <TextareaAutosize
+              {columns.map((column) => {
+                if (column.id === "Note") {
+                  return <TextareaAutosize
                     aria-label="minimum height"
                     minRows={3}
                     placeholder="Nhập ghi chú..."
@@ -285,7 +391,36 @@ export const PurchaseOrderTable: FC = () => {
                       setUpdatedRow({ ...updatedRow, "Note": e.target.value })
                     }
                   />
-                  : <TextField
+                }
+
+                if (column.accessorKey === "EmployeeName") {
+                  return <Autocomplete
+                    key={"EmployeeName"}
+                    options={employeeDataValue}
+                    noOptionsText="Không có kết quả trùng khớp"
+                    sx={{ "width": "450px" }}
+                    value={employeeDataValue.find((x: any) => x.id === updatedRow.EmployeeId) || null}
+                    getOptionLabel={option => option?.label}
+                    renderInput={params => {
+                      return (
+                        <TextField
+                          {...params}
+                          label={"Người lập"}
+                          placeholder="Nhập để tìm kiếm"
+                        />
+                      );
+                    }}
+                    onChange={(event, value) => {
+                      setUpdatedRow({
+                        ...updatedRow,
+                        "EmployeeId": value?.id,
+                        "EmployeeName": value?.name,
+                      });
+                    }}
+                  />
+                }
+                else {
+                  return <TextField
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
@@ -294,8 +429,8 @@ export const PurchaseOrderTable: FC = () => {
                       setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
                     }
                   />
-              ))}
-
+                }
+              })}
             </Stack>
           </form>
         </DialogContent>

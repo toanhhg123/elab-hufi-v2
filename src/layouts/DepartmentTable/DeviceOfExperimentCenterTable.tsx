@@ -649,7 +649,7 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 		{ id: 'OrderId', header: 'Mã PN' },
 		{ id: 'OrderDate', header: 'Ngày nhập', type: 'date' },
 		{ id: 'ManufacturerName', header: 'Nhà sản xuất' },
-		{ id: 'Origin', header: 'Origin' },
+		{ id: 'Origin', header: 'Xuất xứ' },
 		{ id: 'DeviceId', header: 'Mã TB', hide: true },
 	]);
 
