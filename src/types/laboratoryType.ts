@@ -20,7 +20,7 @@ export interface IListInstrumentBelongingToLaboratoryType {
 }
 
 export interface ILaboratoryType {
-    LabId?: number,
+    LabId?: String,
     LabName: String,
     Location: String,
     Note: String,
@@ -29,7 +29,7 @@ export interface ILaboratoryType {
 }
 
 export const dummyLaboratoryData: ILaboratoryType = {
-    "LabId": -1,
+    "LabId": "",
     "LabName": "",
     "Location": "",
     "Note": "",
