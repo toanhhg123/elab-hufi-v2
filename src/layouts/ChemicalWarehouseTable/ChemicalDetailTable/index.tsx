@@ -105,7 +105,7 @@ const ChemicalDetailTable: FC<{ chemicalDetail: IChemicalDetailType[]; columns: 
       header: 'Khoa',
     },
     {
-      id: 'AmountExport',
+      id: 'AmountOriginal',
       header: 'SL xuất',
       renderValue: (AmountExport, Unit) => `${AmountExport} (${Unit})`
     },

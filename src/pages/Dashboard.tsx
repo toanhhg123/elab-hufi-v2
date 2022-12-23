@@ -26,7 +26,8 @@ import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
-import ScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
+import TeacherViewScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
+import FacultyViewScheduleTable from '../layouts/ScheduleTable/FacultyViewIndex';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
@@ -260,7 +261,7 @@ export function Dashboard() {
 				{/* {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />} */}
 				{sidebarItems[4].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
 				{sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
-				{sidebarItems[6].isOpen && <ScheduleTable />}
+				{sidebarItems[6].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
 				{sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
 				{sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
 				{sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
@@ -269,7 +270,7 @@ export function Dashboard() {
 				{sidebarItems[12].isOpen && <PlanSubjectTable />}
 				{sidebarItems[13].isOpen && <DeviceTransfer />}
 			</div>
-			<Snackbar   
+			<Snackbar
 				anchorOrigin={{
 					vertical: 'bottom',
 					horizontal: 'right',

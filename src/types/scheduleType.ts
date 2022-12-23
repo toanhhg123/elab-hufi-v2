@@ -12,7 +12,9 @@ export interface IScheduleType {
     TotalTime: Number,
     NumOfStudent: Number,
     DateStudy: String | Number,
+    formatedDateStudy?: String, 
     LabName: String,
+    LabId: String,
     TeacherName: String,
     Semester: Number,
     Schoolyear: String
@@ -33,6 +35,7 @@ export const dummyScheduleData: IScheduleType ={
     "NumOfStudent":31,
     "DateStudy":"1652331600",
     "LabName":"PTN204",
+    "LabId": "",
     "TeacherName":"01001011-Nguyễn Văn Lễ",
     "Semester":1,
     "Schoolyear":"2022-2023"
