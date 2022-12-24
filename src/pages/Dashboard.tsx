@@ -76,6 +76,7 @@ import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
 import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
+import { SnackbarContent } from '@mui/material';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -276,10 +277,16 @@ export function Dashboard() {
 					horizontal: 'right',
 				}}
 				open={snackbarState.isOpen}
-				// onClose={handleClose}
 				message={snackbarState.message}
 				key="bottomRight"
-			/>
+			>
+				<SnackbarContent style={{
+					backgroundColor: snackbarState.backgroundColor,
+					color: snackbarState.color
+				}}
+					message={snackbarState.message}
+				/>
+			</Snackbar>
 		</>
 	);
 }

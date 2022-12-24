@@ -18,3 +18,9 @@ export const getSchedules = async () => {
 
 	return formatedSchedules;
 }
+
+export const autoSchedule = async (semester: string, schoolyear: string) => {
+	const url = `${API_ENDPOINT}/api/schedules/reschedule/${semester}/${schoolyear}`;
+	const res = await API.post<any, any>(url, {});
+	return res;
+}

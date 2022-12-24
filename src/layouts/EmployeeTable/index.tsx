@@ -4,7 +4,6 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
