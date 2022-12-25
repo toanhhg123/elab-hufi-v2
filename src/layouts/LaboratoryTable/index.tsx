@@ -355,6 +355,7 @@ const LaboratoryTable: FC = () => {
               {columns.map((column) => (
                 column.id === "Note" ?
                   <TextareaAutosize
+                    key={"EditNote"}
                     aria-label="minimum height"
                     minRows={3}
                     placeholder="Nhập ghi chú..."
@@ -412,6 +413,7 @@ const LaboratoryTable: FC = () => {
               {columns.map((column) => (
                 column.id === "Note" ?
                   <TextareaAutosize
+                    key={"CreateNote"}
                     aria-label="minimum height"
                     minRows={3}
                     placeholder="Nhập ghi chú..."

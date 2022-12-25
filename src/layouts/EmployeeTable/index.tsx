@@ -4,6 +4,7 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -42,6 +43,7 @@ const EmployeeTable: FC = () => {
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<IEmployeeType[]>([]);
+  const [departmentDataValue, setDepartmentDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -61,6 +63,17 @@ const EmployeeTable: FC = () => {
     })
     setTableData(formatedEmployeeData);
   }, [employeeData])
+
+  useEffect(() => {
+    if (departmentData.length > 0) {
+      const list = departmentData.map(x => ({
+        label: `${x.DepartmentId} - ${x.DepartmentName}`,
+        id: x.DepartmentId,
+        name: x.DepartmentName
+      }));
+      setDepartmentDataValue(list);
+    }
+  }, [departmentData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
@@ -289,7 +302,7 @@ const EmployeeTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "EmployeeId") {
+                if (column.accessorKey === "EmployeeId") {
                   return <TextField
                     disabled
                     key="EmployeeId"
@@ -297,9 +310,10 @@ const EmployeeTable: FC = () => {
                     name="EmployeeId"
                     defaultValue={updatedRow["EmployeeId"]}
                   />
-                } else if (column.id === "formatedBirthday") {
+                } else if (column.accessorKey === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
+                      key={"UpdateBirthday"}
                       label="Ngày sinh"
                       value={new Date(updatedRow.Birthday * 1000)}
                       onChange={(val: any) =>
@@ -309,11 +323,11 @@ const EmployeeTable: FC = () => {
                           "Birthday": Date.parse(val) / 1000
                         })
                       }
-                      renderInput={(params: any) => <TextField {...params} />}
+                      renderInput={(params: any) => <TextField key={"UpdateBirthdayTextField"} {...params} />}
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } else if (column.id === "Gender") {
+                } else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>
                     <Select
@@ -324,31 +338,37 @@ const EmployeeTable: FC = () => {
                       onChange={(e: SelectChangeEvent) =>
                         setUpdatedRow({ ...updatedRow, "Gender": Genders[Number(e.target.value)] })}
                     >
-                      {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2).map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                      {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2)
+                        .map((x, idx) => <MenuItem key={'UpdateGender' + idx} value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
                 }
-                else if (column.id === "DepartmentName" && departmentData.length > 0) {
-                  const departmentOptions: string[] = departmentData.map(x => x.DepartmentName.toString());
-
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="department-select-required-label">Phòng ban</InputLabel>
-                    <Select
-                      labelId="department-select-required-label"
-                      id="department-select-required"
-                      value={departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId) > -1 ?
-                        departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId).toString() : ""}
-                      label="Phòng ban"
-                      onChange={(e: SelectChangeEvent) =>
+                else if (column.accessorKey === "DepartmentName" && departmentData.length > 0) {
+                  return (
+                    <Autocomplete
+                      key={"UpdatedDepartmentName"}
+                      options={departmentDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={departmentDataValue.find((x: any) => x.id === updatedRow.DepartmentId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setUpdatedRow({
                           ...updatedRow,
-                          "DepartmentName": departmentData[Number(e.target.value)].DepartmentName,
-                          "DepartmentId": departmentData[Number(e.target.value)].DepartmentId
-                        })}
-                    >
-                      {departmentOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                          "DepartmentId": value?.id,
+                          "DepartmentName": value?.name,
+                        });
+                      }}
+                    />
+                  );
                 }
                 else {
                   return <TextField
@@ -400,9 +420,10 @@ const EmployeeTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "formatedBirthday") {
+                if (column.accessorKey === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
+                      key={"CreateBirthday"}
                       label="Ngày sinh"
                       value={new Date(createdRow.Birthday * 1000)}
                       onChange={(val: any) =>
@@ -412,11 +433,11 @@ const EmployeeTable: FC = () => {
                           "Birthday": Date.parse(val) / 1000
                         })
                       }
-                      renderInput={(params: any) => <TextField {...params} />}
+                      renderInput={(params: any) => <TextField key={"CreateBirthdayTextField"} {...params} />}
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } else if (column.id === "Gender") {
+                } else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>
                     <Select
@@ -427,31 +448,37 @@ const EmployeeTable: FC = () => {
                       onChange={(e: SelectChangeEvent) =>
                         setUpdatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
                     >
-                      {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2).map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                      {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2)
+                        .map((x, idx) => <MenuItem key={"CreateGender" + idx} value={idx}>{x}</MenuItem>)}
                     </Select>
                   </FormControl>
                 }
-                else if (column.id === "DepartmentName" && departmentData.length > 0) {
-                  const departmentOptions: string[] = departmentData.map(x => x.DepartmentName.toString());
-
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="department-select-required-label">Phòng ban</InputLabel>
-                    <Select
-                      labelId="department-select-required-label"
-                      id="department-select-required"
-                      value={departmentData.findIndex(x => x.DepartmentId === createdRow.DepartmentId) > -1 ?
-                        departmentData.findIndex(x => x.DepartmentId === createdRow.DepartmentId).toString() : ""}
-                      label="Phòng ban"
-                      onChange={(e: SelectChangeEvent) =>
+                else if (column.accessorKey === "DepartmentName" && departmentData.length > 0) {
+                  return (
+                    <Autocomplete
+                      key={"CreatedDepartmentName"}
+                      options={departmentDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={departmentDataValue.find((x: any) => x.id === createdRow.DepartmentId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setCreatedRow({
                           ...createdRow,
-                          "DepartmentName": departmentData[Number(e.target.value)].DepartmentName,
-                          "DepartmentId": departmentData[Number(e.target.value)].DepartmentId
-                        })}
-                    >
-                      {departmentOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                          "DepartmentId": value?.id,
+                          "DepartmentName": value?.name,
+                        });
+                      }}
+                    />
+                  );
                 }
                 else {
                   return <TextField

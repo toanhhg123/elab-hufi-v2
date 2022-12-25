@@ -2,8 +2,8 @@ import React, { FC, useEffect, useMemo, useState, useCallback } from 'react';
 import styled from '@emotion/styled';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-    debounce, 
-    IconButton, 
+    debounce,
+    IconButton,
     InputAdornment,
     Paper,
     Table,
@@ -13,8 +13,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TextField, 
-    Tooltip, 
+    TextField,
+    Tooltip,
     Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
@@ -236,8 +236,8 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
                                 })}
                                 <TableCell align="right" size="small">
                                     <Tooltip arrow placement="left" title="Xem chi tiết">
-                                        <IconButton>
-                                            <RemoveRedEyeIcon onClick={() => handleOpenDetailModal(index)} />
+                                        <IconButton onClick={() => handleOpenDetailModal(index)}>
+                                            <RemoveRedEyeIcon />
                                         </IconButton>
                                     </Tooltip>
                                 </TableCell>

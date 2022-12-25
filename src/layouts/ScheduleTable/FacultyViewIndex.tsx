@@ -315,7 +315,7 @@ const ScheduleTable: FC = () => {
 
                                                                 if (filteredListLessonClass.length === 1) {
                                                                     return <div className="subSecondBodyGroup" style={{ "display": "flex" }}>
-                                                                        {['ClassName', 'ClassCode', 'SubjectName', 'TeacherName', 'Buổi', 'LessonName', 'Trực'].map((classAttr: string, classAttrIdx) => {
+                                                                        {['ClassName', 'ClassCode', 'SubjectName', 'EmployeeName', 'Buổi', 'LessonName', 'Trực'].map((classAttr: string, classAttrIdx) => {
                                                                             return <TableCell
                                                                                 align="center"
                                                                                 key={item + ele + classAttr + classAttrIdx}

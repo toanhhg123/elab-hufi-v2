@@ -22,11 +22,18 @@ const ChemicalWarehouseTable: FC<{ role: number }> = ({ role }) => {
   }>({});
 
   useEffect(() => {
-    let formatedChemicalWarehouseData = (role === 1) ? chemicalWarehouseData : chemicalWarehouseData.map(item => Object.assign({}, {
-      ...item,
-      ImportDate: moment.unix(Number(item.ImportDate)).format('DD/MM/YYYY'),
-      ExpiryDate: moment.unix(Number(item.ExpiryDate)).format('DD/MM/YYYY'),
-    }))
+    let formatedChemicalWarehouseData = (role === 1) ?
+      chemicalWarehouseData.map(item => Object.assign({}, {
+        ...item,
+        FormatedAllowRegister: item.AllowRegister ? 'Có' : 'Không',
+      }))
+      :
+      chemicalWarehouseData.map(item => Object.assign({}, {
+        ...item,
+        ImportDate: moment.unix(Number(item.ImportDate)).format('DD/MM/YYYY'),
+        ExpiryDate: moment.unix(Number(item.ExpiryDate)).format('DD/MM/YYYY'),
+      }))
+
     setTableData(formatedChemicalWarehouseData);
   }, [chemicalWarehouseData])
 
@@ -81,7 +88,7 @@ const ChemicalWarehouseTable: FC<{ role: number }> = ({ role }) => {
         header: 'Mã CAS',
       },
       {
-        accessorKey: 'AllowRegister',
+        accessorKey: 'FormatedAllowRegister',
         header: 'SV được ĐK',
       }
     ] : [

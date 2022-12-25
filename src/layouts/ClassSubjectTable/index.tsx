@@ -4,7 +4,7 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
-  Box,
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -30,11 +30,17 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
 
+const semesterValue = ['1', '2', '3'];
+const schoolYearValue = ['2020-2021', '2021-2022', '2022-2023'];
+
 const ClassSubjectTable: FC = () => {
   const classSubjectData = useAppSelector((state: RootState) => state.classSubject.listOfClassSubjects);
+  const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
   const dispatch = useAppDispatch();
 
+  const [subjectDataValue, setSubjectDataValue] = useState<any>([]);
+  const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
@@ -46,6 +52,28 @@ const ClassSubjectTable: FC = () => {
   const [updatedRow, setUpdatedRow] = useState<any>(dummyClassSubjectData);
   const [deletedRow, setDeletedRow] = useState<any>(dummyClassSubjectData);
   const [createdRow, setCreatedRow] = useState<any>(dummyClassSubjectData);
+
+  useEffect(() => {
+    if (subjectData.length > 0) {
+      const list = subjectData.map(x => ({
+        label: `${x.SubjectId} - ${x.SubjectName}`,
+        id: x.SubjectId,
+        name: x.SubjectName
+      }));
+      setSubjectDataValue(list);
+    }
+  }, [subjectData])
+
+  useEffect(() => {
+    if (employeeData.length > 0) {
+      const list = employeeData.map(x => ({
+        label: `${x.EmployeeId} - ${x.Fullname}`,
+        id: x.EmployeeId,
+        name: x.Fullname
+      }));
+      setEmployeeDataValue(list);
+    }
+  }, [employeeData])
 
   useEffect(() => {
     let formatedClassSubjectData = classSubjectData.map((x: IClassSubjectType) => {
@@ -74,13 +102,13 @@ const ClassSubjectTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<IClassSubjectType>[]>(
     () => [
       {
-        accessorKey: 'ClassId',
-        header: 'Id lớp',
+        accessorKey: 'ClassCode',
+        header: 'Mã LHP',
         size: 140,
       },
       {
         accessorKey: 'ClassName',
-        header: 'Tên lớp',
+        header: 'Tên LHP',
         size: 140,
       },
       {
@@ -89,7 +117,7 @@ const ClassSubjectTable: FC = () => {
         size: 140,
       },
       {
-        accessorKey: 'TeacherName',
+        accessorKey: 'EmployeeName',
         header: 'Tên giảng viên',
         size: 140,
       },
@@ -125,12 +153,15 @@ const ClassSubjectTable: FC = () => {
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updateClassSubject({
       "ClassId": updatedRow.ClassId,
+      "ClassCode": updatedRow.ClassCode,
       "ClassName": updatedRow.ClassName,
       "NumOfStudent": updatedRow.NumOfStudent,
-      "TeacherName": updatedRow.TeacherName,
+      "EmployeeName": updatedRow.EmployeeName,
+      "EmployeeId": updatedRow.EmployeeId,
       "Semester": updatedRow.Semester,
       "Schoolyear": updatedRow.Schoolyear,
-      "SubjectId": updatedRow.SubjectId
+      "SubjectId": updatedRow.SubjectId,
+      "SubjectName": updatedRow.SubjectName
     });
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin lớp học phần thành công"));
@@ -174,12 +205,15 @@ const ClassSubjectTable: FC = () => {
   const handleSubmitCreateModal = async () => {
     const createdClassSubject = await postClassSubject({
       "ClassId": createdRow.ClassId,
+      "ClassCode": createdRow.ClassCode,
       "ClassName": createdRow.ClassName,
       "NumOfStudent": createdRow.NumOfStudent,
-      "TeacherName": createdRow.TeacherName,
+      "EmployeeId": createdRow.EmployeeId,
+      "EmployeeName": createdRow.EmployeeName,
       "Semester": createdRow.Semester,
       "Schoolyear": createdRow.Schoolyear,
-      "SubjectId": createdRow.SubjectId
+      "SubjectId": createdRow.SubjectId,
+      "SubjectName": createdRow.SubjectName
     })
 
     if (createdClassSubject) {
@@ -277,41 +311,121 @@ const ClassSubjectTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "SubjectName" && subjectData.length > 0) {
-                  const subjectOptions: string[] = subjectData.map(x => x.SubjectName.toString());
-
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="subject-select-required-label">Môn học</InputLabel>
-                    <Select
-                      labelId="subject-select-required-label"
-                      id="subject-select-required"
-                      value={subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId) > -1 ?
-                        subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId).toString() : ""}
-                      label="Phòng ban"
-                      onChange={(e: SelectChangeEvent) =>
+                if (column.accessorKey === "SubjectName") {
+                  return (
+                    <Autocomplete
+                      key={"UpdateSubjectName"}
+                      options={subjectDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={subjectDataValue.find((x: any) => x.id === updatedRow.SubjectId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setUpdatedRow({
                           ...updatedRow,
-                          "SubjectName": subjectData[Number(e.target.value)].SubjectName,
-                          "SubjectId": subjectData[Number(e.target.value)].SubjectId
-                        })}
-                    >
-                      {subjectOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
-                    </Select>
-                  </FormControl>
-                } if (column.id === "ClassId") {
+                          "SubjectId": value?.id,
+                          "SubjectName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else if (column.accessorKey === "EmployeeName") {
+                  return (
+                    <Autocomplete
+                      key={'UpdateEmployeeName'}
+                      options={employeeDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={employeeDataValue.find((x: any) => x.id === updatedRow.EmployeeId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "EmployeeId": value?.id,
+                          "EmployeeName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else if (column.accessorKey === "ClassId") {
                   return <TextField
                     disabled
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
+                    defaultValue={column.id && updatedRow[column.accessorKey]}
                   />
-                } else {
+                }
+                else if (column.accessorKey === "Semester") {
+                  return <FormControl key={"updateSemester"}>
+                    <InputLabel id="Semester-select-required-autoSchedule">Học kỳ</InputLabel>
+                    <Select
+                      labelId="Semester-select-required-autoSchedule"
+                      id="Semester-select-required-autoSchedule"
+                      value={updatedRow.Semester}
+                      label="Học kỳ"
+                      onChange={(e: SelectChangeEvent) => {
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "Semester": e.target.value
+                        })
+                      }}
+                    >
+                      {semesterValue.map((x, idx) => (
+                        <MenuItem key={idx} value={x}>
+                          {x}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                }
+                else if (column.accessorKey === 'Schoolyear') {
+                  return <FormControl key={"createSchoolyear"}>
+                    <InputLabel id="updateSchoolyear-select-required">Năm học</InputLabel>
+                    <Select
+                      labelId="updateSchoolyear-select-required"
+                      id="updateSchoolyear-select-required"
+                      value={updatedRow.Schoolyear}
+                      label="Năm học"
+                      onChange={(e: SelectChangeEvent) => {
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "Schoolyear": e.target.value
+                        })
+                      }}
+                    >
+                      {schoolYearValue.map((x, idx) => (
+                        <MenuItem key={"updateSchoolyear" + idx} value={x}>
+                          {x}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                }
+                else {
                   return <TextField
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
+                    defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
                     onChange={(e) =>
                       setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
                     }
@@ -355,28 +469,107 @@ const ClassSubjectTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "SubjectName" && subjectData.length > 0) {
-                  const subjectOptions: string[] = subjectData.map(x => x.SubjectName.toString());
-
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="subject-select-required-label">Môn học</InputLabel>
-                    <Select
-                      labelId="subject-select-required-label"
-                      id="subject-select-required"
-                      value={subjectData.findIndex(x => x.SubjectId === createdRow.SubjectId) > -1 ?
-                        subjectData.findIndex(x => x.SubjectId === createdRow.SubjectId).toString() : ""}
-                      label="Phòng ban"
-                      onChange={(e: SelectChangeEvent) =>
+                if (column.accessorKey === "SubjectName") {
+                  return (
+                    <Autocomplete
+                      key={"CreateSubjectName"}
+                      options={subjectDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={subjectDataValue.find((x: any) => x.id === createdRow.SubjectId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setCreatedRow({
                           ...createdRow,
-                          "SubjectName": subjectData[Number(e.target.value)].SubjectName,
-                          "SubjectId": subjectData[Number(e.target.value)].SubjectId
-                        })}
+                          "SubjectId": value?.id,
+                          "SubjectName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else if (column.accessorKey === "Semester") {
+                  return <FormControl key={"createSemester"}>
+                    <InputLabel id="createSemester-select-required">Học kỳ</InputLabel>
+                    <Select
+                      labelId="createSemester-select-required"
+                      id="createSemester-select-required"
+                      value={createdRow.Semester}
+                      label="Học kỳ"
+                      onChange={(e: SelectChangeEvent) => {
+                        setCreatedRow({
+                          ...createdRow,
+                          "Semester": e.target.value
+                        })
+                      }}
                     >
-                      {subjectOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
+                      {semesterValue.map((x, idx) => (
+                        <MenuItem key={"createSemester" + idx} value={x}>
+                          {x}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
-                } else {
+                }
+                else if (column.accessorKey === 'Schoolyear') {
+                  return <FormControl key={"createSchoolyear"}>
+                    <InputLabel id="createSchoolyear-select-required">Năm học</InputLabel>
+                    <Select
+                      labelId="createSchoolyear-select-required"
+                      id="createSchoolyear-select-required"
+                      value={createdRow.Schoolyear}
+                      label="Năm học"
+                      onChange={(e: SelectChangeEvent) => {
+                        setCreatedRow({
+                          ...createdRow,
+                          "Schoolyear": e.target.value
+                        })
+                      }}
+                    >
+                      {schoolYearValue.map((x, idx) => (
+                        <MenuItem key={"createSchoolyear" + idx} value={x}>
+                          {x}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                }
+                else if (column.accessorKey === "EmployeeName") {
+                  return (
+                    <Autocomplete
+                      key={'CreateEmployeeName'}
+                      options={employeeDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={employeeDataValue.find((x: any) => x.id === createdRow.EmployeeId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
+                        setCreatedRow({
+                          ...createdRow,
+                          "EmployeeId": value?.id,
+                          "EmployeeName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else {
                   return <TextField
                     key={column.accessorKey}
                     label={column.header}
