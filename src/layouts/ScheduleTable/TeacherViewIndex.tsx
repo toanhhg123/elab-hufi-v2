@@ -79,7 +79,7 @@ const AppointmentContentCell = (restProps: any) => {
                 {'Tiết: '} {appointmentData.StartTime} - {appointmentData.EndTime}
             </div>
             {/* <div style={{ "margin": "3px 0px" }}>
-                    {'GV: '} {appointmentData.TeacherName}
+                    {'GV: '} {appointmentData.EmployeeName}
                 </div> */}
             <div style={{ "margin": "0px 3px" }}>
                 {'Phòng: '} {appointmentData.LabName}

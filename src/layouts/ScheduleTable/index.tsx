@@ -162,7 +162,7 @@ const AppointmentContent = (restProps: any) => {
                 {'Tiết: '} {restProps.data.StartTime} - {restProps.data.EndTime}
             </div> */}
             <div style={{ "margin": "3px 0px" }}>
-                {'GV: '} {restProps.data.TeacherName}
+                {'GV: '} {restProps.data.EmployeeName}
             </div>
             <div style={{ "margin": "3px 3px" }}>
                 {'Phòng: '} {restProps.data.LabName}
@@ -337,7 +337,7 @@ const ScheduleTable: FC = () => {
                                     label="Lớp học phần"
                                     onChange={(e: SelectChangeEvent) => { }}
                                 >
-                                    {classSubjectData.map((x, idx) => <MenuItem value={idx}>{x.ClassName}-{x.TeacherName}</MenuItem>)}
+                                    {classSubjectData.map((x, idx) => <MenuItem value={idx}>{x.ClassName}-{x.EmployeeName}</MenuItem>)}
                                 </Select>
                             </FormControl>
 

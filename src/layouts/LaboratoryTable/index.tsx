@@ -4,7 +4,6 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -21,7 +20,7 @@ import {
   Typography
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyLaboratoryData, ILaboratoryType, IListDeviceBelongingToLaboratoryType } from '../../types/laboratoryType';
+import { dummyLaboratoryData, ILaboratoryType } from '../../types/laboratoryType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteLaboratory, getLaboratories, postLaboratory, updateLaboratory } from '../../services/laboratoryServices';
 import { RootState } from '../../store';
@@ -79,6 +78,11 @@ const LaboratoryTable: FC = () => {
 
   const columns = useMemo<MRT_ColumnDef<ILaboratoryType>[]>(
     () => [
+      {
+        accessorKey: 'LabId',
+        header: 'Mã phòng lab',
+        size: 100,
+      },
       {
         accessorKey: 'LabName',
         header: 'Tên phòng lab',
@@ -351,6 +355,7 @@ const LaboratoryTable: FC = () => {
               {columns.map((column) => (
                 column.id === "Note" ?
                   <TextareaAutosize
+                    key={"EditNote"}
                     aria-label="minimum height"
                     minRows={3}
                     placeholder="Nhập ghi chú..."
@@ -408,6 +413,7 @@ const LaboratoryTable: FC = () => {
               {columns.map((column) => (
                 column.id === "Note" ?
                   <TextareaAutosize
+                    key={"CreateNote"}
                     aria-label="minimum height"
                     minRows={3}
                     placeholder="Nhập ghi chú..."

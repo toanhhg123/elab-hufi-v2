@@ -2,13 +2,17 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface ISnackbarMessage {
-	isOpen: boolean;
+	isOpen?: boolean;
 	message: string;
+	color?: string;
+	backgroundColor?: string;
 }
 
 export const defaultSnackbarMessage: ISnackbarMessage = {
 	isOpen: false,
 	message: '',
+	color: "black",
+	backgroundColor: 'white'
 };
 
 interface ISidebarItem {
@@ -149,13 +153,29 @@ export const appSlice = createSlice({
 				...state,
 				snackbarState: {
 					isOpen: action.payload ? true : false,
-					message: action.payload ? action.payload : '',
+					message: action.payload ? action.payload : '',	
+				},
+			};
+		},
+		setSnackbar: (state: IAppState, action: PayloadAction<ISnackbarMessage>) => {
+			return {
+				...state,
+				snackbarState: {
+					isOpen: action.payload ? true : false,
+					message: action.payload ? action.payload.message : '',	
+					color:  action.payload.hasOwnProperty('color') ?  action.payload.color : state.snackbarState.color,
+					backgroundColor: action.payload.hasOwnProperty('backgroundColor') ?  action.payload.backgroundColor : state.snackbarState.backgroundColor
 				},
 			};
 		},
 	},
 });
 
-export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems } = appSlice.actions;
+export const { 
+	setIsOpenDrawer,
+	setSnackbarMessage, 
+	setSidebarItems,
+	setSnackbar,
+ } = appSlice.actions;
 
 export default appSlice.reducer;
