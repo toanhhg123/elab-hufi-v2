@@ -58,7 +58,8 @@ export interface IChemicalWarehouseType {
 	AmountRemain: Number,
 	AmountLiquidate: Number,
 	CASnumber: String,
-	AllowRegister: String,
+	FormatedAllowRegister?: string,
+	AllowRegister: boolean,
 	listChemicalDetail: IChemicalDetailType[],
 	ChemicalId: String,
 	ChemicalName: String,
@@ -88,5 +89,5 @@ export const dummyChemicalWarehouseData: IChemicalWarehouseType = {
 	"Specifications": "",
 	"Origin": "",
 	"Unit": "",
-	AllowRegister: 'Có'
+	AllowRegister: false
 }

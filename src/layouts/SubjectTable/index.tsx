@@ -4,18 +4,14 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Stack,
   TextField,
   Tooltip,
@@ -35,6 +31,7 @@ import { setSnackbarMessage } from '../../pages/appSlice';
 import DevicePlanning from './DevicePlanning';
 import InstrumentPlanning from './InstrumentPlanning';
 import ChemicalPlanning from './ChemicalPlanning';
+import { IDepartmentType } from '../../types/departmentType';
 
 const SubjectTable: FC = () => {
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
@@ -51,6 +48,7 @@ const SubjectTable: FC = () => {
   const [defaultDevicePlanning, setDefaultDevicePlanning] = useState<IDevicesBelongingToSubjectType[]>([]);
   const [defaultInstrumentPlanning, setDefaultInstrumentPlanning] = useState<IDevicesBelongingToSubjectType[]>([]);
   const [defaultChemicalPlanning, setDefaultChemicalPlanning] = useState<IChemicalsBelongingToSubjectType[]>([]);
+  const [departmentDataValue, setDepartmentDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -62,7 +60,7 @@ const SubjectTable: FC = () => {
 
   useEffect(() => {
     let formatedSubjectData = subjectData.map((sub: ISubjectType) => {
-      let departmentInfoIdx = departmentData.findIndex(y => y.DepartmentId === sub.DepartmentId);
+      let departmentInfoIdx = departmentData.findIndex((y: IDepartmentType) => y.DepartmentId === sub.DepartmentId);
       return {
         ...sub,
         "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : ""
@@ -71,6 +69,17 @@ const SubjectTable: FC = () => {
 
     setTableData(formatedSubjectData);
   }, [subjectData])
+
+  useEffect(() => {
+    if (departmentData.length > 0) {
+      const list = departmentData.map((x: IDepartmentType) => ({
+        label: `${x.DepartmentId} - ${x.DepartmentName}`,
+        id: x.DepartmentId,
+        name: x.DepartmentName
+      }));
+      setDepartmentDataValue(list);
+    }
+  }, [departmentData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
@@ -380,28 +389,34 @@ const SubjectTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "DepartmentName" && departmentData.length > 0) {
-                  const departmentOptions: string[] = departmentData.map(x => x.DepartmentName.toString());
-
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="department-select-required-label">Phòng ban</InputLabel>
-                    <Select
-                      labelId="department-select-required-label"
-                      id="department-select-required"
-                      value={departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId) > -1 ?
-                        departmentData.findIndex(x => x.DepartmentId === updatedRow.DepartmentId).toString() : ""}
-                      label="Phòng ban"
-                      onChange={(e: SelectChangeEvent) =>
+                if (column.accessorKey === "DepartmentName" && departmentData.length > 0) {
+                  return (
+                    <Autocomplete
+                      key={"UpdatedDepartmentName"}
+                      options={departmentDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={departmentDataValue.find((x: any) => x.id === updatedRow.DepartmentId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setUpdatedRow({
                           ...updatedRow,
-                          "DepartmentName": departmentData[Number(e.target.value)].DepartmentName,
-                          "DepartmentId": departmentData[Number(e.target.value)].DepartmentId
-                        })}
-                    >
-                      {departmentOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
-                    </Select>
-                  </FormControl>
-                } else {
+                          "DepartmentId": value?.id,
+                          "DepartmentName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else {
                   return <TextField
                     key={column.accessorKey}
                     label={column.header}
@@ -450,28 +465,34 @@ const SubjectTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "DepartmentName" && departmentData.length > 0) {
-                  const departmentOptions: string[] = departmentData.map(x => x.DepartmentName.toString());
-
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="department-select-required-label">Phòng ban</InputLabel>
-                    <Select
-                      labelId="department-select-required-label"
-                      id="department-select-required"
-                      value={departmentData.findIndex(x => x.DepartmentId === createdRow.DepartmentId) > -1 ?
-                        departmentData.findIndex(x => x.DepartmentId === createdRow.DepartmentId).toString() : ""}
-                      label="Phòng ban"
-                      onChange={(e: SelectChangeEvent) =>
+                if (column.accessorKey === "DepartmentName" && departmentData.length > 0) {
+                  return (
+                    <Autocomplete
+                      key={"UpdatedDepartmentName"}
+                      options={departmentDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={departmentDataValue.find((x: any) => x.id === createdRow.DepartmentId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setCreatedRow({
                           ...createdRow,
-                          "DepartmentName": departmentData[Number(e.target.value)].DepartmentName,
-                          "DepartmentId": departmentData[Number(e.target.value)].DepartmentId
-                        })}
-                    >
-                      {departmentOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
-                    </Select>
-                  </FormControl>
-                } else {
+                          "DepartmentId": value?.id,
+                          "DepartmentName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else {
                   return <TextField
                     key={column.accessorKey}
                     label={column.header}
@@ -516,7 +537,7 @@ const SubjectTable: FC = () => {
         onClose={onCloseChemicalPlanningModal}
         handleSubmit={onHandleSubmitChemicalPlanningModal}
         defaultCurrentValue={defaultChemicalPlanning}
-      /> 
+      />
     </>
   );
 };

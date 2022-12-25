@@ -10,12 +10,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Stack,
   TextField,
   Tooltip,
@@ -46,7 +41,6 @@ import DevicePlanning from './DevicePlanning';
 import InstrumentPlanning from './InstrumentPlanning';
 import ChemicalPlanning from './ChemicalPlanning';
 import Autocomplete from '@mui/material/Autocomplete';
-import { dummySubjectData, ISubjectType } from '../../types/subjectType';
 
 const LessonLabTable: FC = () => {
   const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
@@ -61,7 +55,7 @@ const LessonLabTable: FC = () => {
   const [isChemicalPlanningModal, setIsChemicalPlanningModal] = useState<boolean>(false);
   const [isInstrumentPlanningModal, setIsInstrumentPlanningModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<ILessonLabType[]>([]);
-  const [subjectValue, setSubjectValue] = useState<ISubjectType>(dummySubjectData);
+  const [subjectDataValue, setSubjectDataValue] = useState<any>([]);
   const [listOfLessons, setListOfLessons] = useState<string[]>([]);
   const [defaultDevicePlanning, setDefaultDevicePlanning] = useState<IDevicesBelongingToLessonLab[]>([]);
   const [defaultInstrumentPlanning, setDefaultInstrumentPlanning] = useState<IDevicesBelongingToLessonLab[]>([]);
@@ -74,6 +68,17 @@ const LessonLabTable: FC = () => {
   const [deletedRow, setDeletedRow] = useState<any>(dummyLessonLabData);
   const [createdRow, setCreatedRow] = useState<any>(dummyLessonLabData);
   const [selectedRow, setSelectedRow] = useState<any>(dummyLessonLabData);
+
+  useEffect(() => {
+    if (subjectData.length > 0) {
+      const list = subjectData.map(x => ({
+        label: `${x.SubjectId} - ${x.SubjectName}`,
+        id: x.SubjectId,
+        name: x.SubjectName
+      }));
+      setSubjectDataValue(list);
+    }
+  }, [subjectData])
 
   useEffect(() => {
     let formatedLessonLabData = lessonLabData.map((x: ILessonLabType) => {
@@ -168,7 +173,6 @@ const LessonLabTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setSubjectValue(dummySubjectData);
     setCreatedRow(dummyLessonLabData);
     setListOfLessons([]);
     setIsCreateModal(false);
@@ -176,24 +180,30 @@ const LessonLabTable: FC = () => {
 
   const handleSubmitCreateModal = async () => {
     let promisesList: any[] = [];
-    listOfLessons.forEach(item => promisesList.push(postLessonLab({
-      "LessonName": item,
-      "SubjectId": createdRow.SubjectId,
-      "listChemical": [],
-      "listDevice": [],
-      "listInstrument": []
-    })));
+    if (listOfLessons.length === 0) {
+      dispatch(setSnackbarMessage("Vui lòng thêm ít nhất tên một bài thí nghiệm"));
+    } 
+    else {
+      listOfLessons.forEach(item => promisesList.push(postLessonLab({
+        "LessonName": item,
+        "SubjectId": createdRow.SubjectId,
+        "listChemical": [],
+        "listDevice": [],
+        "listInstrument": []
+      })));
 
-    Promise.all(promisesList).then(async () => {
-      const newListOfLessonLabs: ILessonLabType[] = await getLessonLabs();
-      if (newListOfLessonLabs) {
-        dispatch(setSnackbarMessage("Tạo thông tin bài thí nghiệm mới thành công"));
-        dispatch(setListOfLessonLabs(newListOfLessonLabs));
-      }
-      onCloseCreateModal();
-    }).catch(() => {
-      throw new Error();
-    });
+      Promise.all(promisesList).then(async () => {
+        const newListOfLessonLabs: ILessonLabType[] = await getLessonLabs();
+        if (newListOfLessonLabs) {
+          dispatch(setSnackbarMessage("Tạo thông tin bài thí nghiệm mới thành công"));
+          dispatch(setListOfLessonLabs(newListOfLessonLabs));
+        }
+        onCloseCreateModal();
+      }).catch(() => {
+        dispatch(setSnackbarMessage("Tạo thông tin bài thí nghiệm mới thất bại"));
+        throw new Error();
+      });
+    }
   }
 
   const handleOpenDevicePlanningModal = async (row: any) => {
@@ -281,15 +291,6 @@ const LessonLabTable: FC = () => {
     dispatch(setListOfLessonLabs(updatedLessonLabData));
     dispatch(setSnackbarMessage("Cập nhật dự trù thiết bị thành công"));
     onCloseInstrumentPlanningModal();
-  }
-
-  const handleSelectAutocomplete = (e: any, val: ISubjectType) => {
-    setSubjectValue(val);
-    setCreatedRow({
-      ...createdRow,
-      "SubjectName": val.SubjectName,
-      "SubjectId": val.SubjectId
-    })
   }
 
   return (
@@ -395,26 +396,32 @@ const LessonLabTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                const subjectOptions: string[] = subjectData.map(x => x.SubjectName.toString());
-                if (column.id === "SubjectName" && subjectData.length > 0) {
-                  return <FormControl sx={{ m: 0, minWidth: 120 }}>
-                    <InputLabel id="subject-select-required-label">Môn học</InputLabel>
-                    <Select
-                      labelId="subject-select-required-label"
-                      id="subject-select-required"
-                      value={subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId) > -1 ?
-                        subjectData.findIndex(x => x.SubjectId === updatedRow.SubjectId).toString() : ""}
-                      label="Môn học"
-                      onChange={(e: SelectChangeEvent) =>
+                if (column.accessorKey === "SubjectName" && subjectData.length > 0) {
+                  return (
+                    <Autocomplete
+                      key={"SubjectName"}
+                      options={subjectDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={subjectDataValue.find((x: any) => x.id === updatedRow.SubjectId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
                         setUpdatedRow({
                           ...updatedRow,
-                          "SubjectName": subjectData[Number(e.target.value)].SubjectName,
-                          "SubjectId": subjectData[Number(e.target.value)].SubjectId
-                        })}
-                    >
-                      {subjectOptions.map((x, idx) => <MenuItem value={idx}>{x}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                          "SubjectId": value?.id,
+                          "SubjectName": value?.name,
+                        });
+                      }}
+                    />
+                  );
                 }
                 else {
                   return <TextField
@@ -465,29 +472,35 @@ const LessonLabTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.id === "SubjectName" && subjectData.length > 0) {
-                  return <Autocomplete
-                    options={subjectData}
-                    value={subjectValue}
-                    isOptionEqualToValue={(option, value) => option.SubjectId === value.SubjectId}
-                    getOptionLabel={(option: ISubjectType) => option?.SubjectName ? option.SubjectName.toString() : ''}
-                    id="auto-complete"
-                    autoComplete
-                    includeInputInList
-                    disableClearable
-                    renderTags={(value: readonly ISubjectType[], getTagProps) =>
-                      value.map((option: ISubjectType, index: number) => (
-                        <></>
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField {...params} placeholder="Tìm kiếm môn học..." variant="standard" />
-                    )}
-                    onChange={(e: any, val) => handleSelectAutocomplete(e, val)}
-                  />
+                if (column.accessorKey === "SubjectName" && subjectData.length > 0) {
+                  return (
+                    <Autocomplete
+                      key={"SubjectName"}
+                      options={subjectDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={subjectDataValue.find((x: any) => x.id === createdRow.SubjectId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
+                        setCreatedRow({
+                          ...createdRow,
+                          "SubjectId": value?.id,
+                          "SubjectName": value?.name,
+                        });
+                      }}
+                    />
+                  );
                 }
                 else {
-                  return <div style={{ "display": "flex" }}>
+                  return <div className="addNewLessonsDiv" style={{ "display": "flex" }}>
                     <TextField
                       style={{ "width": "80%" }}
                       key={column.accessorKey}
@@ -515,14 +528,16 @@ const LessonLabTable: FC = () => {
               }
               )}
               <Box
+                key={"lessonLabBox"}
                 sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
               >
                 {listOfLessons.length > 0 && <Typography variant="h6" component="div">
                   <b> Danh sách các bài của môn:</b>
                 </Typography>}
                 <List dense={true}>
-                  {listOfLessons.map((item) =>
+                  {listOfLessons.map((item, lessonIdx) =>
                     <ListItem
+                      key={"lesson" + item + lessonIdx}
                       secondaryAction={
                         <IconButton edge="end" aria-label="delete" onClick={() => {
                           let temp = [...listOfLessons];
