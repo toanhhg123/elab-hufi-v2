@@ -34,7 +34,7 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 	const [createdRow, setCreatedRow] = useState<any>(initData);
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
+	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
 	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 

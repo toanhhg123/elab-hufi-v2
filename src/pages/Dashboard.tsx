@@ -24,7 +24,8 @@ import PlanSubjectTable from '../layouts/PlanSubjectTable';
 import { setListOfPlanSubjects } from '../layouts/PlanSubjectTable/planSubjectSlice';
 import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
-import { setListOfRegisterGeneral } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
+import RegisterGeneralsTable from '../layouts/RegisterGeneralTable';
+import { setListOfRegisterGenerals } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
 import TeacherViewScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
 import FacultyViewScheduleTable from '../layouts/ScheduleTable/FacultyViewIndex';
@@ -52,7 +53,7 @@ import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
 import { getPlanSubjects } from '../services/planSubjectServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
-import { getRegisterGeneral } from '../services/registerGeneralServices';
+import { getRegisterGenerals } from '../services/registerGeneralServices';
 import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
@@ -189,9 +190,9 @@ export function Dashboard() {
 	};
 
 	const getRegisterGeneralsData = async () => {
-		const listOfRegisterGeneral: IRegisterGeneralType[] = await getRegisterGeneral();
+		const listOfRegisterGeneral: IRegisterGeneralType[] = await getRegisterGenerals("2");
 		if (listOfRegisterGeneral) {
-			dispatch(setListOfRegisterGeneral(listOfRegisterGeneral));
+			dispatch(setListOfRegisterGenerals(listOfRegisterGeneral));
 		}
 	};
 
@@ -254,22 +255,23 @@ export function Dashboard() {
 		<>
 			<div className="home">
 				{/* <InstrumentTable/> */}
-				{sidebarItems[0].isOpen && laboratoriesData?.length > 0 && <LaboratoryTable />}
-				{sidebarItems[1].isOpen && departmentData?.length > 0 && <DepartmentTable />}
-				{sidebarItems[2].isOpen && employeeData?.length > 0 && <EmployeeTable />}
+				{sidebarItems[0].isOpen && <LaboratoryTable />}
+				{sidebarItems[1].isOpen && <DepartmentTable />}
+				{sidebarItems[2].isOpen && <EmployeeTable />}
 				{sidebarItems[3].isOpen && <ChemicalWarehouseTable role={role} />}
 				{/* {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />} */}
 				{/* {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />} */}
-				{sidebarItems[4].isOpen && manufacturersData?.length > 0 && <ManufacturersTable />}
-				{sidebarItems[5].isOpen && supplierData?.length > 0 && <SupplierTable />}
+				{sidebarItems[4].isOpen && <ManufacturersTable />}
+				{sidebarItems[5].isOpen && <SupplierTable />}
 				{sidebarItems[6].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
-				{sidebarItems[7].isOpen && subjectData?.length > 0 && <SubjectTable />}
-				{sidebarItems[8].isOpen && classSubjectData?.length > 0 && <ClassSubjectTable />}
-				{sidebarItems[9].isOpen && lessonLabData?.length > 0 && <LessonLabTable />}
+				{sidebarItems[7].isOpen && <SubjectTable />}
+				{sidebarItems[8].isOpen && <ClassSubjectTable />}
+				{sidebarItems[9].isOpen && <LessonLabTable />}
 				{sidebarItems[10].isOpen && <WarehouseTable />}
 				{sidebarItems[11].isOpen && <PurchaseOrderTable />}
 				{sidebarItems[12].isOpen && <PlanSubjectTable />}
-				{sidebarItems[13].isOpen && <DeviceTransfer />}
+				{sidebarItems[13].isOpen && <RegisterGeneralsTable />}
+				{sidebarItems[14].isOpen && <DeviceTransfer />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

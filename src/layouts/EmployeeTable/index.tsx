@@ -53,14 +53,14 @@ const EmployeeTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyEmployeeData);
 
   useEffect(() => {
-    let formatedEmployeeData = employeeData.map((emp: IEmployeeType) => {
+    let formatedEmployeeData = employeeData.length > 0 ? employeeData.map((emp: IEmployeeType) => {
       let departmentInfoIdx = departmentData.findIndex(y => y.DepartmentId === emp.DepartmentId);
       return {
         ...emp,
         "formatedBirthday": moment.unix(emp.Birthday).format('DD/MM/YYYY'),
         "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : ""
       }
-    })
+    }) : [];
     setTableData(formatedEmployeeData);
   }, [employeeData])
 

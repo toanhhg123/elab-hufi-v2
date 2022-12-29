@@ -336,7 +336,7 @@ const DepartmentTable: FC = () => {
 						</IconButton>
 						<Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
 							Thông tin thiết bị trong{' '}
-							<b>{departmentData.find(x => x.DepartmentId === departmentIdShow)?.DepartmentName}</b>
+							<b>{departmentData.length > 0 ? departmentData.find(x => x.DepartmentId === departmentIdShow)?.DepartmentName : ''}</b>
 						</Typography>
 					</Toolbar>
 				</AppBar>

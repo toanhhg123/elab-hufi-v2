@@ -41,7 +41,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 	const [updatedRow, setUpdatedRow] = useState<any>(() => initData);
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGeneral);
+	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
 	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
@@ -140,7 +140,7 @@ const EditExportModal: FC<EditExportModalProps> = ({
 								column.enableHiding !== false &&
 								registerGeneralData.length > 0
 							) {
-								const list = registerGeneralData.map((x, idx) => ({
+								const list = registerGeneralData.map((x: any) => ({
 									label: `${x.RegisterGeneralId} - ${x.Instructor} - ${x.ResearchSubject}`,
 									id: x.RegisterGeneralId,
 								}));
@@ -150,8 +150,8 @@ const EditExportModal: FC<EditExportModalProps> = ({
 										key={column.id}
 										options={list}
 										noOptionsText="Không có kết quả trùng khớp"
-										defaultValue={list.find(x => x.id === updatedRow['RegisterGeneralId']) || null}
-										value={list.find(x => x.id === updatedRow['RegisterGeneralId']) || null}
+										defaultValue={list.find((x: any) => x.id === updatedRow['RegisterGeneralId']) || null}
+										value={list.find((x: any) => x.id === updatedRow['RegisterGeneralId']) || null}
 										getOptionLabel={option => option?.label}
 										renderInput={params => {
 											return (

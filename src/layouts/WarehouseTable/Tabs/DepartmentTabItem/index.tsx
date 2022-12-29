@@ -42,24 +42,26 @@ const DepartmentTabItem: FC = () => {
 	const [deletedRow, setDeletedRow] = useState<any>(dummyExportData);
 
 	useEffect(() => {
-		let formatedData = warehouseDepartment?.map((x: IExportType) => {
-			let userAcceptInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeId === x.UserAccept)
-				: -1;
-			return {
-				...x,
-				formatedExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY'),
-				UserAcceptName: userAcceptInfoIdx > -1 ? employeeData[userAcceptInfoIdx].Fullname : '',
-			};
-		});
-		formatedData.sort((x: any, y: any) => {
-			if (y.ExportDate === x.ExportDate) {
-				return y?.ExportId?.localeCompare(x?.ExportId?.toString());
-			} else {
-				return y.ExportDate - x.ExportDate;
-			}
-		});
-		setTableData(formatedData);
+		if (warehouseDepartment.length > 0) {
+			let formatedData = warehouseDepartment?.map((x: IExportType) => {
+				let userAcceptInfoIdx = Array.isArray(employeeData)
+					? employeeData.findIndex(y => y.EmployeeId === x.UserAccept)
+					: -1;
+				return {
+					...x,
+					formatedExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY'),
+					UserAcceptName: userAcceptInfoIdx > -1 ? employeeData[userAcceptInfoIdx].Fullname : '',
+				};
+			});
+			formatedData.sort((x: any, y: any) => {
+				if (y.ExportDate === x.ExportDate) {
+					return y?.ExportId?.localeCompare(x?.ExportId?.toString());
+				} else {
+					return y.ExportDate - x.ExportDate;
+				}
+			});
+			setTableData(formatedData);
+		}
 	}, [warehouseDepartment]);
 
 	const getCommonEditTextFieldProps = useCallback(

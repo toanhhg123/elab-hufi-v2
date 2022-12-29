@@ -4,7 +4,7 @@ import { IDepartmentType } from '../../types/departmentType'
 
 // Define a type for the slice state
 interface IDepartmentState {
-  listOfDepartments: IDepartmentType[],
+  listOfDepartments: IDepartmentType[] | [],
 }
 
 // Define the initial state using that type
