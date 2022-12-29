@@ -1,10 +1,10 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
-  Box,
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -29,15 +29,23 @@ import { setListOfRegisterGenerals } from './registerGeneralSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import moment from 'moment';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { ColumnType } from './Utils';
+import RegisterGeneralChemicalTable from './RegisterGeneralChemicalTable';
+import RegisterGeneralDeviceTable from './RegisterGeneralDeviceTable';
 
 const RegisterGeneralsTable: FC = () => {
   const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
+  const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<IRegisterGeneralType[]>([]);
+  const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -47,7 +55,29 @@ const RegisterGeneralsTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyRegisterGeneralData);
 
   useEffect(() => {
-    setTableData(registerGeneralsData);
+    if (employeeData.length > 0) {
+      const list = employeeData.map(x => ({
+        label: `${x.EmployeeId} - ${x.Fullname}`,
+        id: x.EmployeeId,
+        name: x.Fullname
+      }));
+      setEmployeeDataValue(list);
+    }
+  }, [employeeData])
+
+  useEffect(() => {
+    if (registerGeneralsData.length > 0) {
+      let formatedRegisterGeneral = registerGeneralsData.map((item: IRegisterGeneralType) => {
+        return Object.assign({}, {
+          ...item,
+          formatedDateCreate: moment.unix(Number(item.DateCreate)).format('DD/MM/YYYY'),
+          formatedStartDate: moment.unix(Number(item.StartDate)).format('DD/MM/YYYY'),
+          formatedEndDate: moment.unix(Number(item.EndDate)).format('DD/MM/YYYY'),
+        })
+      })
+      setTableData(formatedRegisterGeneral);
+    }
+
   }, [registerGeneralsData])
 
   const getCommonEditTextFieldProps = useCallback(
@@ -69,12 +99,12 @@ const RegisterGeneralsTable: FC = () => {
         header: 'Mã phiếu ĐK',
       },
       {
-        accessorKey: 'DateCreate',
+        accessorKey: 'formatedDateCreate',
         header: 'Ngày tạo',
       },
       {
         accessorKey: 'Instructor',
-        header: 'Người HD',
+        header: 'Người hướng dẫn',
       },
       {
         accessorKey: 'ThesisName',
@@ -85,11 +115,11 @@ const RegisterGeneralsTable: FC = () => {
         header: 'Chủ đề nghiên cứu',
       },
       {
-        accessorKey: 'StartDate',
+        accessorKey: 'formatedStartDate',
         header: 'Ngày BĐ',
       },
       {
-        accessorKey: 'EndDate',
+        accessorKey: 'formatedEndDate',
         header: 'Ngày KT',
       },
       {
@@ -100,10 +130,10 @@ const RegisterGeneralsTable: FC = () => {
         accessorKey: 'ResearcherName',
         header: 'Tên nghiên cứu viên',
       },
-      {
-        accessorKey: 'EmployeeId',
-        header: 'Mã nhân viên',
-      },
+      // {
+      //   accessorKey: 'EmployeeId',
+      //   header: 'Mã nhân viên',
+      // },
       {
         accessorKey: 'EmployeeName',
         header: 'Tên nhân viên',
@@ -111,6 +141,62 @@ const RegisterGeneralsTable: FC = () => {
     ],
     [getCommonEditTextFieldProps],
   );
+
+  const RegisterGeneralChemicalTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'Purpose',
+      header: 'Mục đích',
+    },
+    {
+      id: 'ChemicalId',
+      header: 'Mã hoá chất',
+    },
+    {
+      id: 'ChemicalName',
+      header: 'Tên hoá chất',
+    },
+    {
+      id: 'Specifications',
+      header: 'CTHH',
+    },
+    {
+      id: 'Amount',
+      header: 'Số lượng',
+      renderValue: (Amount, Unit) => `${Amount} (${Unit})`
+    },
+    {
+      id: 'Note',
+      header: 'Ghi chú',
+    }
+  ]);
+
+  const RegisterGeneralDeviceTableColumns = useRef<ColumnType[]>([
+    {
+      id: 'Purpose',
+      header: 'Mục đích',
+    },
+    {
+      id: 'DeviceId',
+      header: 'Mã thiết bị',
+    },
+    {
+      id: 'DeviceName',
+      header: 'Tên thiết bị',
+    },
+    {
+      id: 'Standard',
+      header: 'Quy cách',
+    },
+    {
+      id: 'Quantity',
+      header: 'Số lượng',
+      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
+    },
+    {
+      id: 'Note',
+      header: 'Ghi chú',
+    }
+  ]);
 
   const handleOpenEditModal = (row: any) => {
     setUpdatedRow(row.original);
@@ -212,11 +298,26 @@ const RegisterGeneralsTable: FC = () => {
         initialState={{
           density: 'compact',
           columnOrder: [
+            'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(x => x.accessorKey || ''),
             'mrt-row-actions'
           ]
         }}
+        renderDetailPanel={({ row }) => (
+          <>
+            {row.original.ListChemical.length > 0 &&
+              <RegisterGeneralChemicalTable
+                chemicalData={row.original.ListChemical}
+                columns={RegisterGeneralChemicalTableColumns.current}
+              />}
+            {row.original.ListDevice.length > 0 &&
+              <RegisterGeneralDeviceTable
+                deviceData={row.original.ListDevice}
+                columns={RegisterGeneralDeviceTableColumns.current}
+              />}
+          </>
+        )}
         renderRowActions={({ row, table }) => (
           <>
             <Tooltip arrow placement="left" title="Sửa thông tin phiếu đăng ký chung">
@@ -236,7 +337,7 @@ const RegisterGeneralsTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Danh mục cung cấp</span>
+            <span>Thông tin phiếu đăng ký chung</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (
@@ -264,25 +365,80 @@ const RegisterGeneralsTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                column.id === "SupplierId" ?
-                  <TextField
+              {columns.map((column) => {
+                if (
+                  column.accessorKey === "RegisterGeneralId" ||
+                  column.accessorKey === 'formatedDateCreate'
+                ) {
+                  return <TextField
                     disabled
-                    key="SupplierId"
-                    label="SupplierId"
-                    name="SupplierId"
-                    defaultValue={updatedRow["SupplierId"]}
-                  /> :
-                  <TextField
+                    key={"Updated" + column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={updatedRow[column.accessorKey]}
+                  />
+                }
+                else if (
+                  column.accessorKey === 'formatedStartDate' ||
+                  column.accessorKey === 'formatedEndDate'
+                ) {
+                  return <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <DatePicker
+                      key={"Update" + column.accessorKey}
+                      label={column.header}
+                      value={new Date(updatedRow[`${column.accessorKey.slice(8,)}`] * 1000)}
+                      onChange={(val: any) => {
+                        setUpdatedRow({
+                          ...updatedRow,
+                          [`${column.accessorKey}`]: moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                          [`${column?.accessorKey?.slice(8,)}`]: Date.parse(val) / 1000
+                        })
+                      }
+                      }
+                      renderInput={(params: any) => <TextField key={"UpdateTextField" + column.accessorKey} {...params} />}
+                      inputFormat='DD/MM/YYYY'
+                    />
+                  </LocalizationProvider>
+                }
+                else if (column.accessorKey === "EmployeeName") {
+                  return (
+                    <Autocomplete
+                      key={column.accessorKey}
+                      options={employeeDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={employeeDataValue.find((x: any) => x.id === updatedRow.EmployeeId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "EmployeeId": value?.id,
+                          "EmployeeName": value?.name,
+                        });
+                      }}
+                    />
+                  );
+                }
+                else {
+                  return <TextField
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
+                    defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
                     onChange={(e) =>
                       setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
                     }
                   />
-              ))}
+                }
+              })}
 
             </Stack>
           </form>
@@ -298,7 +454,7 @@ const RegisterGeneralsTable: FC = () => {
       <Dialog open={isDeleteModal}>
         <DialogTitle textAlign="center"><b>Xoá thông tin phiếu đăng ký chung</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin phiếu đăng ký chung {`${deletedRow.Name}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin phiếu đăng ký chung {`${deletedRow.RegisterGeneralId}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Hủy</Button>
@@ -319,17 +475,68 @@ const RegisterGeneralsTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
-                  onChange={(e) =>
-                    setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                  }
-                />
-              ))}
+              {columns.slice(2,).map((column) => {
+                if (
+                  column.accessorKey === 'formatedStartDate' ||
+                  column.accessorKey === 'formatedEndDate'
+                ) {
+                  return <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <DatePicker
+                      key={"Create" + column.accessorKey}
+                      label={column.header}
+                      value={new Date(createdRow[`${column.accessorKey.slice(8,)}`] * 1000)}
+                      onChange={(val: any) => {
+                        setCreatedRow({
+                          ...createdRow,
+                          [`${column.accessorKey}`]: moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                          [`${column?.accessorKey?.slice(8,)}`]: Date.parse(val) / 1000
+                        })
+                      }
+                      }
+                      renderInput={(params: any) => <TextField key={"CreateTextField" + column.accessorKey} {...params} />}
+                      inputFormat='DD/MM/YYYY'
+                    />
+                  </LocalizationProvider>
+                }
+                else if (column.accessorKey === "EmployeeName") {
+                  return <Autocomplete
+                    key={"CreateEmployeeName"}
+                    options={employeeDataValue}
+                    noOptionsText="Không có kết quả trùng khớp"
+                    sx={{ "width": "450px" }}
+                    value={employeeDataValue.find((x: any) => x.id === createdRow.EmployeeId) || null}
+                    getOptionLabel={option => option?.label}
+                    renderInput={params => {
+                      return (
+                        <TextField
+                          {...params}
+                          label={"Người lập"}
+                          placeholder="Nhập để tìm kiếm"
+                        />
+                      );
+                    }}
+                    onChange={(event, value) => {
+                      setCreatedRow({
+                        ...createdRow,
+                        "EmployeeId": value?.id,
+                        "EmployeeName": value?.name,
+                      });
+                    }}
+                  />
+                }
+                else {
+                  return <TextField
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && updatedRow[column.id]}
+                    onChange={(e) =>
+                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                    }
+                  />
+                }
+              }
+              )}
 
             </Stack>
           </form>

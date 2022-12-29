@@ -1,4 +1,4 @@
-interface IListChemicalType {
+export interface IListChemicalRegisterGeneralType {
     "Purpose": string,
     "ChemicalId": string,
     "ChemicalName": string,
@@ -8,7 +8,7 @@ interface IListChemicalType {
     "Note": string
 }
 
-interface IListDeviceType {
+export interface IListDeviceRegisterGeneralType {
     "Purpose": string,
     "DeviceId": string,
     "DeviceName": string,
@@ -25,17 +25,20 @@ interface IListToolType {
 }
 
 export interface IRegisterGeneralType {
-    "ListChemical": IListChemicalType[] | [],
-    "ListDevice": IListDeviceType[] | [],
+    "ListChemical": IListChemicalRegisterGeneralType[] | [],
+    "ListDevice": IListDeviceRegisterGeneralType[] | [],
     "ListInstrument": IListInstrumentType[] | [],
     "ListTool": IListToolType[] | [],
     "RegisterGeneralId": string | Number,
     "DateCreate": string,
+    "formatedDateCreate"?: string,
     "Instructor": string,
     "ThesisName": string,
     "ResearchSubject": string,
     "StartDate": string,
+    "formatedStartDate"?: string,
     "EndDate": string,
+    "formatedEndDate"?: string,
     "ResearcherId": string,
     "ResearcherName": string,
     "EmployeeId": string,

@@ -310,7 +310,8 @@ const EmployeeTable: FC = () => {
                     name="EmployeeId"
                     defaultValue={updatedRow["EmployeeId"]}
                   />
-                } else if (column.accessorKey === "formatedBirthday") {
+                }
+                else if (column.accessorKey === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
                       key={"UpdateBirthday"}
@@ -327,7 +328,8 @@ const EmployeeTable: FC = () => {
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } else if (column.accessorKey === "Gender") {
+                }
+                else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>
                     <Select
