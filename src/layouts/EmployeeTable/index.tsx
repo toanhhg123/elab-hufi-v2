@@ -439,7 +439,8 @@ const EmployeeTable: FC = () => {
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } else if (column.accessorKey === "Gender") {
+                } 
+                else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>
                     <Select
@@ -448,7 +449,7 @@ const EmployeeTable: FC = () => {
                       value={Genders[createdRow.Gender]}
                       label="Giới tính"
                       onChange={(e: SelectChangeEvent) =>
-                        setUpdatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
+                        setCreatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
                     >
                       {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2)
                         .map((x, idx) => <MenuItem key={"CreateGender" + idx} value={idx}>{x}</MenuItem>)}

@@ -78,6 +78,10 @@ import { ISupplierType } from '../types/supplierType';
 import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
 import { SnackbarContent } from '@mui/material';
+import { getResearchTeams } from '../services/researchTeamServices';
+import { IResearchTeamType } from '../types/researchTeamType';
+import { setListOfResearchTeams } from '../layouts/ResearchTeamTable/researchTeamSlice';
+import ResearchTeamTable from '../layouts/ResearchTeamTable';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -217,6 +221,13 @@ export function Dashboard() {
 		}
 	};
 
+	const getResearchTeamsData = async () => {
+		const listOfResearchTeams: IResearchTeamType[] = await getResearchTeams();
+		if (listOfResearchTeams) {
+			dispatch(setListOfResearchTeams(listOfResearchTeams));
+		}
+	};
+
 	useEffect(() => {
 		getLaboratoryData();
 		getEmployeeData();
@@ -235,6 +246,7 @@ export function Dashboard() {
 		getPurchaseOrderData();
 		getScheduleData();
 		getPlanSubjectData();
+		getResearchTeamsData();
 	}, []);
 
 	const snackbarFunc = () =>
@@ -258,20 +270,21 @@ export function Dashboard() {
 				{sidebarItems[0].isOpen && <LaboratoryTable />}
 				{sidebarItems[1].isOpen && <DepartmentTable />}
 				{sidebarItems[2].isOpen && <EmployeeTable />}
-				{sidebarItems[3].isOpen && <ChemicalWarehouseTable role={role} />}
+				{sidebarItems[3].isOpen && <ResearchTeamTable />}
+				{sidebarItems[4].isOpen && <ChemicalWarehouseTable role={role} />}
 				{/* {sidebarItems[4].isOpen && chemicalData?.length > 0 && <ChemicalTable />} */}
 				{/* {sidebarItems[5].isOpen && deviceData?.length > 0 && deviceSpecData.length > 0 && manufacturersData?.length > 0 && <DeviceTable />} */}
-				{sidebarItems[4].isOpen && <ManufacturersTable />}
-				{sidebarItems[5].isOpen && <SupplierTable />}
-				{sidebarItems[6].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
-				{sidebarItems[7].isOpen && <SubjectTable />}
-				{sidebarItems[8].isOpen && <ClassSubjectTable />}
-				{sidebarItems[9].isOpen && <LessonLabTable />}
-				{sidebarItems[10].isOpen && <WarehouseTable />}
-				{sidebarItems[11].isOpen && <PurchaseOrderTable />}
-				{sidebarItems[12].isOpen && <PlanSubjectTable />}
-				{sidebarItems[13].isOpen && <RegisterGeneralsTable />}
-				{sidebarItems[14].isOpen && <DeviceTransfer />}
+				{sidebarItems[5].isOpen && <ManufacturersTable />}
+				{sidebarItems[6].isOpen && <SupplierTable />}
+				{sidebarItems[7].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
+				{sidebarItems[8].isOpen && <SubjectTable />}
+				{sidebarItems[9].isOpen && <ClassSubjectTable />}
+				{sidebarItems[10].isOpen && <LessonLabTable />}
+				{sidebarItems[11].isOpen && <WarehouseTable />}
+				{sidebarItems[12].isOpen && <PurchaseOrderTable />}
+				{sidebarItems[13].isOpen && <PlanSubjectTable />}
+				{sidebarItems[14].isOpen && <RegisterGeneralsTable />}
+				{sidebarItems[15].isOpen && <DeviceTransfer />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

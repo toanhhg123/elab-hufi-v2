@@ -45,6 +45,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
 	},
 	{
 		isOpen: false,
+		name: 'Quản lý nhóm nc',
+		icon: '',
+	},
+	{
+		isOpen: false,
 		name: 'Quản lý hoá chất',
 		icon: '',
 	},

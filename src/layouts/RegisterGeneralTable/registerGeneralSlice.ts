@@ -4,12 +4,12 @@ import { RootState } from '../../store'
 import { IRegisterGeneralType } from '../../types/registerGeneralType'
 
 // Define a type for the slice state
-interface IManufacturerState {
+interface IRegisterGeneralState {
   listOfRegisterGenerals: IRegisterGeneralType[],
 }
 
 // Define the initial state using that type
-const initialState: IManufacturerState = {
+const initialState: IRegisterGeneralState = {
     listOfRegisterGenerals: []
 }
 
@@ -17,7 +17,7 @@ export const registerGeneralsSlice = createSlice({
   name: 'registerGeneral',
   initialState,
   reducers: {
-    setListOfRegisterGenerals: (state: IManufacturerState, action: PayloadAction<IRegisterGeneralType[]>) => {
+    setListOfRegisterGenerals: (state: IRegisterGeneralState, action: PayloadAction<IRegisterGeneralType[]>) => {
       state.listOfRegisterGenerals = action.payload
     },
   },

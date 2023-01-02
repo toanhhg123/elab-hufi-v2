@@ -8,6 +8,11 @@ export enum Genders {
 	Khác 
 }
 
+export enum ResearchTeamTitles {
+	'Thành viên',
+	'Nhóm trưởng'
+}
+
 export enum DeviceType {
 	"Thiết bị" = 0,
 	"Công cụ" = 1,

@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
-import { IOrderChemicalType } from '../../../types/purchaseOrderType';
+import { IListMemberType } from '../../../types/researchTeamType';
 
 const StyledTableCell = styled(TableCell)(theme => ({
   [`&.${tableCellClasses.head}`]: {
@@ -27,13 +27,13 @@ const StyledTableCell = styled(TableCell)(theme => ({
   },
 }));
 
-const PurchaseOrderChemicalTable: FC<{ 
-  chemicalData: IOrderChemicalType[]; 
-  columns: ColumnType[]; 
+const TeamMemberTable: FC<{ 
+    chemicalData: IListMemberType[]; 
+    columns: ColumnType[]; 
 }> = ({ chemicalData, columns }) => {
-  const [tableData, setTableData] = useState<IOrderChemicalType[]>(chemicalData);
+  const [tableData, setTableData] = useState<IListMemberType[]>(chemicalData);
   const [order, setOrder] = useState<string>('asc');
-  const [orderBy, setOrderBy] = useState<string>('ChemDetailId');
+  const [orderBy, setOrderBy] = useState<string>('ResearcherId');
   const [keyword, setKeyword] = useState<string>('');
   const [dataSearch, setDataSearch] = useState<any>([]);
 
@@ -47,7 +47,7 @@ const PurchaseOrderChemicalTable: FC<{
   useEffect(() => {
     setTableData(prev => {
       let data = [...prev];
-      data?.sort((a: IOrderChemicalType, b: IOrderChemicalType) => {
+      data?.sort((a: IListMemberType, b: IListMemberType) => {
         let i =
           order === 'desc'
             ? descendingComparator<any>(a, b, orderBy)
@@ -60,8 +60,8 @@ const PurchaseOrderChemicalTable: FC<{
 
 
   useEffect(() => {
-    const chemicalDataItems: IOrderChemicalType[] = chemicalData || [];
-    const data = chemicalDataItems?.map((x: IOrderChemicalType) => {
+    const chemicalDataItems: IListMemberType[] = chemicalData || [];
+    const data = chemicalDataItems?.map((x: IListMemberType) => {
       let string: String = '';
 
       Object.keys(x).forEach(key => {
@@ -71,7 +71,7 @@ const PurchaseOrderChemicalTable: FC<{
 
       return {
         label: removeAccents(string.toUpperCase()),
-        id: x?.ChemDetailId,
+        id: x?.ResearcherId,
       };
     });
     setDataSearch(data);
@@ -79,12 +79,12 @@ const PurchaseOrderChemicalTable: FC<{
 
   useEffect(() => {
     const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
-    const chemicalDataItems: IOrderChemicalType[] = chemicalData || [];
+    const chemicalDataItems: IListMemberType[] = chemicalData || [];
 
     if (keyword === '') {
       setTableData(chemicalDataItems);
     } else {
-      const data = chemicalDataItems?.filter((x: any) => listId.indexOf(x?.ChemDetailId) !== -1);
+      const data = chemicalDataItems?.filter((x: any) => listId.indexOf(x?.ResearcherId) !== -1);
       setTableData(data);
     }
   }, [keyword, dataSearch]);
@@ -92,7 +92,7 @@ const PurchaseOrderChemicalTable: FC<{
   return (
     <>
       <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
-        <Typography fontWeight="bold">Thông tin nhập hóa chất</Typography>
+        <Typography fontWeight="bold">Thông tin thành viên</Typography>
         <Box display="flex" alignItems="end">
           <TextField
             id="filled-search"
@@ -132,20 +132,10 @@ const PurchaseOrderChemicalTable: FC<{
             </TableRow>
           </TableHead>
           <TableBody>
-            {tableData.length > 0 ? tableData?.map((chemDeptItem: IOrderChemicalType, index: number) => (
+            {tableData.length > 0 ? tableData?.map((chemDeptItem: IListMemberType, index: number) => (
               <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell align="left">{index + 1}</TableCell>
                 {columns.map(col => {
-                  if (col.renderValue) {
-                    return (
-                      <TableCell align="left" key={col.id}>
-                        {`${col.renderValue(
-                          `${chemDeptItem[col.id as keyof typeof chemDeptItem]}`,
-                          chemDeptItem.Unit
-                        )}`}
-                      </TableCell>
-                    );
-                  }
                   if (col.type === 'date')
                     return (
                       <TableCell align="left" key={col.id}>
@@ -181,4 +171,4 @@ const PurchaseOrderChemicalTable: FC<{
   );
 };
 
-export default React.memo(PurchaseOrderChemicalTable);
+export default React.memo(TeamMemberTable);
