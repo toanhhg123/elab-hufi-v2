@@ -63,7 +63,7 @@ import { DeviceType } from '../../configs/enums';
 import CloseIcon from '@mui/icons-material/Close';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import { IExportDeviceType } from '../../types/exportDeviceType';
-import { DialogCreate, DialogDelete, DialogEdit } from './Dialog';
+import { DialogCreate, DialogDelete, DialogEdit, DialogImportDeviceInfo } from './Dialog';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -71,11 +71,28 @@ const StyledTableCell = styled(TableCell)(theme => ({
 	},
 }));
 
+const FormControlStyled = styled(FormControl)(theme => ({
+	'@media (max-width: 600px)': {
+		width: '100%',
+	},
+}));
+
+const BoxTextFieldStyled = styled(Box)(theme => ({
+	'@media (max-width: 600px)': {
+		width: '100%',
+		margin: '8px 0',
+	},
+
+	'@media (max-width: 900px)': {
+		margin: '8px 0',
+	},
+}));
+
 type DeviceTableProps = {
 	id: Number | undefined;
 };
 
-type DeviceColumnType = {
+export type DeviceColumnType = {
 	id: string;
 	header: String;
 	type?: string;
@@ -121,7 +138,7 @@ const isObject = (val: any) => {
 const nestedObject = (obj: any, string: String) => {
 	for (const key in obj) {
 		if (isObject(obj[key])) {
-			nestedObject(obj[key], string);
+			string += `${nestedObject(obj[key], string)}`;
 		} else {
 			switch (key) {
 				case 'ExportDate':
@@ -159,6 +176,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [loading, setLoading] = useState<Boolean>(true);
+	const [isOpenImportInfoDialog, setIsOpenImportInfoDialog] = useState<boolean>(false);
 
 	const [updatedRow, setUpdatedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
@@ -303,6 +321,11 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		},
 		{
 			id: 'QuantityRemain',
+			header: 'SL kho',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityTotal',
 			header: 'SL tồn',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
 		},
@@ -325,13 +348,14 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 
 	return (
 		<>
-			<Box component="div" justifyContent="space-between" display="flex" mx={8} mb={2}>
-				<Typography fontWeight="bold" variant="h6">
+			<DialogImportDeviceInfo isOpen={isOpenImportInfoDialog} onClose={() => setIsOpenImportInfoDialog(false)} />
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={2} mb={2}>
+				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
 				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
-					<Box>
-						<FormControl>
+					<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
+						<FormControlStyled>
 							<RadioGroup
 								aria-labelledby="radio-buttons-group-label"
 								defaultValue={listDeviceType.current[0]}
@@ -351,27 +375,40 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 									/>
 								))}
 							</RadioGroup>
-						</FormControl>
-
-						<TextField
-							id="filled-search"
-							type="search"
-							variant="standard"
-							placeholder="Tìm kiếm..."
-							InputProps={{
-								startAdornment: (
-									<InputAdornment position="start">
-										<SearchIcon />
-									</InputAdornment>
-								),
-							}}
-							onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
-						/>
-						<Tooltip arrow placement="left" title="Tạo mới">
-							<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-								<AddIcon />
-							</Button>
-						</Tooltip>
+						</FormControlStyled>
+						<BoxTextFieldStyled>
+							<TextField
+								id="filled-search"
+								type="search"
+								variant="standard"
+								placeholder="Tìm kiếm..."
+								fullWidth
+								InputProps={{
+									startAdornment: (
+										<InputAdornment position="start">
+											<SearchIcon />
+										</InputAdornment>
+									),
+								}}
+								onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
+							/>
+						</BoxTextFieldStyled>
+						<Box>
+							<Tooltip arrow placement="left" title="Tạo mới">
+								<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
+									Tạo mới
+								</Button>
+							</Tooltip>
+							<Tooltip arrow placement="left" title="Nhập thông tin thiết bị">
+								<Button
+									variant="contained"
+									onClick={() => setIsOpenImportInfoDialog(true)}
+									sx={{ marginLeft: '24px' }}
+								>
+									Nhập thông tin thiết bị
+								</Button>
+							</Tooltip>
+						</Box>
 					</Box>
 					<TablePagination
 						sx={{ width: '100%' }}
@@ -504,6 +541,7 @@ const RowDevice = ({
 							col.id === 'QuantityExport' ||
 							col.id === 'QuantityOriginal' ||
 							col.id === 'QuantityRemain' ||
+							col.id === 'QuantityTotal' ||
 							col.id === 'QuantityLiquidate'
 						)
 							return (
@@ -540,7 +578,7 @@ const RowDevice = ({
 				</TableCell>
 			</TableRow>
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={11}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={13}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ margin: 1 }}>
 							{device?.listDeviceDetail?.length !== 0 ? (
@@ -638,7 +676,12 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 		},
 		{
 			id: 'QuantityRemain',
-			header: 'SL còn lại',
+			header: 'SL kho',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityTotal',
+			header: 'SL tồn',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
 		},
 		{
@@ -764,7 +807,7 @@ const RowOfDeviceDetailTable = ({
 		if (keyword === '') {
 			setDeviceDetails(deviceDetailType.listDeviceDept || []);
 		} else {
-			const results = deviceDetailType?.listDeviceDept.filter(x => listId.indexOf(x?.DeviceDeptId) !== -1);
+			const results = deviceDetailType?.listDeviceDept.filter(x => listId.indexOf(x?.DeviceInfoId) !== -1);
 			setDeviceDetails(results || []);
 		}
 	}, [keyword]);
@@ -775,41 +818,24 @@ const RowOfDeviceDetailTable = ({
 			string = nestedObject(device, string);
 			return {
 				label: removeAccents(string.toUpperCase()),
-				id: device.DeviceDeptId,
+				id: device.DeviceInfoId,
 			};
 		});
 		setDataSearch(searchArr);
 	}, [deviceDetailType]);
 
 	const columnsExport = useRef<DeviceColumnType[]>([
-		{
-			id: 'DeviceDeptId',
-			header: 'Mã TB xuất',
-		},
-		{
-			id: 'DepartmentName',
-			header: 'Khoa',
-		},
-		{
-			id: 'QuantityOriginal',
-			header: 'SL ban đầu',
-			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
-		},
-		{
-			id: 'QuantityExport',
-			header: 'SL xuất',
-			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
-		},
-		{
-			id: 'QuantityRemain',
-			header: 'SL tồn',
-			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
-		},
-		{
-			id: 'QuantityLiquidate',
-			header: 'SL thanh lý',
-			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
-		},
+		{ id: 'DepartmentName', header: 'Khoa' },
+		{ id: 'ExportId', header: 'Phiếu xuất' },
+		{ id: 'DeviceInfoId', header: 'Mã thiết bị' },
+		{ id: 'SerialNumber', header: 'Số Serial' },
+		{ id: 'ManufacturingDate', header: 'NSX', type: 'date' },
+		{ id: 'StartGuarantee', header: 'Bắt đầu bảo hành', type: 'date' },
+		{ id: 'EndGuarantee', header: 'Kết thúc bảo hành', type: 'date' },
+		{ id: 'DateStartUsage', header: 'Ngày sử dụng', type: 'date' },
+		{ id: 'HoursUsageTotal', header: 'Tổng giờ sử dụng' },
+		{ id: 'PeriodicMaintenance', header: 'BDĐK (tháng)' },
+		{ id: 'Status', header: 'Trạng thái' },
 	]);
 
 	return (
@@ -862,14 +888,14 @@ const RowOfDeviceDetailTable = ({
 			</TableRow>
 
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={12}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={13}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ padding: 1 }}>
 							{deviceDetailType?.listDeviceDept?.length !== 0 ? (
 								<>
 									<Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
 										<Typography variant="h6" gutterBottom component="div">
-											Nhập kho
+											Xuất kho
 										</Typography>
 										<TextField
 											size="small"
@@ -914,24 +940,25 @@ const RowOfDeviceDetailTable = ({
 													return (
 														<TableRow key={index}>
 															{columnsExport.current.map(col => {
-																if (col.renderValue !== undefined) {
-																	if (
-																		col.id === 'QuantityOriginal' ||
-																		col.id === 'QuantityRemain' ||
-																		col.id === 'QuantityLiquidate' ||
-																		col.id === 'QuantityExport'
-																	)
-																		return (
-																			<TableCell align="left" key={col.id}>
-																				{col.renderValue(
-																					deviceDept[
-																						col.id as keyof typeof deviceDept
-																					],
-																					unit,
-																				) || ''}
-																			</TableCell>
-																		);
-																}
+																if (col.type === 'date')
+																	return (
+																		<TableCell align="left" key={col.id}>
+																			{deviceDept[
+																				col.id as keyof typeof deviceDept
+																			]
+																				? moment
+																						.unix(
+																							Number(
+																								deviceDept[
+																									col.id as keyof typeof deviceDept
+																								],
+																							),
+																						)
+																						.format('DD/MM/YYYY')
+																				: ''}
+																		</TableCell>
+																	);
+
 																return (
 																	<TableCell align="left" key={col.id}>
 																		{`${

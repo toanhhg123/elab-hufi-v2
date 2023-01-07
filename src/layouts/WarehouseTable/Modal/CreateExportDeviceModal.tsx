@@ -206,7 +206,7 @@ const CreateExportDeviceModal = ({
 									/>
 								);
 							}
-							if (column.accessorKey === 'DeviceDeptId') {
+							if (column.accessorKey === 'DeviceInfoId') {
 								const list = deviceData
 									.map((x: any) => {
 										const isExistInListAdded =
@@ -216,7 +216,7 @@ const CreateExportDeviceModal = ({
 														return y.DeviceDetailId === x?.DeviceDetailId;
 													case 'LAB_DEV':
 													case 'LAB_INS':
-														return y.DeviceDeptId === x?.DeviceDeptId;
+														return y.DeviceInfoId === x?.DeviceInfoId;
 
 													default:
 														break;

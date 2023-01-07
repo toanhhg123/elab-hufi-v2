@@ -27,6 +27,7 @@ import DeviceOfExperimentCenterTable from './DeviceOfExperimentCenterTable';
 import PreviewIcon from '@mui/icons-material/Preview';
 import CloseIcon from '@mui/icons-material/Close';
 import DeviceOfDepartmentTable from './DeviceOfDepartmentTable';
+import { DeviceTable } from './context/DeviceOfDepartmentTableContext';
 
 const DepartmentTable: FC = () => {
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
@@ -340,8 +341,16 @@ const DepartmentTable: FC = () => {
 						</Typography>
 					</Toolbar>
 				</AppBar>
-				{departmentIdShow === 1 && <DeviceOfExperimentCenterTable id={departmentIdShow} />}
-				{departmentIdShow !== 1 && <DeviceOfDepartmentTable id={departmentIdShow} />}
+				{departmentIdShow === 1 && (
+					<>
+						<DeviceOfExperimentCenterTable id={departmentIdShow}/>
+					</>
+				)}
+				{departmentIdShow !== 1 && (
+					<DeviceTable id={departmentIdShow || 0}>
+						<DeviceOfDepartmentTable />
+					</DeviceTable>
+				)}
 			</Dialog>
 		</>
 	);

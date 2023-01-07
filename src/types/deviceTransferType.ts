@@ -1,5 +1,5 @@
 export interface IDeviceTransfer {
-	listSerial?: IDeviceSerial[];
+	listDeviceInfo?: IDeviceSerial[];
 	listInstrument?: IDeviceSerial[];
 	LabId: String;
 	LabName: String;
@@ -7,16 +7,25 @@ export interface IDeviceTransfer {
 }
 
 export interface IDeviceSerial {
-	SerialNumber?: String | string;
+	DeviceInfoId?: String | string;
 	DeviceName: String;
 	Unit: String;
 	EmployeeName: String;
-	DeviceDeptId?: String;
+	InstrumentDeptId?: String;
 	QuantityTotal?: Number;
 }
 
+export interface IDeviceTransferHistoryItem {
+	LabId: String;
+	LabName: String;
+	Location: String;
+	DateTransfer: String;
+	ExportLabId: String;
+	EmployeeName: String;
+}
+
 export const dummyDeviceTransferData = {
-	listSerial: [],
+	listDeviceInfo: [],
 	listInstrument: [],
 	LabId: '',
 	LabName: '',

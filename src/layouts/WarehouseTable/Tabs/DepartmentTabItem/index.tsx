@@ -215,7 +215,7 @@ const DepartmentTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'DeviceDeptId',
+				accessorKey: 'DeviceInfoId',
 				header: 'Mã Thiết bị',
 				enableEditing: false,
 				size: 140,

@@ -50,3 +50,11 @@ export const dummyDeviceSpecData: IDeviceSpecType = {
     "SpecsName": "",
     "SpecsValue": ""
 }
+
+export interface ILiquidateDeptDevice {
+    "DeviceInfoId": String,
+    "SerialNumber": String,
+    "DeviceId": String,
+    "DeviceName": String,
+    "Unit": String,
+}

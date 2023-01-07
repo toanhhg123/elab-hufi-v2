@@ -1,5 +1,5 @@
 export interface IDeviceUsageHours {
-	SerialNumber: String;
+	DeviceInfoId: String;
 	DeviceName: String;
 	Unit: String;
 	listRecordHours: IDeviceRecordUsageHours[];

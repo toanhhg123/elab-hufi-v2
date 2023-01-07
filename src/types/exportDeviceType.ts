@@ -1,6 +1,6 @@
 export interface IExportDeviceType {
 	DeviceName: String;
-	DeviceDeptId: String;
+	DeviceInfoId: String;
 	ExportLabId?: String;
 	QuantityOriginal: Number;
 	ExpRegGeneralId?: String;
@@ -8,6 +8,7 @@ export interface IExportDeviceType {
 	DeviceDetailId?: String;
 	SerialNumber?: String;
 	ManufacturingDate?: String;
+	DateMaintenace?: String;
 	StartGuarantee?: String;
 	EndGuarantee?: String;
 	YearStartUsage?: Number;
@@ -29,13 +30,14 @@ export interface IExportDeviceType {
 
 export const dummyExportDevice: IExportDeviceType = {
 	DeviceName: '',
-	DeviceDeptId: '',
+	DeviceInfoId: '',
 	QuantityOriginal: 0,
 	Unit: '',
 	DeviceDetailId: '',
 	SerialNumber: '',
 	ManufacturingDate: '',
 	StartGuarantee: '',
+	DateMaintenace: '',
 	EndGuarantee: '',
 	YearStartUsage: 0,
 	HoursUsage: 0,
