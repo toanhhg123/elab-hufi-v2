@@ -4,20 +4,17 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
-  Autocomplete,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
-  Stack,
-  TextareaAutosize,
-  TextField,
   Tooltip,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { dummyResearchTeamData, IResearchTeamType } from '../../types/researchTeamType';
+import {
+  dummyListMemberData,
+  dummyResearchTeamData,
+  IListMemberType,
+  IResearchTeamType
+} from '../../types/researchTeamType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import {
   deleteResearchTeam,
@@ -26,42 +23,37 @@ import {
   updateResearchTeam
 } from '../../services/researchTeamServices';
 import { RootState } from '../../store';
-import { setListOfResearchTeams } from './researchTeamSlice';
+import { setCurrentMemberTeam, setCurrentResearchTeam, setListOfResearchTeams } from './researchTeamSlice';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import { ColumnType } from './Utils';
 import ResearchTeamChemicalTable from './TeamMemberTable';
-import AddNewMemberTable from './AddNewMemberTable';
+import EditResearchTeamModal from './Modal/EditResearchTeamModal';
+import DeleteResearchTeamModal from './Modal/DeleteResearchTeamModal';
+import CreateResearchTeamModal from './Modal/CreateResearchTeamModal';
+import DeleteMemberTeamModal from './Modal/DeleteMemberTeamModal';
+import EditMemberTeamModal from './Modal/EditMemberTeamModal';
+import CreateMemberTeamModal from './Modal/CreateMemberTeamModal';
 
 const ResearchTeamTable: FC = () => {
   const researchTeamsData = useAppSelector((state: RootState) => state.researchTeam.listOfResearchTeams);
-  const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
+  const { currentResearchTeam, currentMemberTeam } = useAppSelector((state: RootState) => state.researchTeam);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
+  const [isDeleteMemberTeamModal, setIsDeleteMemberTeamModal] = useState<boolean>(false);
+  const [isEditMemberTeamModal, setIsEditMemberTeamModal] = useState<boolean>(false);
+  const [isCreateMemberTeamModal, setIsCreateMemberTeamModal] = useState<boolean>(false);
+
   const [tableData, setTableData] = useState<IResearchTeamType[]>([]);
-  const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
 
-  const [updatedRow, setUpdatedRow] = useState<any>(dummyResearchTeamData);
-  const [deletedRow, setDeletedRow] = useState<any>(dummyResearchTeamData);
-  const [createdRow, setCreatedRow] = useState<any>(dummyResearchTeamData);
-
-  useEffect(() => {
-    if (employeeData.length > 0) {
-      const list = employeeData.map(x => ({
-        label: `${x.EmployeeId} - ${x.Fullname}`,
-        id: x.EmployeeId,
-        name: x.Fullname
-      }));
-      setEmployeeDataValue(list);
-    }
-  }, [employeeData])
+  const [previousModal, setPreviousModal] = useState<string>('create');
 
   useEffect(() => {
     if (researchTeamsData.length > 0) {
@@ -140,22 +132,69 @@ const ResearchTeamTable: FC = () => {
     },
   ]);
 
+  const listMemberColumns = useMemo<MRT_ColumnDef<IListMemberType>[]>(
+    () => [
+      {
+        accessorKey: 'Title',
+        header: 'Chức vụ',
+      },
+      {
+        accessorKey: 'ResearcherId',
+        header: 'Mã nghiên cứu viên',
+      },
+      {
+        accessorKey: 'Fullname',
+        header: 'Họ và tên',
+      },
+      {
+        accessorKey: 'formatedBirthday',
+        header: 'Ngày sinh',
+        type: 'date'
+      },
+      {
+        accessorKey: 'Gender',
+        header: 'Giới tính',
+      },
+      {
+        accessorKey: 'Address',
+        header: 'Địa chỉ',
+      },
+      {
+        accessorKey: 'Email',
+        header: 'Email',
+      },
+      {
+        accessorKey: 'PhoneNumber',
+        header: 'SĐT',
+      },
+      {
+        accessorKey: 'Organization',
+        header: 'Tổ chức',
+      },
+    ],
+    [getCommonEditTextFieldProps],
+  );
+
   const handleOpenEditModal = (row: any) => {
-    setUpdatedRow(row.original);
+    dispatch(setCurrentResearchTeam((row.original)));
     setIsEditModal(true);
   }
 
   const onCloseEditModal = () => {
-    setUpdatedRow(dummyResearchTeamData);
+    dispatch(setCurrentResearchTeam((dummyResearchTeamData)));
     setIsEditModal(false);
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updateResearchTeam(updatedRow);
+    const isUpdatedSuccess = await updateResearchTeam(currentResearchTeam);
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin nhóm nghiên cứu thành công"));
-      let updatedIdx = researchTeamsData.findIndex(x => x.TeamId === updatedRow.TeamId);
-      let newListOfResearchTeams = [...researchTeamsData.slice(0, updatedIdx), updatedRow, ...researchTeamsData.slice(updatedIdx + 1,)]
+      let updatedIdx = researchTeamsData.findIndex(x => x.TeamId === currentResearchTeam.TeamId);
+      let newListOfResearchTeams = [
+        ...researchTeamsData.slice(0, updatedIdx),
+        currentResearchTeam,
+        ...researchTeamsData.slice(updatedIdx + 1,)
+      ]
       dispatch(setListOfResearchTeams(newListOfResearchTeams));
     }
 
@@ -163,22 +202,24 @@ const ResearchTeamTable: FC = () => {
   }
 
   const handleOpenDeleteModal = (row: any) => {
-    setDeletedRow(row.original);
+    dispatch(setCurrentResearchTeam((row.original)));
     setIsDeleteModal(true);
   }
 
   const onCloseDeleteModal = () => {
-    setDeletedRow(dummyResearchTeamData);
+    dispatch(setCurrentResearchTeam((dummyResearchTeamData)));
     setIsDeleteModal(false);
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deleteResearchTeam(deletedRow.TeamId);
-    dispatch(setSnackbarMessage("Xóa thông tin nhóm nghiên cứu thành công"));
-    let deletedIdx = researchTeamsData.findIndex(x => x.TeamId === deletedRow.TeamId);
-    let newListOfResearchTeams = [...researchTeamsData.slice(0, deletedIdx), ...researchTeamsData.slice(deletedIdx + 1,)]
-    dispatch(setListOfResearchTeams(newListOfResearchTeams));
-
+    if (currentResearchTeam.TeamId) {
+      await deleteResearchTeam(currentResearchTeam.TeamId.toString());
+      dispatch(setSnackbarMessage("Xóa thông tin nhóm nghiên cứu thành công"));
+      let deletedIdx = researchTeamsData.findIndex((x: IResearchTeamType) => x.TeamId === currentResearchTeam.TeamId);
+      let newListOfResearchTeams = [...researchTeamsData.slice(0, deletedIdx), ...researchTeamsData.slice(deletedIdx + 1,)]
+      dispatch(setListOfResearchTeams(newListOfResearchTeams));
+    }
+    
     onCloseDeleteModal();
   }
 
@@ -187,12 +228,15 @@ const ResearchTeamTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setCreatedRow(dummyResearchTeamData);
+    dispatch(setCurrentResearchTeam((dummyResearchTeamData)));
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
-    const createdResearchTeam = await postResearchTeam(createdRow);
+    let currentResearchTeamClone = Object.assign({}, currentResearchTeam);
+    delete currentResearchTeamClone.TeamId;
+
+    const createdResearchTeam = await postResearchTeam(currentResearchTeamClone);
     if (createdResearchTeam.TeamId) {
       const newListOfResearchTeams: IResearchTeamType[] = await getResearchTeams();
       if (newListOfResearchTeams) {
@@ -201,6 +245,113 @@ const ResearchTeamTable: FC = () => {
       }
     }
     onCloseCreateModal();
+  }
+
+  const handleOpenDeleteMemberTeamModal = (row: any) => {
+    dispatch(setCurrentMemberTeam(row.original));
+    setIsDeleteMemberTeamModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseDeleteMemberTeamModal = () => {
+    dispatch(setCurrentMemberTeam(dummyListMemberData));
+    setIsDeleteMemberTeamModal(false);
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitDeleteMemberTeamModal = () => {
+    let deletedIdx = currentResearchTeam.listMember.findIndex((item: IListMemberType) => item.ResearcherId === currentMemberTeam.ResearcherId);
+    dispatch(setCurrentResearchTeam({
+      ...currentResearchTeam,
+      listMember: [
+        ...currentResearchTeam.listMember.slice(0, deletedIdx),
+        ...currentResearchTeam.listMember.slice(deletedIdx + 1,)
+      ]
+    }));
+
+    onCloseDeleteMemberTeamModal();
+  }
+
+  const handleOpenEditMemberTeamModal = (row: any) => {
+    dispatch(setCurrentMemberTeam(row.original));
+    setIsEditMemberTeamModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseEditMemberTeamModal = () => {
+    dispatch(setCurrentMemberTeam(dummyListMemberData));
+    setIsEditMemberTeamModal(false);
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitEditMemberTeamModal = () => {
+    let updatedIdx = currentResearchTeam.listMember.findIndex((item: IListMemberType) => item.ResearcherId === currentMemberTeam.ResearcherId);
+    let currentMemberTeamClone = Object.assign({}, currentMemberTeam);
+    delete currentMemberTeamClone.formatedBirthday;
+
+    dispatch(setCurrentResearchTeam({
+      ...currentResearchTeam,
+      listMember: [
+        ...currentResearchTeam.listMember.slice(0, updatedIdx),
+        currentMemberTeamClone,
+        ...currentResearchTeam.listMember.slice(updatedIdx + 1,)
+      ]
+    }));
+
+    onCloseEditMemberTeamModal();
+  }
+
+  const handleOpenCreateMemberTeamModal = (row: any) => {
+    setIsCreateMemberTeamModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseCreateMemberTeamModal = () => {
+    dispatch(setCurrentMemberTeam(dummyListMemberData));
+    setIsCreateMemberTeamModal(false);
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitCreateMemberTeamModal = async () => {
+    let currentMemberTeamClone = Object.assign({}, currentMemberTeam);
+    delete currentMemberTeamClone.formatedBirthday;
+
+    dispatch(setCurrentResearchTeam({
+      ...currentResearchTeam,
+      listMember: [...currentResearchTeam.listMember, currentMemberTeamClone]
+    }));
+
+    onCloseCreateMemberTeamModal();
   }
 
   return (
@@ -286,153 +437,53 @@ const ResearchTeamTable: FC = () => {
         )}
       />
 
-      <Dialog
-        open={isEditModal}
-        sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",  // Set your width here
-            },
-          },
-        }}
-      >
-        <DialogTitle textAlign="center"><b>Sửa thông tin nhóm nghiên cứu</b></DialogTitle>
-        <DialogContent>
-          <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
-            <Stack
-              sx={{
-                width: '100%',
-                minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                gap: '1.5rem',
-              }}
-            >
-              {columns.map((column) => {
-                if (column.accessorKey === "Note") {
-                  return <TextareaAutosize
-                    key={"EditNote"}
-                    aria-label="minimum height"
-                    minRows={3}
-                    placeholder="Nhập ghi chú..."
-                    defaultValue={updatedRow["Note"]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, "Note": e.target.value })
-                    }
-                  />
-                }
-                else if (column.accessorKey === 'TeamId') {
-                  return <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
-                    disabled
-                  />
-                }
-                else {
-                  return <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                    }
-                  />
-                }
-              })}
-              <AddNewMemberTable
-                currentResearchTeam={updatedRow}
-                setCurrentResearchTeam={setUpdatedRow}
-                setIsResearchTeamDialog={setIsEditModal}
-              />
-            </Stack>
-          </form>
-        </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseEditModal}>Hủy</Button>
-          <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
-            Lưu thay đổi
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditResearchTeamModal
+        isOpen={isEditModal}
+        columns={columns}
+        onClose={onCloseEditModal}
+        handleSubmit={handleSubmitEditModal}
+        handleOpenDeleteMemberTeamModal={handleOpenDeleteMemberTeamModal}
+        handleOpenEditMemberTeamModal={handleOpenEditMemberTeamModal}
+        handleOpenCreateMemberTeamModal={handleOpenCreateMemberTeamModal}
+        listMemberColumns={listMemberColumns}
+      />
 
-      <Dialog open={isDeleteModal}>
-        <DialogTitle textAlign="center"><b>Xoá thông tin nhóm nghiên cứu</b></DialogTitle>
-        <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin nhóm nghiên cứu {`${deletedRow.TeamId}`} không?</div>
-        </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseDeleteModal}>Hủy</Button>
-          <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
-            Xác nhận
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteResearchTeamModal
+        isOpen={isDeleteModal}
+        onClose={onCloseDeleteModal}
+        handleSubmit={handleSubmitDeleteModal}
+      />
 
-      <Dialog
-        open={isCreateModal}
-        sx={{
-          "& .MuiDialog-container": {
-            "& .MuiPaper-root": {
-              width: "100%",
-              maxWidth: "800px",  // Set your width here
-            },
-          },
-        }}
-      >
-        <DialogTitle textAlign="center"><b>Tạo thông tin nhóm nghiên cứu</b></DialogTitle>
-        <DialogContent>
-          <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
-            <Stack
-              sx={{
-                width: '100%',
-                minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                gap: '1.5rem',
-              }}
-            >
-              {columns.slice(1,).map((column) => {
-                if (column.accessorKey === "Note") {
-                  return <TextareaAutosize
-                    key={"CreateNote"}
-                    aria-label="minimum height"
-                    minRows={3}
-                    placeholder="Nhập ghi chú..."
-                    defaultValue={createdRow["Note"]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, "Note": e.target.value })
-                    } />
-                }
-                else {
-                  return <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                    }
-                  />
-                }
-              }
-              )}
-              <AddNewMemberTable
-                currentResearchTeam={createdRow}
-                setCurrentResearchTeam={setCreatedRow}
-                setIsResearchTeamDialog={setIsCreateModal}
-              />
+      <CreateResearchTeamModal
+        isOpen={isCreateModal}
+        columns={columns}
+        onClose={onCloseCreateModal}
+        handleSubmit={handleSubmitCreateModal}
+        handleOpenDeleteMemberTeamModal={handleOpenDeleteMemberTeamModal}
+        handleOpenEditMemberTeamModal={handleOpenEditMemberTeamModal}
+        handleOpenCreateMemberTeamModal={handleOpenCreateMemberTeamModal}
+        listMemberColumns={listMemberColumns}
+      />
 
-            </Stack>
-          </form>
-        </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
-          <Button onClick={onCloseCreateModal}>Hủy</Button>
-          <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
-            Tạo
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteMemberTeamModal
+        isOpen={isDeleteMemberTeamModal}
+        onClose={onCloseDeleteMemberTeamModal}
+        handleSubmit={handleSubmitDeleteMemberTeamModal}
+      />
 
+      <EditMemberTeamModal
+        isOpen={isEditMemberTeamModal}
+        columns={listMemberColumns}
+        onClose={onCloseEditMemberTeamModal}
+        handleSubmit={handleSubmitEditMemberTeamModal}
+      />
+
+      <CreateMemberTeamModal
+        isOpen={isCreateMemberTeamModal}
+        columns={listMemberColumns}
+        onClose={onCloseCreateMemberTeamModal}
+        handleSubmit={handleSubmitCreateMemberTeamModal}
+      />
     </>
   );
 };

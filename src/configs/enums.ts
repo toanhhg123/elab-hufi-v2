@@ -3,9 +3,9 @@ enum enums {
 }
 
 export enum Genders {
-	Nam,
-	Nữ, 
-	Khác 
+	"Nam",
+	"Nữ", 
+	"Khác" 
 }
 
 export enum ResearchTeamTitles {

@@ -1,10 +1,12 @@
+import { Genders, ResearchTeamTitles } from '../configs/enums';
+
 export interface IListMemberType {
-    "Title": 'Thành viên' | 'Nhóm trưởng',
+    "Title": keyof typeof ResearchTeamTitles,
     "ResearcherId": string,
     "Fullname": string,
-    "Birthday": string,
+    "Birthday": string | number,
     "formatedBirthday"?: string,
-    "Gender": "Nam" | "Nữ" | "Khác",
+    "Gender": keyof typeof Genders,
     "Address": string,
     "Email": string,
     "PhoneNumber": string,
@@ -25,7 +27,7 @@ export const dummyListMemberData: IListMemberType = {
 }
 
 export interface IResearchTeamType {
-    "TeamId": number,
+    "TeamId"?: number,
     "TeamName": string,
     "Note": string,
     "listMember": IListMemberType[] | []
