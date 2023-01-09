@@ -219,7 +219,7 @@ const ResearchTeamTable: FC = () => {
       let newListOfResearchTeams = [...researchTeamsData.slice(0, deletedIdx), ...researchTeamsData.slice(deletedIdx + 1,)]
       dispatch(setListOfResearchTeams(newListOfResearchTeams));
     }
-    
+
     onCloseDeleteModal();
   }
 
@@ -271,13 +271,15 @@ const ResearchTeamTable: FC = () => {
 
   const handleSubmitDeleteMemberTeamModal = () => {
     let deletedIdx = currentResearchTeam.listMember.findIndex((item: IListMemberType) => item.ResearcherId === currentMemberTeam.ResearcherId);
-    dispatch(setCurrentResearchTeam({
-      ...currentResearchTeam,
-      listMember: [
-        ...currentResearchTeam.listMember.slice(0, deletedIdx),
-        ...currentResearchTeam.listMember.slice(deletedIdx + 1,)
-      ]
-    }));
+    if (deletedIdx > -1) {
+      dispatch(setCurrentResearchTeam({
+        ...currentResearchTeam,
+        listMember: [
+          ...currentResearchTeam.listMember.slice(0, deletedIdx),
+          ...currentResearchTeam.listMember.slice(deletedIdx + 1,)
+        ]
+      }));
+    }
 
     onCloseDeleteMemberTeamModal();
   }

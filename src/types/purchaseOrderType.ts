@@ -22,7 +22,7 @@ export interface IOrderDeviceType {
   Price: Number,
   Model: String,
   Origin: String,
-  ManufacturerId: Number,
+  ManufacturerId: String,
   DeviceId: String
   ManufacturerName: String
 }
@@ -56,4 +56,31 @@ export const dummyPurchaseOrderData: IPurchaseOrderType = {
   "DepartmentName": "",
   "listChemDetail": [],
   "listDevDetail": []
+}
+
+export const dummyPOChemical: IOrderChemicalType = {
+  ChemicalName: "",
+  ChemDetailId: "",
+  AmountOriginal: 0,
+  ManufacturingDate: 0,
+  ExpiryDate: 0,
+  LotNumber: "",
+  Unit: "",
+  Price: 0,
+  ChemicalId: "",
+  ManufacturerId: 0,
+  ManufacturerName: "",
+}
+
+export const dummyPODevice: IOrderDeviceType = {
+  DeviceName: "",
+  Unit: "",
+  DeviceDetailId: "",
+  QuantityOriginal: 0,
+  Price: 0,
+  Model: "",
+  Origin: "",
+  ManufacturerId: "",
+  DeviceId: "",
+  ManufacturerName: ""
 }

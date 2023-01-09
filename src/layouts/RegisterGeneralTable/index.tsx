@@ -39,6 +39,7 @@ import RegisterGeneralDeviceTable from './RegisterGeneralDeviceTable';
 const RegisterGeneralsTable: FC = () => {
   const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
+  const researcherData = useAppSelector((state: RootState) => state.researchTeam.listOfResearchers);
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
@@ -46,6 +47,7 @@ const RegisterGeneralsTable: FC = () => {
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<IRegisterGeneralType[]>([]);
   const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
+  const [researcherDataValue, setResearcherDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -64,6 +66,17 @@ const RegisterGeneralsTable: FC = () => {
       setEmployeeDataValue(list);
     }
   }, [employeeData])
+
+  useEffect(() => {
+    if (researcherData.length > 0) {
+      const list = researcherData.map(x => ({
+        label: `${x.ResearcherId} - ${x.Fullname}`,
+        id: x.ResearcherId,
+        name: x.Fullname
+      }));
+      setResearcherDataValue(list);
+    }
+  }, [researcherData])
 
   useEffect(() => {
     if (registerGeneralsData.length > 0) {
@@ -122,10 +135,10 @@ const RegisterGeneralsTable: FC = () => {
         accessorKey: 'formatedEndDate',
         header: 'Ngày KT',
       },
-      {
-        accessorKey: 'ResearcherId',
-        header: 'Mã nghiên cứu viên',
-      },
+      // {
+      //   accessorKey: 'ResearcherId',
+      //   header: 'Mã nghiên cứu viên',
+      // },
       {
         accessorKey: 'ResearcherName',
         header: 'Tên nghiên cứu viên',
@@ -427,6 +440,33 @@ const RegisterGeneralsTable: FC = () => {
                     />
                   );
                 }
+                else if (column.accessorKey === "ResearcherName") {
+                  return (
+                    <Autocomplete
+                      key={column.accessorKey}
+                      options={researcherDataValue}
+                      noOptionsText="Không có kết quả trùng khớp"
+                      value={researcherDataValue.find((x: any) => x.id === updatedRow.ResearcherId) || null}
+                      getOptionLabel={option => option?.label}
+                      renderInput={params => {
+                        return (
+                          <TextField
+                            {...params}
+                            label={column.header}
+                            placeholder="Nhập để tìm kiếm"
+                          />
+                        );
+                      }}
+                      onChange={(event, value) => {
+                        setUpdatedRow({
+                          ...updatedRow,
+                          "ResearcherId": value?.id,
+                          "ResearcherName": value?.ResearcherName,
+                        });
+                      }}
+                    />
+                  );
+                }
                 else {
                   return <TextField
                     key={column.accessorKey}
@@ -524,12 +564,38 @@ const RegisterGeneralsTable: FC = () => {
                     }}
                   />
                 }
+                else if (column.accessorKey === "ResearcherName") {
+                  return <Autocomplete
+                    key={"CreateResearcherName"}
+                    options={researcherDataValue}
+                    noOptionsText="Không có kết quả trùng khớp"
+                    sx={{ "width": "450px" }}
+                    value={researcherDataValue.find((x: any) => x.id === createdRow.ResearcherId) || null}
+                    getOptionLabel={option => option?.label}
+                    renderInput={params => {
+                      return (
+                        <TextField
+                          {...params}
+                          label={column.header}
+                          placeholder="Nhập để tìm kiếm"
+                        />
+                      );
+                    }}
+                    onChange={(event, value) => {
+                      setCreatedRow({
+                        ...createdRow,
+                        "ResearcherId": value?.id,
+                        "ResearcherName": value?.ResearcherName,
+                      });
+                    }}
+                  />
+                }
                 else {
                   return <TextField
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
+                    defaultValue={column.accessorKey && createdRow[column.accessorKey]}
                     onChange={(e) =>
                       setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
                     }
@@ -548,7 +614,6 @@ const RegisterGeneralsTable: FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </>
   );
 };
