@@ -18,17 +18,31 @@ export interface IListDeviceRegisterGeneralType {
     "Note": string
 }
 
-interface IListInstrumentType {
+interface IListInstrumentRegisterGeneralType {
+    "Purpose": string,
+    "DeviceId": string,
+    "DeviceName": string,
+    "Standard": string,
+    "Unit": string,
+    "Quantity": number,
+    "Note": string
 }
 
-interface IListToolType {
+interface IListToolRegisterGeneralType {
+    "Purpose": string,
+    "DeviceId": string,
+    "DeviceName": string,
+    "Standard": string,
+    "Unit": string,
+    "Quantity": number,
+    "Note": string
 }
 
 export interface IRegisterGeneralType {
     "ListChemical": IListChemicalRegisterGeneralType[] | [],
     "ListDevice": IListDeviceRegisterGeneralType[] | [],
-    "ListInstrument": IListInstrumentType[] | [],
-    "ListTool": IListToolType[] | [],
+    "ListInstrument": IListInstrumentRegisterGeneralType[] | [],
+    "ListTool": IListToolRegisterGeneralType[] | [],
     "RegisterGeneralId": string | Number,
     "DateCreate": string,
     "formatedDateCreate"?: string,

@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import moment from 'moment';
-import { IDevicesBelongingToPlanSubjectType } from '../../../types/planSubjectType';
+import { IListDeviceInSuggestNewDeviceType } from '../../../types/suggestNewDeviceType';
 import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
 
 const StyledTableCell = styled(TableCell)(theme => ({
@@ -26,16 +26,16 @@ const StyledTableCell = styled(TableCell)(theme => ({
     },
 }));
 
-type ListDeviceBelongingToPlanSubjectType = IDevicesBelongingToPlanSubjectType | undefined;
+type ListDeviceInSuggestNewDeviceType = IListDeviceInSuggestNewDeviceType | undefined;
 
-type DeviceInLaboratoryTableProps = {
-    deviceData: IDevicesBelongingToPlanSubjectType[];
+type DetailsSuggestNewDevicesProps = {
+    deviceData: IListDeviceInSuggestNewDeviceType[];
     columns: ColumnType[];
     // row: MRT_Row<ILaboratoryType>
 };
 
-const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData, columns }) => {
-    const [tableData, setTableData] = useState<IDevicesBelongingToPlanSubjectType[]>(deviceData);
+const DetailsSuggestNewDevices: FC<DetailsSuggestNewDevicesProps> = ({ deviceData, columns }) => {
+    const [tableData, setTableData] = useState<IListDeviceInSuggestNewDeviceType[]>(deviceData);
     const [order, setOrder] = useState<string>('asc');
     const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
     const [keyword, setKeyword] = useState<string>('');
@@ -50,7 +50,7 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
     useEffect(() => {
         setTableData(prev => {
             let data = [...prev];
-            data?.sort((a: ListDeviceBelongingToPlanSubjectType, b: ListDeviceBelongingToPlanSubjectType) => {
+            data?.sort((a: IListDeviceInSuggestNewDeviceType, b: IListDeviceInSuggestNewDeviceType) => {
                 let i =
                     order === 'desc'
                         ? descendingComparator<any>(a, b, orderBy)
@@ -62,8 +62,8 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
     }, [order, orderBy]);
 
     useEffect(() => {
-        const deviceItems: IDevicesBelongingToPlanSubjectType[] = deviceData || [];
-        const data = deviceItems?.map((x: IDevicesBelongingToPlanSubjectType) => {
+        const deviceItems: IListDeviceInSuggestNewDeviceType[] = deviceData || [];
+        const data = deviceItems?.map((x: IListDeviceInSuggestNewDeviceType) => {
             let string: String = '';
 
             Object.keys(x).forEach(key => {
@@ -81,7 +81,7 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
 
     useEffect(() => {
         const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
-        const deviceItems: IDevicesBelongingToPlanSubjectType[] = deviceData || [];
+        const deviceItems: IListDeviceInSuggestNewDeviceType[] = deviceData || [];
 
         if (keyword === '') {
             setTableData(deviceItems);
@@ -95,7 +95,7 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
     return (
         <>
             <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
-                <Typography fontWeight="bold">Bảng thiết bị</Typography>
+                <Typography fontWeight="bold">Bảng chi tiết thiết bị</Typography>
                 <Box display="flex" alignItems="end">
                     <TextField
                         id="filled-search"
@@ -135,7 +135,7 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {tableData.length > 0 ? tableData?.map((deviceItem: IDevicesBelongingToPlanSubjectType, index: number) => (
+                        {tableData.length > 0 ? tableData?.map((deviceItem: IListDeviceInSuggestNewDeviceType, index: number) => (
                             <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                 <TableCell align="left">{index + 1}</TableCell>
                                 {columns.map(col => {
@@ -184,4 +184,4 @@ const DeviceInLaboratoryTable: FC<DeviceInLaboratoryTableProps> = ({ deviceData,
     );
 };
 
-export default React.memo(DeviceInLaboratoryTable);
+export default React.memo(DetailsSuggestNewDevices);

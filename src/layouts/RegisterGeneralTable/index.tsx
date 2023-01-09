@@ -35,6 +35,8 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { ColumnType } from './Utils';
 import RegisterGeneralChemicalTable from './RegisterGeneralChemicalTable';
 import RegisterGeneralDeviceTable from './RegisterGeneralDeviceTable';
+import RegisterGeneralInstrumentTable from './RegisterGeneralInstrumentTable';
+import RegisterGeneralToolTable from './RegisterGeneralToolTable';
 
 const RegisterGeneralsTable: FC = () => {
   const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
@@ -319,16 +321,22 @@ const RegisterGeneralsTable: FC = () => {
         }}
         renderDetailPanel={({ row }) => (
           <>
-            {row.original.ListChemical.length > 0 &&
-              <RegisterGeneralChemicalTable
-                chemicalData={row.original.ListChemical}
-                columns={RegisterGeneralChemicalTableColumns.current}
-              />}
-            {row.original.ListDevice.length > 0 &&
-              <RegisterGeneralDeviceTable
-                deviceData={row.original.ListDevice}
-                columns={RegisterGeneralDeviceTableColumns.current}
-              />}
+            <RegisterGeneralChemicalTable
+              chemicalData={row.original.ListChemical}
+              columns={RegisterGeneralChemicalTableColumns.current}
+            />
+            <RegisterGeneralDeviceTable
+              deviceData={row.original.ListDevice}
+              columns={RegisterGeneralDeviceTableColumns.current}
+            />
+            <RegisterGeneralInstrumentTable
+              deviceData={row.original.ListInstrument}
+              columns={RegisterGeneralDeviceTableColumns.current}
+            />
+            <RegisterGeneralToolTable
+              deviceData={row.original.ListTool}
+              columns={RegisterGeneralDeviceTableColumns.current}
+            />
           </>
         )}
         renderRowActions={({ row, table }) => (

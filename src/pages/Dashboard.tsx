@@ -82,6 +82,10 @@ import { getResearchTeams } from '../services/researchTeamServices';
 import { IResearchTeamType } from '../types/researchTeamType';
 import { setListOfResearchTeams } from '../layouts/ResearchTeamTable/researchTeamSlice';
 import ResearchTeamTable from '../layouts/ResearchTeamTable';
+import SuggestNewDevicesTable from '../layouts/SuggestNewDevicesTable';
+import { setListOfSuggestNewDevices } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
+import { ISuggestNewDeviceType } from '../types/suggestNewDeviceType';
+import { getSuggestNewDevices } from '../services/suggestNewDeviceServices';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -228,6 +232,13 @@ export function Dashboard() {
 		}
 	};
 
+	const getSuggestNewDevicesData = async () => {
+		const listOfSuggestNewDevices: ISuggestNewDeviceType[] = await getSuggestNewDevices("2");
+		if (listOfSuggestNewDevices) {
+			dispatch(setListOfSuggestNewDevices(listOfSuggestNewDevices));
+		}
+	};
+
 	useEffect(() => {
 		getLaboratoryData();
 		getEmployeeData();
@@ -247,6 +258,7 @@ export function Dashboard() {
 		getScheduleData();
 		getPlanSubjectData();
 		getResearchTeamsData();
+		getSuggestNewDevicesData();
 	}, []);
 
 	const snackbarFunc = () =>
@@ -284,7 +296,8 @@ export function Dashboard() {
 				{sidebarItems[12].isOpen && <PurchaseOrderTable />}
 				{sidebarItems[13].isOpen && <PlanSubjectTable />}
 				{sidebarItems[14].isOpen && <RegisterGeneralsTable />}
-				{sidebarItems[15].isOpen && <DeviceTransfer />}
+				{sidebarItems[15].isOpen && <SuggestNewDevicesTable />}
+				{sidebarItems[16].isOpen && <DeviceTransfer />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

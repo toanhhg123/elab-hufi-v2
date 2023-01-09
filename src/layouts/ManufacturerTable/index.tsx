@@ -287,7 +287,7 @@ const ManufacturersTable: FC = () => {
                   key={column.accessorKey}
                   label={column.header}
                   name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
+                  defaultValue={column.accessorKey && createdRow[column.accessorKey]}
                   onChange={(e) =>
                     setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
                   }

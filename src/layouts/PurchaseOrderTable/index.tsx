@@ -788,10 +788,10 @@ export const PurchaseOrderTable: FC = () => {
               }}
             >
 
-              <div className="updatePOGroup" style={{ "display": "flex" }}>
+              <div className="createPOGroup" style={{ "display": "flex" }}>
                 <LocalizationProvider dateAdapter={AdapterMoment}>
                   <DatePicker
-                    key={"UpdateOrderDate"}
+                    key={"CreateOrderDate"}
                     label={"Thời gian nhập"}
                     value={new Date(currentPurchaseOrder["OrderDate"] * 1000)}
                     onChange={(val: any) => {
