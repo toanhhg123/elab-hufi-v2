@@ -4,7 +4,6 @@ import MaterialReactTable, {
   MRT_ColumnDef,
 } from 'material-react-table';
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -250,7 +249,7 @@ const SupplierTable: FC = () => {
                     key={column.accessorKey}
                     label={column.header}
                     name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
+                    defaultValue={column.accessorKey && updatedRow[column.accessorKey]}
                     onChange={(e) =>
                       setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
                     }
@@ -297,7 +296,7 @@ const SupplierTable: FC = () => {
                   key={column.accessorKey}
                   label={column.header}
                   name={column.accessorKey}
-                  defaultValue={column.id && updatedRow[column.id]}
+                  defaultValue={column.accessorKey && createdRow[column.accessorKey]}
                   onChange={(e) =>
                     setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
                   }

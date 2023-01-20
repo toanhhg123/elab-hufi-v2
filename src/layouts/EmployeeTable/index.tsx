@@ -53,14 +53,14 @@ const EmployeeTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyEmployeeData);
 
   useEffect(() => {
-    let formatedEmployeeData = employeeData.map((emp: IEmployeeType) => {
+    let formatedEmployeeData = employeeData.length > 0 ? employeeData.map((emp: IEmployeeType) => {
       let departmentInfoIdx = departmentData.findIndex(y => y.DepartmentId === emp.DepartmentId);
       return {
         ...emp,
         "formatedBirthday": moment.unix(emp.Birthday).format('DD/MM/YYYY'),
         "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : ""
       }
-    })
+    }) : [];
     setTableData(formatedEmployeeData);
   }, [employeeData])
 
@@ -310,7 +310,8 @@ const EmployeeTable: FC = () => {
                     name="EmployeeId"
                     defaultValue={updatedRow["EmployeeId"]}
                   />
-                } else if (column.accessorKey === "formatedBirthday") {
+                }
+                else if (column.accessorKey === "formatedBirthday") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
                       key={"UpdateBirthday"}
@@ -327,7 +328,8 @@ const EmployeeTable: FC = () => {
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } else if (column.accessorKey === "Gender") {
+                }
+                else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>
                     <Select
@@ -437,7 +439,8 @@ const EmployeeTable: FC = () => {
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } else if (column.accessorKey === "Gender") {
+                } 
+                else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>
                     <Select
@@ -446,7 +449,7 @@ const EmployeeTable: FC = () => {
                       value={Genders[createdRow.Gender]}
                       label="Giới tính"
                       onChange={(e: SelectChangeEvent) =>
-                        setUpdatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
+                        setCreatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
                     >
                       {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2)
                         .map((x, idx) => <MenuItem key={"CreateGender" + idx} value={idx}>{x}</MenuItem>)}

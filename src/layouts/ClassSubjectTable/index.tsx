@@ -76,13 +76,13 @@ const ClassSubjectTable: FC = () => {
   }, [employeeData])
 
   useEffect(() => {
-    let formatedClassSubjectData = classSubjectData.map((x: IClassSubjectType) => {
+    let formatedClassSubjectData = classSubjectData.length > 0 ? classSubjectData.map((x: IClassSubjectType) => {
       let subjectInfoIdx = subjectData.findIndex(y => y.SubjectId === x.SubjectId);
       return {
         ...x,
         "SubjectName": subjectInfoIdx > -1 ? subjectData[subjectInfoIdx].SubjectName : ""
       }
-    })
+    }) : [];
 
     setTableData(formatedClassSubjectData);
   }, [classSubjectData])

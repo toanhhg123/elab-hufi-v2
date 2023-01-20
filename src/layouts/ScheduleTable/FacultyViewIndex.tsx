@@ -168,7 +168,7 @@ const ScheduleTable: FC = () => {
                     Sắp TKB lớp mới
                 </Button>
             </div>
-            <TableContainer
+            {laboratoriesData.length > 0 ? <TableContainer
                 component={Paper}
                 sx={{
                     // maxHeight: '400px',
@@ -237,11 +237,11 @@ const ScheduleTable: FC = () => {
                                         padding: "0px",
                                         border: '1px solid'
                                     }}>
-                                    <b>{listDay[index] === 0 ? 'CN' : 'T' + listDay[index]}</b>
+                                    <b>{listDay[index] === 0 ? 'CN' : 'T' + (listDay[index] + 1)}</b>
                                 </TableCell>
                                 <TableCell align="center" key="labCol" sx={{ padding: "0px" }}>
                                     <div className="labCols" style={{ "display": "flex", "flexDirection": "column" }}>
-                                        {laboratoriesData.map((lab, labIdx) => {
+                                        {laboratoriesData.length > 0 && laboratoriesData.map((lab, labIdx) => {
                                             return (
                                                 <TableCell
                                                     align="center"
@@ -361,6 +361,10 @@ const ScheduleTable: FC = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+                :
+                <Typography variant="h5" gutterBottom align="center" component="div" sx={{ m: 10 }}>
+                    <b>  Không có dữ liệu phòng Lab! </b>
+                </Typography>}
             <Dialog
                 open={isAutoScheduleDialog}
                 sx={{

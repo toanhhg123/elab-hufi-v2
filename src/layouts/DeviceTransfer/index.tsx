@@ -13,7 +13,8 @@ import {
 	FormControl,
 	FormControlLabel,
 	FormLabel,
-	Grid, InputAdornment,
+	Grid,
+	InputAdornment,
 	Radio,
 	RadioGroup,
 	Table,
@@ -23,21 +24,22 @@ import {
 	TableHead,
 	TableRow,
 	TextField,
-	Typography
+	Typography,
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import remove from 'lodash/remove';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAppDispatch } from '../../hooks';
-import { setSnackbarMessage } from '../../pages/appSlice';
+import { setSnackbarMessage, setSnackbar } from '../../pages/appSlice';
 import {
 	getDevicesTransfer,
 	getInstrumentTransfer,
 	postDeviceTransfer,
-	postInstrumentTransfer
+	postInstrumentTransfer,
 } from '../../services/deviceTransfer';
 import { dummyDeviceTransferData, IDeviceSerial, IDeviceTransfer } from '../../types/deviceTransferType';
-import { DeviceColumnType } from '../DepartmentTable/DeviceOfDepartmentTable';
+import { DeviceColumnType } from '../DepartmentTable/DeviceOfExperimentCenterTable';
+import { colorsNotifi } from '../../configs/color';
 
 const columnDevices: DeviceColumnType[] = [
 	{
@@ -46,7 +48,7 @@ const columnDevices: DeviceColumnType[] = [
 		size: 100,
 	},
 	{
-		id: 'SerialNumber',
+		id: 'DeviceInfoId',
 		header: 'Serial',
 	},
 	{
@@ -62,7 +64,7 @@ const columnIInstruments: DeviceColumnType[] = [
 		size: 100,
 	},
 	{
-		id: 'DeviceDeptId',
+		id: 'InstrumentDeptId',
 		header: 'Mã',
 	},
 	{
@@ -128,14 +130,14 @@ function DeviceTransfer() {
 		setLabTo(dummyDeviceTransferData);
 		setSelected([]);
 		setDeviceTransfered([]);
-		setAmountTransfer(0);
+		setAmountTransfer(1);
 	};
 
 	const columns = useRef(columnDevices);
 
 	const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			const newSelected = labFrom.listSerial?.map(n => n.SerialNumber || '');
+			const newSelected = labFrom.listDeviceInfo?.map(n => n.DeviceInfoId || '');
 			if (newSelected) handleSelect(newSelected);
 			return;
 		}
@@ -156,9 +158,9 @@ function DeviceTransfer() {
 				const newList = listOfDeviceTransfer.map(trans => {
 					return {
 						...trans,
-						listSerial: trans.listInstrument?.map(device => ({
+						listDeviceInfo: trans.listInstrument?.map(device => ({
 							...device,
-							SerialNumber: device.DeviceDeptId,
+							DeviceInfoId: device.InstrumentDeptId,
 						})),
 					};
 				});
@@ -199,22 +201,22 @@ function DeviceTransfer() {
 	const handleTransfer = () => {
 		if (type === types[0]) {
 			const listSelect =
-				labFrom?.listSerial?.filter(device => {
-					return selected.includes(device.SerialNumber || '');
+				labFrom?.listDeviceInfo?.filter(device => {
+					return selected.includes(device.DeviceInfoId || '');
 				}) || [];
 
 			setLabFrom(prev => {
-				const newDevices = labFrom?.listSerial?.filter(device => {
-					return !selected.includes(device.SerialNumber || '');
+				const newDevices = labFrom?.listDeviceInfo?.filter(device => {
+					return !selected.includes(device.DeviceInfoId || '');
 				});
-				return { ...prev, listSerial: newDevices };
+				return { ...prev, listDeviceInfo: newDevices };
 			});
 
 			setDeviceTransfered(prev => [...listSelect, ...prev]);
 			setSelected([]);
 		} else {
-			const listSelect = labFrom?.listSerial?.find(device => {
-				return selected.includes(device.SerialNumber || '');
+			const listSelect = labFrom?.listDeviceInfo?.find(device => {
+				return selected.includes(device.DeviceInfoId || '');
 			});
 
 			if (amountTransfer > Number(listSelect?.QuantityTotal || 0)) {
@@ -224,7 +226,7 @@ function DeviceTransfer() {
 
 			if (listSelect) {
 				listSelect.QuantityTotal = Number(listSelect.QuantityTotal || 0) - Number(amountTransfer || 0);
-				const deviceExist = deviceTransfered.find(device => device.SerialNumber === listSelect.SerialNumber);
+				const deviceExist = deviceTransfered.find(device => device.DeviceInfoId === listSelect.DeviceInfoId);
 
 				if (deviceExist) {
 					deviceExist.QuantityTotal = Number(deviceExist.QuantityTotal || 0) + Number(amountTransfer || 0);
@@ -237,25 +239,25 @@ function DeviceTransfer() {
 		}
 	};
 
-	const cancelTransfer = (serialNumber: String) => {
+	const cancelTransfer = (DeviceInfoId: String) => {
 		if (type === types[0]) {
-			let indexOfBackDevice = deviceTransfered.findIndex(device => device.SerialNumber === serialNumber);
+			let indexOfBackDevice = deviceTransfered.findIndex(device => device.DeviceInfoId === DeviceInfoId);
 			if (indexOfBackDevice !== -1) {
 				setLabFrom(prev => {
-					return { ...prev, listSerial: [...(prev.listSerial || []), deviceTransfered[indexOfBackDevice]] };
+					return { ...prev, listDeviceInfo: [...(prev.listDeviceInfo || []), deviceTransfered[indexOfBackDevice]] };
 				});
 			}
 
 			const newDevices = deviceTransfered.filter(device => {
-				return device.SerialNumber !== serialNumber;
+				return device.DeviceInfoId !== DeviceInfoId;
 			});
 			setDeviceTransfered(newDevices);
 		} else {
-			let indexOfBackDevice = deviceTransfered.findIndex(device => device.SerialNumber === serialNumber);
+			let indexOfBackDevice = deviceTransfered.findIndex(device => device.DeviceInfoId === DeviceInfoId);
 
 			if (indexOfBackDevice !== -1) {
-				const listSelect = labFrom?.listSerial?.find(device => {
-					return device.SerialNumber === deviceTransfered[indexOfBackDevice].SerialNumber;
+				const listSelect = labFrom?.listDeviceInfo?.find(device => {
+					return device.DeviceInfoId === deviceTransfered[indexOfBackDevice].DeviceInfoId;
 				});
 
 				if (listSelect) {
@@ -266,7 +268,7 @@ function DeviceTransfer() {
 				}
 
 				const newDevices = deviceTransfered.filter(device => {
-					return device.SerialNumber !== serialNumber;
+					return device.DeviceInfoId !== DeviceInfoId;
 				});
 				setDeviceTransfered(newDevices);
 			}
@@ -275,11 +277,23 @@ function DeviceTransfer() {
 
 	const updateDeviceTransferStore = async (resData: IDeviceTransfer) => {
 		if (Object.keys(resData).length !== 0) {
-			dispatch(setSnackbarMessage('Cập nhật thông tin thành công'));
-			getDeviceTransfer();
+			dispatch(
+				setSnackbar({
+					message: 'Cập nhật thông tin thành công',
+					color: colorsNotifi['success'].color,
+					backgroundColor: colorsNotifi['success'].background,
+				}),
+			);
 		} else {
-			dispatch(setSnackbarMessage('Cập nhật thông tin không thành công'));
+			dispatch(
+				setSnackbar({
+					message: 'Cập nhật thông tin không thành công',
+					color: colorsNotifi['error'].color,
+					backgroundColor: colorsNotifi['error'].background,
+				}),
+			);
 		}
+		getDeviceTransfer();
 	};
 
 	const handleSave = async () => {
@@ -290,7 +304,7 @@ function DeviceTransfer() {
 
 				resData = await postDeviceTransfer({
 					...labTo,
-					listSerial: [...(labTo?.listSerial || []), ...deviceTransfered],
+					listDeviceInfo: [...(labTo?.listDeviceInfo || []), ...deviceTransfered],
 				});
 				updateDeviceTransferStore(resData);
 				break;
@@ -302,13 +316,13 @@ function DeviceTransfer() {
 						LabName: labFrom.LabName,
 						Location: labFrom.Location,
 						listInstrument:
-							labFrom.listSerial?.reduce((prev: IDeviceSerial[], curr) => {
+							labFrom.listDeviceInfo?.reduce((prev: IDeviceSerial[], curr) => {
 								const indexExist = deviceTransfered.findIndex(
-									x => x.SerialNumber === curr.SerialNumber,
+									x => x.DeviceInfoId === curr.DeviceInfoId,
 								);
 
 								if (indexExist !== -1) {
-									delete curr.SerialNumber;
+									delete curr.DeviceInfoId;
 									return prev.concat(curr);
 								}
 								return prev;
@@ -320,7 +334,7 @@ function DeviceTransfer() {
 						Location: labTo.Location,
 						listInstrument:
 							deviceTransfered?.map(device => {
-								delete device.SerialNumber;
+								delete device.DeviceInfoId;
 								return device;
 							}) || [],
 					},
@@ -350,7 +364,7 @@ function DeviceTransfer() {
 						style={{ margin: '0px', fontSize: '30px', paddingTop: '15px' }}
 					></KeyboardArrowRightIcon>
 				</b>
-				<span>Chuyển đổi thiết bị giữa các phòng</span>
+				<span>Điều chuyển thiết bị, công cụ, dụng cụ</span>
 			</h3>
 			<Grid
 				container
@@ -403,16 +417,22 @@ function DeviceTransfer() {
 						</Typography>
 						{labFrom && (
 							<Autocomplete
-								options={deviceTransferData.filter(lab => lab.LabId !== labTo.LabId)}
+								options={deviceTransferData.length > 0 ? deviceTransferData.filter(lab => lab.LabId !== labTo.LabId) : []}
 								getOptionLabel={option => `${option.LabId} - ${option.LabName}`}
 								renderInput={params => (
 									<TextField {...params} label="Phòng ban đầu" placeholder="Phòng ban đầu..." />
 								)}
 								onChange={(e, value) => {
+									if (type === types[1]) {
+										deviceTransfered.forEach(x => {
+											cancelTransfer(x.DeviceInfoId || '');
+										});
+									}
+
 									setLabFrom(value || dummyDeviceTransferData);
 									setLabTo(
 										deviceTransferData.find(lab => lab.LabId === labTo.LabId) ||
-											dummyDeviceTransferData,
+										dummyDeviceTransferData,
 									);
 									setSelected([]);
 									setDeviceTransfered([]);
@@ -438,7 +458,11 @@ function DeviceTransfer() {
 							<Button
 								variant="contained"
 								onClick={handleTransfer}
-								disabled={!selected.length || labTo.LabId === ''}
+								disabled={
+									type === types[0]
+										? !selected.length || labTo.LabId === ''
+										: selected.length !== 1 || labTo.LabId === ''
+								}
 								sx={{
 									width: {
 										lg: '100%',
@@ -471,7 +495,7 @@ function DeviceTransfer() {
 									},
 								}}
 							>
-								<CompareArrowsIcon/>
+								<CompareArrowsIcon />
 							</Button>
 
 							{type === types[1] && (
@@ -485,9 +509,9 @@ function DeviceTransfer() {
 									inputProps={{
 										min: 1,
 										max:
-											labFrom?.listSerial?.find(device => {
-												return selected.includes(device.SerialNumber || '');
-											})?.QuantityTotal || 0,
+											labFrom?.listDeviceInfo?.find(device => {
+												return selected.includes(device.DeviceInfoId || '');
+											})?.QuantityTotal || 1,
 									}}
 									InputLabelProps={{
 										shrink: true,
@@ -505,16 +529,22 @@ function DeviceTransfer() {
 						</Typography>
 						{labTo && (
 							<Autocomplete
-								options={deviceTransferData?.filter(lab => lab.LabId !== labFrom.LabId) || []}
+								options={deviceTransferData.length > 0 ? deviceTransferData?.filter(lab => lab.LabId !== labFrom.LabId) : []}
 								getOptionLabel={option => `${option.LabId} - ${option.LabName}`}
 								renderInput={params => (
 									<TextField {...params} label="Phòng chuyển đến" placeholder="Phòng chuyển đến..." />
 								)}
 								onChange={(e, value) => {
+									if (type === types[1]) {
+										deviceTransfered.forEach(x => {
+											cancelTransfer(x.DeviceInfoId || '');
+										});
+									}
+
 									setLabTo(value || dummyDeviceTransferData);
 									setLabFrom(
 										deviceTransferData.find(lab => lab.LabId === labFrom.LabId) ||
-											dummyDeviceTransferData,
+										dummyDeviceTransferData,
 									);
 									setSelected([]);
 									setDeviceTransfered([]);
@@ -561,8 +591,8 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 		setOrderBy(property);
 	};
 	useEffect(() => {
-		setData(lab?.listSerial || []);
-	}, [lab?.listSerial]);
+		setData(lab?.listDeviceInfo || []);
+	}, [lab?.listDeviceInfo]);
 
 	useEffect(() => {
 		setData(prev => {
@@ -579,33 +609,32 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 	}, [order, orderBy]);
 
 	useEffect(() => {
-		const resultSearch = lab?.listSerial?.map(x => {
+		const resultSearch = lab?.listDeviceInfo?.map(x => {
 			let string: String = '';
 
 			Object.keys(x).forEach(key => {
-				console.log(x[key as keyof typeof x]);
 				if (typeof x[key as keyof typeof x] === 'string') string += x[key as keyof typeof x] + ' ';
 				if (typeof x[key as keyof typeof x] === 'number') string += x[key as keyof typeof x]?.toString() + ' ';
 			});
 
 			return {
 				label: removeAccents(string.toUpperCase()),
-				id: x?.SerialNumber,
+				id: x?.DeviceInfoId,
 			};
 		});
 		setDataSearch(resultSearch);
-	}, [lab?.listSerial]);
+	}, [lab?.listDeviceInfo]);
 
 	useEffect(() => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
 
 		if (keyword === '') {
-			setData(lab?.listSerial || []);
+			setData(lab?.listDeviceInfo || []);
 		} else {
-			const data = lab?.listSerial?.filter(x => listId.indexOf(x?.SerialNumber) !== -1);
+			const data = lab?.listDeviceInfo?.filter(x => listId.indexOf(x?.DeviceInfoId) !== -1);
 			setData(data || []);
 		}
-	}, [keyword, dataSearch, lab?.listSerial]);
+	}, [keyword, dataSearch, lab?.listDeviceInfo]);
 
 	return (
 		<>
@@ -643,11 +672,11 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 								<Checkbox
 									color="primary"
 									indeterminate={
-										selected.length > 0 && selected.length < (lab?.listSerial?.length || 0)
+										selected.length > 0 && selected.length < (lab?.listDeviceInfo?.length || 0)
 									}
 									checked={
-										(lab?.listSerial?.length || 0) > 0 &&
-										selected.length === lab?.listSerial?.length
+										(lab?.listDeviceInfo?.length || 0) > 0 &&
+										selected.length === lab?.listDeviceInfo?.length
 									}
 									onChange={handleSelectAllClick}
 									inputProps={{
@@ -682,14 +711,14 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 							</TableRow>
 						)}
 						{data?.map((device, index) => {
-							const isItemSelected = isSelected(device.SerialNumber || '');
+							const isItemSelected = isSelected(device.DeviceInfoId || '');
 							const labelId = `enhanced-table-checkbox-${index}`;
 							return (
 								<TableRow
-									key={`${device.SerialNumber}`}
+									key={`${device.DeviceInfoId}`}
 									selected={isItemSelected}
 									role="checkbox"
-									onClick={event => handleClick(event, device.SerialNumber || '')}
+									onClick={event => handleClick(event, device.DeviceInfoId || '')}
 									sx={{ position: 'relative' }}
 								>
 									<TableCell padding="checkbox">
@@ -704,9 +733,8 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 									{columns.map(col => {
 										if (col.id === 'STT') return <TableCell key={col.id}>{index}</TableCell>;
 										return (
-											<TableCell key={col.id}>{`${
-												device[col.id as keyof typeof device]
-											}`}</TableCell>
+											<TableCell key={col.id}>{`${device[col.id as keyof typeof device]
+												}`}</TableCell>
 										);
 									})}
 								</TableRow>
@@ -723,7 +751,7 @@ type TableToProps = {
 	columns: DeviceColumnType[];
 	lab: IDeviceTransfer;
 	deviceTransfered: IDeviceSerial[];
-	cancelTransfer: (serialNumber: String) => void;
+	cancelTransfer: (DeviceInfoId: String) => void;
 	type: String;
 };
 
@@ -745,12 +773,12 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 	useEffect(() => {
 		switch (type) {
 			case types[0]: {
-				setData([...(lab?.listSerial || []), ...deviceTransfered]);
+				setData([...(lab?.listDeviceInfo || []), ...deviceTransfered]);
 				break;
 			}
 			case types[1]: {
 				const newList: IDeviceSerial[] = deviceTransfered.reduce((prev: IDeviceSerial[], curr) => {
-					const device = lab?.listSerial?.find(dev => dev.SerialNumber === curr.SerialNumber);
+					const device = lab?.listDeviceInfo?.find(dev => dev.DeviceInfoId === curr.DeviceInfoId);
 					if (device) {
 						return prev.concat({
 							...device,
@@ -760,9 +788,9 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 						return prev.concat(curr);
 					}
 				}, []);
-				const listId = newList.map(x => x.SerialNumber) || [];
-				const result = remove([...deviceTransfered, ...(lab?.listSerial || [])], function (n: any) {
-					return !listId.includes(n.SerialNumber);
+				const listId = newList.map(x => x.DeviceInfoId) || [];
+				const result = remove([...deviceTransfered, ...(lab?.listDeviceInfo || [])], function (n: any) {
+					return !listId.includes(n.DeviceInfoId);
 				});
 				setData([...result, ...newList]);
 				break;
@@ -770,7 +798,7 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 			default:
 				break;
 		}
-	}, [deviceTransfered, lab?.listSerial]);
+	}, [deviceTransfered, lab?.listDeviceInfo]);
 
 	useEffect(() => {
 		setData(prev => {
@@ -787,33 +815,32 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 	}, [order, orderBy]);
 
 	useEffect(() => {
-		const resultSearch = lab?.listSerial?.map(x => {
+		const resultSearch = lab?.listDeviceInfo?.map(x => {
 			let string: String = '';
 
 			Object.keys(x).forEach(key => {
-				console.log(x[key as keyof typeof x]);
 				if (typeof x[key as keyof typeof x] === 'string') string += x[key as keyof typeof x] + ' ';
 				if (typeof x[key as keyof typeof x] === 'number') string += x[key as keyof typeof x]?.toString() + ' ';
 			});
 
 			return {
 				label: removeAccents(string.toUpperCase()),
-				id: x?.SerialNumber,
+				id: x?.DeviceInfoId,
 			};
 		});
 		setDataSearch(resultSearch);
-	}, [lab?.listSerial]);
+	}, [lab?.listDeviceInfo]);
 
 	useEffect(() => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
 
 		if (keyword === '') {
-			setData(lab?.listSerial || []);
+			setData(lab?.listDeviceInfo || []);
 		} else {
-			const data = lab?.listSerial?.filter(x => listId.indexOf(x?.SerialNumber) !== -1);
+			const data = lab?.listDeviceInfo?.filter(x => listId.indexOf(x?.DeviceInfoId) !== -1);
 			setData(data || []);
 		}
-	}, [keyword, dataSearch, lab?.listSerial]);
+	}, [keyword, dataSearch, lab?.listDeviceInfo]);
 
 	return (
 		<>
@@ -866,7 +893,7 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{[...deviceTransfered, ...(lab?.listSerial || [])]?.length === 0 && (
+						{[...deviceTransfered, ...(lab?.listDeviceInfo || [])]?.length === 0 && (
 							<TableRow>
 								<TableCell colSpan={3} sx={{ borderBottom: '0', textAlign: 'center' }}>
 									<h3 style={{ width: '100%', padding: '16px 0px' }}>Trống</h3>
@@ -876,20 +903,19 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 
 						{data.map((device, index) => {
 							return (
-								<TableRow key={`${device.SerialNumber}`} role="checkbox" sx={{ position: 'relative' }}>
+								<TableRow key={`${device.DeviceInfoId}`} role="checkbox" sx={{ position: 'relative' }}>
 									{columns.map(col => {
 										if (col.id === 'STT') return <TableCell key={col.id}>{index}</TableCell>;
 										return (
-											<TableCell key={col.id}>{`${
-												device[col.id as keyof typeof device]
-											}`}</TableCell>
+											<TableCell key={col.id}>{`${device[col.id as keyof typeof device]
+												}`}</TableCell>
 										);
 									})}
 
-									{deviceTransfered.findIndex(dev => dev.SerialNumber === device.SerialNumber) !==
+									{deviceTransfered.findIndex(dev => dev.DeviceInfoId === device.DeviceInfoId) !==
 										-1 && (
 										<Button
-											onClick={() => cancelTransfer(device.SerialNumber || '')}
+											onClick={() => cancelTransfer(device.DeviceInfoId || '')}
 											color="error"
 											sx={{
 												position: 'absolute',

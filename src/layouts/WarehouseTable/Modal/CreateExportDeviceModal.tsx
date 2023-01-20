@@ -12,7 +12,7 @@ import {
 	FormControl,
 	Grid,
 	IconButton,
-	TextField,
+	TextField
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -25,7 +25,7 @@ import { Stack } from '@mui/system';
 import { MRT_ColumnDef } from 'material-react-table';
 import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { useAppDispatch } from '../../../hooks';
-import { getDevices } from '../../../services/deviveDepartmentServices';
+import { getDevices } from '../../../services/deviceDepartmentServices';
 import { IDeviceDepartmentType } from '../../../types/deviceDepartmentType';
 import { dummyExportDevice, IExportDeviceType } from '../../../types/exportDeviceType';
 
@@ -141,7 +141,7 @@ const CreateExportDeviceModal = ({
 									}
 									break;
 								case 'LAB_INS':
-									if (devices.DeviceType === 'Công cụ' || devices.DeviceType === 'Dụng cụ' ) {
+									if (devices.DeviceType === 'Công cụ' || devices.DeviceType === 'Dụng cụ') {
 										devicesDetail.push({
 											DeviceName: devices?.DeviceName,
 											DeviceDeptId: devices?.DeviceDeptId,
@@ -206,7 +206,7 @@ const CreateExportDeviceModal = ({
 									/>
 								);
 							}
-							if (column.accessorKey === 'DeviceDeptId') {
+							if (column.accessorKey === 'DeviceInfoId') {
 								const list = deviceData
 									.map((x: any) => {
 										const isExistInListAdded =
@@ -216,7 +216,7 @@ const CreateExportDeviceModal = ({
 														return y.DeviceDetailId === x?.DeviceDetailId;
 													case 'LAB_DEV':
 													case 'LAB_INS':
-														return y.DeviceDeptId === x?.DeviceDeptId;
+														return y.DeviceInfoId === x?.DeviceInfoId;
 
 													default:
 														break;

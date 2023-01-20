@@ -1,9 +1,9 @@
-import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from "material-react-table";
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from "material-react-table";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { RootState } from "../../store";
 import moment from 'moment';
-import { dummyPurchaseOrderData, IPurchaseOrderType } from "../../types/purchaseOrderType";
+import { dummyPOChemical, dummyPODevice, dummyPurchaseOrderData, IOrderChemicalType, IOrderDeviceType, IPurchaseOrderType } from "../../types/purchaseOrderType";
 import { setSnackbarMessage } from '../../pages/appSlice';
 import { Add, KeyboardArrowRight, Delete, Edit } from '@mui/icons-material';
 import {
@@ -19,47 +19,73 @@ import {
   TextareaAutosize,
   Autocomplete
 } from '@mui/material';
-import { deletePurchaseOrder, getPurchaseOrders, postPurchaseOrder, updatePurchaseOrder } from "../../services/purchaseOrderServices";
-import { setListOfPurchaseOrders } from "./purchaseOrderSlice";
+import {
+  deletePurchaseOrder,
+  getPurchaseOrders,
+  postPurchaseOrder,
+  updatePurchaseOrder
+} from "../../services/purchaseOrderServices";
+import { setCurrentChemicalPO, setCurrentDevicePO, setCurrentPurchaseOrder, setListOfPurchaseOrders } from "./purchaseOrderSlice";
 import PurchaseOrderChemicalTable from "./POChemicalTable";
 import PurchaseOrderDeviceTable from "./PODeviceTable";
 import { ColumnType } from "./Utils";
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import DetailPOChemical from "./Details/DetailPOChemical";
+import CreatePOChemicalDialog from "./Dialog/CreatePOChemicalDialog";
+import EditPOChemicalDialog from "./Dialog/EditPOChemicalDialog";
+import DeletePOChemicalDialog from "./Dialog/DeletePOChemicalDialog";
+import DetailPODevice from "./Details/DetailPODevice";
+import CreatePODeivceDialog from "./Dialog/CreatePODeviceDialog";
+import EditPODeviceDialog from "./Dialog/EditPODeviceDialog";
+import DeletePODeviceDialog from "./Dialog/DeletePODeviceDialog";
 
 export const PurchaseOrderTable: FC = () => {
   const purchaseOrdersData = useAppSelector((state: RootState) => state.purchaseOrder.listOfPurchaseOrders);
   const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
   const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
   const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
+  const currentPurchaseOrder = useAppSelector((state: RootState) => state.purchaseOrder.currentPurchaseOrder);
+  const { currentChemicalPO, currentDevicePO } = useAppSelector((state: RootState) => state.purchaseOrder);
+
   const dispatch = useAppDispatch();
 
   const [tableData, setTableData] = useState<IPurchaseOrderType[]>([]);
   const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
+  const [departmentDataValue, setDepartmentDataValue] = useState<any>([]);
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
+
+  const [previousModal, setPreviousModal] = useState<string>('create');
 
   const [isCreateModal, setIsCreateModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState<boolean>(false);
   const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
 
-  const [updatedRow, setUpdatedRow] = useState<any>(dummyPurchaseOrderData);
-  const [deletedRow, setDeletedRow] = useState<any>(dummyPurchaseOrderData);
-  const [createdRow, setCreatedRow] = useState<any>(dummyPurchaseOrderData);
+  const [isCreatePOChemicalModal, setIsCreatePOChemicalModal] = useState<boolean>(false);
+  const [isEditPOChemicalModal, setIsEditPOChemicalModal] = useState<boolean>(false);
+  const [isDeletePOChemicalModal, setIsDeletePOChemicalModal] = useState<boolean>(false);
+  const [isCreatePODeviceModal, setIsCreatePODeviceModal] = useState<boolean>(false);
+  const [isEditPODeviceModal, setIsEditPODeviceModal] = useState<boolean>(false);
+  const [isDeletePODeviceModal, setIsDeletePODeviceModal] = useState<boolean>(false);
 
   useEffect(() => {
-    let formatedPurchaseOrderData = purchaseOrdersData.map((order: IPurchaseOrderType) => {
-      let supplierInfoIdx = supplierData.findIndex(item => item.SupplierId === order.SupplierId);
-      let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeId === order.EmployeeId);
-      let departmentInfoIdx = departmentData.findIndex(item => item.DepartmentId === order.DepartmentId);
-      return {
-        ...order,
-        "formatedOrderDate": moment.unix(order.OrderDate).format('DD/MM/YYYY'),
-        "SupplierName": supplierInfoIdx > -1 ? supplierData[supplierInfoIdx].Name : "",
-        "EmployeeName": employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : "",
-        "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : "",
-      }
-    })
-    setTableData(formatedPurchaseOrderData);
+    if (purchaseOrdersData.length > 0) {
+      let formatedPurchaseOrderData = purchaseOrdersData.map((order: IPurchaseOrderType) => {
+        let supplierInfoIdx = supplierData.findIndex(item => item.SupplierId === order.SupplierId);
+        let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeId === order.EmployeeId);
+        let departmentInfoIdx = departmentData.findIndex(item => item.DepartmentId === order.DepartmentId);
+        return {
+          ...order,
+          "formatedOrderDate": moment.unix(order.OrderDate).format('DD/MM/YYYY'),
+          "SupplierName": supplierInfoIdx > -1 ? supplierData[supplierInfoIdx].Name : "",
+          "EmployeeName": employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : "",
+          "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : "",
+        }
+      })
+      setTableData(formatedPurchaseOrderData);
+    }
   }, [purchaseOrdersData]);
 
   useEffect(() => {
@@ -72,6 +98,17 @@ export const PurchaseOrderTable: FC = () => {
       setEmployeeDataValue(list);
     }
   }, [employeeData])
+
+  useEffect(() => {
+    if (departmentData.length > 0) {
+      const list = departmentData.map(x => ({
+        label: `${x.DepartmentId} - ${x.DepartmentName}`,
+        id: x.DepartmentId,
+        name: x.DepartmentName
+      }));
+      setDepartmentDataValue(list);
+    }
+  }, [departmentData])
 
   const getCommonEditTextFieldProps = useCallback(
     (
@@ -99,7 +136,7 @@ export const PurchaseOrderTable: FC = () => {
       },
       {
         accessorKey: 'formatedOrderDate',
-        header: 'Thời gian Nhập',
+        header: 'Thời gian nhập',
         size: 140,
       },
       {
@@ -206,21 +243,27 @@ export const PurchaseOrderTable: FC = () => {
   ]);
 
   const handleOpenEditModal = (row: any) => {
-    setUpdatedRow(row.original);
+    dispatch(setCurrentPurchaseOrder(row.original));
     setIsEditModal(true);
+    dispatch(setCurrentPurchaseOrder(row.original));
   }
 
   const onCloseEditModal = () => {
-    setUpdatedRow(dummyPurchaseOrderData);
+    dispatch(setCurrentPurchaseOrder(dummyPurchaseOrderData));
     setIsEditModal(false);
+    dispatch(setCurrentPurchaseOrder(dummyPurchaseOrderData));
   }
 
   const handleSubmitEditModal = async () => {
-    const isUpdatedSuccess = await updatePurchaseOrder(updatedRow.OrderId, updatedRow);
+    const isUpdatedSuccess = await updatePurchaseOrder(currentPurchaseOrder.OrderId, currentPurchaseOrder);
     if (isUpdatedSuccess) {
       dispatch(setSnackbarMessage("Cập nhật thông tin phiếu nhập thành công"));
-      let updatedIdx = purchaseOrdersData.findIndex(item => item.OrderId === updatedRow.OrderId);
-      let newListOfOrders = [...purchaseOrdersData.slice(0, updatedIdx), updatedRow, ...purchaseOrdersData.slice(updatedIdx + 1,)]
+      let updatedIdx = purchaseOrdersData.findIndex(item => item.OrderId === currentPurchaseOrder.OrderId);
+      let newListOfOrders = [
+        ...purchaseOrdersData.slice(0, updatedIdx),
+        currentPurchaseOrder,
+        ...purchaseOrdersData.slice(updatedIdx + 1,)
+      ]
       dispatch(setListOfPurchaseOrders(newListOfOrders));
     }
 
@@ -228,19 +271,19 @@ export const PurchaseOrderTable: FC = () => {
   }
 
   const handleOpenDeleteModal = (row: any) => {
-    setDeletedRow(row.original);
+    dispatch(setCurrentPurchaseOrder((row.original)));
     setIsDeleteModal(true);
   }
 
   const onCloseDeleteModal = () => {
-    setDeletedRow(dummyPurchaseOrderData);
+    dispatch(setCurrentPurchaseOrder((dummyPurchaseOrderData)));
     setIsDeleteModal(false);
   }
 
   const handleSubmitDeleteModal = async () => {
-    await deletePurchaseOrder(deletedRow.OrderId);
+    await deletePurchaseOrder(currentPurchaseOrder.OrderId);
     dispatch(setSnackbarMessage("Xóa thông tin phiếu nhập thành công"));
-    let deletedIdx = purchaseOrdersData.findIndex(item => item.OrderId === deletedRow.OrderId);
+    let deletedIdx = purchaseOrdersData.findIndex(item => item.OrderId === currentPurchaseOrder.OrderId);
     let newListOfOrders = [...purchaseOrdersData.slice(0, deletedIdx), ...purchaseOrdersData.slice(deletedIdx + 1,)]
     dispatch(setListOfPurchaseOrders(newListOfOrders));
 
@@ -252,24 +295,24 @@ export const PurchaseOrderTable: FC = () => {
   }
 
   const onCloseCreateModal = () => {
-    setCreatedRow(dummyPurchaseOrderData);
+    dispatch(setCurrentPurchaseOrder(dummyPurchaseOrderData));
     setIsCreateModal(false);
   }
 
   const handleSubmitCreateModal = async () => {
     const createdOrder = await postPurchaseOrder({
-      "OrderId": createdRow.OrderId,
-      "OrderDate": createdRow.OrderDate,
-      "Content": createdRow.Content,
-      "Note": createdRow.Note,
-      "SupplierId": createdRow.SupplierId,
-      "SupplierName": createdRow.SupplierName,
-      "EmployeeId": createdRow.EmployeeId,
-      "EmployeeName": createdRow.EmployeeName,
-      "DepartmentId": createdRow.DepartmentId,
-      "DepartmentName": createdRow.DepartmentName,
-      "listChemDetail": createdRow.listChemDetail,
-      "listDevDetail": createdRow.listDevDetail,
+      "OrderId": currentPurchaseOrder.OrderId,
+      "OrderDate": currentPurchaseOrder.OrderDate,
+      "Content": currentPurchaseOrder.Content,
+      "Note": currentPurchaseOrder.Note,
+      "SupplierId": currentPurchaseOrder.SupplierId,
+      "SupplierName": currentPurchaseOrder.SupplierName,
+      "EmployeeId": currentPurchaseOrder.EmployeeId,
+      "EmployeeName": currentPurchaseOrder.EmployeeName,
+      "DepartmentId": currentPurchaseOrder.DepartmentId,
+      "DepartmentName": currentPurchaseOrder.DepartmentName,
+      "listChemDetail": currentPurchaseOrder.listChemDetail,
+      "listDevDetail": currentPurchaseOrder.listDevDetail,
     })
     if (createdOrder) {
       const newListOfOrders: IPurchaseOrderType[] = await getPurchaseOrders();
@@ -281,6 +324,218 @@ export const PurchaseOrderTable: FC = () => {
     onCloseCreateModal();
   }
 
+  const handleOpenCreatePOChemicalModal = () => {
+    setIsCreatePOChemicalModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseCreatePOChemicalModal = () => {
+    setIsCreatePOChemicalModal(false);
+    dispatch(setCurrentChemicalPO(dummyPOChemical));
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitCreatePOChemicalModal = () => {
+    dispatch(setCurrentPurchaseOrder({
+      ...currentPurchaseOrder,
+      "listChemDetail": [...currentPurchaseOrder.listChemDetail, currentChemicalPO]
+    }))
+
+    onCloseCreatePOChemicalModal();
+  }
+
+  const handleOpenEditPOChemicalModal = (row: any) => {
+    dispatch(setCurrentChemicalPO(row.original));
+    setIsEditPOChemicalModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseEditPOChemicalModal = () => {
+    setIsEditPOChemicalModal(false);
+    dispatch(setCurrentChemicalPO(dummyPOChemical));
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitEditPOChemicalModal = () => {
+    let updatedIdx = currentPurchaseOrder.listChemDetail.findIndex((item: IOrderChemicalType) => item.ChemDetailId === currentChemicalPO.ChemDetailId);
+    let currentChemicalPOClone = Object.assign({}, currentChemicalPO);
+    delete currentChemicalPOClone.formatedManufacturingDate;
+    delete currentChemicalPOClone.formatedExpiryDate;
+
+    dispatch(setCurrentPurchaseOrder({
+      ...currentPurchaseOrder,
+      listChemDetail: [
+        ...currentPurchaseOrder.listChemDetail.slice(0, updatedIdx),
+        currentChemicalPOClone,
+        ...currentPurchaseOrder.listChemDetail.slice(updatedIdx + 1,)
+      ]
+    }));
+
+    onCloseEditPOChemicalModal();
+  }
+
+  const handleOpenDeletePOChemicalModal = (row: any) => {
+    dispatch(setCurrentChemicalPO(row.original));
+    setIsDeletePOChemicalModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseDeletePOChemicalModal = () => {
+    setIsDeletePOChemicalModal(false);
+    dispatch(setCurrentChemicalPO(dummyPOChemical));
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitDeletePOChemicalModal = () => {
+    let deletedIdx = currentPurchaseOrder.listChemDetail.findIndex((item: IOrderChemicalType) => item.ChemDetailId === currentChemicalPO.ChemDetailId);
+    if (deletedIdx) {
+      dispatch(setCurrentPurchaseOrder({
+        ...currentPurchaseOrder,
+        "listChemDetail": [
+          ...currentPurchaseOrder.listChemDetail.slice(0, deletedIdx),
+          ...currentPurchaseOrder.listChemDetail.slice(deletedIdx + 1,)
+        ]
+      }))
+    }
+
+    onCloseDeletePOChemicalModal();
+  }
+
+
+  const handleOpenCreatePODeviceModal = () => {
+    setIsCreatePODeviceModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseCreatePODeviceModal = () => {
+    setIsCreatePODeviceModal(false);
+    dispatch(setCurrentDevicePO(dummyPODevice));
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitCreatePODeviceModal = () => {
+    dispatch(setCurrentPurchaseOrder({
+      ...currentPurchaseOrder,
+      "listDevDetail": [...currentPurchaseOrder.listDevDetail, currentDevicePO]
+    }))
+
+    onCloseCreatePODeviceModal();
+  }
+
+  const handleOpenEditPODeviceModal = (row: any) => {
+    dispatch(setCurrentDevicePO(row.original));
+    setIsEditPODeviceModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseEditPODeviceModal = () => {
+    setIsEditPODeviceModal(false);
+    dispatch(setCurrentDevicePO(dummyPODevice));
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitEditPODeviceModal = () => {
+    let updatedIdx = currentPurchaseOrder.listDevDetail.findIndex((item: IOrderDeviceType) => item.DeviceDetailId === currentDevicePO.DeviceDetailId);
+    let currentChemicalPOClone = Object.assign({}, currentDevicePO);
+
+    dispatch(setCurrentPurchaseOrder({
+      ...currentPurchaseOrder,
+      listDevDetail: [
+        ...currentPurchaseOrder.listDevDetail.slice(0, updatedIdx),
+        currentChemicalPOClone,
+        ...currentPurchaseOrder.listDevDetail.slice(updatedIdx + 1,)
+      ]
+    }));
+
+    onCloseEditPODeviceModal();
+  }
+
+  const handleOpenDeletePODeviceModal = (row: any) => {
+    dispatch(setCurrentDevicePO(row.original));
+    setIsDeletePODeviceModal(true);
+    if (isEditModal) {
+      setIsEditModal(false);
+      setPreviousModal('edit');
+    } else {
+      setIsCreateModal(false);
+      setPreviousModal('create');
+    }
+  }
+
+  const onCloseDeletePODeviceModal = () => {
+    setIsDeletePODeviceModal(false);
+    dispatch(setCurrentDevicePO(dummyPODevice));
+    if (previousModal === 'create') {
+      setIsCreateModal(true);
+    } else {
+      setIsEditModal(true);
+    }
+  }
+
+  const handleSubmitDeletePODeviceModal = () => {
+    let deletedIdx = currentPurchaseOrder.listDevDetail.findIndex((item: IOrderDeviceType) => item.DeviceDetailId === currentDevicePO.DeviceDetailId);
+    if (deletedIdx > -1) {
+      dispatch(setCurrentPurchaseOrder({
+        ...currentPurchaseOrder,
+        "listDevDetail": [
+          ...currentPurchaseOrder.listDevDetail.slice(0, deletedIdx),
+          ...currentPurchaseOrder.listDevDetail.slice(deletedIdx + 1,)
+        ]
+      }))
+    }
+
+    onCloseDeletePODeviceModal();
+  }
   return (
     <>
       <MaterialReactTable
@@ -321,16 +576,14 @@ export const PurchaseOrderTable: FC = () => {
         }}
         renderDetailPanel={({ row }) => (
           <>
-            {row.original.listChemDetail.length > 0 &&
-              <PurchaseOrderChemicalTable
-                chemicalData={row.original.listChemDetail}
-                columns={POChemicalTableColumns.current}
-              />}
-            {row.original.listDevDetail.length > 0 &&
-              <PurchaseOrderDeviceTable
-                deviceData={row.original.listDevDetail}
-                columns={PODeviceTableColumns.current}
-              />}
+            <PurchaseOrderChemicalTable
+              chemicalData={row.original.listChemDetail}
+              columns={POChemicalTableColumns.current}
+            />
+            <PurchaseOrderDeviceTable
+              deviceData={row.original.listDevDetail}
+              columns={PODeviceTableColumns.current}
+            />
           </>
         )}
         renderTopToolbarCustomActions={() => (
@@ -369,7 +622,17 @@ export const PurchaseOrderTable: FC = () => {
         )}
       />
 
-      <Dialog open={isEditModal}>
+      <Dialog
+        open={isEditModal}
+        sx={{
+          "& .MuiDialog-container": {
+            "& .MuiPaper-root": {
+              width: "100%",
+              maxWidth: "1200px",  // Set your width here
+            },
+          },
+        }}
+      >
         <DialogTitle textAlign="center"><b>Sửa thông tin phiếu nhập</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
@@ -380,59 +643,107 @@ export const PurchaseOrderTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => {
-                if (column.id === "Note") {
-                  return <TextareaAutosize
-                    aria-label="minimum height"
-                    minRows={3}
-                    placeholder="Nhập ghi chú..."
-                    defaultValue={updatedRow["Note"]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, "Note": e.target.value })
+              <TextField
+                disabled
+                key={"OrderId"}
+                label={"ID"}
+                name="ID"
+                defaultValue={currentPurchaseOrder["OrderId"]}
+              />
+              <div className="updatePOGroup" style={{ "display": "flex" }}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                  <DatePicker
+                    key={"UpdateOrderDate"}
+                    label={"Thời gian nhập"}
+                    value={new Date(currentPurchaseOrder["OrderDate"] * 1000)}
+                    onChange={(val: any) => {
+                      dispatch(setCurrentPurchaseOrder({
+                        ...currentPurchaseOrder,
+                        "formatedOrderDate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                        "OrderDate": Date.parse(val) / 1000
+                      }))
                     }
+                    }
+                    renderInput={(params: any) => <TextField key="UpdateTextFieldFormatedOrderDate" {...params} />}
+                    inputFormat='DD/MM/YYYY'
                   />
-                }
+                </LocalizationProvider>
 
-                if (column.accessorKey === "EmployeeName") {
-                  return <Autocomplete
-                    key={"EmployeeName"}
-                    options={employeeDataValue}
-                    noOptionsText="Không có kết quả trùng khớp"
-                    sx={{ "width": "450px" }}
-                    value={employeeDataValue.find((x: any) => x.id === updatedRow.EmployeeId) || null}
-                    getOptionLabel={option => option?.label}
-                    renderInput={params => {
-                      return (
-                        <TextField
-                          {...params}
-                          label={"Người lập"}
-                          placeholder="Nhập để tìm kiếm"
-                        />
-                      );
-                    }}
-                    onChange={(event, value) => {
-                      setUpdatedRow({
-                        ...updatedRow,
-                        "EmployeeId": value?.id,
-                        "EmployeeName": value?.name,
-                      });
-                    }}
-                  />
+                <Autocomplete
+                  key={"EmployeeName"}
+                  options={employeeDataValue}
+                  noOptionsText="Không có kết quả trùng khớp"
+                  sx={{ "width": "450px", "margin": "0px 10px" }}
+                  value={employeeDataValue.find((x: any) => x.id === currentPurchaseOrder.EmployeeId) || null}
+                  getOptionLabel={option => option?.label}
+                  renderInput={params => {
+                    return (
+                      <TextField
+                        {...params}
+                        label={"Người lập"}
+                        placeholder="Nhập để tìm kiếm"
+                      />
+                    );
+                  }}
+                  onChange={(event, value) => {
+                    dispatch(setCurrentPurchaseOrder({
+                      ...currentPurchaseOrder,
+                      "EmployeeId": value?.id,
+                      "EmployeeName": value?.name,
+                    }));
+                  }}
+                />
+
+                <Autocomplete
+                  key={"DepartmentName"}
+                  options={departmentDataValue}
+                  noOptionsText="Không có kết quả trùng khớp"
+                  sx={{ "width": "450px" }}
+                  value={departmentDataValue.find((x: any) => x.id === currentPurchaseOrder.DepartmentId) || null}
+                  getOptionLabel={option => option?.label}
+                  renderInput={params => {
+                    return (
+                      <TextField
+                        {...params}
+                        label={"Khoa/Phòng ban"}
+                        placeholder="Nhập để tìm kiếm"
+                      />
+                    );
+                  }}
+                  onChange={(event, value) => {
+                    dispatch(setCurrentPurchaseOrder({
+                      ...currentPurchaseOrder,
+                      "DepartmentId": value?.id,
+                      "EmployeeName": value?.name,
+                    }));
+                  }}
+                />
+              </div>
+
+              <TextareaAutosize
+                aria-label="minimum height"
+                minRows={3}
+                placeholder="Nhập ghi chú..."
+                defaultValue={currentPurchaseOrder["Note"].toString()}
+                onChange={(e) =>
+                  dispatch(setCurrentPurchaseOrder({ ...currentPurchaseOrder, "Note": e.target.value }))
                 }
-                else {
-                  return <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                    }
-                  />
-                }
-              })}
+              />
             </Stack>
           </form>
+
+          <DetailPOChemical
+            handleOpenCreateModal={handleOpenCreatePOChemicalModal}
+            handleOpenEditModal={handleOpenEditPOChemicalModal}
+            handleOpenDeleteModal={handleOpenDeletePOChemicalModal}
+          />
+
+          <DetailPODevice
+            handleOpenCreateModal={handleOpenCreatePODeviceModal}
+            handleOpenEditModal={handleOpenEditPODeviceModal}
+            handleOpenDeleteModal={handleOpenDeletePODeviceModal}
+          />
+
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseEditModal}>Hủy</Button>
@@ -445,7 +756,7 @@ export const PurchaseOrderTable: FC = () => {
       <Dialog open={isDeleteModal}>
         <DialogTitle textAlign="center"><b>Xoá thông tin phiếu nhập</b></DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá thông tin phiếu nhập {`${deletedRow.OrderId}`} không?</div>
+          <div>Bạn có chắc muốn xoá thông tin phiếu nhập {`${currentPurchaseOrder.OrderId}`} không?</div>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseDeleteModal}>Hủy</Button>
@@ -455,7 +766,17 @@ export const PurchaseOrderTable: FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={isCreateModal}>
+      <Dialog
+        open={isCreateModal}
+        sx={{
+          "& .MuiDialog-container": {
+            "& .MuiPaper-root": {
+              width: "100%",
+              maxWidth: "1200px",  // Set your width here
+            },
+          },
+        }}
+      >
         <DialogTitle textAlign="center"><b>Tạo thông tin phiếu nhập mới</b></DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
@@ -466,30 +787,101 @@ export const PurchaseOrderTable: FC = () => {
                 gap: '1.5rem',
               }}
             >
-              {columns.map((column) => (
-                column.id === "Note" ?
-                  <TextareaAutosize
-                    aria-label="minimum height"
-                    minRows={3}
-                    placeholder="Nhập ghi chú..."
-                    defaultValue={createdRow["Note"]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, "Note": e.target.value })
-                    } />
-                  :
-                  <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                    }
-                  />
-              ))}
 
+              <div className="createPOGroup" style={{ "display": "flex" }}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                  <DatePicker
+                    key={"CreateOrderDate"}
+                    label={"Thời gian nhập"}
+                    value={new Date(currentPurchaseOrder["OrderDate"] * 1000)}
+                    onChange={(val: any) => {
+                      dispatch(setCurrentPurchaseOrder({
+                        ...currentPurchaseOrder,
+                        "formatedOrderDate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                        "OrderDate": Date.parse(val) / 1000
+                      }))
+                    }
+                    }
+                    renderInput={(params: any) => <TextField key="UpdateTextFieldFormatedOrderDate" {...params} />}
+                    inputFormat='DD/MM/YYYY'
+                  />
+                </LocalizationProvider>
+
+                <Autocomplete
+                  key={"EmployeeName"}
+                  options={employeeDataValue}
+                  noOptionsText="Không có kết quả trùng khớp"
+                  sx={{ "width": "450px", "margin": "0px 10px" }}
+                  value={employeeDataValue.find((x: any) => x.id === currentPurchaseOrder.EmployeeId) || null}
+                  getOptionLabel={option => option?.label}
+                  renderInput={params => {
+                    return (
+                      <TextField
+                        {...params}
+                        label={"Người lập"}
+                        placeholder="Nhập để tìm kiếm"
+                      />
+                    );
+                  }}
+                  onChange={(event, value) => {
+                    dispatch(setCurrentPurchaseOrder({
+                      ...currentPurchaseOrder,
+                      "EmployeeId": value?.id,
+                      "EmployeeName": value?.name,
+                    }));
+                  }}
+                />
+
+                <Autocomplete
+                  key={"DepartmentName"}
+                  options={departmentDataValue}
+                  noOptionsText="Không có kết quả trùng khớp"
+                  sx={{ "width": "450px" }}
+                  value={departmentDataValue.find((x: any) => x.id === currentPurchaseOrder.DepartmentId) || null}
+                  getOptionLabel={option => option?.label}
+                  renderInput={params => {
+                    return (
+                      <TextField
+                        {...params}
+                        label={"Khoa/Phòng ban"}
+                        placeholder="Nhập để tìm kiếm"
+                      />
+                    );
+                  }}
+                  onChange={(event, value) => {
+                    dispatch(setCurrentPurchaseOrder({
+                      ...currentPurchaseOrder,
+                      "DepartmentId": value?.id,
+                      "EmployeeName": value?.name,
+                    }));
+                  }}
+                />
+              </div>
+
+              <TextareaAutosize
+                aria-label="minimum height"
+                minRows={3}
+                placeholder="Nhập ghi chú..."
+                defaultValue={currentPurchaseOrder["Note"].toString()}
+                onChange={(e) =>
+                  dispatch(setCurrentPurchaseOrder({ ...currentPurchaseOrder, "Note": e.target.value }))
+                }
+              />
             </Stack>
           </form>
+
+          <DetailPOChemical
+            handleOpenCreateModal={handleOpenCreatePOChemicalModal}
+            handleOpenEditModal={handleOpenEditPOChemicalModal}
+            handleOpenDeleteModal={handleOpenDeletePOChemicalModal}
+          />
+
+          <DetailPODevice
+            handleOpenCreateModal={handleOpenCreatePODeviceModal}
+            handleOpenEditModal={handleOpenEditPODeviceModal}
+            handleOpenDeleteModal={handleOpenDeletePODeviceModal}
+          />
+
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
           <Button onClick={onCloseCreateModal}>Hủy</Button>
@@ -498,6 +890,46 @@ export const PurchaseOrderTable: FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <CreatePOChemicalDialog
+        isOpen={isCreatePOChemicalModal}
+        columns={POChemicalTableColumns.current}
+        onClose={onCloseCreatePOChemicalModal}
+        handleSubmit={handleSubmitCreatePOChemicalModal}
+      />
+
+      <EditPOChemicalDialog
+        isOpen={isEditPOChemicalModal}
+        columns={POChemicalTableColumns.current}
+        onClose={onCloseEditPOChemicalModal}
+        handleSubmit={handleSubmitEditPOChemicalModal}
+      />
+
+      <DeletePOChemicalDialog
+        isOpen={isDeletePOChemicalModal}
+        onClose={onCloseDeletePOChemicalModal}
+        handleSubmit={handleSubmitDeletePOChemicalModal}
+      />
+
+      <CreatePODeivceDialog
+        isOpen={isCreatePODeviceModal}
+        columns={PODeviceTableColumns.current}
+        onClose={onCloseCreatePODeviceModal}
+        handleSubmit={handleSubmitCreatePODeviceModal}
+      />
+
+      <EditPODeviceDialog
+        isOpen={isEditPODeviceModal}
+        columns={PODeviceTableColumns.current}
+        onClose={onCloseEditPODeviceModal}
+        handleSubmit={handleSubmitEditPODeviceModal}
+      />
+
+      <DeletePODeviceDialog
+        isOpen={isDeletePODeviceModal}
+        onClose={onCloseDeletePODeviceModal}
+        handleSubmit={handleSubmitDeletePODeviceModal}
+      />
     </>
   )
 }

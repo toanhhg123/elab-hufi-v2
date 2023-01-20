@@ -1,33 +1,11 @@
-import { FC, useRef, useState } from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import LaboratoryTabItem from './Tabs/LaboratoryTabItem';
-import StudySessionTabItem from './Tabs/StudySessionTabItem';
-import RegisterGeneralTabItem from './Tabs/RegisterGeneralTabItem';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import { FC, useRef, useState } from 'react';
 import DepartmentTabItem from './Tabs/DepartmentTabItem';
-
-interface TabPanelProps {
-	children?: React.ReactNode;
-	index: number;
-	value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-	const { children, value, index, ...other } = props;
-
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`tabpanel-${index}`}
-			aria-labelledby={`tab-${index}`}
-			{...other}
-		>
-			{value === index && <Box sx={{ p: 0 }}>{children}</Box>}
-		</div>
-	);
-}
+import LaboratoryTabItem from './Tabs/LaboratoryTabItem';
+import RegisterGeneralTabItem from './Tabs/RegisterGeneralTabItem';
+import StudySessionTabItem from './Tabs/StudySessionTabItem';
 
 function a11yProps(index: number) {
 	return {
@@ -74,11 +52,15 @@ const WarehouseTable: FC = () => {
 			{tabData.current.map((x, index) => {
 				const Comp = x.comp;
 				return (
-					<>
-						<TabPanel key={index} value={value} index={index}>
-							<Comp />
-						</TabPanel>
-					</>
+					<Box
+						role="tabpanel"
+						hidden={value !== index}
+						id={`tabpanel-${index}`}
+						aria-labelledby={`tab-${index}`}
+						key={`content_${index}`}
+					>
+						{value === index && <Comp />}
+					</Box>
 				);
 			})}
 		</Box>

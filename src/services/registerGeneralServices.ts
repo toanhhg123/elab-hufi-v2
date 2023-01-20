@@ -11,8 +11,25 @@ const API_ENDPOINT = 'https://www.aspsite.somee.com';
 
 // define type params: APIRequestParams
 
-export const getRegisterGeneral = async <T> () => {
-	const url = `${API_ENDPOINT}/api/registergenerals`;
-	const registergenerals: T = await API.get<T>(url);
+export const getRegisterGenerals = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/registergenerals/${id}`;
+	const registergenerals: IRegisterGeneralType[] = await API.get<IRegisterGeneralType[]>(url);
 	return registergenerals;
 };
+
+export const updateRegisterGeneral = async (updatedData: IRegisterGeneralType) => {    
+    const url = `${API_ENDPOINT}/api/RegisterGenerals/${updatedData.RegisterGeneralId}`;
+	const order: IRegisterGeneralType = await API.put<IRegisterGeneralType, IRegisterGeneralType>(url, updatedData);
+	return order;
+}
+
+export const deleteRegisterGeneral = async (id: String) => {    
+    const url = `${API_ENDPOINT}/api/RegisterGenerals/${id}`;
+	await API.deleteResource(url);
+}
+
+export const postRegisterGeneral = async (newData: IRegisterGeneralType) => {
+	const url = `${API_ENDPOINT}/api/RegisterGenerals`;
+	const newOrder: IRegisterGeneralType = await API.post<IRegisterGeneralType, IRegisterGeneralType>(url, newData);
+	return newOrder;
+}

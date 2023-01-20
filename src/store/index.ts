@@ -17,6 +17,9 @@ import registerGeneralReducer from '../layouts/RegisterGeneralTable/registerGene
 import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
 import planSubjectReducer from '../layouts/PlanSubjectTable/planSubjectSlice';
+import researchTeamReducer from '../layouts/ResearchTeamTable/researchTeamSlice';
+import trainScheduleReducer from '../layouts/TrainSchedule/TrainScheduleSlice';
+import suggestNewDeviceReducer from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -37,7 +40,10 @@ export const store = configureStore({
 		registerGeneral: registerGeneralReducer,
 		purchaseOrder: purchaseOrderReducer,
 		schedule: scheduleReducer,
-		planSubject: planSubjectReducer
+		planSubject: planSubjectReducer,
+		researchTeam: researchTeamReducer,
+		managerTrainSchedule: trainScheduleReducer,
+		suggestNewDevice: suggestNewDeviceReducer
 	},
 });
 

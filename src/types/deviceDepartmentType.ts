@@ -1,12 +1,15 @@
+import { ILiquidateDeptDevice } from './deviceType';
 import { IExportDeviceType } from './exportDeviceType';
+import { ILiquidateDeptInstrument } from './instrumentType';
 
 export interface IDeviceDepartmentType {
 	QuantityOriginal: Number;
 	QuantityExport: Number;
 	QuantityRemain: Number;
 	QuantityLiquidate: Number;
+	QuantityTotal: Number;
 	listDeviceDetail?: IDeviceDetailType[];
-	listExportDevice?: IExportDeviceType[];
+	listDeviceInfo?: IExportDeviceType[];
 	listExportInstrument?: IExportDeviceType[];
 	DeviceId: String;
 	DeviceName: String;
@@ -17,6 +20,7 @@ export interface IDeviceDepartmentType {
 	DeviceDetailId?: String;
 	ImportDate: String;
 	ImportId: String;
+	InstrumentDeptId: String;
 }
 
 export const dummyDeviceDepartmentData: IDeviceDepartmentType = {
@@ -24,6 +28,7 @@ export const dummyDeviceDepartmentData: IDeviceDepartmentType = {
 	QuantityExport: -1,
 	QuantityRemain: -1,
 	QuantityLiquidate: -1,
+	QuantityTotal: -1,
 	listDeviceDetail: [],
 	listExportInstrument: [],
 	DeviceId: '',
@@ -33,9 +38,10 @@ export const dummyDeviceDepartmentData: IDeviceDepartmentType = {
 	Unit: '',
 	HasTrain: '',
 	DeviceDetailId: '',
-	listExportDevice: [],
+	listDeviceInfo: [],
 	ImportId: '',
 	ImportDate: '',
+	InstrumentDeptId: '',
 };
 
 export interface IDeviceDetailType {
@@ -73,25 +79,61 @@ export const dummyDeviceDetailData: IDeviceDetailType = {
 };
 
 export interface IDeviceDeptType {
-	QuantityExport: Number;
-	QuantityRemain: Number;
-	ExpDeviceDeptId: String;
-	QuantityOriginal: Number;
-	Unit: String;
-	DeviceDetailId: String;
 	DepartmentName: String;
 	DepartmentId: Number;
-	DeviceDeptId?: String;
+	ExportId: String;
+	DeviceInfoId: String;
+	SerialNumber: String;
+	ManufacturingDate: String;
+	StartGuarantee: String;
+	EndGuarantee: String;
+	DateStartUsage: String;
+	HoursUsageTotal: Number;
+	PeriodicMaintenance: Number;
+	Status: String;
 }
 
 export const dummyIDeviceDeptData: IDeviceDeptType = {
-	QuantityExport: -1,
-	QuantityRemain: -1,
-	ExpDeviceDeptId: '',
-	QuantityOriginal: -1,
-	Unit: '',
-	DeviceDetailId: '',
 	DepartmentName: '',
 	DepartmentId: 0,
-	DeviceDeptId: '',
+	ExportId: '',
+	DeviceInfoId: '',
+	SerialNumber: '',
+	ManufacturingDate: '',
+	StartGuarantee: '',
+	EndGuarantee: '',
+	DateStartUsage: '',
+	HoursUsageTotal: 0,
+	PeriodicMaintenance: 0,
+	Status: '',
+};
+
+export interface ILiquidateDept {
+	listDevice: ILiquidateDeptDevice[];
+	listInstrument: ILiquidateDeptInstrument[];
+	ExpLiquidateDeptId: String;
+	ExportDate: String;
+	Content: String;
+	Note: String;
+	EmployeeId: String;
+	EmployeeName: String;
+	DepartmentId: Number;
+	DepartmentName: String;
+	Accept: String | null;
+	UserAccept: String | null;
+}
+
+export const dummyLiquidateDept: ILiquidateDept = {
+	listDevice: [],
+	listInstrument: [],
+	ExpLiquidateDeptId: '',
+	ExportDate: `${Date.now() / 1000 | 0}`,
+	Content: '',
+	Note: '',
+	EmployeeId: '',
+	EmployeeName: '',
+	DepartmentId: 0,
+	DepartmentName: '',
+	Accept: '',
+	UserAccept: '',
 };

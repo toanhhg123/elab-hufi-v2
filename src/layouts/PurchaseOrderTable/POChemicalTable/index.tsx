@@ -27,7 +27,10 @@ const StyledTableCell = styled(TableCell)(theme => ({
   },
 }));
 
-const PurchaseOrderChemicalTable: FC<{ chemicalData: IOrderChemicalType[]; columns: ColumnType[]; }> = ({ chemicalData, columns }) => {
+const PurchaseOrderChemicalTable: FC<{ 
+  chemicalData: IOrderChemicalType[]; 
+  columns: ColumnType[]; 
+}> = ({ chemicalData, columns }) => {
   const [tableData, setTableData] = useState<IOrderChemicalType[]>(chemicalData);
   const [order, setOrder] = useState<string>('asc');
   const [orderBy, setOrderBy] = useState<string>('ChemDetailId');

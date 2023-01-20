@@ -154,7 +154,7 @@ const LaboratoryTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'DeviceDeptId',
+				accessorKey: 'DeviceInfoId',
 				header: 'Mã xuất Thiết bị',
 				size: 100,
 			},
@@ -214,7 +214,7 @@ const LaboratoryTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'DeviceDeptId',
+				accessorKey: 'DeviceInfoId',
 				header: 'Mã xuất Thiết bị',
 				size: 100,
 			},

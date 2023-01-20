@@ -3,9 +3,14 @@ enum enums {
 }
 
 export enum Genders {
-	Nam,
-	Nữ, 
-	Khác 
+	"Nam",
+	"Nữ", 
+	"Khác" 
+}
+
+export enum ResearchTeamTitles {
+	'Thành viên',
+	'Nhóm trưởng'
 }
 
 export enum DeviceType {

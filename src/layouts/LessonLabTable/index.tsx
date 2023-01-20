@@ -81,13 +81,13 @@ const LessonLabTable: FC = () => {
   }, [subjectData])
 
   useEffect(() => {
-    let formatedLessonLabData = lessonLabData.map((x: ILessonLabType) => {
+    let formatedLessonLabData = lessonLabData.length > 0 ? lessonLabData.map((x: ILessonLabType) => {
       let SubjectInfoIdx = subjectData.findIndex(y => y.SubjectId === x.SubjectId);
       return {
         ...x,
         "SubjectName": SubjectInfoIdx > -1 ? subjectData[SubjectInfoIdx].SubjectName : ""
       }
-    })
+    }) : [];
     setTableData(formatedLessonLabData);
   }, [lessonLabData])
 
@@ -182,7 +182,7 @@ const LessonLabTable: FC = () => {
     let promisesList: any[] = [];
     if (listOfLessons.length === 0) {
       dispatch(setSnackbarMessage("Vui lòng thêm ít nhất tên một bài thí nghiệm"));
-    } 
+    }
     else {
       listOfLessons.forEach(item => promisesList.push(postLessonLab({
         "LessonName": item,

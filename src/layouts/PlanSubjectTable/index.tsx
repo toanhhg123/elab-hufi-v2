@@ -424,7 +424,7 @@ const PlanSubjectTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Phiếu dự trù</span>
+            <span>Thông tin phiếu dự trù</span>
           </h3>
         )}
         renderDetailPanel={({ row }) => (

@@ -59,13 +59,13 @@ const SubjectTable: FC = () => {
   const [selectedRow, setSelectedRow] = useState<any>(dummySubjectData);
 
   useEffect(() => {
-    let formatedSubjectData = subjectData.map((sub: ISubjectType) => {
+    let formatedSubjectData = subjectData.length > 0 ? subjectData.map((sub: ISubjectType) => {
       let departmentInfoIdx = departmentData.findIndex((y: IDepartmentType) => y.DepartmentId === sub.DepartmentId);
       return {
         ...sub,
         "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : ""
       }
-    })
+    }) : [];
 
     setTableData(formatedSubjectData);
   }, [subjectData])

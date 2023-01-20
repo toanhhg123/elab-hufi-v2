@@ -27,6 +27,7 @@ import DeviceOfExperimentCenterTable from './DeviceOfExperimentCenterTable';
 import PreviewIcon from '@mui/icons-material/Preview';
 import CloseIcon from '@mui/icons-material/Close';
 import DeviceOfDepartmentTable from './DeviceOfDepartmentTable';
+import { DeviceTable } from './context/DeviceOfDepartmentTableContext';
 
 const DepartmentTable: FC = () => {
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
@@ -336,12 +337,20 @@ const DepartmentTable: FC = () => {
 						</IconButton>
 						<Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
 							Thông tin thiết bị trong{' '}
-							<b>{departmentData.find(x => x.DepartmentId === departmentIdShow)?.DepartmentName}</b>
+							<b>{departmentData.length > 0 ? departmentData.find(x => x.DepartmentId === departmentIdShow)?.DepartmentName : ''}</b>
 						</Typography>
 					</Toolbar>
 				</AppBar>
-				{departmentIdShow === 1 && <DeviceOfExperimentCenterTable id={departmentIdShow} />}
-				{departmentIdShow !== 1 && <DeviceOfDepartmentTable id={departmentIdShow} />}
+				{departmentIdShow === 1 && (
+					<>
+						<DeviceOfExperimentCenterTable id={departmentIdShow}/>
+					</>
+				)}
+				{departmentIdShow !== 1 && (
+					<DeviceTable id={departmentIdShow || 0}>
+						<DeviceOfDepartmentTable />
+					</DeviceTable>
+				)}
 			</Dialog>
 		</>
 	);
