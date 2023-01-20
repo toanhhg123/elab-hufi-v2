@@ -7,16 +7,24 @@ import {
 	DialogContent,
 	DialogTitle,
 	IconButton,
-	TextField,
+	TextField
 } from '@mui/material';
 import DataGrid, {
+	Button,
 	Column,
+	ColumnChooser,
+	ColumnFixing,
 	Editing,
+	FilterRow,
+	Grouping,
+	HeaderFilter,
 	Item,
+	Pager,
 	Paging,
 	RequiredRule,
+	SearchPanel,
 	Selection,
-	Toolbar as DevToolbar,
+	Toolbar as DevToolbar
 } from 'devextreme-react/data-grid';
 
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
@@ -34,10 +42,18 @@ import {
 	deleteDeviceInfoes,
 	getDeviceInfoes,
 	postDeviceInfoes,
-	putDeviceInfoes,
+	putDeviceInfoes
 } from '../../../services/deviceInfoServices';
 import { IDeviceInfo, IDeviceInfoItem } from '../../../types/deviceInfoType';
 import { DialogProps } from './DialogType';
+
+export const renderHeader = (data: any, isRequired: boolean = false) => {
+	return (
+		<b style={{ color: 'black' }}>
+			{data.column.caption} {isRequired && <span style={{ color: 'red' }}>*</span>}
+		</b>
+	);
+};
 
 const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
@@ -83,7 +99,6 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 		(async () => {
 			try {
 				let list: IDeviceInfo[] = await getDeviceInfoes();
-
 				setListDevice(list);
 			} catch (err) {
 			} finally {
@@ -117,14 +132,6 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 	useEffect(() => {
 		loadMessages(viMessages);
 	}, []);
-
-	const renderHeader = (data: any, isRequired: boolean = false) => {
-		return (
-			<b style={{ color: 'black' }}>
-				{data.column.caption} {isRequired && <span style={{ color: 'red' }}>*</span>}
-			</b>
-		);
-	};
 
 	const dataSource = useMemo(() => {
 		return new DataSource({
@@ -298,7 +305,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 				</IconButton>
 			</DialogTitle>
 			<DialogContent>
-				<Box py={1}>
+				<Box py={1} height="100%" display="flex" flexDirection="column" overflow="hidden">
 					<Autocomplete
 						open={openAutocomplete}
 						onOpen={() => {
@@ -333,7 +340,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 							/>
 						)}
 					/>
-					<div id="data-grid">
+					<div id="data-grid" style={{ height: '100%', width: '100%', overflowX: 'auto' }}>
 						<DataGrid
 							ref={dataGridRef}
 							id="gridContainer"
@@ -341,16 +348,36 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 							showBorders={true}
 							onInitNewRow={handleInitRow}
 							selectedRowKeys={selectedRows.map(x => x.Id)}
+							columnAutoWidth={true}
+							allowColumnResizing={true}
+							columnResizingMode="widget"
 							onSelectionChanged={data => {
 								setSelectedRows(data.selectedRowsData);
 							}}
 							onSaved={data => {
 								handleSave(data.changes);
 							}}
+							loadPanel={{
+								enabled: true,
+							}}
+							elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 800px' }}
 						>
-							<Selection mode="multiple" />
-							<Paging enabled={false} />
-							<Editing mode="form" allowUpdating={true} allowAdding={true} />
+							<Selection mode="multiple" showCheckBoxesMode="always" />
+							<HeaderFilter visible={true} />
+							<ColumnFixing enabled={false} />
+							<Grouping contextMenuEnabled={true} expandMode="rowClick" />
+							<Pager
+								allowedPageSizes={true}
+								showInfo={true}
+								showNavigationButtons={true}
+								showPageSizeSelector={true}
+								visible={true}
+							/>
+							<Paging defaultPageSize={30} />
+							<ColumnChooser enabled={true} mode="select" />
+							<FilterRow visible={true} applyFilter={true} />
+							<Editing mode="form" allowUpdating={true} allowAdding={true} useIcons={true} />
+							<SearchPanel visible={true} width={240} placeholder="Tìm kiếm..." />
 
 							<Column
 								dataField="DeviceInfoId"
@@ -394,8 +421,8 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 								headerCellRender={data => renderHeader(data)}
 								format="dd/MM/yyyy"
 								cellRender={cell => {
-									if (!cell.data?.DateStartUsage) return <p style={{ margin: '0	' }}></p>;
-									return <p style={{ margin: '0	' }}>{cell.text}</p>;
+									if (!cell.data?.DateStartUsage) return <p style={{ margin: '0' }}></p>;
+									return <p style={{ margin: '0' }}>{cell.text}</p>;
 								}}
 							></Column>
 							<Column
@@ -417,11 +444,15 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 							>
 								<RequiredRule />
 							</Column>
+							<Column type="buttons" fixed={true}>
+								<Button icon="edit" name="edit" />
+							</Column>
 							<DevToolbar>
 								<Item name="addRowButton" showText="always" />
 								<Item location="after" disabled={!selectedRows.length}>
 									<DevButton icon="trash" text="Xóa hàng đã chọn" onClick={handleDelete} />
 								</Item>
+								<Item name="searchPanel" />
 							</DevToolbar>
 						</DataGrid>
 					</div>

@@ -1,4 +1,6 @@
+import { ILiquidateDeptDevice } from './deviceType';
 import { IExportDeviceType } from './exportDeviceType';
+import { ILiquidateDeptInstrument } from './instrumentType';
 
 export interface IDeviceDepartmentType {
 	QuantityOriginal: Number;
@@ -104,4 +106,34 @@ export const dummyIDeviceDeptData: IDeviceDeptType = {
 	HoursUsageTotal: 0,
 	PeriodicMaintenance: 0,
 	Status: '',
+};
+
+export interface ILiquidateDept {
+	listDevice: ILiquidateDeptDevice[];
+	listInstrument: ILiquidateDeptInstrument[];
+	ExpLiquidateDeptId: String;
+	ExportDate: String;
+	Content: String;
+	Note: String;
+	EmployeeId: String;
+	EmployeeName: String;
+	DepartmentId: Number;
+	DepartmentName: String;
+	Accept: String | null;
+	UserAccept: String | null;
+}
+
+export const dummyLiquidateDept: ILiquidateDept = {
+	listDevice: [],
+	listInstrument: [],
+	ExpLiquidateDeptId: '',
+	ExportDate: `${Date.now() / 1000 | 0}`,
+	Content: '',
+	Note: '',
+	EmployeeId: '',
+	EmployeeName: '',
+	DepartmentId: 0,
+	DepartmentName: '',
+	Accept: '',
+	UserAccept: '',
 };

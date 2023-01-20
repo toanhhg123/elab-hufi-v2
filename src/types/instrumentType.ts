@@ -56,5 +56,6 @@ export interface ILiquidateDeptInstrument {
     "DeviceId": String,
     "DeviceName": String,
     "Unit": String,
-    "QuantityTotal": Number
+    "QuantityTotal": Number,
+    "Quantity": Number,
 }

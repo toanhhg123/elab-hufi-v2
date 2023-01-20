@@ -23,12 +23,12 @@ import { useAppDispatch } from '../../../hooks';
 import { setSnackbarMessage } from '../../../pages/appSlice';
 import { postDevice } from '../../../services/deviceServices';
 import { dummyDeviceDepartmentData } from '../../../types/deviceDepartmentType';
-import { columns, DeviceColumnType, DialogProps, RowCreateDeviceProps } from './DialogType';
+import { columns, ColumnsType, DialogProps, RowCreateDeviceProps } from './DialogType';
 
 const RowCreateDevice = memo(({ field, indexField, handleFormChange, removeFields }: RowCreateDeviceProps) => {
 	return (
 		<>
-			{columns?.map((column: DeviceColumnType, index: number) => {
+			{columns?.map((column: ColumnsType, index: number) => {
 				if (column?.type === 'select') {
 					const list = column.data;
 

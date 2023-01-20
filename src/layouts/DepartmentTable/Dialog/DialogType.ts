@@ -2,7 +2,7 @@ import { GridSize } from '@mui/material';
 import { DeviceType } from '../../../configs/enums';
 import { IDeviceDepartmentType } from '../../../types/deviceDepartmentType';
 
-export type DeviceColumnType = {
+export type ColumnsType = {
 	id: string;
 	header: String;
 	type?: string;
@@ -29,6 +29,11 @@ export type DialogProps = {
 	dataUpdate?: IDeviceDepartmentType;
 };
 
+export type ErrorType = {
+	id: String;
+	msg: String;
+};
+
 export type RowCreateDeviceProps = {
 	field: any;
 	indexField: number;
@@ -36,7 +41,7 @@ export type RowCreateDeviceProps = {
 	removeFields: (index: number) => void;
 };
 
-export const columns: DeviceColumnType[] = [
+export const columns: ColumnsType[] = [
 	{
 		id: 'DeviceId',
 		header: 'Mã thiết bị',
@@ -75,4 +80,3 @@ export const columns: DeviceColumnType[] = [
 		header: 'Qui cách',
 	},
 ];
-

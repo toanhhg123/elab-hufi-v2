@@ -36,7 +36,7 @@ import { IRepairDeviceItem } from '../../../types/maintenanceDevicesType';
 import { descendingComparator, renderArrowSort } from '../../ChemicalWarehouseTable/Utils';
 import { useDeviceOfDepartmentTableStore } from '../context/DeviceOfDepartmentTableContext';
 import { removeAccents } from '../DeviceOfDepartmentTable';
-import { ColumnSizeType, DeviceColumnType, DialogProps } from './DialogType';
+import { ColumnSizeType, ColumnsType, DialogProps } from './DialogType';
 import { nestedObject } from './ultis';
 
 const DialogHistoryDevices = ({
@@ -81,7 +81,7 @@ const DialogHistoryDevices = ({
 		}
 	}, [isOpen]);
 
-	const historyDeviceColumns = useRef<(DeviceColumnType & { colSize: ColumnSizeType })[]>([
+	const historyDeviceColumns = useRef<(ColumnsType & { colSize: ColumnSizeType })[]>([
 		{ id: 'DeviceId', header: `Mã ${deviceType}`, colSize: { sm: 3, xs: 12 } },
 		{ id: 'SerialNumber', header: 'Số Serial', colSize: { sm: 3, xs: 12 } },
 		{ id: 'Model', header: 'Số Model', colSize: { sm: 3, xs: 12 } },
@@ -97,7 +97,7 @@ const DialogHistoryDevices = ({
 		{ id: 'Standard', header: 'Qui cách', colSize: { sm: 12, xs: 12 } },
 	]);
 
-	const historyInstrumentColumns = useRef<(DeviceColumnType & { colSize: ColumnSizeType })[]>([
+	const historyInstrumentColumns = useRef<(ColumnsType & { colSize: ColumnSizeType })[]>([
 		{ id: 'DeviceId', header: `Mã deviceType`, colSize: { sm: 6, xs: 12 } },
 		{ id: 'InstrumentDeptId', header: 'InstrumentDeptId', colSize: { sm: 6, xs: 12 } },
 		{ id: 'DeviceName', header: `Tên ${deviceType}`, colSize: { xs: 12 } },
@@ -106,7 +106,7 @@ const DialogHistoryDevices = ({
 		{ id: 'Standard', header: 'Qui cách', colSize: { xs: 12 } },
 	]);
 
-	const historyDeviceHourUsageColumns = useRef<DeviceColumnType[]>([
+	const historyDeviceHourUsageColumns = useRef<ColumnsType[]>([
 		{
 			id: 'Month',
 			header: 'Tháng',
@@ -130,7 +130,7 @@ const DialogHistoryDevices = ({
 		},
 	]);
 
-	const historyDeviceTranferColumns = useRef<DeviceColumnType[]>([
+	const historyDeviceTranferColumns = useRef<ColumnsType[]>([
 		{ id: 'LabId', header: 'Mã phòng' },
 		{ id: 'LabName', header: 'Tên phòng' },
 		{ id: 'Location', header: 'Địa chỉ' },
@@ -139,7 +139,7 @@ const DialogHistoryDevices = ({
 		{ id: 'EmployeeName', header: 'Người chuyển' },
 	]);
 
-	const historyDeviceMaintenanceColumns = useRef<DeviceColumnType[]>([
+	const historyDeviceMaintenanceColumns = useRef<ColumnsType[]>([
 		{ id: 'RepairId', header: 'Mã bảo trì' },
 		{ id: 'Content', header: 'Nội dung' },
 		{ id: 'Cost', header: 'Giá' },
@@ -148,7 +148,7 @@ const DialogHistoryDevices = ({
 		{ id: 'Status', header: 'Trạng thái' },
 	]);
 
-	const historyInstrumentTranferColumns = useRef<DeviceColumnType[]>([
+	const historyInstrumentTranferColumns = useRef<ColumnsType[]>([
 		{ id: 'TransferId', header: 'EmployeeName' },
 		{ id: 'LabId', header: 'LabId' },
 		{ id: 'DateTransfer', header: 'Ngày chuyển', type: 'date' },
@@ -156,14 +156,14 @@ const DialogHistoryDevices = ({
 		{ id: 'EmployeeName', header: 'EmployeeName' },
 	]);
 
-	const historyInstrumentResearchColumns = useRef<DeviceColumnType[]>([
+	const historyInstrumentResearchColumns = useRef<ColumnsType[]>([
 		{ id: 'EmployeeId', header: 'EmployeeId' },
 		{ id: 'EmployeeName', header: 'EmployeeName' },
 		{ id: 'Quantity', header: 'Quantity' },
 		{ id: 'ExpResearchId', header: 'ExpResearchId' },
 	]);
 
-	// const historyLiquitedateResearchColumns = useRef<DeviceColumnType[]>([
+	// const historyLiquitedateResearchColumns = useRef<ColumnsType[]>([
 	// 	{ id: 'EmployeeId', header: 'EmployeeId' },
 	// 	{ id: 'EmployeeName', header: 'EmployeeName' },
 	// 	{ id: 'Quantity', header: 'Quantity' },
@@ -178,7 +178,7 @@ const DialogHistoryDevices = ({
 
 	const getColumnActive = useCallback(
 		(type: string) => {
-			let headerCol: DeviceColumnType[] = [];
+			let headerCol: ColumnsType[] = [];
 			let list:
 				| IRepairDeviceItem[]
 				| IDeviceTransferHistoryItem[]
@@ -392,7 +392,7 @@ const DialogHistoryDevices = ({
 	};
 
 	const renderStaticField = () => {
-		let fields: (DeviceColumnType & { colSize: ColumnSizeType })[] =
+		let fields: (ColumnsType & { colSize: ColumnSizeType })[] =
 			deviceType === listDeviceType[0] ? historyDeviceColumns.current : historyInstrumentColumns.current;
 
 		return fields.map(col => {

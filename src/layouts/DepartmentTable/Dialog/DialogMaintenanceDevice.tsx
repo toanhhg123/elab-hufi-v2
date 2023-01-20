@@ -22,7 +22,7 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
-	TextField,
+	TextField
 } from '@mui/material';
 
 import _ from 'lodash';
@@ -35,13 +35,13 @@ import {
 	deleteMaintenanceDevice,
 	getMaintenanceDeviceById,
 	postMaintenanceDevice,
-	updateMaintenanceDevice,
+	updateMaintenanceDevice
 } from '../../../services/maintenanceDevicesServices';
 import { dummyRepairDeviceItem, IRepairDevice, IRepairDeviceItem } from '../../../types/maintenanceDevicesType';
 import { descendingComparator, renderArrowSort } from '../../ChemicalWarehouseTable/Utils';
 import { ProviderValueType, useDeviceOfDepartmentTableStore } from '../context/DeviceOfDepartmentTableContext';
 import { removeAccents } from '../DeviceOfDepartmentTable';
-import { DeviceColumnType, DialogProps } from './DialogType';
+import { ColumnsType, DialogProps } from './DialogType';
 import { nestedObject } from './ultis';
 
 const DialogMaintenanceDevice = ({
@@ -53,7 +53,7 @@ const DialogMaintenanceDevice = ({
 	data: IRepairDevice | null;
 	loading: boolean;
 }) => {
-	const columns = useRef<DeviceColumnType[]>([
+	const columns = useRef<ColumnsType[]>([
 		{ id: 'RepairId', header: 'ID' },
 		{ id: 'Content', header: 'Nội dụng' },
 		{ id: 'Cost', header: 'Giá' },

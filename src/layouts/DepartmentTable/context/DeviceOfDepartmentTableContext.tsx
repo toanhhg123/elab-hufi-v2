@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
-import { getDevices } from '../../../services/deviveDepartmentServices';
+import { getDevices } from '../../../services/deviceDepartmentServices';
 import { IDeviceDepartmentType } from '../../../types/deviceDepartmentType';
 
 const listDeviceType = ['Thiết bị', 'Công cụ', 'Dụng cụ'];
@@ -101,7 +101,7 @@ const DeviceOfDepartmentTableProvider = ({ children, id }: DeviceOfDepartmentTab
 		setCloneDeviceValues,
 		getDeviceData,
 		listDeviceType,
-		id
+		id,
 	};
 
 	return <DeviceOfDepartmentTableContext.Provider value={value}>{children}</DeviceOfDepartmentTableContext.Provider>;

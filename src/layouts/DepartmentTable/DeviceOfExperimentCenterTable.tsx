@@ -1,68 +1,40 @@
 import styled from '@emotion/styled';
 import { Delete, Edit } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
 import {
-	AppBar,
-	Autocomplete,
 	Button,
 	CircularProgress,
 	Collapse,
-	debounce,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	FormControl,
+	debounce, FormControl,
 	FormControlLabel,
 	IconButton,
-	InputAdornment,
-	InputLabel,
-	MenuItem,
-	Paper,
+	InputAdornment, Paper,
 	Radio,
-	RadioGroup,
-	Select,
-	SelectChangeEvent,
-	Stack,
-	Table,
+	RadioGroup, Table,
 	TableBody,
 	TableCell,
 	tableCellClasses,
 	TableContainer,
 	TableHead,
 	TablePagination,
-	TableRow,
-	TableSortLabel,
-	TextField,
-	Toolbar,
-	Tooltip,
-	Typography,
+	TableRow, TextField, Tooltip,
+	Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { MRT_Row } from 'material-react-table';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { RootState } from '../../store';
+import { useEffect, useRef, useState } from 'react';
+import { useAppDispatch } from '../../hooks';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import SearchIcon from '@mui/icons-material/Search';
-import {
-	IDeviceDepartmentType,
-	IDeviceDetailType,
-	IDeviceDeptType,
-	dummyDeviceDepartmentData,
-} from '../../types/deviceDepartmentType';
-import * as API from '../../configs/apiHelper';
-import { IDepartmentType } from '../../types/departmentType';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { deleteDevice, getDevices, postDevice, updateDevice } from '../../services/deviveDepartmentServices';
+import SearchIcon from '@mui/icons-material/Search';
 import moment from 'moment';
 import { DeviceType } from '../../configs/enums';
-import CloseIcon from '@mui/icons-material/Close';
 import { setSnackbarMessage } from '../../pages/appSlice';
-import { IExportDeviceType } from '../../types/exportDeviceType';
+import { deleteDevice, getDevices, updateDevice } from '../../services/deviceDepartmentServices';
+import {
+	dummyDeviceDepartmentData, IDeviceDepartmentType, IDeviceDeptType, IDeviceDetailType
+} from '../../types/deviceDepartmentType';
 import { DialogCreate, DialogDelete, DialogEdit, DialogImportDeviceInfo } from './Dialog';
 
 const StyledTableCell = styled(TableCell)(theme => ({
@@ -348,7 +320,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 
 	return (
 		<>
-			<DialogImportDeviceInfo isOpen={isOpenImportInfoDialog} onClose={() => setIsOpenImportInfoDialog(false)} />
+			{isOpenImportInfoDialog && <DialogImportDeviceInfo isOpen={isOpenImportInfoDialog} onClose={() => setIsOpenImportInfoDialog(false)} />}
 			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={2} mb={2}>
 				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}

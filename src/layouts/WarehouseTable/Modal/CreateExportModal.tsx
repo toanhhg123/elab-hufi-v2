@@ -10,7 +10,8 @@ import {
 	InputLabel,
 	MenuItem,
 	Select,
-	SelectChangeEvent, TextField
+	SelectChangeEvent,
+	TextField,
 } from '@mui/material';
 import { Stack } from '@mui/system';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -20,17 +21,23 @@ import moment from 'moment';
 import { useState } from 'react';
 import { useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
-import { dummyExportData, IExportType } from '../../../types/exportType';
+import { IExportType } from '../../../types/exportType';
 
 type CreateExportModalProps = {
 	isCreateModal: boolean;
 	columns: MRT_ColumnDef<IExportType>[];
 	onClose: () => void;
 	handleSubmitCreateModal: Function;
-	initData: any
+	initData: any;
 };
 
-const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreateModal, initData }: CreateExportModalProps) => {
+const CreateExportModal = ({
+	isCreateModal,
+	columns,
+	onClose,
+	handleSubmitCreateModal,
+	initData,
+}: CreateExportModalProps) => {
 	const [createdRow, setCreatedRow] = useState<any>(initData);
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
@@ -79,7 +86,9 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 									</LocalizationProvider>
 								);
 							} else if (
-								(column.id === 'EmployeeId' || column.id === 'EmployeeInCharge' || column.id === 'EmployeeCreate') &&
+								(column.id === 'EmployeeId' ||
+									column.id === 'EmployeeInCharge' ||
+									column.id === 'EmployeeCreate') &&
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
@@ -93,8 +102,14 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 										key={column.id}
 										options={list}
 										noOptionsText="Không có kết quả trùng khớp"
-										defaultValue={list.find(x => x.id === createdRow[column.id as keyof typeof createdRow]) || null}
-										value={list.find(x => x.id === createdRow[column.id as keyof typeof createdRow]) || null}
+										defaultValue={
+											list.find(x => x.id === createdRow[column.id as keyof typeof createdRow]) ||
+											null
+										}
+										value={
+											list.find(x => x.id === createdRow[column.id as keyof typeof createdRow]) ||
+											null
+										}
 										getOptionLabel={option => option?.label}
 										renderInput={params => {
 											return (
@@ -118,10 +133,12 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
-								const list =  Array.isArray(subjectData) ?  subjectData?.map(x => ({
-									label: `${x.SubjectId} - ${x.SubjectName}`,
-									id: x.SubjectId,
-								})) : [];
+								const list = Array.isArray(subjectData)
+									? subjectData?.map(x => ({
+											label: `${x.SubjectId} - ${x.SubjectName}`,
+											id: x.SubjectId,
+									  }))
+									: [];
 
 								return (
 									<Autocomplete
@@ -189,7 +206,7 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 								registerGeneralData.length > 0
 							) {
 								const list = registerGeneralData.map((x, idx) => ({
-									label: `${x.RegisterGeneralId} - ${x.Instructor} - ${x.ResearchSubject}`,
+									label: `${x.RegisterGeneralId} - ${x.InstructorName} - ${x.ResearchSubject}`,
 									id: x.RegisterGeneralId,
 								}));
 
@@ -355,7 +372,7 @@ const CreateExportModal = ({ isCreateModal, columns, onClose, handleSubmitCreate
 										</Select>
 									</FormControl>
 								);
-							}else if (
+							} else if (
 								column.id === 'Note' &&
 								column.enableHiding !== false &&
 								registerGeneralData.length > 0

@@ -38,8 +38,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import WarningIcon from '@mui/icons-material/Warning';
 import moment from 'moment';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import { deleteDevice } from '../../services/deviceDepartmentServices';
 import { getDeviceHitories } from '../../services/deviceHistoryServices';
-import { deleteDevice } from '../../services/deviveDepartmentServices';
 import { getInstrumentHitories } from '../../services/instrumentHistoryServices';
 import { getMaintenanceDeviceById } from '../../services/maintenanceDevicesServices';
 import { IDeviceDepartmentType } from '../../types/deviceDepartmentType';
@@ -47,15 +47,14 @@ import { IDeviceHistory } from '../../types/deviceHistoriesType';
 import { IExportDeviceType } from '../../types/exportDeviceType';
 import { IInstrumentHistory } from '../../types/instrumentHistoriesType';
 import { IRepairDevice } from '../../types/maintenanceDevicesType';
-import {
-	ProviderValueType, useDeviceOfDepartmentTableStore
-} from './context/DeviceOfDepartmentTableContext';
+import { ProviderValueType, useDeviceOfDepartmentTableStore } from './context/DeviceOfDepartmentTableContext';
 import { DeviceColumnType } from './DeviceOfExperimentCenterTable';
 import {
 	DialogCreate,
 	DialogDelete,
 	DialogDeviceUsageHours,
 	DialogHistoryDevices,
+	DialogLiquidate,
 	DialogMaintenanceDevice
 } from './Dialog';
 
@@ -150,6 +149,7 @@ const DeviceOfDepartmentTable = () => {
 	const [dataSearch, setDataSearch] = useState<any>([]);
 	const [isOpenCreateModal, setIsOpenCreateModal] = useState<boolean>(false);
 	const [isOpenDeviceUsageHours, setIsOpenDeviceUsageHours] = useState<boolean>(false);
+	const [isOpenDeviceLiquidate, setIsOpenDeviceLiquidate] = useState<boolean>(false);
 	const [isOpenEditModal, setIsOpenEditModal] = useState<boolean>(false);
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
 	const [page, setPage] = useState(0);
@@ -241,6 +241,10 @@ const DeviceOfDepartmentTable = () => {
 
 	const handleDeviceUsageHours = () => {
 		setIsOpenDeviceUsageHours(true);
+	};
+
+	const handleDeviceLiquidate = () => {
+		setIsOpenDeviceLiquidate(true);
 	};
 
 	const handleOpenDelete = (dataDelete: IDeviceDepartmentType) => {
@@ -367,6 +371,12 @@ const DeviceOfDepartmentTable = () => {
 									Nhập giờ thiết bị
 								</Button>
 							</Tooltip>
+
+							<Tooltip arrow placement="left" title="Nhập giờ thiết bị">
+								<Button variant="contained" onClick={handleDeviceLiquidate} sx={{ marginLeft: '24px' }}>
+									Thanh lý thiết bị
+								</Button>
+							</Tooltip>
 						</Box>
 					</Box>
 					<TablePagination
@@ -442,16 +452,16 @@ const DeviceOfDepartmentTable = () => {
 				</Table>
 			</TableContainer>
 
-			<DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
-			<DialogDelete
+			{isOpenCreateModal && <DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />}
+			{isOpenDeleteModal && <DialogDelete
 				isOpen={isOpenDeleteModal}
 				onClose={() => setIsOpenDeleteModal(false)}
 				dataDelete={deletedRow}
 				handleSubmitDelete={handleSubmitDelete}
-			/>
+			/>}
 
-			<DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />
-			
+			{isOpenDeviceUsageHours && <DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />}
+			{isOpenDeviceLiquidate && <DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />}
 		</>
 	);
 };
@@ -546,7 +556,11 @@ const RowDevice = ({
 								</TableCell>
 							);
 					}
-					return <TableCell align="left">{`${device[col.id as keyof typeof device] || ''}`}</TableCell>;
+					return (
+						<TableCell align="left" key={col.id}>{`${
+							device[col.id as keyof typeof device] || ''
+						}`}</TableCell>
+					);
 				})}
 				{deviceType !== listDeviceType[0] && (
 					<TableCell>
@@ -751,7 +765,7 @@ const DeviceDetailTable = ({ data, unit, deviceName, instrumentDeptId }: DeviceD
 		try {
 			let maintenanceDevice: IRepairDevice = await getMaintenanceDeviceById(serialNumber);
 			if (maintenanceDevice) {
-				console.log(1)
+				console.log(1);
 				setMaintenanceDevice(maintenanceDevice);
 			} else {
 				let index = deviceDetails.findIndex(x => x?.DeviceInfoId === serialNumber);
@@ -950,18 +964,18 @@ const DeviceDetailTable = ({ data, unit, deviceName, instrumentDeptId }: DeviceD
 					</TableBody>
 				</Table>
 			</TableContainer>
-			<DialogMaintenanceDevice
+			{isOpenMaintenance && <DialogMaintenanceDevice
 				isOpen={isOpenMaintenance}
 				onClose={handleCloseMaintenanceDialog}
 				data={maintenanceDevice}
 				loading={loading}
-			/>
-			<DialogHistoryDevices
+			/>}
+			{isOpenHistory && <DialogHistoryDevices
 				isOpen={isOpenHistory}
 				onClose={handleCloseHistoryDialog}
 				data={deviceHitories}
 				loading={loading}
-			/>
+			/>}
 		</>
 	);
 };

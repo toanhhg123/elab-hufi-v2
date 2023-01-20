@@ -120,7 +120,12 @@ export const defaultSidebarItems: ISidebarItem[] = [
 	},
 	{
 		isOpen: false,
-		name: 'Chuyển đổi thiết bị',
+		name: 'Điều chuyển thiết bị',
+		icon: '',
+	},
+	{
+		isOpen: false,
+		name: 'Lịch tập huấn',
 		icon: '',
 	},
 ];
