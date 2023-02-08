@@ -357,7 +357,7 @@ function DeviceTransfer() {
 	};
 
 	return (
-		<>
+		<Box minWidth={480}>
 			<h3 style={{ margin: '0px', textAlign: 'left', padding: '0.5rem' }}>
 				<b>
 					<KeyboardArrowRightIcon
@@ -564,7 +564,7 @@ function DeviceTransfer() {
 					</div>
 				</Grid>
 			</Grid>
-		</>
+		</Box>
 	);
 }
 
