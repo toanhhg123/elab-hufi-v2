@@ -118,7 +118,7 @@ const ManagerTrainSchedule = () => {
 					onRowRemoving={row => {
 						handleDelete(row);
 					}}
-					elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 800px' }}
+					elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
 				>
 					<ColumnChooser enabled={true} mode="select" />
 					<Paging enabled={false} />

@@ -618,7 +618,7 @@ const DialogCreateLiquidate = ({
 				</Grid>
 
 				<Box mt={2}>
-					<Box padding={2}>
+					<Box>
 						<Autocomplete
 							open={openAutocomplete.device}
 							onOpen={() => {

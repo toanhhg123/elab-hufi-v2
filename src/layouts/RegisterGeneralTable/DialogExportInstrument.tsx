@@ -358,13 +358,13 @@ const DialogCreate = ({
 		instrument: false,
 	});
 	const columns = useRef<(ColumnType & { colSize: ColumnSizeType; required?: boolean; readonly?: boolean })[]>([
-		{ id: 'ExpResearchId', header: 'Mã xuất', colSize: { xs: 1 }, required: true },
-		{ id: 'ExportDate', header: 'Ngày xuất', type: 'date', colSize: { xs: 2 }, required: true },
-		{ id: 'EmployeeNameCreate', header: 'Người tạo', colSize: { xs: 3 }, required: true, readonly: true },
-		{ id: 'RegisterGeneralId', header: 'Bài nghiên cứu', colSize: { xs: 3 }, required: true },
-		{ id: 'DepartmentName', header: 'Khoa', colSize: { xs: 3 }, required: true, readonly: true },
-		{ id: 'InstructorName', header: 'Người nhận', colSize: { xs: 3 }, required: true, readonly: true },
-		{ id: 'Content', header: 'Nội dung', colSize: { xs: 9 } },
+		{ id: 'ExpResearchId', header: 'Mã xuất', colSize: { xs: 12, sm: 6 }, required: true },
+		{ id: 'ExportDate', header: 'Ngày xuất', type: 'date', colSize: { xs: 12, sm: 6 }, required: true },
+		{ id: 'EmployeeNameCreate', header: 'Người tạo', colSize: { xs: 12, sm: 6 }, required: true, readonly: true },
+		{ id: 'RegisterGeneralId', header: 'Bài nghiên cứu', colSize: { xs: 12, sm: 6 }, required: true },
+		{ id: 'DepartmentName', header: 'Khoa', colSize: { xs: 12, sm: 6 }, required: true, readonly: true },
+		{ id: 'InstructorName', header: 'Người nhận', colSize: { xs: 12, sm: 6 }, required: true, readonly: true },
+		{ id: 'Content', header: 'Nội dung', colSize: { xs: 12, sm: 12 } },
 	]);
 
 	useEffect(() => {
@@ -617,7 +617,7 @@ const DialogCreate = ({
 				</Grid>
 
 				<Box mt={2}>
-					<Box padding={2}>
+					<Box>
 						<Autocomplete
 							open={openAutocomplete.instrument}
 							onOpen={() => {

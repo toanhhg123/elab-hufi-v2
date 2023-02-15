@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -11,10 +11,11 @@ interface TabPanelProps {
 	children?: React.ReactNode;
 	index: number;
 	value: number;
+	sx?: CSSProperties 
 }
 
 function TabPanel(props: TabPanelProps) {
-	const { children, value, index, ...other } = props;
+	const { children, value, index, sx, ...other } = props;
 
 	return (
 		<div
@@ -22,7 +23,7 @@ function TabPanel(props: TabPanelProps) {
 			hidden={value !== index}
 			id={`tabpanel-${index}`}
 			aria-labelledby={`tab-${index}`}
-			style={{ flex: '1', overflow: 'hidden' }}
+			style={{ flex: '1', overflow: 'hidden', ...sx }}
 			{...other}
 		>
 			{value === index && (
@@ -46,10 +47,16 @@ const TrainSchedule: FC = () => {
 		{
 			header: 'Sinh viên',
 			comp: RegisterTrainSchedule,
+			sx: {
+				minWidth: '850px'
+			}
 		},
 		{
 			header: 'Nhân viên quản lý',
 			comp: ManagerTrainSchedule,
+			sx: {
+				minWidth: '650px'
+			}
 		},
 	]);
 
@@ -69,7 +76,7 @@ const TrainSchedule: FC = () => {
 			{tabData.current.map((x, index) => {
 				const Comp = x.comp;
 				return (
-					<TabPanel key={index} value={value} index={index}>
+					<TabPanel key={index} value={value} index={index} sx={x.sx}>
 						<Comp />
 					</TabPanel>
 				);

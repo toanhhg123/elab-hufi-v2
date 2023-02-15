@@ -266,8 +266,6 @@ const RegisterTrainSchedule = () => {
 							<FromItem itemType="group" colCount={1} colSpan={2}>
 								<FromItem dataField="DeviceId" />
 								<FromItem dataField="InstructorId" />
-								{/* <FromItem dataField="TrainDate" />
-								<FromItem dataField="TrainTime" /> */}
 							</FromItem>
 						</Form>
 					</Editing>
