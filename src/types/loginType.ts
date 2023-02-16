@@ -1,11 +1,11 @@
 export interface IloginType {
-    username: String,
-    password: String,
-    captcha: String,
-};
+	username: String;
+	password: String;
+	type: String;
+}
 
 export const dummyLoginData: IloginType = {
-    username: "",
-    password: "",
-    captcha: "",
-}
+	username: '',
+	password: '',
+	type: 'employee',
+};
