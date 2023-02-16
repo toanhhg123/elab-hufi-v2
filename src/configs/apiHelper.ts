@@ -137,6 +137,9 @@ const createAxiosClient = (apiConfiguration: ApiConfiguration): AxiosInstance =>
 	newInstance.interceptors.request.use(
 		async (config: AxiosRequestConfig) => {
 			const user = await getFromLocalStorage('user');
+			if (!user) {
+				return config;
+            }
 			const date = new Date();
 			const decodeToken = jwtDecode<Token>(user?.AccessToken);
 
@@ -150,7 +153,7 @@ const createAxiosClient = (apiConfiguration: ApiConfiguration): AxiosInstance =>
 						},
 					);
 
-					if (res.data) saveToLocalStorage('user', { ...res, type: user?.type });
+					if (res.data) saveToLocalStorage('user', { ...res.data, type: user?.type });
 
 					if (config.headers) {
 						config.headers['Authorization'] = `Bearer ${res ? res.data.accessToken : user.accessToken}`;
