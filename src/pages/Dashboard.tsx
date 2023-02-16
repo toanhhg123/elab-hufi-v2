@@ -38,7 +38,7 @@ import TrainSchedule from '../layouts/TrainSchedule';
 import {
 	setListOfTrainDevice,
 	setListOfTrainer,
-	setListOfTrainInstructor,
+	setListOfTrainInstructor
 } from '../layouts/TrainSchedule/TrainScheduleSlice';
 import WarehouseTable from '../layouts/WarehouseTable';
 import { setListOfWarehouseDepartment } from '../layouts/WarehouseTable/warehouseSlice';
@@ -83,11 +83,13 @@ import './Dashboard.css';
 
 import { loadMessages } from 'devextreme/localization';
 import viMessages from '../configs/devextreme_vi.json';
-import { IResearchTeamType } from '../types/researchTeamType';
 import SuggestNewDevicesTable from '../layouts/SuggestNewDevicesTable';
 import { setListOfSuggestNewDevices } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
-import { ISuggestNewDeviceType } from '../types/suggestNewDeviceType';
 import { getSuggestNewDevices } from '../services/suggestNewDeviceServices';
+import { IResearchTeamType } from '../types/researchTeamType';
+import { ISuggestNewDeviceType } from '../types/suggestNewDeviceType';
+import { useNavigate } from 'react-router-dom';
+import { getFromLocalStorage } from '../configs/apiHelper';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);

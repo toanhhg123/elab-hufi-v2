@@ -1,76 +1,81 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
-import {requestConfig } from "./request";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import jwtDecode from 'jwt-decode';
+import { requestConfig } from './request';
 export type CustomError = {
-  code?: number
-  message: string
+	code?: number;
+	message: string;
 };
 
 export type HttpHeaders = {
-  [key: string]: string;
+	[key: string]: string;
 };
 
 export type RequestConfig = {
-  headers: HttpHeaders;
+	headers: HttpHeaders;
 };
 
 export class ApiConfiguration {
-  accessToken?: string;
+	accessToken?: string;
 }
 
+type Token = {
+	username: string;
+	exp: number;
+	iss: string;
+	aud: string;
+};
+
 export const getCustomError = (err: any) => {
-  let error: CustomError = {
-    message:  "An unknown error occured" 
-  };
-  if (err.response
-    && err.response.data
-    && err.response.data.error
-    && err.response.data.message) {
-    error.code = err.response.data.error;
-    error.message = err.response.data.message;
-  } else if (!err.response && err.message) {
-    error.message = err.message;
-  }
-  return error;
+	let error: CustomError = {
+		message: 'An unknown error occured',
+	};
+	if (err.response && err.response.data && err.response.data.error && err.response.data.message) {
+		error.code = err.response.data.error;
+		error.message = err.response.data.message;
+	} else if (!err.response && err.message) {
+		error.message = err.message;
+	}
+	return error;
 };
 
 export const getFromLocalStorage = async (key: string) => {
-  try {
-    const serializedState = await localStorage.getItem(key);
-    if (serializedState === null) {
-      return undefined;
-    }
-    return JSON.parse(serializedState);
-  } catch (err) {
-    return undefined;
-  }
+	try {
+		const serializedState = await localStorage.getItem(key);
+		if (serializedState === null) {
+			return undefined;
+		}
+		return JSON.parse(serializedState);
+	} catch (err) {
+		return undefined;
+	}
 };
 export const saveToLocalStorage = async (key: string, value: any) => {
-  try {
-    const serializedState = JSON.stringify(value);
-    await localStorage.setItem(key, serializedState);
-  } catch (err) {
-    // Ignoring write error as of now
-  }
+	try {
+		const serializedState = JSON.stringify(value);
+		await localStorage.setItem(key, serializedState);
+	} catch (err) {
+		// Ignoring write error as of now
+	}
 };
 export const clearFromLocalStorage = async (key: string) => {
-  try {
-    await localStorage.removeItem(key);
-    return true;
-  } catch (err) {
-    return false;
-  }
+	try {
+		await localStorage.removeItem(key);
+		return true;
+	} catch (err) {
+		return false;
+	}
 };
 
 async function getRequestConfig(apiConfig?: any) {
-  let config = Object.assign({}, requestConfig);
-  const session = await getFromLocalStorage("user");
-  if (apiConfig) {
-    config = Object.assign({}, requestConfig, apiConfig);
-  }
-  if (session) {
-    config.headers["Authorization"] = `${JSON.parse(session).token}`;
-  }
-  return config;
+	let config = Object.assign({}, requestConfig);
+	const session = await getFromLocalStorage('user');
+	if (apiConfig) {
+		config = Object.assign({}, requestConfig, apiConfig);
+	}
+	if (session) {
+		config.headers['Authorization'] = `${JSON.parse(session).token}`;
+	}
+	return config;
 }
 
 // export const get = async (url: string, dataType?: any, params?: string, apiConfig?: any) => {
@@ -116,83 +121,121 @@ async function getRequestConfig(apiConfig?: any) {
 //   const request = axios.delete(url, config);
 //   return request;
 // };
-const createAxiosClient = (
-  apiConfiguration: ApiConfiguration
-): AxiosInstance => {
-  return axios.create({
-    // baseURL: appConfig.authApiBase,
-    responseType: 'json' as const,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(apiConfiguration.accessToken && {
-        Authorization: `Token ${apiConfiguration.accessToken}`,
-      }),
-    },
-    timeout: 10 * 1000,
-  });
-}
+
+const createAxiosClient = (apiConfiguration: ApiConfiguration): AxiosInstance => {
+	const newInstance = axios.create({
+		responseType: 'json' as const,
+		headers: {
+			'Content-Type': 'application/json',
+			...(apiConfiguration.accessToken && {
+				Authorization: `Bearer ${apiConfiguration.accessToken}`,
+			}),
+		},
+		timeout: 10 * 1000,
+	});
+
+	newInstance.interceptors.request.use(
+		async (config: AxiosRequestConfig) => {
+			const user = await getFromLocalStorage('user');
+			const date = new Date();
+			const decodeToken = jwtDecode<Token>(user?.AccessToken);
+
+			if (decodeToken.exp < date.getTime() / 1000) {
+				try {
+					var res = await axios.post(
+						`https://aspsite.somee.com/api/UserManagers/refreshtoken/${user?.type}`,
+						'',
+						{
+							headers: { Authorization: `Bearer ${user?.RefreshToken}` },
+						},
+					);
+
+					if (res.data) saveToLocalStorage('user', { ...res, type: user?.type });
+
+					if (config.headers) {
+						config.headers['Authorization'] = `Bearer ${res ? res.data.accessToken : user.accessToken}`;
+					}
+				} catch (err) {
+					clearFromLocalStorage('user');
+					console.error(err);
+				}
+			}
+
+			return config;
+		},
+		err => {
+			clearFromLocalStorage('user');
+			console.error(err);
+		},
+	);
+	return newInstance;
+};
 
 export interface IApiClient {
-  post<TRequest, TResponse>(
-    path: string,
-    object: TRequest,
-    config?: RequestConfig
-  ): Promise<TResponse>;
-  patch<TRequest, TResponse>(
-    path: string,
-    object: TRequest
-  ): Promise<TResponse>;
-  put<TRequest, TResponse>(path: string, object: TRequest): Promise<TResponse>;
-  get<TResponse>(path: string): Promise<TResponse>;
+	post<TRequest, TResponse>(path: string, object: TRequest, config?: RequestConfig): Promise<TResponse>;
+	patch<TRequest, TResponse>(path: string, object: TRequest): Promise<TResponse>;
+	put<TRequest, TResponse>(path: string, object: TRequest): Promise<TResponse>;
+	get<TResponse>(path: string): Promise<TResponse>;
 }
 
 export const get = async <TResponse>(path: string): Promise<TResponse> => {
-  try {
-    const response = await axios.get<TResponse>(path);
-    return response.data;
-  } catch (error) {
-    // handleServiceError(error);
-  }
-  return {} as TResponse;
-}
+	try {
+		const userStorage = await getFromLocalStorage('user');
+		const newAxios = createAxiosClient({
+			accessToken: userStorage?.AccessToken,
+		});
+		const response = await newAxios.get<TResponse>(path);
+		return response.data;
+	} catch (error) {
+		// handleServiceError(error);
+	}
+	return {} as TResponse;
+};
 
-export const put = async <TRequest, TResponse> (
-  path: string,
-  payload: TRequest
+export const put = async <TRequest, TResponse>(path: string, payload: TRequest): Promise<TResponse> => {
+	try {
+		const userStorage = await getFromLocalStorage('user');
+		const newAxios = createAxiosClient({
+			accessToken: userStorage?.AccessToken,
+		});
+		const response = await newAxios.put<TRequest, TResponse>(path, payload);
+		return response;
+	} catch (error) {
+		// handleServiceError(error);
+	}
+	return {} as TResponse;
+};
+
+export const deleteResource = async (path: string): Promise<any> => {
+	try {
+		const userStorage = await getFromLocalStorage('user');
+		const newAxios = createAxiosClient({
+			accessToken: userStorage?.AccessToken,
+		});
+		const response = await newAxios.delete(path);
+		return response;
+	} catch (error) {
+		// handleServiceError(error);
+	}
+};
+
+export const post = async <TRequest, TResponse>(
+	path: string,
+	payload: TRequest,
+	config?: RequestConfig,
 ): Promise<TResponse> => {
-  try {
-    const response = await axios.put<TRequest, TResponse>(path, payload);
-    return response;
-  } catch (error) {
-    // handleServiceError(error);
-  }
-  return {} as TResponse;
-}
+	try {
+		const userStorage = await getFromLocalStorage('user');
+		const newAxios = createAxiosClient({
+			accessToken: userStorage?.AccessToken,
+		});
+		const response = config
+			? await newAxios.post<TRequest, TResponse>(path, payload, config)
+			: await newAxios.post<TRequest, TResponse>(path, payload);
 
-export const deleteResource = async (
-  path: string
-): Promise<any> => {
-  try {
-    const response = await axios.delete(path);
-    return response;
-  } catch (error) {
-    // handleServiceError(error);
-  }
-}
-
-export const post =  async <TRequest, TResponse>(
-  path: string,
-  payload: TRequest,
-  config?: RequestConfig
-): Promise<TResponse> => {
-  try {
-    const response = config
-      ? await axios.post<TRequest, TResponse>(path, payload, config)
-      : await axios.post<TRequest, TResponse>(path, payload);
-      
-    return response;
-  } catch (error) {
-    // handleServiceError(error);
-  }
-  return {} as TResponse;
-}
+		return response;
+	} catch (error) {
+		// handleServiceError(error);
+	}
+	return {} as TResponse;
+};
