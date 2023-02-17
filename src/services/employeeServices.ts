@@ -1,11 +1,10 @@
-import config from "../configs/app"
-import * as API from "../configs/apiHelper";
+import config from '../configs/app';
+import * as API from '../configs/apiHelper';
 import { IEmployeeType } from '../types/employeeType';
 import { IUserOwner } from '../types/userManagerType';
 
 const { isProd } = config;
-const API_ENDPOINT = "https://www.aspsite.somee.com";
-
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint
@@ -13,28 +12,28 @@ const API_ENDPOINT = "https://www.aspsite.somee.com";
 
 // define type params: APIRequestParams
 
-export const getEmployees = async () => {    
-    const url = `${API_ENDPOINT}/api/employees`;
+export const getEmployees = async () => {
+	const url = `${API_ENDPOINT}/api/employees`;
 	const employees: IEmployeeType[] = await API.get<IEmployeeType[]>(url);
 	return employees;
-}
+};
 
-export const getEmployeeById = async (id: String) => {    
-    const url = `${API_ENDPOINT}/api/employees/${id}`;
+export const getEmployeeById = async (id: String) => {
+	const url = `${API_ENDPOINT}/api/employees/${id}`;
 	const employee: IEmployeeType = await API.get<IEmployeeType>(url);
 	return employee;
-}
+};
 
-export const updateEmployee = async (updatedData: IEmployeeType) => {    
-    const url = `${API_ENDPOINT}/api/employees`;
+export const updateEmployee = async (updatedData: IEmployeeType) => {
+	const url = `${API_ENDPOINT}/api/employees`;
 	const employee: IEmployeeType = await API.put<IEmployeeType, IEmployeeType>(url, updatedData);
 	return employee;
-}
+};
 
-export const deleteEmployee = async (id: String) => {    
-    const url = `${API_ENDPOINT}/api/employees/${id}`;
+export const deleteEmployee = async (id: String) => {
+	const url = `${API_ENDPOINT}/api/employees/${id}`;
 	await API.deleteResource(url);
-}
+};
 
 export const postEmployee = async (employeesData: IEmployeeType) => {
 	const url = `${API_ENDPOINT}/api/employees`;

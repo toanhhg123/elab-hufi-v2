@@ -4,20 +4,25 @@ import {
 	Button,
 	CircularProgress,
 	Collapse,
-	debounce, FormControl,
+	debounce,
+	FormControl,
 	FormControlLabel,
 	IconButton,
-	InputAdornment, Paper,
+	InputAdornment,
+	Paper,
 	Radio,
-	RadioGroup, Table,
+	RadioGroup,
+	Table,
 	TableBody,
 	TableCell,
 	tableCellClasses,
 	TableContainer,
 	TableHead,
 	TablePagination,
-	TableRow, TextField, Tooltip,
-	Typography
+	TableRow,
+	TextField,
+	Tooltip,
+	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useEffect, useRef, useState } from 'react';
@@ -33,9 +38,12 @@ import { DeviceType } from '../../configs/enums';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import { deleteDevice, getDevices, updateDevice } from '../../services/deviceDepartmentServices';
 import {
-	dummyDeviceDepartmentData, IDeviceDepartmentType, IDeviceDeptType, IDeviceDetailType
+	dummyDeviceDepartmentData,
+	IDeviceDepartmentType,
+	IDeviceDeptType,
+	IDeviceDetailType,
 } from '../../types/deviceDepartmentType';
-import { DialogCreate, DialogDelete, DialogEdit, DialogImportDeviceInfo } from './Dialog';
+import { DialogCreate, DialogDelete, DialogEdit, DialogImportDeviceInfo, DialogLiquidate } from './Dialog';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -57,6 +65,10 @@ const BoxTextFieldStyled = styled(Box)(theme => ({
 
 	'@media (max-width: 900px)': {
 		margin: '8px 0',
+	},
+
+	'@media (min-width: 0px)': {
+		marginBottom: '8px',
 	},
 }));
 
@@ -141,6 +153,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const [isOpenCreateModal, setIsOpenCreateModal] = useState<boolean>(false);
 	const [isOpenEditModal, setIsOpenEditModal] = useState<boolean>(false);
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
+	const [isOpenDeviceLiquidate, setIsOpenDeviceLiquidate] = useState<boolean>(false);
 	const [deviceType, setDeviceType] = useState<string>('Thiết bị');
 	const listDeviceType = useRef(Object.keys(DeviceType).filter(x => Number.isNaN(Number(x))));
 	const [deviceData, setDeviceData] = useState<any>({});
@@ -234,6 +247,11 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		setDeletedRow(dataDelete);
 	};
 
+	const handleDeviceLiquidate = () => {
+		setIsOpenDeviceLiquidate(true);
+	};
+
+
 	const handleSubmitDelete = async (DeviceId: String) => {
 		try {
 			const data = await deleteDevice(DeviceId);
@@ -320,8 +338,13 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 
 	return (
 		<>
-			{isOpenImportInfoDialog && <DialogImportDeviceInfo isOpen={isOpenImportInfoDialog} onClose={() => setIsOpenImportInfoDialog(false)} />}
-			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={2} mb={2}>
+			{isOpenImportInfoDialog && (
+				<DialogImportDeviceInfo
+					isOpen={isOpenImportInfoDialog}
+					onClose={() => setIsOpenImportInfoDialog(false)}
+				/>
+			)}
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" m={2}>
 				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
@@ -365,7 +388,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 								onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
 							/>
 						</BoxTextFieldStyled>
-						<Box>
+						<Box mb={1}>
 							<Tooltip arrow placement="left" title="Tạo mới">
 								<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
 									Tạo mới
@@ -378,6 +401,11 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 									sx={{ marginLeft: '24px' }}
 								>
 									Nhập thông tin thiết bị
+								</Button>
+							</Tooltip>
+							<Tooltip arrow placement="left" title="Thanh lý thiết bị">
+								<Button variant="contained" onClick={handleDeviceLiquidate} sx={{ marginLeft: '24px' }}>
+									Thanh lý thiết bị
 								</Button>
 							</Tooltip>
 						</Box>
@@ -473,6 +501,9 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 					dataUpdate={updatedRow}
 					handleSubmitUpdate={handleSubmitUpdate}
 				/>
+			)}
+			{isOpenDeviceLiquidate && (
+				<DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />
 			)}
 		</>
 	);

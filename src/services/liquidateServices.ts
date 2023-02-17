@@ -1,10 +1,9 @@
-import config from "../configs/app"
-import * as API from "../configs/apiHelper";
+import config from '../configs/app';
+import * as API from '../configs/apiHelper';
 import { ILiquidateDeptDevice } from '../types/deviceType';
 import { ILiquidateDeptInstrument } from '../types/instrumentType';
 const { isProd } = config;
-const API_ENDPOINT = "https://www.aspsite.somee.com";
-
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint
@@ -16,10 +15,10 @@ export const getLiqidateDeptDevices = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/device/${id}`;
 	const devices: ILiquidateDeptDevice[] = await API.get<ILiquidateDeptDevice[]>(url);
 	return devices;
-}
+};
 
 export const getLiqidateDeptInstruments = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/instrument/${id}`;
 	const instruments: ILiquidateDeptInstrument[] = await API.get<ILiquidateDeptInstrument[]>(url);
 	return instruments;
-}
+};

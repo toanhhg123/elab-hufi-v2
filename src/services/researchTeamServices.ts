@@ -3,7 +3,7 @@ import * as API from '../configs/apiHelper';
 import { IResearchTeamType } from '../types/researchTeamType';
 
 const { isProd } = config;
-const API_ENDPOINT = 'https://www.aspsite.somee.com';
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint
@@ -17,19 +17,19 @@ export const getResearchTeams = async () => {
 	return teams;
 };
 
-export const updateResearchTeam = async (updatedData: IResearchTeamType) => {    
-    const url = `${API_ENDPOINT}/api/Teams/${updatedData.TeamId}`;
+export const updateResearchTeam = async (updatedData: IResearchTeamType) => {
+	const url = `${API_ENDPOINT}/api/Teams/${updatedData.TeamId}`;
 	const order: IResearchTeamType = await API.put<IResearchTeamType, IResearchTeamType>(url, updatedData);
 	return order;
-}
+};
 
-export const deleteResearchTeam = async (id: String) => {    
-    const url = `${API_ENDPOINT}/api/Teams/${id}`;
+export const deleteResearchTeam = async (id: String) => {
+	const url = `${API_ENDPOINT}/api/Teams/${id}`;
 	await API.deleteResource(url);
-}
+};
 
 export const postResearchTeam = async (newData: IResearchTeamType) => {
 	const url = `${API_ENDPOINT}/api/Teams`;
 	const newOrder: IResearchTeamType = await API.post<IResearchTeamType, IResearchTeamType>(url, newData);
 	return newOrder;
-}
+};

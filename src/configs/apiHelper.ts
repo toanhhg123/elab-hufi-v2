@@ -1,6 +1,13 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import jwtDecode from 'jwt-decode';
 import { requestConfig } from './request';
+import { store } from '../store/index';
+import { setToken } from '../layouts/UserManager/userManagerSlice';
+import { dummyToken } from '../types/tokenType';
+import { redirect } from 'react-router-dom';
+
+const { dispatch } = store;
+
 export type CustomError = {
 	code?: number;
 	message: string;
@@ -138,37 +145,44 @@ const createAxiosClient = (apiConfiguration: ApiConfiguration): AxiosInstance =>
 		async (config: AxiosRequestConfig) => {
 			const user = await getFromLocalStorage('user');
 			if (!user) {
+				redirect('/login');
 				return config;
-            }
+			}
 			const date = new Date();
 			const decodeToken = jwtDecode<Token>(user?.AccessToken);
 
 			if (decodeToken.exp < date.getTime() / 1000) {
 				try {
 					var res = await axios.post(
-						`https://aspsite.somee.com/api/UserManagers/refreshtoken/${user?.type}`,
+						`${process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT}/api/UserManagers/refreshtoken/${user?.type}`,
 						'',
 						{
 							headers: { Authorization: `Bearer ${user?.RefreshToken}` },
 						},
 					);
 
-					if (res.data) saveToLocalStorage('user', { ...res.data, type: user?.type });
+					if (res.data) {
+						saveToLocalStorage('user', { ...res.data, type: user?.type });
+						dispatch(setToken(res.data));
+					}
 
 					if (config.headers) {
 						config.headers['Authorization'] = `Bearer ${res ? res.data.accessToken : user.accessToken}`;
 					}
 				} catch (err) {
 					clearFromLocalStorage('user');
-					console.error(err);
+					dispatch(setToken(dummyToken));
+					redirect('/login');
 				}
 			}
 
+			redirect('/');
 			return config;
 		},
 		err => {
 			clearFromLocalStorage('user');
-			console.error(err);
+			dispatch(setToken(dummyToken));
+			redirect('login');
 		},
 	);
 	return newInstance;

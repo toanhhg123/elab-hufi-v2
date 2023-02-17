@@ -1,24 +1,25 @@
-import React, { useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { Dashboard } from './pages/Dashboard';
-import DrawerLeft from './components/DrawerLeft';
-import AppBar from '../src/components/Appbar';
-import Toolbar from '@mui/material/Toolbar';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Avatar, IconButton, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
-import { useAppDispatch, useAppSelector } from './hooks';
-import { RootState } from './store';
-import { setIsOpenDrawer } from './pages/appSlice';
+import Toolbar from '@mui/material/Toolbar';
 import { Box } from '@mui/system';
-import { getLaboratories } from './services/laboratoryServices';
-import { Login } from './pages/Login';
-import Account from './pages/Account';
-import { NotFound } from './pages/NotFound';
 import 'devextreme/dist/css/dx.light.css';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
+import AppBar from '../src/components/Appbar';
+import './App.css';
+import DrawerLeft from './components/DrawerLeft';
 import Footer from './components/Footer';
 import { getFromLocalStorage } from './configs/apiHelper';
+import { useAppDispatch, useAppSelector } from './hooks';
+import { setOwner, setToken } from './layouts/UserManager/userManagerSlice';
+import Account from './pages/Account';
+import { setIsOpenDrawer } from './pages/appSlice';
+import { Dashboard } from './pages/Dashboard';
+import { Login } from './pages/Login';
+import { NotFound } from './pages/NotFound';
+import { getEmployeeOwner } from './services/employeeServices';
+import { getLaboratories } from './services/laboratoryServices';
+import { RootState } from './store';
 
 const settings = [
 	{
@@ -52,6 +53,30 @@ function App() {
 	useEffect(() => {
 		getLaboratories();
 	}, []);
+
+	const getEmployeeOwnerData = async () => {
+		try {
+			const owner = await getEmployeeOwner();
+			if (owner) {
+				dispatch(setOwner(owner));
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	useEffect(() => {
+		const getUserLocal = async () => {
+			const user = await getFromLocalStorage('user');
+
+			if (user) {
+				getEmployeeOwnerData();
+				dispatch(setToken(user));
+			};
+		};
+
+		getUserLocal();
+	});
 
 	const _renderRouteElement = (id: String) => {
 		return (

@@ -278,7 +278,7 @@ const DeviceOfDepartmentTable = () => {
 	const columns = useRef<DeviceColumnType[]>([
 		{ id: 'DeviceDetailId', header: 'Mã chi tiết TB' },
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
-		{ id: 'DeviceName', header: 'Tên thiết bị' },
+		{ id: 'DeviceName', header: 'Tên thiết bị', size: 200 },
 		{ id: 'Model', header: 'Số Model' },
 		{ id: 'ImportDate', header: 'Ngày nhập', type: 'date' },
 		{ id: 'Standard', header: 'Qui cách' },
@@ -287,32 +287,37 @@ const DeviceOfDepartmentTable = () => {
 			id: 'QuantityOriginal',
 			header: 'SL ban đầu',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityExport',
 			header: 'SL xuất',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityRemain',
 			header: 'SL kho',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityTotal',
 			header: 'SL tồn',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityLiquidate',
 			header: 'SL thanh lý',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 120
 		},
 	]);
 
 	return (
 		<>
-			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={2} mb={2}>
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" m={2}>
 				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
@@ -372,7 +377,7 @@ const DeviceOfDepartmentTable = () => {
 								</Button>
 							</Tooltip>
 
-							<Tooltip arrow placement="left" title="Nhập giờ thiết bị">
+							<Tooltip arrow placement="left" title="Thanh lý thiết bị">
 								<Button variant="contained" onClick={handleDeviceLiquidate} sx={{ marginLeft: '24px' }}>
 									Thanh lý thiết bị
 								</Button>
@@ -452,16 +457,27 @@ const DeviceOfDepartmentTable = () => {
 				</Table>
 			</TableContainer>
 
-			{isOpenCreateModal && <DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />}
-			{isOpenDeleteModal && <DialogDelete
-				isOpen={isOpenDeleteModal}
-				onClose={() => setIsOpenDeleteModal(false)}
-				dataDelete={deletedRow}
-				handleSubmitDelete={handleSubmitDelete}
-			/>}
+			{isOpenCreateModal && (
+				<DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
+			)}
+			{isOpenDeleteModal && (
+				<DialogDelete
+					isOpen={isOpenDeleteModal}
+					onClose={() => setIsOpenDeleteModal(false)}
+					dataDelete={deletedRow}
+					handleSubmitDelete={handleSubmitDelete}
+				/>
+			)}
 
-			{isOpenDeviceUsageHours && <DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />}
-			{isOpenDeviceLiquidate && <DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />}
+			{isOpenDeviceUsageHours && (
+				<DialogDeviceUsageHours
+					isOpen={isOpenDeviceUsageHours}
+					onClose={() => setIsOpenDeviceUsageHours(false)}
+				/>
+			)}
+			{isOpenDeviceLiquidate && (
+				<DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />
+			)}
 		</>
 	);
 };
@@ -532,7 +548,9 @@ const RowDevice = ({
 
 					if (col.type === 'date')
 						return (
-							<TableCell align="left" key={col.id}>
+							<TableCell align="left" key={col.id} sx={{
+								minWidth: col?.size ? `${col.size}px` : 'unset',
+							}}>
 								{moment.unix(Number(device[col.id as keyof typeof device])).format('DD/MM/YYYY')}
 							</TableCell>
 						);
@@ -545,21 +563,33 @@ const RowDevice = ({
 							col.id === 'QuantityLiquidate'
 						)
 							return (
-								<TableCell align="left" key={col.id}>
+								<TableCell
+									align="left"
+									key={col.id}
+									sx={{
+										minWidth: col?.size ? `${col.size}px` : 'unset',
+									}}
+								>
 									{col.renderValue(device[col.id as keyof typeof device], device.Unit)}
 								</TableCell>
 							);
 						if (col.id === 'HasTrain')
 							return (
-								<TableCell align="left" key={col.id}>
+								<TableCell align="left" key={col.id} sx={{
+								minWidth: col?.size ? `${col.size}px` : 'unset',
+							}}>
 									{col.renderValue(device[col.id as keyof typeof device])}
 								</TableCell>
 							);
 					}
 					return (
-						<TableCell align="left" key={col.id}>{`${
-							device[col.id as keyof typeof device] || ''
-						}`}</TableCell>
+						<TableCell
+							align="left"
+							key={col.id}
+							sx={{
+								minWidth: col?.size ? `${col.size}px` : 'unset',
+							}}
+						>{`${device[col.id as keyof typeof device] || ''}`}</TableCell>
 					);
 				})}
 				{deviceType !== listDeviceType[0] && (

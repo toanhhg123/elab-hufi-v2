@@ -53,6 +53,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
 		name: 'Quản lý hoá chất',
 		icon: '',
 	},
+	{
+		isOpen: false,
+		name: 'Quản lý thiết bị',
+		icon: '',
+	},
 	// {
 	//   "isOpen": false,
 	//   "name": "Danh mục hoá chất",

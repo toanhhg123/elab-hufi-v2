@@ -1,5 +1,8 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
+import { Delete, Edit } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import PreviewIcon from '@mui/icons-material/Preview';
 import {
 	AppBar,
 	Button,
@@ -12,22 +15,16 @@ import {
 	TextField,
 	Toolbar,
 	Tooltip,
-	Typography,
+	Typography
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
-import { dummyDepartmentData, IDepartmentType } from '../../types/departmentType';
+import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from 'material-react-table';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { setSnackbarMessage } from '../../pages/appSlice';
 import { deleteDepartment, getDepartments, postDepartment, updateDepartment } from '../../services/departmentServices';
 import { RootState } from '../../store';
+import { dummyDepartmentData, IDepartmentType } from '../../types/departmentType';
 import { setListOfDepartments } from './departmentSlice';
-import AddIcon from '@mui/icons-material/Add';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { setSnackbarMessage } from '../../pages/appSlice';
-import DeviceOfExperimentCenterTable from './DeviceOfExperimentCenterTable';
-import PreviewIcon from '@mui/icons-material/Preview';
-import CloseIcon from '@mui/icons-material/Close';
-import DeviceOfDepartmentTable from './DeviceOfDepartmentTable';
-import { DeviceTable } from './context/DeviceOfDepartmentTableContext';
 
 const DepartmentTable: FC = () => {
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
@@ -200,11 +197,6 @@ const DepartmentTable: FC = () => {
 				)}
 				renderRowActions={({ row, table }) => (
 					<>
-						<Tooltip arrow placement="left" title="Xem chi tiết thiết bị">
-							<IconButton onClick={() => handleOpenDeviceTableModal(row.original.DepartmentId)}>
-								<PreviewIcon />
-							</IconButton>
-						</Tooltip>
 						<Tooltip arrow placement="left" title="Sửa thông tin phòng ban">
 							<IconButton onClick={() => handleOpenEditModal(row)}>
 								<Edit />
@@ -322,35 +314,6 @@ const DepartmentTable: FC = () => {
 						Tạo
 					</Button>
 				</DialogActions>
-			</Dialog>
-
-			<Dialog fullScreen open={isDeviceTableModal} onClose={() => setIsDeviceTableModal(false)}>
-				<AppBar sx={{ position: 'relative', marginBottom: '24px' }}>
-					<Toolbar>
-						<IconButton
-							edge="start"
-							color="inherit"
-							onClick={() => setIsDeviceTableModal(false)}
-							aria-label="close"
-						>
-							<CloseIcon />
-						</IconButton>
-						<Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-							Thông tin thiết bị trong{' '}
-							<b>{departmentData.length > 0 ? departmentData.find(x => x.DepartmentId === departmentIdShow)?.DepartmentName : ''}</b>
-						</Typography>
-					</Toolbar>
-				</AppBar>
-				{departmentIdShow === 1 && (
-					<>
-						<DeviceOfExperimentCenterTable id={departmentIdShow}/>
-					</>
-				)}
-				{departmentIdShow !== 1 && (
-					<DeviceTable id={departmentIdShow || 0}>
-						<DeviceOfDepartmentTable />
-					</DeviceTable>
-				)}
 			</Dialog>
 		</>
 	);
