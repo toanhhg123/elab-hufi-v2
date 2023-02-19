@@ -3,7 +3,9 @@ import * as API from '../configs/apiHelper';
 import { IScheduleType } from '../types/scheduleType';
 
 const { isProd } = config;
-const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 export const getSchedules = async () => {
 	const url = `${API_ENDPOINT}/api/schedules`;

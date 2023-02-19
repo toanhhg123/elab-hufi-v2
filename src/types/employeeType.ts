@@ -1,24 +1,24 @@
 export interface IEmployeeType {
     EmployeeId?: String,
     Fullname: String,
-    Birthday: number,
+    Birthdate: String | number,
     Gender: "Nam" | "Nữ" | "Khác",
     Address: String,
     Email: String,
     PhoneNumber: String,
     DepartmentId: number,
     DepartmentName?: String,
-    formatedBirthday?: String
+    formatedBirthdate?: String,
 }
 
-export const dummyEmployeeData: IEmployeeType = { 
-    "EmployeeId": "", 
-    "Fullname": "", 
-    "Birthday": 0, 
-    "Gender": "Nam", 
-    "Address": "", 
-    "Email": "", 
-    "PhoneNumber": "", 
+export const dummyEmployeeData: IEmployeeType = {
+    "EmployeeId": "",
+    "Fullname": "",
+    "Birthdate": 0,
+    "Gender": "Nam",
+    "Address": "",
+    "Email": "",
+    "PhoneNumber": "",
     "DepartmentId": -1,
-    "formatedBirthday": ""
+    "formatedBirthdate": ""
 }

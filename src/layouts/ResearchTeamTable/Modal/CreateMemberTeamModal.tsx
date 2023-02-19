@@ -14,7 +14,7 @@ import {
     Stack,
     TextField,
 } from '@mui/material';
-import { IListMemberType } from '../../../types/researchTeamType';
+import { IResearcherType } from '../../../types/researchTeamType';
 import moment from 'moment';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -25,7 +25,7 @@ import { setCurrentMemberTeam } from '../researchTeamSlice';
 
 const CreateMemberTeamModal: FC<{
     isOpen: boolean;
-    columns: MRT_ColumnDef<IListMemberType>[];
+    columns: MRT_ColumnDef<IResearcherType>[];
     onClose: any;
     handleSubmit: any;
 }> = ({ isOpen, columns, onClose, handleSubmit }) => {
@@ -45,20 +45,20 @@ const CreateMemberTeamModal: FC<{
                         }}
                     >
                         {columns.map((column) => {
-                            if (column.accessorKey === "formatedBirthday") {
+                            if (column.accessorKey === "formatedBirthdate") {
                                 return <LocalizationProvider dateAdapter={AdapterMoment}>
                                     <DatePicker
-                                        key={"CreateBirthday"}
+                                        key={"CreateBirthdate"}
                                         label="Ngày sinh"
-                                        value={new Date(Number(currentMemberTeam.Birthday) * 1000)}
+                                        value={new Date(Number(currentMemberTeam.Birthdate) * 1000)}
                                         onChange={(val: any) =>
                                             dispatch(setCurrentMemberTeam({
                                                 ...currentMemberTeam,
-                                                "formatedBirthday": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
-                                                "Birthday": Date.parse(val) / 1000
+                                                "formatedBirthdate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                                                "Birthdate": Date.parse(val) / 1000
                                             }))
                                         }
-                                        renderInput={(params: any) => <TextField key={"CreateBirthdayTextField"} {...params} />}
+                                        renderInput={(params: any) => <TextField key={"CreateBirthdateTextField"} {...params} />}
                                         inputFormat='DD/MM/YYYY'
                                     />
                                 </LocalizationProvider>
@@ -91,7 +91,7 @@ const CreateMemberTeamModal: FC<{
                                         key="create-select-title"
                                         labelId="create-select-title-required"
                                         id="create-select-title-required"
-                                        value={ResearchTeamTitles[currentMemberTeam.Title].toString()}
+                                        value={currentMemberTeam?.Title && ResearchTeamTitles[currentMemberTeam.Title].toString()}
                                         label="Chức vụ"
                                         onChange={(e: SelectChangeEvent) =>
                                             dispatch(setCurrentMemberTeam({

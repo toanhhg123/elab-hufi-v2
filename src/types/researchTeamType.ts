@@ -1,24 +1,11 @@
 import { Genders, ResearchTeamTitles } from '../configs/enums';
 
-export interface IListMemberType {
-    "Title": keyof typeof ResearchTeamTitles,
-    "ResearcherId": string,
-    "Fullname": string,
-    "Birthday": string | number,
-    "formatedBirthday"?: string,
-    "Gender": keyof typeof Genders,
-    "Address": string,
-    "Email": string,
-    "PhoneNumber": string,
-    "Organization": string
-}
-
-export const dummyListMemberData: IListMemberType = {
+export const dummyListMemberData: IResearcherType = {
     "Title": "Thành viên",
     "ResearcherId": "",
     "Fullname": "",
-    "Birthday": "",
-    "formatedBirthday": "",
+    "Birthdate": "",
+    "formatedBirthdate": "",
     "Gender": "Nam",
     "Address": "",
     "Email": "",
@@ -30,7 +17,7 @@ export interface IResearchTeamType {
     "TeamId"?: number,
     "TeamName": string,
     "Note": string,
-    "listMember": IListMemberType[] | []
+    "listMember": IResearcherType[] | []
 }
 
 export const dummyResearchTeamData: IResearchTeamType = {
@@ -38,4 +25,34 @@ export const dummyResearchTeamData: IResearchTeamType = {
     "TeamName": "",
     "Note": "",
     "listMember": []
+}
+
+export interface IResearcherType {
+    "ResearcherId"?: string,
+    "Fullname": string,
+    "Gender": keyof typeof Genders,
+    "Address": string,
+    "Email": string,
+    "PhoneNumber": string,
+    "Organization": string,
+    "GroupId"?: number,
+    "GroupName"?: string,
+    "Status"?: string,
+    "Title"?: keyof typeof ResearchTeamTitles,
+    "Birthdate": string | number,
+    "formatedBirthdate"?: string,
+}
+
+export const dummyResearcherData: IResearcherType =  {
+    "ResearcherId": "",
+    "Fullname": "",
+    "Birthdate": "",
+    "Gender": "Nam",
+    "Address": "",
+    "Email": "",
+    "PhoneNumber": "",
+    "Organization": "",
+    "GroupId": 0,
+    "GroupName": "",
+    "Status": ""
 }

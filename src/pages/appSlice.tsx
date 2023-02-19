@@ -45,7 +45,12 @@ export const defaultSidebarItems: ISidebarItem[] = [
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý nhóm nc',
+		name: 'Quản lý nhà NC',
+		icon: '',
+	},
+	{
+		isOpen: false,
+		name: 'Quản lý nhóm NC',
 		icon: '',
 	},
 	{
@@ -206,6 +211,12 @@ export const appSlice = createSlice({
 	},
 });
 
-export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems, setSnackbar, reset } = appSlice.actions;
+export const { 
+	setIsOpenDrawer, 
+	setSnackbarMessage, 
+	setSidebarItems, 
+	setSnackbar, 
+	reset 
+} = appSlice.actions;
 
 export default appSlice.reducer;

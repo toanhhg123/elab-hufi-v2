@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
-import { IListMemberType } from '../../../types/researchTeamType';
+import { IResearcherType } from '../../../types/researchTeamType';
 
 const StyledTableCell = styled(TableCell)(theme => ({
   [`&.${tableCellClasses.head}`]: {
@@ -28,10 +28,10 @@ const StyledTableCell = styled(TableCell)(theme => ({
 }));
 
 const TeamMemberTable: FC<{ 
-    chemicalData: IListMemberType[]; 
+    chemicalData: IResearcherType[]; 
     columns: ColumnType[]; 
 }> = ({ chemicalData, columns }) => {
-  const [tableData, setTableData] = useState<IListMemberType[]>(chemicalData);
+  const [tableData, setTableData] = useState<IResearcherType[]>(chemicalData);
   const [order, setOrder] = useState<string>('asc');
   const [orderBy, setOrderBy] = useState<string>('ResearcherId');
   const [keyword, setKeyword] = useState<string>('');
@@ -47,7 +47,7 @@ const TeamMemberTable: FC<{
   useEffect(() => {
     setTableData(prev => {
       let data = [...prev];
-      data?.sort((a: IListMemberType, b: IListMemberType) => {
+      data?.sort((a: IResearcherType, b: IResearcherType) => {
         let i =
           order === 'desc'
             ? descendingComparator<any>(a, b, orderBy)
@@ -60,8 +60,8 @@ const TeamMemberTable: FC<{
 
 
   useEffect(() => {
-    const chemicalDataItems: IListMemberType[] = chemicalData || [];
-    const data = chemicalDataItems?.map((x: IListMemberType) => {
+    const chemicalDataItems: IResearcherType[] = chemicalData || [];
+    const data = chemicalDataItems?.map((x: IResearcherType) => {
       let string: String = '';
 
       Object.keys(x).forEach(key => {
@@ -79,7 +79,7 @@ const TeamMemberTable: FC<{
 
   useEffect(() => {
     const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
-    const chemicalDataItems: IListMemberType[] = chemicalData || [];
+    const chemicalDataItems: IResearcherType[] = chemicalData || [];
 
     if (keyword === '') {
       setTableData(chemicalDataItems);
@@ -132,7 +132,7 @@ const TeamMemberTable: FC<{
             </TableRow>
           </TableHead>
           <TableBody>
-            {tableData.length > 0 ? tableData?.map((chemDeptItem: IListMemberType, index: number) => (
+            {tableData.length > 0 ? tableData?.map((chemDeptItem: IResearcherType, index: number) => (
               <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell align="left">{index + 1}</TableCell>
                 {columns.map(col => {

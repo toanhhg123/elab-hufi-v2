@@ -26,7 +26,7 @@ import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseO
 import RegisterGeneralsTable from '../layouts/RegisterGeneralTable';
 import { setListOfRegisterGenerals } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
 import ResearchTeamTable from '../layouts/ResearchTeamTable';
-import { setListOfResearchTeams } from '../layouts/ResearchTeamTable/researchTeamSlice';
+import { setListOfResearchers, setListOfResearchTeams } from '../layouts/ResearchTeamTable/researchTeamSlice';
 import FacultyViewScheduleTable from '../layouts/ScheduleTable/FacultyViewIndex';
 import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
 import TeacherViewScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
@@ -55,7 +55,7 @@ import { getManufacturers } from '../services/manufacturerServices';
 import { getPlanSubjects } from '../services/planSubjectServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGenerals } from '../services/registerGeneralServices';
-import { getResearchTeams } from '../services/researchTeamServices';
+import { getResearchers, getResearchTeams } from '../services/researchTeamServices';
 import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
@@ -86,11 +86,12 @@ import viMessages from '../configs/devextreme_vi.json';
 import SuggestNewDevicesTable from '../layouts/SuggestNewDevicesTable';
 import { setListOfSuggestNewDevices } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
 import { getSuggestNewDevices } from '../services/suggestNewDeviceServices';
-import { IResearchTeamType } from '../types/researchTeamType';
+import { IResearcherType, IResearchTeamType } from '../types/researchTeamType';
 import { ISuggestNewDeviceType } from '../types/suggestNewDeviceType';
 import { useNavigate } from 'react-router-dom';
 import { getFromLocalStorage } from '../configs/apiHelper';
 import DeviceTable from '../layouts/DeviceTable';
+import ResearchersTable from '../layouts/ResearchTeamTable/ResearcherTable';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -130,7 +131,7 @@ export function Dashboard() {
 	};
 
 	const getEmployeeData = async () => {
-		const listOfEmployees: IEmployeeType[] = await getEmployees();
+		const listOfEmployees: any[] = await getEmployees();
 		if (listOfEmployees) {
 			dispatch(setListOfEmployees(listOfEmployees));
 		}
@@ -241,6 +242,13 @@ export function Dashboard() {
 		}
 	};
 
+	const getResearchersData = async () => {
+		const listOfResearchers: IResearcherType[] = await getResearchers();
+		if (listOfResearchers){
+			dispatch(setListOfResearchers(listOfResearchers));
+		}
+	}
+
 	const getTrainDeviceData = async () => {
 		const listOfTrainDevices: ITrainDevice[] = await getTrainDevices();
 		if (listOfTrainDevices) {
@@ -287,6 +295,7 @@ export function Dashboard() {
 		getPurchaseOrderData();
 		getScheduleData();
 		getPlanSubjectData();
+		getResearchersData();
 		getResearchTeamsData();
 		getTrainDeviceData();
 		getTrainInstructorData();
@@ -315,22 +324,23 @@ export function Dashboard() {
 				{sidebarItems[0].isOpen && <LaboratoryTable />}
 				{sidebarItems[1].isOpen && <DepartmentTable />}
 				{sidebarItems[2].isOpen && <EmployeeTable />}
-				{sidebarItems[3].isOpen && <ResearchTeamTable />}
-				{sidebarItems[4].isOpen && <ChemicalWarehouseTable role={role} />}
-				{sidebarItems[5].isOpen && <DeviceTable />}
-				{sidebarItems[6].isOpen && <ManufacturersTable />}
-				{sidebarItems[7].isOpen && <SupplierTable />}
-				{sidebarItems[8].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
-				{sidebarItems[9].isOpen && <SubjectTable />}
-				{sidebarItems[10].isOpen && <ClassSubjectTable />}
-				{sidebarItems[11].isOpen && <LessonLabTable />}
-				{sidebarItems[12].isOpen && <WarehouseTable />}
-				{sidebarItems[13].isOpen && <PurchaseOrderTable />}
-				{sidebarItems[14].isOpen && <PlanSubjectTable />}
-				{sidebarItems[15].isOpen && <RegisterGeneralsTable />}
-				{sidebarItems[16].isOpen && <SuggestNewDevicesTable />}
-				{sidebarItems[17].isOpen && <DeviceTransfer />}
-				{sidebarItems[18].isOpen && <TrainSchedule />}
+				{sidebarItems[3].isOpen && <ResearchersTable />}
+				{sidebarItems[4].isOpen && <ResearchTeamTable />}
+				{sidebarItems[5].isOpen && <ChemicalWarehouseTable role={role} />}
+				{sidebarItems[6].isOpen && <DeviceTable />}
+				{sidebarItems[7].isOpen && <ManufacturersTable />}
+				{sidebarItems[8].isOpen && <SupplierTable />}
+				{sidebarItems[9].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
+				{sidebarItems[10].isOpen && <SubjectTable />}
+				{sidebarItems[11].isOpen && <ClassSubjectTable />}
+				{sidebarItems[12].isOpen && <LessonLabTable />}
+				{sidebarItems[13].isOpen && <WarehouseTable />}
+				{sidebarItems[14].isOpen && <PurchaseOrderTable />}
+				{sidebarItems[15].isOpen && <PlanSubjectTable />}
+				{sidebarItems[16].isOpen && <RegisterGeneralsTable />}
+				{sidebarItems[17].isOpen && <SuggestNewDevicesTable />}
+				{sidebarItems[18].isOpen && <DeviceTransfer />}
+				{sidebarItems[19].isOpen && <TrainSchedule />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

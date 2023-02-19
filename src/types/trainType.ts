@@ -25,7 +25,7 @@ export interface ITrainRegister {
 	listTrainDetail: ITrainRegisterDetail[];
 	ResearcherId: String;
 	Fullname: String;
-	Birthday: String;
+	Birthdate: String;
 	Gender: String;
 	Address: String;
 	Email: String;

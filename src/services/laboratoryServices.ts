@@ -3,13 +3,9 @@ import * as API from '../configs/apiHelper';
 import { ILaboratoryType } from '../types/laboratoryType';
 
 const { isProd } = config;
-const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
-
-// isProd
-//   ? config.production.api_endpoint
-//   : config.development.api_endpoint;
-
-// define type params: APIRequestParams
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 export const getLaboratories = async () => {
 	const url = `${API_ENDPOINT}/api/laboratories`;

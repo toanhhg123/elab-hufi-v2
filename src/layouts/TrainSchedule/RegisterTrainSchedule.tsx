@@ -38,7 +38,7 @@ const RegisterTrainSchedule = () => {
 	const columns = useRef<(ColumnsType & { colSize: ColumnSizeType; required?: boolean; readonly?: boolean })[]>([
 		{ id: 'ResearcherId', header: 'ResearcherId', colSize: { xs: 4 } },
 		{ id: 'Fullname', header: 'Fullname', colSize: { xs: 4 } },
-		{ id: 'Birthday', header: 'Birthday', colSize: { xs: 4 } },
+		{ id: 'Birthdate', header: 'Birthdate', colSize: { xs: 4 } },
 		{ id: 'Gender', header: 'Gender', colSize: { xs: 4 } },
 		{ id: 'Address', header: 'Address', colSize: { xs: 4 } },
 		{ id: 'Email', header: 'Email', colSize: { xs: 4 } },

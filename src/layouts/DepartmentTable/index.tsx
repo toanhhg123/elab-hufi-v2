@@ -192,7 +192,7 @@ const DepartmentTable: FC = () => {
 								style={{ margin: '0px', fontSize: '30px', paddingTop: '15px' }}
 							></KeyboardArrowRightIcon>
 						</b>
-						<span>Thông tin phòng ban</span>
+						<span>Danh mục phòng ban</span>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (

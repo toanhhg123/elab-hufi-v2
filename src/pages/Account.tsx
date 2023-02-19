@@ -36,7 +36,7 @@ const Account: React.FC = () => {
 	const owner = useAppSelector(state => state.userManager.owner);
 	const [avatarUpload, setAvatarUpload] = useState<string>();
 
-	const columns = useMemo<MRT_ColumnDef<IUserOwner>[]>(() => {
+	const columns: any = useMemo<MRT_ColumnDef<any>[]>(() => {
 		switch (token.type) {
 			case 'employee':
 				return [
@@ -232,8 +232,8 @@ const Account: React.FC = () => {
 									</Typography>
 								)}
 								<Grid container spacing={4}>
-									{columns.map(column => {
-										if (column.accessorKey === 'formatedBirthday') {
+									{columns.map((column: any) => {
+										if (column.accessorKey === 'formatedBirthdate') {
 											let x = moment.unix(Number(`${owner['Birthdate']}`)).format('DD/MM/YYYY');
 											return (
 												<Grid item xs={12} sm={12} md={6} key={column.accessorKey}>
