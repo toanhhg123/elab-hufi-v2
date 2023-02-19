@@ -108,7 +108,7 @@ export function Dashboard() {
 	const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
 	const role = Number(localStorage.getItem('role') || 1);
-	console.log(process.env.REACT_APP_KEY);
+	
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {

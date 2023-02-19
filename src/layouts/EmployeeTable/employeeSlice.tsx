@@ -14,15 +14,18 @@ const initialState: IEmployeeState = {
 }
 
 export const employeeSlice = createSlice({
-  name: 'employee',
-  initialState,
-  reducers: {
-    setListOfEmployees: (state: IEmployeeState, action: PayloadAction<IEmployeeType[]>) => {
-      state.listOfEmployees = action.payload
-    },
-  },
-})
+	name: 'employee',
+	initialState,
+	reducers: {
+		setListOfEmployees: (state: IEmployeeState, action: PayloadAction<IEmployeeType[]>) => {
+			state.listOfEmployees = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfEmployees } = employeeSlice.actions
+export const { setListOfEmployees, reset } = employeeSlice.actions;
 
 export default employeeSlice.reducer

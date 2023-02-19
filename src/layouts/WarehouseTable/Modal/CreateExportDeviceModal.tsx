@@ -12,7 +12,7 @@ import {
 	FormControl,
 	Grid,
 	IconButton,
-	TextField
+	TextField,
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -70,6 +70,9 @@ const CreateExportDeviceModal = ({
 			case 'LAB_INS':
 				list = initData?.listInstrument || [];
 				break;
+			case 'DEP_INS':
+				list = initData?.listInstrumentExport || [];
+				break;
 			default:
 				break;
 		}
@@ -78,15 +81,17 @@ const CreateExportDeviceModal = ({
 			switch (type) {
 				case 'DEP':
 					return {
-						DeviceDeptId: device?.DeviceDeptId,
-						DeviceDetailId: device?.DeviceDetailId,
+						...device,
+						DeviceDeptId: device?.DeviceInfoId,
+						DeviceDetailId: device?.DeviceInfoId,
 						DeviceName: device?.DeviceName,
-						Amount: device?.QuantityOriginal,
+						SerialNumber: device?.SerialNumber,
 						Unit: device?.Unit,
 					};
 				case 'LAB_DEV':
 					return {
-						DeviceDeptId: device?.DeviceDeptId,
+						...device,
+						DeviceDeptId: device?.DeviceInfoId,
 						DeviceDetailId: device?.DeviceDetailId,
 						DeviceName: device?.DeviceName,
 						Unit: device?.Unit,
@@ -94,17 +99,27 @@ const CreateExportDeviceModal = ({
 					};
 				case 'LAB_INS':
 					return {
-						DeviceDeptId: device?.DeviceDeptId,
+						...device,
+						DeviceDeptId: device?.InstrumentDeptId,
 						DeviceDetailId: device?.DeviceDetailId,
 						DeviceName: device?.DeviceName,
 						Unit: device?.Unit,
 						Quantity: device?.Quantity,
 					};
+				case 'DEP_INS':
+					return {
+						...device,
+						DeviceDeptId: device?.InstrumentDeptId,
+						DeviceDetailId: device?.DeviceDetailId,
+						DeviceName: device?.DeviceName,
+						Unit: device?.Unit,
+						Amount: device?.QuantityOriginal,
+					};
 				default:
 					break;
 			}
 		});
-
+		console.log(initData);
 		setListDeviceAmount(listInitDevice || []);
 	}, [initData, type]);
 
@@ -121,33 +136,51 @@ const CreateExportDeviceModal = ({
 						data?.forEach((devices: any) => {
 							switch (type) {
 								case 'DEP':
-									for (let x of devices.listDeviceDetail) {
-										devicesDetail.push({
-											DeviceName: devices?.DeviceName,
-											DeviceDetailId: x?.DeviceDetailId,
-											Unit: devices.Unit,
-										});
+									for (let deviceDetail of devices.listDeviceDetail) {
+										for (let x of deviceDetail.listDeviceDept) {
+											if (x.DepartmentId === null)
+												devicesDetail.push({
+													DeviceDetailId: x?.DeviceInfoId,
+													DeviceName: devices?.DeviceName,
+													...x,
+												});
+										}
 									}
 									break;
 								case 'LAB_DEV':
-									for (let x of devices.listExportDevice) {
-										devicesDetail.push({
-											DeviceName: devices?.DeviceName,
-											DeviceDeptId: x?.DeviceDeptId,
-											Unit: devices.Unit,
-											SerialNumber: x?.SerialNumber,
-											...x,
-										});
+									if (devices.listDeviceInfo) {
+										for (let x of devices.listDeviceInfo) {
+											devicesDetail.push({
+												DeviceName: devices?.DeviceName,
+												DeviceDeptId: devices?.DeviceDetailId,
+												DeviceInfoId: x?.DeviceInfoId,
+												Unit: devices.Unit,
+												SerialNumber: x?.SerialNumber,
+												...x,
+											});
+										}
 									}
 									break;
 								case 'LAB_INS':
 									if (devices.DeviceType === 'Công cụ' || devices.DeviceType === 'Dụng cụ') {
 										devicesDetail.push({
 											DeviceName: devices?.DeviceName,
-											DeviceDeptId: devices?.DeviceDeptId,
+											DeviceDeptId: devices?.InstrumentDeptId,
 											Unit: devices.Unit,
-											Quantity: devices?.Quantity,
+											Quantity: devices?.QuantityOriginal,
 										});
+									}
+									break;
+								case 'DEP_INS':
+									if (devices.DeviceType === 'Công cụ' || devices.DeviceType === 'Dụng cụ') {
+										for (let x of devices.listDeviceDetail) {
+											devicesDetail.push({
+												DeviceName: devices?.DeviceName,
+												DeviceDeptId: x?.DeviceDetailId,
+												Unit: devices.Unit,
+												Quantity: x?.QuantityOriginal,
+											});
+										}
 									}
 									break;
 
@@ -159,8 +192,12 @@ const CreateExportDeviceModal = ({
 					setDeviceData(devicesDetail);
 					setLoading(false);
 				})
-				.catch(() => {})
-				.finally(() => {});
+				.catch(err => {
+					setLoading(false);
+				})
+				.finally(() => {
+					setLoading(false);
+				});
 		};
 
 		switch (type) {
@@ -169,6 +206,7 @@ const CreateExportDeviceModal = ({
 				break;
 			case 'LAB_DEV':
 			case 'LAB_INS':
+			case 'DEP_INS':
 				getDeviceData(initData?.DepartmentId || -1);
 				break;
 			default:
@@ -183,7 +221,11 @@ const CreateExportDeviceModal = ({
 	return (
 		<Dialog open={isOpen} PaperProps={{ style: { width: '850px', maxWidth: 'unset' } }}>
 			<DialogTitle textAlign="center">
-				<b>Tạo thông tin phiếu xuất thiết bị mới</b>
+				{type === 'DEP' || type === 'LAB_DEV' ? (
+					<b>Tạo thông tin phiếu xuất thiết bị mới</b>
+				) : (
+					<b>Tạo thông tin phiếu xuất dụng cụ - công cụ mới</b>
+				)}
 			</DialogTitle>
 			<DialogContent>
 				<form onSubmit={e => e.preventDefault()} style={{ marginTop: '10px' }}>
@@ -206,8 +248,12 @@ const CreateExportDeviceModal = ({
 									/>
 								);
 							}
-							if (column.accessorKey === 'DeviceInfoId') {
-								const list = deviceData
+							if (
+								column.accessorKey === 'DeviceInfoId' ||
+								(type === 'DEP_INS' && column.accessorKey === 'InstrumentDeptId') ||
+								(type === 'LAB_INS' && column.accessorKey === 'InstrumentDeptId')
+							) {
+								const list = [...deviceData]
 									.map((x: any) => {
 										const isExistInListAdded =
 											listDeviceAmount?.findIndex((y: any) => {
@@ -215,8 +261,9 @@ const CreateExportDeviceModal = ({
 													case 'DEP':
 														return y.DeviceDetailId === x?.DeviceDetailId;
 													case 'LAB_DEV':
-													case 'LAB_INS':
 														return y.DeviceInfoId === x?.DeviceInfoId;
+													case 'LAB_INS':
+														return y.DeviceDeptId === x?.DeviceDeptId;
 
 													default:
 														break;
@@ -226,17 +273,20 @@ const CreateExportDeviceModal = ({
 											switch (type) {
 												case 'DEP':
 													return {
-														label: `${x?.DeviceDetailId || ''} - ${x?.DeviceName || ''}`,
+														label: `${x?.DeviceDetailId || ''} - ${x?.DeviceName || ''} - ${
+															x?.SerialNumber || ''
+														}`,
 														id: x?.DeviceDetailId,
 														name: x?.DeviceName,
 														unit: x?.Unit,
+														...x
 													};
 												case 'LAB_DEV':
 													return {
-														label: `${x?.DeviceDeptId || ''} - ${x?.DeviceName || ''} - ${
+														label: `${x?.DeviceInfoId || ''} - ${x?.DeviceName || ''} - ${
 															x?.SerialNumber || ''
 														} `,
-														id: x?.DeviceDeptId,
+														id: x?.DeviceInfoId,
 														name: x?.DeviceName,
 														SerialNumber: x?.SerialNumber,
 														unit: x?.Unit,
@@ -244,6 +294,14 @@ const CreateExportDeviceModal = ({
 													};
 
 												case 'LAB_INS':
+													return {
+														label: `${x?.DeviceDeptId || ''} - ${x?.DeviceName || ''}`,
+														id: x?.DeviceDeptId,
+														name: x?.DeviceName,
+														unit: x?.Unit,
+														...x,
+													};
+												case 'DEP_INS':
 													return {
 														label: `${x?.DeviceDeptId || ''} - ${x?.DeviceName || ''}`,
 														id: x?.DeviceDeptId,
@@ -261,7 +319,7 @@ const CreateExportDeviceModal = ({
 
 								return (
 									<Fragment key={column.accessorKey}>
-										{type === 'DEP' && (
+										{(type === 'DEP_INS') && (
 											<TextField
 												label={column.header}
 												name={column.accessorKey}
@@ -273,7 +331,14 @@ const CreateExportDeviceModal = ({
 										<FormControl>
 											<Box>
 												<Grid container spacing={1}>
-													<Grid item xs={type === 'DEP' || type === 'LAB_INS' ? 8 : 12}>
+													<Grid
+														item
+														xs={
+															type === 'LAB_INS' || type === 'DEP_INS'
+																? 8
+																: 12
+														}
+													>
 														<Autocomplete
 															key={column.id}
 															noOptionsText="Không có kết quả trùng khớp"
@@ -294,7 +359,11 @@ const CreateExportDeviceModal = ({
 																return (
 																	<TextField
 																		{...params}
-																		label="Thiết bị"
+																		label={`${
+																			type === 'DEP' || type === 'LAB_DEV'
+																				? 'Thiết bị'
+																				: 'Dụng cụ - Công cụ'
+																		}`}
 																		placeholder="Nhập để tìm kiếm"
 																		InputProps={{
 																			...params.InputProps,
@@ -314,11 +383,13 @@ const CreateExportDeviceModal = ({
 																);
 															}}
 															onChange={(event, value) => {
+																console.log(value);
 																setExportDeviceIdText(value?.id || '');
 																setDeviceAmount((prev: any) => ({
 																	...prev,
 																	...value,
 																	DeviceDetailId: value?.id,
+																	LabDevDeviceDeptId: value?.DeviceDeptId,
 																	SerialNumber: value?.SerialNumber,
 																	DeviceName: value?.name,
 																	Unit: value?.unit,
@@ -326,7 +397,7 @@ const CreateExportDeviceModal = ({
 															}}
 														/>
 													</Grid>
-													{(type === 'DEP' || type === 'LAB_INS') && (
+													{(type === 'LAB_INS' || type === 'DEP_INS') && (
 														<>
 															<Grid item xs={3}>
 																<TextField
@@ -385,7 +456,9 @@ const CreateExportDeviceModal = ({
 										<TableCell>STT</TableCell>
 										<TableCell>Mã thiết bị xuất</TableCell>
 										<TableCell>Thiết bị</TableCell>
-										{(type === 'DEP' || type === 'LAB_INS') && <TableCell>SL</TableCell>}
+										{(type === 'DEP' || type === 'LAB_INS' || type === 'DEP_INS') && (
+											<TableCell>SL</TableCell>
+										)}
 										<TableCell></TableCell>
 									</TableRow>
 								</TableHead>
@@ -404,7 +477,7 @@ const CreateExportDeviceModal = ({
 													{
 														DEP: (
 															<>
-																{el?.DeviceDetailId || ''} - {el.DeviceName || ''}
+																{el?.SerialNumber || ''} - {el.DeviceName || ''}
 															</>
 														),
 														LAB_DEV: (
@@ -413,10 +486,11 @@ const CreateExportDeviceModal = ({
 															</>
 														),
 														LAB_INS: <>{el.DeviceName || ''}</>,
+														DEP_INS: <>{el.DeviceName || ''}</>,
 													}[type]
 												}
 											</TableCell>
-											{(type === 'DEP' || type === 'LAB_INS') && (
+											{(type === 'DEP' || type === 'LAB_INS' || type === 'DEP_INS') && (
 												<TableCell>
 													{el.Amount || el.Quantity} {el.Unit}
 												</TableCell>

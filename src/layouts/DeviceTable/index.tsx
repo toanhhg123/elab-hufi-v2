@@ -22,7 +22,7 @@ const DeviceTable: FC = () => {
 				</>
 			)}
 			{owner.DepartmentId !== 1 && (
-				<DeviceTableWrap id={owner.DepartmentId || 0}>
+				<DeviceTableWrap id={owner.DepartmentId}>
 					<DeviceOfDepartmentTable />
 				</DeviceTableWrap>
 			)}

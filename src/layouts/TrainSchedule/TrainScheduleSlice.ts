@@ -32,6 +32,9 @@ export const trainScheduleSlice = createSlice({
 		setListOfTrainer: (state: ITrainScheduleState, action: PayloadAction<ITrainer[]>) => {
 			state.listOfTrainer = action.payload;
 		},
+		reset: () => {
+			return initialState;
+		},
 	},
 });
 
@@ -39,6 +42,7 @@ export const {
 	setListOfTrainDevice,
 	setListOfTrainInstructor,
 	setListOfTrainer,
+	reset
 } = trainScheduleSlice.actions;
 
 export default trainScheduleSlice.reducer;

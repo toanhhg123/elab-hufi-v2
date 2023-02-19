@@ -12,26 +12,26 @@ const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 // define type params: APIRequestParams
 
 //TRAIN SCHEDULE
-export const getTrainSchedules = async () => {
-	const url = `${API_ENDPOINT}/api/TrainSchedules`;
+export const getTrainSchedules = async (type: String) => {
+	const url = `${API_ENDPOINT}/api/TrainSchedules/${type}`;
 	const trainSchedules: ITrainSchedule[] = await API.get<ITrainSchedule[]>(url);
 	return trainSchedules;
 };
 
-export const getTrainScheduleById = async (id: String) => {
-	const url = `${API_ENDPOINT}/api/TrainSchedules/${id}`;
+export const getTrainScheduleById = async (type: String, id: String) => {
+	const url = `${API_ENDPOINT}/api/TrainSchedules/${type}/${id}`;
 	const trainSchedule: ITrainSchedule = await API.get<ITrainSchedule>(url);
 	return trainSchedule;
 };
 
-export const updateTrainSchedules = async (updatedData: ITrainSchedule[]) => {
-	const url = `${API_ENDPOINT}/api/TrainSchedules`;
+export const updateTrainSchedules = async (type: String, updatedData: ITrainSchedule[]) => {
+	const url = `${API_ENDPOINT}/api/TrainSchedules/${type}`;
 	const trainSchedule: ITrainSchedule[] = await API.put<ITrainSchedule[], ITrainSchedule[]>(url, updatedData);
 	return trainSchedule;
 };
 
-export const deleteTrainSchedule = async (deletedData: ITrainSchedule) => {
-	const url = `${API_ENDPOINT}/api/TrainSchedules`;
+export const deleteTrainSchedule = async (type: String, deletedData: ITrainSchedule) => {
+	const url = `${API_ENDPOINT}/api/TrainSchedules/${type}`;
 	const res = await axios.delete(url, { data: deletedData });
 	return res;
 };
@@ -43,26 +43,26 @@ export const getTrainer = async () => {
 };
 
 //TRAIN REGISTER
-export const getTrainRegister = async (id: String) => {
-	const url = `${API_ENDPOINT}/api/TrainRegisters/${id}`;
-	const trainRegister: ITrainRegister = await API.get<ITrainRegister>(url);
+export const getTrainRegister = async (type: String) => {
+	const url = `${API_ENDPOINT}/api/TrainRegisters/${type}`;
+	const trainRegister: ITrainRegister[] = await API.get<ITrainRegister[]>(url);
 	return trainRegister;
 };
 
-export const updateTrainRegister = async (updatedData: ITrainRegister) => {
-	const url = `${API_ENDPOINT}/api/TrainRegisters`;
+export const updateTrainRegister = async (type: String, updatedData: ITrainRegister) => {
+	const url = `${API_ENDPOINT}/api/TrainRegisters/${type}`;
 	const trainRegister: ITrainRegister = await API.put<ITrainRegister, ITrainRegister>(url, updatedData);
 	return trainRegister;
 };
 
-export const postTrainRegister = async (newData: ITrainRegister) => {
-	const url = `${API_ENDPOINT}/api/TrainRegisters`;
+export const postTrainRegister = async (type: String ,newData: ITrainRegister) => {
+	const url = `${API_ENDPOINT}/api/TrainRegisters/${type}`;
 	const trainRegister = await API.post<ITrainRegister, ITrainRegister>(url, newData);
 	return trainRegister;
 };
 
-export const deleteTrainRegister = async (deletedData: ITrainRegister) => {
-	const url = `${API_ENDPOINT}/api/TrainRegisters`;
+export const deleteTrainRegister = async (type: String, deletedData: ITrainRegister) => {
+	const url = `${API_ENDPOINT}/api/TrainRegisters/${type}`;
 	const res = await axios.delete(url, { data: deletedData });
 	return res;
 };

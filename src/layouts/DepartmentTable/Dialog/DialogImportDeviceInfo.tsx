@@ -7,7 +7,7 @@ import {
 	DialogContent,
 	DialogTitle,
 	IconButton,
-	TextField
+	TextField,
 } from '@mui/material';
 import DataGrid, {
 	Button,
@@ -24,7 +24,7 @@ import DataGrid, {
 	RequiredRule,
 	SearchPanel,
 	Selection,
-	Toolbar as DevToolbar
+	Toolbar as DevToolbar,
 } from 'devextreme-react/data-grid';
 
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
@@ -42,7 +42,7 @@ import {
 	deleteDeviceInfoes,
 	getDeviceInfoes,
 	postDeviceInfoes,
-	putDeviceInfoes
+	putDeviceInfoes,
 } from '../../../services/deviceInfoServices';
 import { IDeviceInfo, IDeviceInfoItem } from '../../../types/deviceInfoType';
 import { DialogProps } from './DialogType';
@@ -55,7 +55,7 @@ export const renderHeader = (data: any, isRequired: boolean = false) => {
 	);
 };
 
-const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
+const DialogImportDeviceInfo = ({ isOpen, onClose, deviceInfo }: DialogProps & { deviceInfo: String }) => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
 	const [openAutocomplete, setOpenAutocomplete] = useState<boolean>(false);
 	const [listDevice, setListDevice] = useState<IDeviceInfo[]>([]);
@@ -63,19 +63,22 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [listInfo, setListInfo] = useState<(IDeviceInfoItem & { Id: String })[]>([]);
 	const [selectedRows, setSelectedRows] = useState<any[]>([]);
+	const [isAllowEdit, setIsAllowEdit] = useState<boolean>(false)
 	const dispatch = useAppDispatch();
 
 	const handleInitRow = (e: any) => {
 		let data = e.component.getDataSource().items();
+		setIsAllowEdit(true);
 		if (data.length > 0) {
 			let lastItem = data.slice(-1);
+			console.log(lastItem);
 			e.data = {
 				DeviceInfoId: '',
 				SerialNumber: '',
-				ManufacturingDate: lastItem[0].ManufacturingDate,
-				StartGuarantee: lastItem[0].StartGuarantee,
-				EndGuarantee: lastItem[0].EndGuarantee,
-				DateStartUsage: lastItem[0].DateStartUsage,
+				ManufacturingDate: lastItem[0].ManufacturingDate || Number(new Date()),
+				StartGuarantee: lastItem[0].StartGuarantee || Number(new Date()),
+				EndGuarantee: lastItem[0].EndGuarantee || Number(new Date()),
+				DateStartUsage: lastItem[0].DateStartUsage || Number(new Date()),
 				HoursUsageTotal: lastItem[0].HoursUsageTotal || 0,
 				PeriodicMaintenance: lastItem[0].PeriodicMaintenance || 3,
 				Status: 'Bình thường',
@@ -84,10 +87,10 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 			e.data = {
 				DeviceInfoId: '',
 				SerialNumber: '',
-				ManufacturingDate: 1638511200000,
-				StartGuarantee: 1638511200000,
-				EndGuarantee: 1638511200000,
-				DateStartUsage: 1638511200000,
+				ManufacturingDate: Number(new Date()),
+				StartGuarantee: Number(new Date()),
+				EndGuarantee: Number(new Date()),
+				DateStartUsage: Number(new Date()),
 				HoursUsageTotal: 0,
 				PeriodicMaintenance: 3,
 				Status: 'Bình thường',
@@ -99,7 +102,10 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 		(async () => {
 			try {
 				let list: IDeviceInfo[] = await getDeviceInfoes();
+
 				setListDevice(list);
+				let indexOfSelectedDevice = list.findIndex(x => x.DeviceDetailId === deviceInfo);
+				if (indexOfSelectedDevice !== -1) setSelectedDevice(list[indexOfSelectedDevice]);
 			} catch (err) {
 			} finally {
 				setLoading(false);
@@ -145,7 +151,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 	const handleSave = async (changes: any[]) => {
 		let inserts = changes.filter(x => x.type === 'insert');
 		let updates = changes.filter(x => x.type === 'update');
-
+		setIsAllowEdit(false);
 		if (inserts.length > 0) {
 			try {
 				let create: IDeviceInfoItem[] = inserts.map(({ data }) => {
@@ -321,6 +327,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 						getOptionLabel={option => `${option.DeviceDetailId}`}
 						options={listDevice}
 						loading={loading}
+						value={selectedDevice}
 						onChange={(e, value) => {
 							setSelectedDevice(value);
 						}}
@@ -357,6 +364,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 							onSaved={data => {
 								handleSave(data.changes);
 							}}
+							onEditCanceled={() => setIsAllowEdit(false)}
 							loadPanel={{
 								enabled: true,
 							}}
@@ -383,6 +391,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 								dataField="DeviceInfoId"
 								caption="Mã thông tin TB"
 								headerCellRender={data => renderHeader(data, true)}
+								allowEditing={isAllowEdit}
 							>
 								<RequiredRule />
 							</Column>
@@ -390,6 +399,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 								dataField="SerialNumber"
 								caption="Số Serial"
 								headerCellRender={data => renderHeader(data, true)}
+								allowEditing={isAllowEdit}
 							>
 								<RequiredRule />
 							</Column>
@@ -433,7 +443,7 @@ const DialogImportDeviceInfo = ({ isOpen, onClose }: DialogProps) => {
 							></Column>
 							<Column
 								dataField="PeriodicMaintenance"
-								caption="Bảo trì định kì (tháng)"
+								caption="Bảo trì định kỳ (tháng)"
 								dataType="number"
 								headerCellRender={data => renderHeader(data)}
 							></Column>

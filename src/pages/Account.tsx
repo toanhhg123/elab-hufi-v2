@@ -19,6 +19,7 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { MRT_ColumnDef } from 'material-react-table';
 import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
+import { connect } from 'react-redux';
 import { Genders } from '../configs/enums';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
@@ -31,49 +32,135 @@ import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
 
 const Account: React.FC = () => {
+	const token = useAppSelector(state => state.userManager.token);
 	const owner = useAppSelector(state => state.userManager.owner);
 	const [avatarUpload, setAvatarUpload] = useState<string>();
 
-	const columns = useMemo<MRT_ColumnDef<IUserOwner>[]>(
-		() => [
-			{
-				accessorKey: 'Fullname',
-				header: 'Họ và tên',
-				size: 100,
-			},
-			{
-				accessorKey: 'formatedBirthday',
-				header: 'Ngày sinh',
-				size: 140,
-			},
-			{
-				accessorKey: 'Gender',
-				header: 'Giới tính',
-				size: 140,
-			},
-			{
-				accessorKey: 'Address',
-				header: 'Địa chỉ',
-				size: 140,
-			},
-			{
-				accessorKey: 'Email',
-				header: 'Email',
-				size: 140,
-			},
-			{
-				accessorKey: 'PhoneNumber',
-				header: 'Số điện thoại',
-				size: 50,
-			},
-			{
-				accessorKey: 'DepartmentName',
-				header: 'Phòng ban',
-				size: 50,
-			},
-		],
-		[],
-	);
+	const columns = useMemo<MRT_ColumnDef<IUserOwner>[]>(() => {
+		switch (token.type) {
+			case 'employee':
+				return [
+					{
+						accessorKey: 'Fullname',
+						header: 'Họ và tên',
+						size: 100,
+					},
+					{
+						accessorKey: 'formatedBirthday',
+						header: 'Ngày sinh',
+						size: 140,
+					},
+					{
+						accessorKey: 'Gender',
+						header: 'Giới tính',
+						size: 140,
+					},
+					{
+						accessorKey: 'Address',
+						header: 'Địa chỉ',
+						size: 140,
+					},
+					{
+						accessorKey: 'Email',
+						header: 'Email',
+						size: 140,
+					},
+					{
+						accessorKey: 'PhoneNumber',
+						header: 'Số điện thoại',
+						size: 50,
+					},
+					{
+						accessorKey: 'DepartmentName',
+						header: 'Phòng ban',
+						size: 50,
+					},
+				];
+			case 'student':
+				return [
+					{
+						accessorKey: 'Fullname',
+						header: 'Họ và tên',
+						size: 100,
+					},
+					{
+						accessorKey: 'ClassName',
+						header: 'Lớp',
+						size: 100,
+					},
+					{
+						accessorKey: 'formatedBirthday',
+						header: 'Ngày sinh',
+						size: 140,
+					},
+					{
+						accessorKey: 'Gender',
+						header: 'Giới tính',
+						size: 140,
+					},
+					{
+						accessorKey: 'Email',
+						header: 'Email',
+						size: 140,
+					},
+					{
+						accessorKey: 'PhoneNumber',
+						header: 'Số điện thoại',
+						size: 50,
+					},
+					{
+						accessorKey: 'GroupName',
+						header: 'Nhóm',
+						size: 50,
+					},
+					{
+						accessorKey: 'Address',
+						header: 'Địa chỉ',
+						size: 140,
+					},
+				];
+			case 'researcher':
+				return [
+					{
+						accessorKey: 'Fullname',
+						header: 'Họ và tên',
+						size: 100,
+					},
+					{
+						accessorKey: 'formatedBirthday',
+						header: 'Ngày sinh',
+						size: 140,
+					},
+					{
+						accessorKey: 'Gender',
+						header: 'Giới tính',
+						size: 140,
+					},
+					{
+						accessorKey: 'Email',
+						header: 'Email',
+						size: 140,
+					},
+					{
+						accessorKey: 'PhoneNumber',
+						header: 'Số điện thoại',
+						size: 50,
+					},
+					{
+						accessorKey: 'Organization',
+						header: 'Phòng ban',
+						size: 50,
+					},
+					{
+						accessorKey: 'Address',
+						header: 'Địa chỉ',
+						size: 140,
+					},
+				];
+			default:
+				return [];
+		}
+	}, [owner]);
 
 	return (
 		<div className="home">
@@ -134,6 +221,16 @@ const Account: React.FC = () => {
 										ID: <b>{owner.EmployeeId}</b>
 									</Typography>
 								)}
+								{owner.ReseacherId && (
+									<Typography variant="body1" align="center">
+										ID: <b>{owner.ReseacherId.toString()}</b>
+									</Typography>
+								)}
+								{owner.StudentId && (
+									<Typography variant="body1" align="center">
+										ID: <b>{owner.StudentId}</b>
+									</Typography>
+								)}
 								<Grid container spacing={4}>
 									{columns.map(column => {
 										if (column.accessorKey === 'formatedBirthday') {
@@ -145,11 +242,31 @@ const Account: React.FC = () => {
 														name={column.accessorKey}
 														value={x}
 														fullWidth
-														variant='standard'
+														variant="standard"
 													/>
 												</Grid>
 											);
 										}
+										if (
+											column.accessorKey === 'Address' &&
+											(token.type === 'student' || token.type === 'researcher')
+										) {
+											return (
+												<Grid item xs={12} key={column.accessorKey}>
+													<TextField
+														label={column.header}
+														name={column.accessorKey}
+														value={
+															column.accessorKey &&
+															owner[column.accessorKey as keyof typeof owner]
+														}
+														fullWidth
+														variant="standard"
+													/>
+												</Grid>
+											);
+										}
+
 										if (column.accessorKey === 'DepartmentName') {
 											return (
 												<Grid item xs={12} key={column.accessorKey}>

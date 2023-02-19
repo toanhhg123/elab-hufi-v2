@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, NoteAdd } from '@mui/icons-material';
 import {
 	Button,
 	CircularProgress,
@@ -161,7 +161,6 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [loading, setLoading] = useState<Boolean>(true);
-	const [isOpenImportInfoDialog, setIsOpenImportInfoDialog] = useState<boolean>(false);
 
 	const [updatedRow, setUpdatedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
@@ -251,7 +250,6 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 		setIsOpenDeviceLiquidate(true);
 	};
 
-
 	const handleSubmitDelete = async (DeviceId: String) => {
 		try {
 			const data = await deleteDevice(DeviceId);
@@ -338,17 +336,11 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 
 	return (
 		<>
-			{isOpenImportInfoDialog && (
-				<DialogImportDeviceInfo
-					isOpen={isOpenImportInfoDialog}
-					onClose={() => setIsOpenImportInfoDialog(false)}
-				/>
-			)}
-			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" m={2}>
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap"  m={2}>
 				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
-				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
+				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end" width="100%">
 					<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
 						<FormControlStyled>
 							<RadioGroup
@@ -394,20 +386,11 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 									Tạo mới
 								</Button>
 							</Tooltip>
-							<Tooltip arrow placement="left" title="Nhập thông tin thiết bị">
-								<Button
-									variant="contained"
-									onClick={() => setIsOpenImportInfoDialog(true)}
-									sx={{ marginLeft: '24px' }}
-								>
-									Nhập thông tin thiết bị
-								</Button>
-							</Tooltip>
-							<Tooltip arrow placement="left" title="Thanh lý thiết bị">
+							{/* <Tooltip arrow placement="left" title="Thanh lý thiết bị">
 								<Button variant="contained" onClick={handleDeviceLiquidate} sx={{ marginLeft: '24px' }}>
 									Thanh lý thiết bị
 								</Button>
-							</Tooltip>
+							</Tooltip> */}
 						</Box>
 					</Box>
 					<TablePagination
@@ -473,7 +456,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 						)}
 						{!loading && devices.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={14} sx={{ textAlign: 'center' }}>
 									<Typography variant="h5" gutterBottom align="center" component="div">
 										Trống
 									</Typography>
@@ -734,6 +717,7 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 									</StyledTableCell>
 								);
 							})}
+							<StyledTableCell></StyledTableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -775,10 +759,12 @@ const RowOfDeviceDetailTable = ({
 	handleOpen,
 }: RowOfDeviceDetailTableProps) => {
 	const [deviceDetails, setDeviceDetails] = useState<IDeviceDeptType[]>([]);
-	const [order, setOrder] = useState<string>('asc');
-	const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
+	const [order, setOrder] = useState<string>('desc');
+	const [orderBy, setOrderBy] = useState<string>('DeviceInfoId');
 	const [keyword, setKeyword] = useState<string>('');
 	const [dataSearch, setDataSearch] = useState<any>([]);
+
+	const [isOpenImportInfoDialog, setIsOpenImportInfoDialog] = useState<boolean>(false);
 
 	useEffect(() => {
 		setDeviceDetails(deviceDetailType?.listDeviceDept || []);
@@ -814,6 +800,10 @@ const RowOfDeviceDetailTable = ({
 			setDeviceDetails(results || []);
 		}
 	}, [keyword]);
+
+	useEffect(() => {
+		setOrderBy('DateStartUsage')
+	}, [])
 
 	useEffect(() => {
 		const searchArr = deviceDetailType?.listDeviceDept.map((device: any) => {
@@ -888,10 +878,20 @@ const RowOfDeviceDetailTable = ({
 						}`}</TableCell>
 					);
 				})}
+				<TableCell align="right" size="small">
+					<Tooltip arrow placement="left" title="Nhập thông tin thiết bị">
+						<IconButton
+							onClick={() => setIsOpenImportInfoDialog(true)}
+							sx={{ marginLeft: '24px' }}
+						>
+							<NoteAdd />
+						</IconButton>
+					</Tooltip>
+				</TableCell>
 			</TableRow>
 
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={13}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={14}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ padding: 1 }}>
 							{deviceDetailType?.listDeviceDept?.length !== 0 ? (
@@ -988,6 +988,13 @@ const RowOfDeviceDetailTable = ({
 					</Collapse>
 				</TableCell>
 			</TableRow>
+			{isOpenImportInfoDialog && (
+				<DialogImportDeviceInfo
+					deviceInfo={deviceDetailType.DeviceDetailId}
+					isOpen={isOpenImportInfoDialog}
+					onClose={() => setIsOpenImportInfoDialog(false)}
+				/>
+			)}
 		</>
 	);
 };

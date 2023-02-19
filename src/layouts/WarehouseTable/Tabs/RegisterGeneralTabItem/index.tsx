@@ -52,7 +52,7 @@ const RegisterGeneralTabItem: FC = () => {
 	);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
-
+	const owner = useAppSelector(state => state.userManager.owner);
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
 	const [isEditModal, setIsEditModal] = useState<boolean>(false);
@@ -63,7 +63,7 @@ const RegisterGeneralTabItem: FC = () => {
 	}>({});
 
 	const dispatch = useAppDispatch();
-	const [departmentActive, setDepartmentActive] = useState<Number>(2);
+	const [departmentActive, setDepartmentActive] = useState<Number>(owner.DepartmentId);
 
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportData);
 	const [updatedRow, setUpdatedRow] = useState<any>(dummyExportData);
@@ -83,6 +83,10 @@ const RegisterGeneralTabItem: FC = () => {
 
 		getWarehouseRegisterGeneralData();
 	}, [departmentActive]);
+
+	useEffect(() => {
+		setDepartmentActive(owner.DepartmentId);
+	}, [owner]);
 
 	useEffect(() => {
 		let formatedData = warehouseRegisterGeneral?.map((x: IExportType) => {
@@ -144,7 +148,6 @@ const RegisterGeneralTabItem: FC = () => {
 			{
 				accessorKey: 'RegisterGeneralId',
 				header: 'RegisterGeneralId',
-				enableHiding: false,
 				size: 140,
 			},
 			{
@@ -418,33 +421,17 @@ const RegisterGeneralTabItem: FC = () => {
 								style={{ margin: '0px', fontSize: '30px', paddingTop: '15px' }}
 							></KeyboardArrowRightIcon>
 						</b>
-						<span>Quản lý phiếu xuất đăng kí chung</span>
-						<Autocomplete
-							sx={{ marginBottom: '8px', marginTop: '16px' }}
-							size="small"
-							autoComplete={true}
-							options={departmentData.filter(x => x.DepartmentId !== 1).map(y => y.DepartmentName)}
-							onChange={(event, value) => {
-								setDepartmentActive(
-									departmentData.find(x => x.DepartmentName === value)?.DepartmentId || -1,
-								);
-							}}
-							disableClearable={true}
-							noOptionsText="Không có kết quả trùng khớp"
-							defaultValue={departmentData.filter(x => x.DepartmentId !== 1)[0].DepartmentName || 0}
-							value={departmentData.find(x => x.DepartmentId === departmentActive)?.DepartmentName || ''}
-							renderInput={params => <TextField {...params} label="Khoa" />}
-						/>
+						<span>Quản lý phiếu xuất đăng ký chung</span>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
 					<>
-						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất đăng kí chung">
+						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất đăng ký chung">
 							<IconButton onClick={() => handleOpenEditWarehouseRegModal(row)}>
 								<Edit />
 							</IconButton>
 						</Tooltip>
-						<Tooltip arrow placement="right" title="Xoá thông tin phiếu xuất đăng kí chung">
+						<Tooltip arrow placement="right" title="Xoá thông tin phiếu xuất đăng ký chung">
 							<IconButton color="error" onClick={() => handleOpenDeleteWarehouseRegModal(row)}>
 								<Delete />
 							</IconButton>
@@ -452,7 +439,7 @@ const RegisterGeneralTabItem: FC = () => {
 					</>
 				)}
 				renderBottomToolbarCustomActions={() => (
-					<Tooltip title="Tạo phiếu xuất đăng kí chung mới" placement="right-start">
+					<Tooltip title="Tạo phiếu xuất đăng ký chung mới" placement="right-start">
 						<Button
 							color="primary"
 							onClick={handleOpenCreateWarehouseRegModal}
@@ -469,7 +456,7 @@ const RegisterGeneralTabItem: FC = () => {
 				<DeleteExportModal
 					isOpen={isDeleteModal}
 					onClose={onCloseDeleteWarehouseRegModal}
-					title="Xoá thông tin phiếu xuất đăng kí chung"
+					title="Xoá thông tin phiếu xuất đăng ký chung"
 					handleSubmit={handleSubmitDeleteWarehouseRegModal}
 				>
 					Bạn có chắc muốn xoá thông tin{' '}
@@ -486,7 +473,7 @@ const RegisterGeneralTabItem: FC = () => {
 					columns={columns}
 					isCreateModal={isCreateModal}
 					handleSubmitCreateModal={handleSubmitCreateWarehouseRegModal}
-					initData={{...createdRow, DepartmentId: departmentActive}}
+					initData={{ ...createdRow, DepartmentId: departmentActive }}
 				/>
 			)}
 

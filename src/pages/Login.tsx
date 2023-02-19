@@ -7,16 +7,19 @@ import {
 	TextField
 } from '@mui/material';
 import SHA256 from 'crypto-js/sha256';
-import { ChangeEvent, FC, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import About from '../assets/img/login-about.png';
 import HufiLogoExtended from '../assets/img/logo-hufi-extended.png';
 import { saveToLocalStorage } from '../configs/apiHelper';
-import { useAppDispatch } from '../hooks';
-import { setOwner } from '../layouts/UserManager/userManagerSlice';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { setIsLogined, setOwner, setToken } from '../layouts/UserManager/userManagerSlice';
 import { getEmployeeOwner } from '../services/employeeServices';
+import { getResearcherOwner } from '../services/researcherServices';
+import { getStudentOwner } from '../services/studentServices';
 import { login } from '../services/userManagerServices';
 import { dummyLoginData, IloginType } from '../types/loginType';
+import { dummyUserOwner, IUserOwner } from '../types/userManagerType';
 import './Login.css';
 
 const accountTypes = [
@@ -36,6 +39,7 @@ const accountTypes = [
 
 export const Login: FC = () => {
 	const [loginData, setLoginData] = useState<IloginType>(dummyLoginData);
+	const isLogined = useAppSelector(state => state.userManager.isLogined)
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
@@ -48,7 +52,9 @@ export const Login: FC = () => {
 			const res = await login(loginData.type, loginData.username, SHA256(`${loginData.password}`).toString());
 			if (res) {
 				saveToLocalStorage('user', { ...res, type: loginData.type });
-				getEmployeeOwnerData();
+				dispatch(setToken({ ...res, type: loginData.type }));
+				dispatch(setIsLogined(true));
+				getOwnerData();
 				navigate('/');
 			}
 		} catch (error) {
@@ -56,12 +62,29 @@ export const Login: FC = () => {
 		}
 	};
 
-	const getEmployeeOwnerData = async () => {
+	useEffect(() => {
+		if (isLogined === true) 
+			navigate('/');
+	}, [isLogined])
+
+	const getOwnerData = async () => {
 		try {
-			const owner = await getEmployeeOwner();
-			if (owner) {
-				dispatch(setOwner(owner));
+			let owner: IUserOwner = dummyUserOwner;
+			switch (loginData.type) {
+				case 'employee': {
+					owner = await getEmployeeOwner();
+					break;
+				}
+				case 'student': {
+					owner = await getStudentOwner(loginData.username);
+					break;
+				}
+				case 'researcher': {
+					owner = await getResearcherOwner(loginData.username);
+					break;
+				}
 			}
+			dispatch(setOwner(owner));
 		} catch (error) {
 			console.log(error);
 		}
@@ -81,7 +104,7 @@ export const Login: FC = () => {
 				<form onSubmit={e => e.preventDefault()} style={{ margin: '30px 30px' }}>
 					<Stack sx={{ width: '100%', gap: '1.5rem' }}>
 						<FormControl variant="outlined" sx={{ minWidth: 120 }}>
-							<InputLabel id="account-type-label">Loại tài khoản</InputLabel>
+							<InputLabel id="account-type-label">Đối tượng</InputLabel>
 							<Select
 								labelId="account-type-label"
 								id="account-type"

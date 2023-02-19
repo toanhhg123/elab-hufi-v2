@@ -30,6 +30,7 @@ import { ColumnSizeType, ColumnsType } from '../DepartmentTable/Dialog/DialogTyp
 
 const RegisterTrainSchedule = () => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
+	const token = useAppSelector(state => state.userManager.token)
 	const [registerTrainSchedule, setRegisterTrainSchedule] = useState<ITrainRegister | null>(null);
 	const dispatch = useAppDispatch();
 	const trainDevices = useAppSelector(state => state.managerTrainSchedule.listOfTrainDevice);
@@ -51,9 +52,9 @@ const RegisterTrainSchedule = () => {
 	}
 
 	const getTrainSchedulesData = async () => {
-		const listOfTrainSchedule: ITrainRegister = await getTrainRegister('RS001');
-		if (listOfTrainSchedule) {
-			setRegisterTrainSchedule(listOfTrainSchedule);
+		const listOfTrainSchedule: ITrainRegister[] = await getTrainRegister(token.type);
+		if (listOfTrainSchedule.length > 0) {
+			setRegisterTrainSchedule(listOfTrainSchedule[0]);
 		}
 	};
 
@@ -79,7 +80,7 @@ const RegisterTrainSchedule = () => {
 		try {
 			const deleteData = { ...registerTrainSchedule, listTrainDetail: [row?.data] };
 			if (isTrainRegister(deleteData)) {
-				const deleted: any = await deleteTrainRegister(deleteData);
+				const deleted: any = await deleteTrainRegister(token.type, deleteData);
 				if (deleted?.status !== 200 || deleted === undefined) {
 					throw new Error();
 				}
@@ -122,7 +123,7 @@ const RegisterTrainSchedule = () => {
 				],
 			};
 
-			const res = await postTrainRegister(postData);
+			const res = await postTrainRegister(token.type, postData);
 
 			if (Object.keys(res).length === 0) {
 				throw new Error();
@@ -164,7 +165,7 @@ const RegisterTrainSchedule = () => {
 				],
 			};
 
-			const res = await updateTrainRegister(updateData);
+			const res = await updateTrainRegister(token.type, updateData);
 
 			if (Object.keys(res).length === 0) {
 				throw new Error();
@@ -198,7 +199,7 @@ const RegisterTrainSchedule = () => {
 						style={{ margin: '0px', fontSize: '30px', paddingTop: '15px' }}
 					></KeyboardArrowRightIcon>
 				</b>
-				<span>Lịch tập huấn</span>
+				<span>Đăng ký lịch tập huấn</span>
 			</h3>
 			<Box px={2} pb={5} height="100%">
 				{/* <Grid container spacing={2} mb={2}>
@@ -249,10 +250,10 @@ const RegisterTrainSchedule = () => {
 					<Grouping contextMenuEnabled={true} expandMode="rowClick" />
 					<Editing
 						mode="popup"
-						confirmDelete={true}
-						allowUpdating={true}
-						allowAdding={true}
-						allowDeleting={true}
+							confirmDelete={true}
+							allowUpdating={true}
+							allowAdding={true}
+							allowDeleting={true}
 					>
 						<Popup
 							title="Thông tin đăng ký"
@@ -327,12 +328,12 @@ const RegisterTrainSchedule = () => {
 						<DevButtonGrid
 							icon="edit"
 							name="edit"
-							visible={(e: any) => e.row.data.Result === 'Đã tập huấn'}
+							visible={(e: any) => e.row.data.Result !== 'Đã tập huấn' ||  e.row.data.result !== 'Vắng'}
 						/>
 						<DevButtonGrid
 							icon="trash"
 							name="delete"
-							visible={(e: any) => e.row.data.Result === 'Đã tập huấn'}
+							visible={(e: any) => e.row.data.Result !== 'Đã tập huấn' ||  e.row.data.result !== 'Vắng'}
 						/>
 					</Column>
 					<Toolbar>

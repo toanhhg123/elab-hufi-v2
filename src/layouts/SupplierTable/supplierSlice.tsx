@@ -14,15 +14,18 @@ const initialState: ISupplierState = {
 }
 
 export const supplierSlice = createSlice({
-  name: 'supplier',
-  initialState,
-  reducers: {
-    setListOfSuppliers: (state: ISupplierState, action: PayloadAction<ISupplierType[]>) => {
-      state.listOfSuppliers = action.payload
-    },
-  },
-})
+	name: 'supplier',
+	initialState,
+	reducers: {
+		setListOfSuppliers: (state: ISupplierState, action: PayloadAction<ISupplierType[]>) => {
+			state.listOfSuppliers = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfSuppliers } = supplierSlice.actions
+export const { setListOfSuppliers, reset } = supplierSlice.actions
 
 export default supplierSlice.reducer

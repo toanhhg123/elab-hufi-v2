@@ -220,8 +220,15 @@ const EditExportModal: FC<EditExportModalProps> = ({
 										key={column.id}
 										options={list}
 										noOptionsText="Không có kết quả trùng khớp"
-										defaultValue={list.find(x => x.id === updatedRow[column.id as keyof typeof updatedRow]) || null}
-										value={list.find(x => x.id === updatedRow[column.id as keyof typeof updatedRow]) || null}
+										defaultValue={
+											list.find(x => x.id === updatedRow[column.id as keyof typeof updatedRow]) ||
+											null
+										}
+										value={
+											list.find(x => x.id === updatedRow[column.id as keyof typeof updatedRow]) ||
+											null
+										}
+										disabled={column.id === 'EmployeeInCharge' ? false : true}
 										getOptionLabel={option => option?.label}
 										renderInput={params => {
 											return (

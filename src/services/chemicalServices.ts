@@ -1,6 +1,7 @@
 import config from '../configs/app';
 import * as API from '../configs/apiHelper';
 import { IChemicalType } from '../types/chemicalType';
+import { IExportChemicalType } from '../types/exportChemicalType';
 
 const { isProd } = config;
 const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
@@ -19,7 +20,7 @@ export const getChemicals = async () => {
 
 export const getChemicalById = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/chemicals/${id}`;
-	const lab: IChemicalType = await API.get<IChemicalType>(url);
+	const lab: IExportChemicalType[] = await API.get<IExportChemicalType[]>(url);
 	return lab;
 };
 

@@ -16,6 +16,9 @@ export interface ITrainScheduleDeviceItem {
 	InstructorId: String;
 	InstructorName: String;
 	Note: String;
+	DateCreate: String | Number | null;
+	StudentId: String;
+	StudentName: String;
 }
 
 export interface ITrainRegister {

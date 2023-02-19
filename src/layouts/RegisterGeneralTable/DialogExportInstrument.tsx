@@ -59,15 +59,6 @@ import { renderHeader } from '../DepartmentTable/Dialog/DialogImportDeviceInfo';
 import { ColumnSizeType, DialogProps, ErrorType } from '../DepartmentTable/Dialog/DialogType';
 import { ColumnType } from './Utils';
 
-const userLogin = {
-	EmployeeIdCreate: '02003019',
-	EmployeeNameCreate: 'Dương Thị Ngọc Hân',
-	EmployeeIdReceive: '02003020',
-	EmployeeNameReceive: 'Nguyễn Thị Thu Hà',
-	DepartmentId: 2,
-	DepartmentName: 'Khoa Công nghệ thực phẩm',
-};
-
 function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
 	const [exportResearchs, setExportResearchs] = useState<IExportInstrumentResearch[]>([]);
@@ -343,15 +334,20 @@ const DialogCreate = ({
 	type,
 }: DialogProps & { data: IExportInstrumentResearch | {}; getData: () => Promise<void>; type: string }) => {
 	const registerGenerals = useAppSelector(state => state.registerGeneral.listOfRegisterGenerals);
+	const owner = useAppSelector(state => state.userManager.owner);
 	const [errors, setErrors] = useState<ErrorType[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [listInstrument, setListInstrument] = useState<IExportInstrumentResearchItem[]>([]);
 	const [selectedInstruments, setSelectedInstruments] = useState<IExportInstrumentResearchItem[]>([]);
 	const [exportResearch, setExportResearch] = useState<IExportInstrumentResearch>({
 		...dummyExportInstrumentResearch,
-		...userLogin,
+		EmployeeIdCreate: owner.EmployeeId || '',
+		EmployeeNameCreate: owner.Fullname,
+		DepartmentId: owner.DepartmentId,
+		DepartmentName: owner.DepartmentName,
 		...data,
 	});
+
 	const dispatch = useAppDispatch();
 	const [openAutocomplete, setOpenAutocomplete] = useState<{ device: boolean; instrument: boolean }>({
 		device: false,
@@ -430,7 +426,7 @@ const DialogCreate = ({
 					<Grid item {...col.colSize} key={col.id}>
 						<Autocomplete
 							id="registerGenerals-autocomplete"
-							options={registerGenerals}
+							options={registerGenerals || []}
 							isOptionEqualToValue={(option, value) =>
 								option.RegisterGeneralId === value.RegisterGeneralId
 							}

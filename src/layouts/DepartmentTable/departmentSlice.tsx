@@ -13,15 +13,18 @@ const initialState: IDepartmentState = {
 }
 
 export const departmentSlice = createSlice({
-  name: 'department',
-  initialState,
-  reducers: {
-    setListOfDepartments: (state: IDepartmentState, action: PayloadAction<IDepartmentType[]>) => {
-      state.listOfDepartments = action.payload
-    },
-  },
-})
+	name: 'department',
+	initialState,
+	reducers: {
+		setListOfDepartments: (state: IDepartmentState, action: PayloadAction<IDepartmentType[]>) => {
+			state.listOfDepartments = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfDepartments } = departmentSlice.actions
+export const { setListOfDepartments, reset } = departmentSlice.actions
 
 export default departmentSlice.reducer

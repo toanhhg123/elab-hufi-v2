@@ -14,15 +14,18 @@ const initialState: ISchedulerState = {
 }
 
 export const schedulerSlice = createSlice({
-  name: 'scheduler',
-  initialState,
-  reducers: {
-    setListOfSchedules: (state: ISchedulerState, action: PayloadAction<IScheduleType[]>) => {
-      state.listOfSchedules = action.payload
-    },
-  },
-})
+	name: 'scheduler',
+	initialState,
+	reducers: {
+		setListOfSchedules: (state: ISchedulerState, action: PayloadAction<IScheduleType[]>) => {
+			state.listOfSchedules = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfSchedules } = schedulerSlice.actions
+export const { setListOfSchedules, reset } = schedulerSlice.actions
 
 export default schedulerSlice.reducer

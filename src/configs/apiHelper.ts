@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import jwtDecode from 'jwt-decode';
 import { requestConfig } from './request';
 import { store } from '../store/index';
-import { setToken } from '../layouts/UserManager/userManagerSlice';
+import { logout, setIsLogined, setToken } from '../layouts/UserManager/userManagerSlice';
 import { dummyToken } from '../types/tokenType';
 import { redirect } from 'react-router-dom';
 
@@ -145,7 +145,8 @@ const createAxiosClient = (apiConfiguration: ApiConfiguration): AxiosInstance =>
 		async (config: AxiosRequestConfig) => {
 			const user = await getFromLocalStorage('user');
 			if (!user) {
-				redirect('/login');
+				dispatch(logout());
+				dispatch(setIsLogined(false));
 				return config;
 			}
 			const date = new Date();
@@ -163,26 +164,29 @@ const createAxiosClient = (apiConfiguration: ApiConfiguration): AxiosInstance =>
 
 					if (res.data) {
 						saveToLocalStorage('user', { ...res.data, type: user?.type });
-						dispatch(setToken(res.data));
+						dispatch(setToken({ ...res.data, type: `${user?.type}` }));
 					}
 
 					if (config.headers) {
-						config.headers['Authorization'] = `Bearer ${res ? res.data.accessToken : user.accessToken}`;
+						config.headers['Authorization'] = `Bearer ${res ? res.data.AccessToken : user.AccessToken}`;
 					}
+
+					dispatch(setIsLogined(true));
+					return config;
 				} catch (err) {
 					clearFromLocalStorage('user');
 					dispatch(setToken(dummyToken));
-					redirect('/login');
+					dispatch(logout());
+					dispatch(setIsLogined(false));
 				}
 			}
-
-			redirect('/');
 			return config;
 		},
 		err => {
 			clearFromLocalStorage('user');
 			dispatch(setToken(dummyToken));
-			redirect('login');
+			dispatch(logout());
+			dispatch(setIsLogined(false));
 		},
 	);
 	return newInstance;

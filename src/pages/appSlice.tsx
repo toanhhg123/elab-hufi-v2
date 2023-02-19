@@ -195,9 +195,17 @@ export const appSlice = createSlice({
 				},
 			};
 		},
+
+		reset: () => {
+			return {
+                isOpenDrawer: false,
+                sidebarItems: defaultSidebarItems,
+                snackbarState: defaultSnackbarMessage,
+            };
+        },
 	},
 });
 
-export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems, setSnackbar } = appSlice.actions;
+export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems, setSnackbar, reset } = appSlice.actions;
 
 export default appSlice.reducer;

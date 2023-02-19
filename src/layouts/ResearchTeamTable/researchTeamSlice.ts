@@ -39,10 +39,13 @@ export const researchTeamsSlice = createSlice({
     },
     setCurrentMemberTeam: (state: IResearchTeamState, action: PayloadAction<IListMemberType>) => {
       state.currentMemberTeam = action.payload
-    }
+    },
+		reset: () => {
+			return initialState;
+		},
   },
 })
 
-export const { setListOfResearchTeams, setCurrentResearchTeam, setCurrentMemberTeam } = researchTeamsSlice.actions
+export const { setListOfResearchTeams, setCurrentResearchTeam, setCurrentMemberTeam, reset } = researchTeamsSlice.actions
 
 export default researchTeamsSlice.reducer

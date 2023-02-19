@@ -44,7 +44,7 @@ import DataSource from 'devextreme/data/data_source';
 import _ from 'lodash';
 import moment from 'moment';
 import { colorsNotifi } from '../../../configs/color';
-import { useAppDispatch } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setSnackbar } from '../../../pages/appSlice';
 import {
 	deleteLiquidateDept,
@@ -60,12 +60,6 @@ import {
 } from '../../../types/chemicalWarehouseType';
 import { renderHeader } from '../../DepartmentTable/Dialog/DialogImportDeviceInfo';
 import { ColumnSizeType, ColumnsType, DialogProps, ErrorType } from '../../DepartmentTable/Dialog/DialogType';
-const userLogin = {
-	EmployeeId: '02003019',
-	EmployeeName: 'Dương Thị Ngọc Hân',
-	DepartmentId: 2,
-	DepartmentName: 'Khoa Công nghệ thực phẩm',
-};
 
 const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
@@ -381,11 +375,16 @@ const DialogCreateLiquidate = ({
 	data,
 	type,
 }: DialogProps & { data?: ILiquidateChemical | []; getLiquidateDept: () => Promise<void>; type: string }) => {
+	const owner = useAppSelector(state => state.userManager.owner)
 	const [liquidate, setLiquidate] = useState<ILiquidateChemical>({
 		...dummyLiquidateChemical,
-		...userLogin,
+		EmployeeId: owner.EmployeeId || '',
+		EmployeeName: owner.Fullname,
+		DepartmentId: owner.DepartmentId,
+		DepartmentName: owner.DepartmentName,
 		...data,
 	});
+
 	const [openAutocomplete, setOpenAutocomplete] = useState<{ device: boolean; instrument: boolean }>({
 		device: false,
 		instrument: false,

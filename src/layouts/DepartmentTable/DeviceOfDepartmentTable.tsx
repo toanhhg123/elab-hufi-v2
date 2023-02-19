@@ -81,6 +81,10 @@ const BoxTextFieldStyled = styled(Box)(theme => ({
 	'@media (max-width: 900px)': {
 		margin: '8px 0',
 	},
+
+	'@media (min-width: 0px)': {
+		marginBottom: '8px',
+	},
 }));
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -198,7 +202,7 @@ const DeviceOfDepartmentTable = () => {
 	}, [order, orderBy]);
 
 	useEffect(() => {
-		const data = devices.map((device: any) => {
+		const data = cloneDevices.map((device: any) => {
 			let string: String = '';
 
 			string = nestedObject(device, string);
@@ -209,7 +213,7 @@ const DeviceOfDepartmentTable = () => {
 			};
 		});
 		setDataSearch(data);
-	}, [devices]);
+	}, [cloneDevices]);
 
 	useEffect(() => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
@@ -217,7 +221,7 @@ const DeviceOfDepartmentTable = () => {
 		if (keyword === '') {
 			setDeviceValues(cloneDevices || []);
 		} else {
-			const data = devices.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
+			const data = cloneDevices.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
 			setDeviceValues(data || []);
 		}
 	}, [keyword]);
@@ -361,12 +365,7 @@ const DeviceOfDepartmentTable = () => {
 								onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
 							/>
 						</BoxTextFieldStyled>
-						<Box>
-							<Tooltip arrow placement="left" title="Tạo mới">
-								<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-									Tạo mới
-								</Button>
-							</Tooltip>
+						<Box mb={1}>
 							<Tooltip arrow placement="left" title="Nhập giờ thiết bị">
 								<Button
 									variant="contained"
@@ -396,7 +395,7 @@ const DeviceOfDepartmentTable = () => {
 					/>
 				</Box>
 			</Box>
-			<TableContainer component={Paper} sx={{ marginBottom: '24px', overflow: 'overlay' }}>
+			<TableContainer component={Paper} sx={{ marginBottom: '24px', overflow: 'overlay', flex: '1' }}>
 				<Table sx={{ minWidth: 900 }} stickyHeader size="small">
 					<TableHead>
 						<TableRow>
@@ -439,14 +438,14 @@ const DeviceOfDepartmentTable = () => {
 								))}
 						{loading && (
 							<TableRow>
-								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={14} sx={{ textAlign: 'center' }}>
 									<CircularProgress disableShrink />
 								</TableCell>
 							</TableRow>
 						)}
 						{!loading && devices?.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={14} sx={{ textAlign: 'center' }}>
 									<Typography variant="h5" gutterBottom align="center" component="div">
 										Trống
 									</Typography>

@@ -13,7 +13,7 @@ import {
 	getExportsSubById,
 	getExportsSubs,
 	postExportSubs,
-	updateExportSubs
+	updateExportSubs,
 } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
 import { IExportChemicalType } from '../../../../types/exportChemicalType';
@@ -28,10 +28,11 @@ import { setListOfWarehouseStudySession } from '../../warehouseSlice';
 const StudySessionTabItem: FC = () => {
 	const warehouseStudySession = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseStudySession);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
+	const owner = useAppSelector(state => state.userManager.owner);
 	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 	const studySessionData = useAppSelector((state: RootState) => state.schedule.listOfSchedules);
-	const [departmentActive, setDepartmentActive] = useState<Number>(2);
+	const [departmentActive, setDepartmentActive] = useState<Number>(owner.DepartmentId);
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
@@ -63,13 +64,11 @@ const StudySessionTabItem: FC = () => {
 	}, [departmentActive]);
 
 	useEffect(() => {
+		setDepartmentActive(owner.DepartmentId);
+	}, [owner]);
+
+	useEffect(() => {
 		let formatedData = warehouseStudySession?.map((x: IExportType) => {
-			let employeeInChargeInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeId === x.EmployeeInCharge)
-				: -1;
-			let employeeCreateInfoIdx = Array.isArray(employeeData)
-				? employeeData.findIndex(y => y.EmployeeId === x.EmployeeCreate)
-				: -1;
 			let subjectInfoIdx = Array.isArray(subjectData)
 				? subjectData?.findIndex(y => y.SubjectId === x.SubjectId)
 				: -1;
@@ -77,9 +76,6 @@ const StudySessionTabItem: FC = () => {
 			return {
 				...x,
 				formatedExportDate: moment.unix(x.ExportDate).format('DD/MM/YYYY'),
-				EmployeeInChargeName:
-					employeeInChargeInfoIdx > -1 ? employeeData[employeeInChargeInfoIdx].Fullname : '',
-				EmployeeCreateName: employeeCreateInfoIdx > -1 ? employeeData[employeeCreateInfoIdx].Fullname : '',
 				SubjectName: subjectInfoIdx > -1 ? subjectData[subjectInfoIdx].SubjectName : '',
 			};
 		});
@@ -131,6 +127,7 @@ const StudySessionTabItem: FC = () => {
 				accessorKey: 'SubjectId',
 				header: 'Môn học',
 				size: 140,
+				enableEditing: true,
 			},
 			{
 				accessorKey: 'EmployeeInCharge',
@@ -381,6 +378,7 @@ const StudySessionTabItem: FC = () => {
 					],
 				}}
 				renderDetailPanel={({ row }) => {
+					console.log(row);
 					return (
 						<>
 							<Box>
@@ -415,32 +413,16 @@ const StudySessionTabItem: FC = () => {
 						</b>
 
 						<span>Quản lý phiếu xuất buổi học</span>
-						<Autocomplete
-							sx={{ marginBottom: '8px', marginTop: '16px' }}
-							size="small"
-							autoComplete={true}
-							options={departmentData.filter(x => x.DepartmentId !== 1).map(y => y.DepartmentName)}
-							onChange={(event, value) => {
-								setDepartmentActive(
-									departmentData.find(x => x.DepartmentName === value)?.DepartmentId || -1,
-								);
-							}}
-							disableClearable={true}
-							noOptionsText="Không có kết quả trùng khớp"
-							defaultValue={departmentData.filter(x => x.DepartmentId !== 1)[0].DepartmentName || 0}
-							value={departmentData.find(x => x.DepartmentId === departmentActive)?.DepartmentName || ''}
-							renderInput={params => <TextField {...params} label="Khoa" />}
-						/>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
 					<>
-						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất đăng kí chung">
+						<Tooltip arrow placement="left" title="Sửa thông tin phiếu xuất đăng ký chung">
 							<IconButton onClick={() => handleOpenEditWarehouseSesModal(row)}>
 								<Edit />
 							</IconButton>
 						</Tooltip>
-						<Tooltip arrow placement="right" title="Xoá thông tin phiếu xuất đăng kí chung">
+						<Tooltip arrow placement="right" title="Xoá thông tin phiếu xuất đăng ký chung">
 							<IconButton color="error" onClick={() => handleOpenDeleteWarehouseSesModal(row)}>
 								<Delete />
 							</IconButton>
@@ -448,7 +430,7 @@ const StudySessionTabItem: FC = () => {
 					</>
 				)}
 				renderBottomToolbarCustomActions={() => (
-					<Tooltip title="Tạo phiếu xuất đăng kí chung mới" placement="right-start">
+					<Tooltip title="Tạo phiếu xuất đăng ký chung mới" placement="right-start">
 						<Button
 							color="primary"
 							onClick={handleOpenCreateWarehouseSesModal}
@@ -482,10 +464,10 @@ const StudySessionTabItem: FC = () => {
 					columns={columns}
 					isCreateModal={isCreateModal}
 					handleSubmitCreateModal={handleSubmitCreateWarehouseSesModal}
-					initData={{...createdRow, DepartmentId: departmentActive}}
+					initData={{ ...createdRow, DepartmentId: departmentActive }}
 				/>
 			)}
-			
+
 			{isEditModal && (
 				<EditExportModal
 					initData={updatedRow}

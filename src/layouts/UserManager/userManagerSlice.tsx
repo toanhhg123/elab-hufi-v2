@@ -8,12 +8,14 @@ import { dummyToken, IToken } from '../../types/tokenType';
 interface IUserState {
 	owner: IUserOwner;
 	token: IToken;
+	isLogined: boolean;
 }
 
 // Define the initial state using that type
 const initialState: IUserState = {
 	owner: dummyUserOwner,
 	token: dummyToken,
+	isLogined: false,
 };
 
 export const userManagerSlice = createSlice({
@@ -27,9 +29,19 @@ export const userManagerSlice = createSlice({
 		setToken: (state: IUserState, action: PayloadAction<IToken>) => {
             state.token = action.payload;
 		},
+		setIsLogined: (state: IUserState, action: PayloadAction<boolean>) => {
+            state.isLogined = action.payload;
+		},
+		logout: () => {
+			return {
+				owner: dummyUserOwner,
+				token: dummyToken,
+				isLogined: false,
+			};
+		}
 	},
 });
 
-export const { setOwner, setToken } = userManagerSlice.actions;
+export const { setOwner, setToken, setIsLogined, logout } = userManagerSlice.actions;
 
 export default userManagerSlice.reducer;

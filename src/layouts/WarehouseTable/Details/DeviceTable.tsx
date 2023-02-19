@@ -3,7 +3,8 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-	debounce, InputAdornment,
+	debounce,
+	InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -11,7 +12,9 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
-	TableRow, TextField, Typography
+	TableRow,
+	TextField,
+	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
@@ -67,12 +70,7 @@ function removeAccents(str: string) {
 		.replace(/Đ/g, 'D');
 }
 
-const DeviceTable = ({
-	row,
-	type,
-	columns,
-	warehouseData,
-}: DeviceTableProps) => {
+const DeviceTable = ({ row, type, columns, warehouseData }: DeviceTableProps) => {
 	const [deviceOfExport, setDeviceOfExport] = useState<IExportDeviceType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
 	const [orderBy, setOrderBy] = useState<string>('DeviceId');
@@ -251,6 +249,13 @@ const DeviceTable = ({
 								})}
 							</TableRow>
 						))}
+						{deviceOfExport.length === 0 && (
+							<TableRow>
+								<TableCell colSpan={columns.length + 1} sx={{ borderBottom: '0', textAlign: 'center' }}>
+									<h3 style={{ width: '100%', padding: '16px 0px' }}>Trống</h3>
+								</TableCell>
+							</TableRow>
+						)}
 					</TableBody>
 				</Table>
 			</TableContainer>

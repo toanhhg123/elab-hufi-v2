@@ -25,29 +25,33 @@ const initialState: IPurchaseOrderState = {
 }
 
 export const purchaseOrderSlice = createSlice({
-  name: 'purchaseOrder',
-  initialState,
-  reducers: {
-    setListOfPurchaseOrders: (state: IPurchaseOrderState, action: PayloadAction<IPurchaseOrderType[]>) => {
-      state.listOfPurchaseOrders = action.payload;
-    },
-    setCurrentPurchaseOrder: (state: IPurchaseOrderState, action: PayloadAction<IPurchaseOrderType>) => {
-      state.currentPurchaseOrder = action.payload;
-    },
-    setCurrentChemicalPO: (state: IPurchaseOrderState, action: PayloadAction<IOrderChemicalType>) => {
-      state.currentChemicalPO = action.payload;
-    },
-    setCurrentDevicePO: (state: IPurchaseOrderState, action: PayloadAction<IOrderDeviceType>) => {
-      state.currentDevicePO = action.payload;
-    },
-  },
-})
+	name: 'purchaseOrder',
+	initialState,
+	reducers: {
+		setListOfPurchaseOrders: (state: IPurchaseOrderState, action: PayloadAction<IPurchaseOrderType[]>) => {
+			state.listOfPurchaseOrders = action.payload;
+		},
+		setCurrentPurchaseOrder: (state: IPurchaseOrderState, action: PayloadAction<IPurchaseOrderType>) => {
+			state.currentPurchaseOrder = action.payload;
+		},
+		setCurrentChemicalPO: (state: IPurchaseOrderState, action: PayloadAction<IOrderChemicalType>) => {
+			state.currentChemicalPO = action.payload;
+		},
+		setCurrentDevicePO: (state: IPurchaseOrderState, action: PayloadAction<IOrderDeviceType>) => {
+			state.currentDevicePO = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
 export const {
   setListOfPurchaseOrders,
   setCurrentPurchaseOrder,
   setCurrentChemicalPO,
-  setCurrentDevicePO
+  setCurrentDevicePO,
+  reset
 } = purchaseOrderSlice.actions;
 
 export default purchaseOrderSlice.reducer;
