@@ -63,16 +63,6 @@ export const defaultSidebarItems: ISidebarItem[] = [
 		name: 'Quản lý thiết bị',
 		icon: '',
 	},
-	// {
-	//   "isOpen": false,
-	//   "name": "Danh mục hoá chất",
-	//   "icon": ""
-	// },
-	// {
-	//   "isOpen": false,
-	//   "name": "Danh mục thiết bị",
-	//   "icon": ""
-	// },
 	{
 		isOpen: false,
 		name: 'Danh mục NSX',
@@ -96,11 +86,6 @@ export const defaultSidebarItems: ISidebarItem[] = [
 	{
 		isOpen: false,
 		name: 'Quản lý lớp học phần',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Quản lý bài thí nghiệm',
 		icon: '',
 	},
 	{
@@ -203,20 +188,20 @@ export const appSlice = createSlice({
 
 		reset: () => {
 			return {
-                isOpenDrawer: false,
-                sidebarItems: defaultSidebarItems,
-                snackbarState: defaultSnackbarMessage,
-            };
-        },
+				isOpenDrawer: false,
+				sidebarItems: defaultSidebarItems,
+				snackbarState: defaultSnackbarMessage,
+			};
+		},
 	},
 });
 
-export const { 
-	setIsOpenDrawer, 
-	setSnackbarMessage, 
-	setSidebarItems, 
-	setSnackbar, 
-	reset 
+export const {
+	setIsOpenDrawer,
+	setSnackbarMessage,
+	setSidebarItems,
+	setSnackbar,
+	reset
 } = appSlice.actions;
 
 export default appSlice.reducer;

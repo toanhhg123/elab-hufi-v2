@@ -27,7 +27,12 @@ import {
   ILessonLabType
 } from '../../types/lessonLabType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteLessonLab, getLessonLabs, postLessonLab, updateLessonLab } from '../../services/lessonLabServices';
+import {
+  deleteLessonLab,
+  getLessonLabs,
+  postLessonLab,
+  updateLessonLab
+} from '../../services/lessonLabServices';
 import { RootState } from '../../store';
 import { setListOfLessonLabs } from './lessonLabSlice';
 import AddIcon from '@mui/icons-material/Add';
@@ -42,8 +47,11 @@ import InstrumentPlanning from './InstrumentPlanning';
 import ChemicalPlanning from './ChemicalPlanning';
 import Autocomplete from '@mui/material/Autocomplete';
 
-const LessonLabTable: FC = () => {
-  const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
+const LessonLabTable: FC<{
+  lessonLabData: ILessonLabType[];
+  currentSubjectId: string;
+}> = ({ lessonLabData, currentSubjectId }) => {
+  // const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
 
   const dispatch = useAppDispatch();
@@ -106,14 +114,8 @@ const LessonLabTable: FC = () => {
   const columns = useMemo<MRT_ColumnDef<ILessonLabType>[]>(
     () => [
       {
-        accessorKey: 'SubjectName',
-        header: 'Tên môn học',
-        size: 140,
-      },
-      {
         accessorKey: 'LessonName',
         header: 'Tên bài thí nghiệm',
-        size: 100,
       }
     ],
     [getCommonEditTextFieldProps],
@@ -186,7 +188,7 @@ const LessonLabTable: FC = () => {
     else {
       listOfLessons.forEach(item => promisesList.push(postLessonLab({
         "LessonName": item,
-        "SubjectId": createdRow.SubjectId,
+        "SubjectId": currentSubjectId,
         "listChemical": [],
         "listDevice": [],
         "listInstrument": []
@@ -472,59 +474,33 @@ const LessonLabTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.accessorKey === "SubjectName" && subjectData.length > 0) {
-                  return (
-                    <Autocomplete
-                      key={"SubjectName"}
-                      options={subjectDataValue}
-                      noOptionsText="Không có kết quả trùng khớp"
-                      value={subjectDataValue.find((x: any) => x.id === createdRow.SubjectId) || null}
-                      getOptionLabel={option => option?.label}
-                      renderInput={params => {
-                        return (
-                          <TextField
-                            {...params}
-                            label={column.header}
-                            placeholder="Nhập để tìm kiếm"
-                          />
-                        );
+                return <div className="addNewLessonsDiv" style={{ "display": "flex" }}>
+                  <TextField
+                    style={{ "width": "80%" }}
+                    key={column.accessorKey}
+                    label={column.header}
+                    name={column.accessorKey}
+                    defaultValue={column.id && createdRow[column.id]}
+                    onChange={(e) =>
+                      setCreatedRow({
+                        ...createdRow,
+                        [e.target.name]: e.target.value
+                      })
+                    }
+                  />
+                  <Tooltip title="Thêm bài thí nghiệm mới" placement="right-start">
+                    <Button
+                      color="primary"
+                      onClick={() => {
+                        setListOfLessons([...listOfLessons, createdRow.LessonName.toString()])
                       }}
-                      onChange={(event, value) => {
-                        setCreatedRow({
-                          ...createdRow,
-                          "SubjectId": value?.id,
-                          "SubjectName": value?.name,
-                        });
-                      }}
-                    />
-                  );
-                }
-                else {
-                  return <div className="addNewLessonsDiv" style={{ "display": "flex" }}>
-                    <TextField
-                      style={{ "width": "80%" }}
-                      key={column.accessorKey}
-                      label={column.header}
-                      name={column.accessorKey}
-                      defaultValue={column.id && createdRow[column.id]}
-                      onChange={(e) =>
-                        setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                      }
-                    />
-                    <Tooltip title="Thêm bài thí nghiệm mới" placement="right-start">
-                      <Button
-                        color="primary"
-                        onClick={() => {
-                          setListOfLessons([...listOfLessons, createdRow.LessonName.toString()])
-                        }}
-                        variant="contained"
-                        style={{ "margin": "10px" }}
-                      >
-                        <AddIcon fontSize="small" />
-                      </Button>
-                    </Tooltip>
-                  </div>
-                }
+                      variant="contained"
+                      style={{ "margin": "10px" }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </Button>
+                  </Tooltip>
+                </div>
               }
               )}
               <Box

@@ -88,7 +88,7 @@ const ExportChemicalTable: FC<{ exportChemical: IExportChemicalType[]; columns: 
   return (
     <>
       <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
-        <Typography fontWeight="bold">Thông tin xuất hóa chất</Typography>
+        <Typography fontWeight="bold">Thông tin xuất hóa chất cho môn học</Typography>
         <Box display="flex" alignItems="end">
           <TextField
             id="filled-search"

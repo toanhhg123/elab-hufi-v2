@@ -29,10 +29,6 @@ export const researchTeamsSlice = createSlice({
   reducers: {
     setListOfResearchTeams: (state: IResearchTeamState, action: PayloadAction<IResearchTeamType[]>) => {
       state.listOfResearchTeams = action.payload;
-      let researchersData = action.payload.flatMap((item: IResearchTeamType) => item.listMember);
-      state.listOfResearchers = researchersData.filter(function (item, pos) {
-        return researchersData.indexOf(item) == pos;
-      });
     },
     setCurrentResearchTeam: (state: IResearchTeamState, action: PayloadAction<IResearchTeamType>) => {
       state.currentResearchTeam = action.payload

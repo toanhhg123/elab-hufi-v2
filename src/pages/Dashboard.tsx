@@ -333,14 +333,14 @@ export function Dashboard() {
 				{sidebarItems[9].isOpen && (role === 1 ? <FacultyViewScheduleTable /> : <TeacherViewScheduleTable />)}
 				{sidebarItems[10].isOpen && <SubjectTable />}
 				{sidebarItems[11].isOpen && <ClassSubjectTable />}
-				{sidebarItems[12].isOpen && <LessonLabTable />}
-				{sidebarItems[13].isOpen && <WarehouseTable />}
-				{sidebarItems[14].isOpen && <PurchaseOrderTable />}
-				{sidebarItems[15].isOpen && <PlanSubjectTable />}
-				{sidebarItems[16].isOpen && <RegisterGeneralsTable />}
-				{sidebarItems[17].isOpen && <SuggestNewDevicesTable />}
-				{sidebarItems[18].isOpen && <DeviceTransfer />}
-				{sidebarItems[19].isOpen && <TrainSchedule />}
+				{/* {sidebarItems[12].isOpen && <LessonLabTable />} */}
+				{sidebarItems[12].isOpen && <WarehouseTable />}
+				{sidebarItems[13].isOpen && <PurchaseOrderTable />}
+				{sidebarItems[14].isOpen && <PlanSubjectTable />}
+				{sidebarItems[15].isOpen && <RegisterGeneralsTable />}
+				{sidebarItems[16].isOpen && <SuggestNewDevicesTable />}
+				{sidebarItems[17].isOpen && <DeviceTransfer />}
+				{sidebarItems[18].isOpen && <TrainSchedule />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

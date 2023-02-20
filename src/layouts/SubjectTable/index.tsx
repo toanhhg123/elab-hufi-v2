@@ -32,10 +32,13 @@ import DevicePlanning from './DevicePlanning';
 import InstrumentPlanning from './InstrumentPlanning';
 import ChemicalPlanning from './ChemicalPlanning';
 import { IDepartmentType } from '../../types/departmentType';
+import LessonLabTable from '../LessonLabTable';
 
 const SubjectTable: FC = () => {
   const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
   const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
+  const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
+
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
@@ -318,11 +321,18 @@ const SubjectTable: FC = () => {
         initialState={{
           density: 'compact',
           columnOrder: [
+            'mrt-row-expand',
             'mrt-row-numbers',
             ...columns.map(x => x.accessorKey || ''),
             'mrt-row-actions'
           ]
         }}
+        renderDetailPanel={({ row }) => (
+          <LessonLabTable
+            lessonLabData={lessonLabData.filter(item => item.SubjectId === row.original.SubjectId)}
+            currentSubjectId={row.original?.SubjectId ? row.original.SubjectId.toString() : ""}
+          />
+        )}
         renderRowActions={({ row, table }) => (
           <Box sx={{
             "display": 'flex', "gap": '1rem', "justifyContent": "center",

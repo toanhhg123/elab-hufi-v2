@@ -10,7 +10,12 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
     IconButton,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
     Stack,
     TextField,
     Tooltip,
@@ -22,8 +27,12 @@ import { deleteResearcher, getResearchers, postResearcher, updateResearcher } fr
 import { RootState } from '../../store';
 import { setListOfResearchers } from './researchTeamSlice';
 import AddIcon from '@mui/icons-material/Add';
+import moment from 'moment';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { setSnackbarMessage } from '../../pages/appSlice';
+import { Genders } from '../../configs/enums';
 
 const ResearchersTable: FC = () => {
     const researchersData = useAppSelector((state: RootState) => state.researchTeam.listOfResearchers);
@@ -43,6 +52,16 @@ const ResearchersTable: FC = () => {
 
     useEffect(() => {
         setTableData(researchersData);
+    }, [researchersData])
+
+    useEffect(() => {
+        let formatedResearcherData = researchersData.length > 0 ? researchersData.map((researcher: IResearcherType) => {
+            return {
+                ...researcher,
+                "formatedBirthdate": moment.unix(Number(researcher.Birthdate)).format('DD/MM/YYYY')
+            }
+        }) : [];
+        setTableData(formatedResearcherData);
     }, [researchersData])
 
     const getCommonEditTextFieldProps = useCallback(
@@ -68,7 +87,7 @@ const ResearchersTable: FC = () => {
                 header: 'Tên nhà nghiên cứu',
             },
             {
-                accessorKey: 'Birthdate',
+                accessorKey: 'formatedBirthdate',
                 header: 'Ngày sinh',
             },
             {
@@ -250,17 +269,62 @@ const ResearchersTable: FC = () => {
                                 gap: '1.5rem',
                             }}
                         >
-                            {columns.map((column) => (
-                                <TextField
-                                    key={column.accessorKey}
-                                    label={column.header}
-                                    name={column.accessorKey}
-                                    defaultValue={column.id && updatedRow[column.id]}
-                                    onChange={(e) =>
-                                        setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                                    }
-                                />
-                            ))}
+                            {columns.map((column) => {
+                                if (column.accessorKey === "ResearcherId") {
+                                    return <TextField
+                                        disabled
+                                        key="ResearcherId"
+                                        label="ResearcherId"
+                                        name="ResearcherId"
+                                        defaultValue={updatedRow["ResearcherId"]}
+                                    />
+                                }
+                                else if (column.accessorKey === "formatedBirthdate") {
+                                    return <LocalizationProvider dateAdapter={AdapterMoment}>
+                                        <DatePicker
+                                            key={"UpdateBirthdate"}
+                                            label="Ngày sinh"
+                                            value={new Date(updatedRow.Birthdate * 1000)}
+                                            onChange={(val: any) =>
+                                                setUpdatedRow({
+                                                    ...updatedRow,
+                                                    "formatedBirthdate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                                                    "Birthdate": Date.parse(val) / 1000
+                                                })
+                                            }
+                                            renderInput={(params: any) => <TextField key={"UpdateBirthdateTextField"} {...params} />}
+                                            inputFormat='DD/MM/YYYY'
+                                        />
+                                    </LocalizationProvider>
+                                }
+                                else if (column.accessorKey === "Gender") {
+                                    return <FormControl sx={{ m: 0, minWidth: 120 }}>
+                                        <InputLabel id="edit-select-required">Giới tính</InputLabel>
+                                        <Select
+                                            labelId="edit-select-required"
+                                            id="edit-select-required"
+                                            value={Genders[updatedRow.Gender]}
+                                            label="Giới tính"
+                                            onChange={(e: SelectChangeEvent) =>
+                                                setUpdatedRow({ ...updatedRow, "Gender": Genders[Number(e.target.value)] })}
+                                        >
+                                            {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2)
+                                                .map((x, idx) => <MenuItem key={'UpdateGender' + idx} value={idx}>{x}</MenuItem>)}
+                                        </Select>
+                                    </FormControl>
+                                }
+                                else {
+                                    return <TextField
+                                        key={column.accessorKey}
+                                        label={column.header}
+                                        name={column.accessorKey}
+                                        defaultValue={column.id && updatedRow[column.id]}
+                                        onChange={(e) =>
+                                            setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
+                                        }
+                                    />
+                                }
+                            })}
 
                         </Stack>
                     </form>
@@ -297,17 +361,54 @@ const ResearchersTable: FC = () => {
                                 gap: '1.5rem',
                             }}
                         >
-                            {columns.map((column) => (
-                                <TextField
-                                    key={column.accessorKey}
-                                    label={column.header}
-                                    name={column.accessorKey}
-                                    defaultValue={column.accessorKey && createdRow[column.accessorKey]}
-                                    onChange={(e) =>
-                                        setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
-                                    }
-                                />
-                            ))}
+                            {columns.map((column) => {
+                                if (column.accessorKey === "formatedBirthdate") {
+                                    return <LocalizationProvider dateAdapter={AdapterMoment}>
+                                        <DatePicker
+                                            key={"CreateBirthdate"}
+                                            label="Ngày sinh"
+                                            value={new Date(createdRow.Birthdate * 1000)}
+                                            onChange={(val: any) =>
+                                                setCreatedRow({
+                                                    ...createdRow,
+                                                    "formatedBirthdate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                                                    "Birthdate": Date.parse(val) / 1000
+                                                })
+                                            }
+                                            renderInput={(params: any) => <TextField key={"CreateBirthdateTextField"} {...params} />}
+                                            inputFormat='DD/MM/YYYY'
+                                        />
+                                    </LocalizationProvider>
+                                }
+                                else if (column.accessorKey === "Gender") {
+                                    return <FormControl sx={{ m: 0, minWidth: 120 }}>
+                                        <InputLabel id="edit-select-required">Giới tính</InputLabel>
+                                        <Select
+                                            labelId="edit-select-required"
+                                            id="edit-select-required"
+                                            value={Genders[createdRow.Gender]}
+                                            label="Giới tính"
+                                            onChange={(e: SelectChangeEvent) =>
+                                                setCreatedRow({ ...createdRow, "Gender": Genders[Number(e.target.value)] })}
+                                        >
+                                            {Object.values(Genders).slice(0, (Object.values(Genders).length + 1) / 2)
+                                                .map((x, idx) => <MenuItem key={"CreateGender" + idx} value={idx}>{x}</MenuItem>)}
+                                        </Select>
+                                    </FormControl>
+                                }
+                                else {
+                                    return <TextField
+                                        key={column.accessorKey}
+                                        label={column.header}
+                                        name={column.accessorKey}
+                                        defaultValue={column.id && createdRow[column.id]}
+                                        onChange={(e) =>
+                                            setCreatedRow({ ...createdRow, [e.target.name]: e.target.value })
+                                        }
+                                    />
+                                }
+                            }
+                            )}
 
                         </Stack>
                     </form>
