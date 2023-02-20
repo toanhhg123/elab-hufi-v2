@@ -26,6 +26,7 @@ import axios from 'axios';
 import { MRT_ColumnDef } from 'material-react-table';
 import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { getChemicalById } from '../../../services/chemicalServices';
 import { RootState } from '../../../store';
 import { dummyExportChemicalData, IExportChemicalType } from '../../../types/exportChemicalType';
 
@@ -48,6 +49,7 @@ const CreateExportChemicalModal = ({
 }: CreateExportChemicalModalProps) => {
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportChemicalData);
 	const warehouseDepartment = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseDepartment);
+	const owner = useAppSelector((state: RootState) => state.userManager.owner);
 	const [chemicalData, setChemicalData] = useState([]);
 
 	const [listChemicalAmount, setListChemicalAmount] = useState<any>([]);
@@ -58,7 +60,7 @@ const CreateExportChemicalModal = ({
 
 	const handleChangeExportChemicalIdText = (e: ChangeEvent<HTMLInputElement>) =>
 		setExportChemicalIdText(e.target.value);
-
+	
 	useEffect(() => {
 		let list = [];
 
@@ -76,8 +78,8 @@ const CreateExportChemicalModal = ({
 		const listInitChemical = list?.map((chemical: any) => {
 			switch (type) {
 				case 'DEP':
-					case 'REG':
-						return {
+				case 'REG':
+					return {
 						ChemDeptId: chemical?.ChemDeptId,
 						ChemDetailId: chemical?.ChemDetailId,
 						ChemicalName: chemical?.ChemicalName,
@@ -91,10 +93,10 @@ const CreateExportChemicalModal = ({
 						ChemicalName: chemical?.ChemicalName,
 						Unit: chemical?.Unit,
 					};
-					default:
-						break;
-					}
-				});
+				default:
+					break;
+			}
+		});
 
 		setListChemicalAmount(listInitChemical);
 	}, [initData]);
@@ -103,19 +105,25 @@ const CreateExportChemicalModal = ({
 		switch (type) {
 			case 'DEP': {
 				const getChemicalData = async () => {
-					const res = await axios.get('https://aspsite.somee.com/api/chemicals/1');
-					const chemicalsDetail: any = [];
-					res.data?.forEach((chemical: any) => {
-						for (let x of chemical.listChemicalDetail) {
-							chemicalsDetail.push({
-								ChemicalName: chemical?.ChemicalName,
-								ChemDetailId: x?.ChemDetailId,
-								Unit: chemical.Unit,
-							});
-						}
-					});
-					setChemicalData(chemicalsDetail);
-					setLoading(false);
+					try {
+						const res = await getChemicalById(Number(owner.DepartmentId));
+						const chemicalsDetail: any = [];
+						res?.forEach((chemical: any) => {
+							for (let x of chemical.listChemicalDetail) {
+								chemicalsDetail.push({
+									ChemicalName: chemical?.ChemicalName,
+									ChemDetailId: x?.ChemDetailId,
+									ChemDeptId: x?.ChemDeptId,
+									Unit: chemical.Unit,
+								});
+							}
+						});
+						setChemicalData(chemicalsDetail);
+					} catch (error) {
+						console.log(error);
+					} finally {
+						setLoading(false);
+					}
 				};
 
 				getChemicalData();
@@ -124,19 +132,16 @@ const CreateExportChemicalModal = ({
 			case 'SUB':
 			case 'REG': {
 				const getChemicalData = async () => {
-					// const res = await axios.get('https://aspsite.somee.com/api/chemicals/1');
+					const res = await getChemicalById(Number(owner.DepartmentId));
 					const chemicalsDetail: any = [];
-					warehouseDepartment?.forEach(chemical => {
-						if (chemical.Accept === 'Accepted') {
-							const listChemicalExport = chemical?.listChemicalExport || [];
-							for (let chemicalDetail of listChemicalExport) {
-								chemicalsDetail.push({
-									ChemicalName: chemicalDetail?.ChemicalName,
-									ChemDetailId: chemicalDetail?.ChemDetailId,
-									ChemDeptId: chemicalDetail?.ChemDeptId,
-									Unit: chemicalDetail.Unit,
-								});
-							}
+					res?.forEach((chemical: any) => {
+						for (let x of chemical.listExportChemical) {
+							chemicalsDetail.push({
+								ChemicalName: chemical?.ChemicalName,
+								ChemDetailId: x?.ChemDetailId,
+								ChemDeptId: x?.ChemDeptId,
+								Unit: chemical.Unit,
+							});
 						}
 					});
 					setChemicalData(chemicalsDetail);
@@ -148,7 +153,7 @@ const CreateExportChemicalModal = ({
 			default:
 				break;
 		}
-	}, []);
+	}, [owner]);
 
 	useEffect(() => {
 		setCreatedRow((prev: any) => ({ ...prev, ...initData }));
@@ -187,9 +192,9 @@ const CreateExportChemicalModal = ({
 								const list = chemicalData
 									.map((x: any) => {
 										return {
-											label: `${
-												x?.ChemDeptId ? `${x?.ChemDeptId} - ` : `${x?.ChemDetailId} - `
-											}${x?.ChemicalName}`,
+											label: `${x?.ChemDeptId ? `${x?.ChemDeptId} - ` : `${x?.ChemDetailId} - `}${
+												x?.ChemicalName
+											}`,
 											id: type === 'REG' || type === 'SUB' ? x?.ChemDeptId : x?.ChemDetailId,
 											name: x?.ChemicalName,
 											unit: x?.Unit,
@@ -199,14 +204,14 @@ const CreateExportChemicalModal = ({
 
 								return (
 									<Fragment key={column.accessorKey}>
-										<TextField
+										{type === 'DEP' && <TextField
 											label={column.header}
 											name={column.accessorKey}
-											disabled={!chemicalAmount.ChemDetailId || type === 'REG' || type === 'SUB'}
+											disabled={!chemicalAmount.ChemDetailId}
 											defaultValue={exportChemicalIdText}
 											value={exportChemicalIdText}
 											onChange={handleChangeExportChemicalIdText}
-										/>
+										/>}
 										<FormControl>
 											<Box>
 												<Grid container spacing={1}>
@@ -369,7 +374,7 @@ const CreateExportChemicalModal = ({
 											</TableCell>
 											<TableCell>{el?.ChemDeptId}</TableCell>
 											<TableCell>
-												{el?.ChemDetailId || el?.ChemDeptId} - {el?.ChemicalName}
+												{el?.ChemicalName}
 											</TableCell>
 											<TableCell>
 												{el?.Amount} {el?.Unit}

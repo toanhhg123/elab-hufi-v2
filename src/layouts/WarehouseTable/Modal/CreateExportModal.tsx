@@ -38,7 +38,16 @@ const CreateExportModal = ({
 	handleSubmitCreateModal,
 	initData,
 }: CreateExportModalProps) => {
-	const [createdRow, setCreatedRow] = useState<any>(initData);
+	const owner = useAppSelector(state => state.userManager.owner);
+	const [createdRow, setCreatedRow] = useState<any>({
+		...initData,
+		EmployeeId: owner.EmployeeId,
+		EmployeeCreate: owner.EmployeeId,
+		EmployeeName: owner.Fullname,
+		EmployeeCreateName: owner.Fullname,
+		DepartmentId: owner.DepartmentId,
+		DepartmentName: owner.DepartmentName,
+	});
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
 	const registerGeneralData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
@@ -86,9 +95,7 @@ const CreateExportModal = ({
 									</LocalizationProvider>
 								);
 							} else if (
-								(column.id === 'EmployeeId' ||
-									column.id === 'EmployeeInCharge' ||
-									column.id === 'EmployeeCreate') &&
+								(column.id === 'EmployeeId' || column.id === 'EmployeeCreate') &&
 								column.enableHiding !== false &&
 								employeeData.length > 0
 							) {
@@ -96,6 +103,46 @@ const CreateExportModal = ({
 									label: `${x.EmployeeId} - ${x.Fullname}`,
 									id: x.EmployeeId,
 								}));
+
+								return (
+									<Autocomplete
+										key={column.id}
+										options={list}
+										noOptionsText="Không có kết quả trùng khớp"
+										defaultValue={
+											list.find(x => x.id === createdRow[column.id as keyof typeof createdRow]) ||
+											null
+										}
+										value={
+											list.find(x => x.id === createdRow[column.id as keyof typeof createdRow]) ||
+											null
+										}
+										disabled={!column.enableEditing}
+										getOptionLabel={option => option?.label}
+										renderInput={params => {
+											return (
+												<TextField
+													{...params}
+													label={column.header}
+													placeholder="Nhập để tìm kiếm"
+												/>
+											);
+										}}
+										onChange={(event, value) => {
+											setCreatedRow({
+												...createdRow,
+												[column.id as keyof typeof createdRow]: value?.id,
+											});
+										}}
+									/>
+								);
+							} else if (column.id === 'EmployeeInCharge' && employeeData.length > 0) {
+								const list = employeeData.map(x => ({
+									label: `${x.EmployeeId} - ${x.Fullname}`,
+									id: x.EmployeeId,
+								}));
+								console.log(list);
+								console.log(createdRow[column.id as keyof typeof createdRow]);
 
 								return (
 									<Autocomplete
@@ -148,11 +195,12 @@ const CreateExportModal = ({
 										defaultValue={list.find(x => x.id === createdRow['SubjectId']) || null}
 										value={list.find(x => x.id === createdRow['SubjectId']) || null}
 										getOptionLabel={option => option?.label}
+										disabled={!column.enableEditing}
 										renderInput={params => {
 											return (
 												<TextField
 													{...params}
-													label="Người xuất"
+													label={column.header}
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -171,7 +219,7 @@ const CreateExportModal = ({
 								laboratoriesData.length > 0
 							) {
 								const list = laboratoriesData.map(x => ({
-									label: `${x.LabName} - ${x.Location}`,
+									label: `${x.LabId} - ${x.LabName} - ${x.Location}`,
 									id: x.LabId,
 								}));
 
@@ -203,12 +251,12 @@ const CreateExportModal = ({
 							} else if (
 								column.id === 'RegisterGeneralId' &&
 								column.enableHiding !== false &&
-								registerGeneralData.length > 0
+								registerGeneralData
 							) {
-								const list = registerGeneralData.map((x, idx) => ({
+								const list = Array.isArray(registerGeneralData) ? registerGeneralData?.map((x, idx) => ({
 									label: `${x.RegisterGeneralId} - ${x.InstructorName} - ${x.ResearchSubject}`,
 									id: x.RegisterGeneralId,
-								}));
+								})) : [];
 
 								return (
 									<Autocomplete
@@ -222,7 +270,7 @@ const CreateExportModal = ({
 											return (
 												<TextField
 													{...params}
-													label="Đăng kí chung"
+													label="Đăng ký chung"
 													placeholder="Nhập để tìm kiếm"
 												/>
 											);
@@ -231,41 +279,6 @@ const CreateExportModal = ({
 											setCreatedRow({
 												...createdRow,
 												RegisterGeneralId: value?.id,
-											});
-										}}
-									/>
-								);
-							} else if (
-								column.id === 'UserAccept' &&
-								column.enableHiding !== false &&
-								employeeData.length > 0
-							) {
-								const list = employeeData.map(x => ({
-									label: `${x.EmployeeId} - ${x.Fullname}`,
-									id: x.EmployeeId,
-								}));
-
-								return (
-									<Autocomplete
-										key={column.id}
-										options={list}
-										noOptionsText="Không có kết quả trùng khớp"
-										defaultValue={list.find(x => x.id === createdRow['UserAccept']) || null}
-										value={list.find(x => x.id === createdRow['UserAccept']) || null}
-										getOptionLabel={option => option?.label}
-										renderInput={params => {
-											return (
-												<TextField
-													{...params}
-													label="Người chấp nhận"
-													placeholder="Nhập để tìm kiếm"
-												/>
-											);
-										}}
-										onChange={(event, value) => {
-											setCreatedRow({
-												...createdRow,
-												UserAccept: value?.id,
 											});
 										}}
 									/>

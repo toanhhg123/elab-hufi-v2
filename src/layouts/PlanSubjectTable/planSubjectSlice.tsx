@@ -14,15 +14,18 @@ const initialState: IPlanSubjectState = {
 }
 
 export const planningSubjectSlice = createSlice({
-  name: 'planningSubject',
-  initialState,
-  reducers: {
-    setListOfPlanSubjects: (state: IPlanSubjectState, action: PayloadAction<IPlanSubjectType[]>) => {
-      state.listOfPlanSubjects = action.payload
-    },
-  },
-})
+	name: 'planningSubject',
+	initialState,
+	reducers: {
+		setListOfPlanSubjects: (state: IPlanSubjectState, action: PayloadAction<IPlanSubjectType[]>) => {
+			state.listOfPlanSubjects = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfPlanSubjects } = planningSubjectSlice.actions
+export const { setListOfPlanSubjects, reset } = planningSubjectSlice.actions
 
 export default planningSubjectSlice.reducer

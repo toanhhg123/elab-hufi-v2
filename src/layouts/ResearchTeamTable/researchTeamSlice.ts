@@ -2,17 +2,17 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import {
   IResearchTeamType,
-  IListMemberType,
+  IResearcherType,
   dummyResearchTeamData,
-  dummyListMemberData
+  dummyListMemberData,
 } from '../../types/researchTeamType'
 
 // Define a type for the slice state
 interface IResearchTeamState {
   listOfResearchTeams: IResearchTeamType[],
   currentResearchTeam: IResearchTeamType,
-  currentMemberTeam: IListMemberType,
-  listOfResearchers: IListMemberType[],
+  currentMemberTeam: IResearcherType,
+  listOfResearchers: IResearcherType[] | IResearcherType[],
 }
 
 // Define the initial state using that type
@@ -37,12 +37,24 @@ export const researchTeamsSlice = createSlice({
     setCurrentResearchTeam: (state: IResearchTeamState, action: PayloadAction<IResearchTeamType>) => {
       state.currentResearchTeam = action.payload
     },
-    setCurrentMemberTeam: (state: IResearchTeamState, action: PayloadAction<IListMemberType>) => {
+    setCurrentMemberTeam: (state: IResearchTeamState, action: PayloadAction<IResearcherType>) => {
       state.currentMemberTeam = action.payload
-    }
+    },
+    setListOfResearchers: (state: IResearchTeamState, action: PayloadAction<IResearcherType[]>) => {
+      state.listOfResearchers = action.payload
+    },
+    reset: () => {
+      return initialState;
+    },
   },
 })
 
-export const { setListOfResearchTeams, setCurrentResearchTeam, setCurrentMemberTeam } = researchTeamsSlice.actions
+export const {
+  setListOfResearchTeams,
+  setCurrentResearchTeam,
+  setCurrentMemberTeam,
+  setListOfResearchers,
+  reset
+} = researchTeamsSlice.actions
 
 export default researchTeamsSlice.reducer

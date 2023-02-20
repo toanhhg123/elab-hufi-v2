@@ -37,6 +37,9 @@ export const warehouseSlice = createSlice({
 		setListOfWarehouseStudySession: (state: IExportState, action: PayloadAction<IExportType[]>) => {
 			state.listOfWarehouseStudySession = action.payload;
 		},
+		reset: () => {
+			return initialState;
+		},
 	},
 });
 
@@ -45,6 +48,7 @@ export const {
 	setListOfWarehouseRegisterGeneral,
 	setListOfWarehouseStudySession,
 	setListOfWarehouseDepartment,
+	reset
 } = warehouseSlice.actions;
 
 export default warehouseSlice.reducer;

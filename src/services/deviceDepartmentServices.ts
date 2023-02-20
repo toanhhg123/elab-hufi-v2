@@ -2,9 +2,8 @@ import config from '../configs/app';
 import * as API from '../configs/apiHelper';
 import { IDeviceDepartmentType } from '../types/deviceDepartmentType';
 
-
 const { isProd } = config;
-const API_ENDPOINT = 'https://www.aspsite.somee.com';
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint

@@ -81,6 +81,10 @@ const BoxTextFieldStyled = styled(Box)(theme => ({
 	'@media (max-width: 900px)': {
 		margin: '8px 0',
 	},
+
+	'@media (min-width: 0px)': {
+		marginBottom: '8px',
+	},
 }));
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -198,7 +202,7 @@ const DeviceOfDepartmentTable = () => {
 	}, [order, orderBy]);
 
 	useEffect(() => {
-		const data = devices.map((device: any) => {
+		const data = cloneDevices.map((device: any) => {
 			let string: String = '';
 
 			string = nestedObject(device, string);
@@ -209,7 +213,7 @@ const DeviceOfDepartmentTable = () => {
 			};
 		});
 		setDataSearch(data);
-	}, [devices]);
+	}, [cloneDevices]);
 
 	useEffect(() => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
@@ -217,7 +221,7 @@ const DeviceOfDepartmentTable = () => {
 		if (keyword === '') {
 			setDeviceValues(cloneDevices || []);
 		} else {
-			const data = devices.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
+			const data = cloneDevices.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
 			setDeviceValues(data || []);
 		}
 	}, [keyword]);
@@ -278,7 +282,7 @@ const DeviceOfDepartmentTable = () => {
 	const columns = useRef<DeviceColumnType[]>([
 		{ id: 'DeviceDetailId', header: 'Mã chi tiết TB' },
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
-		{ id: 'DeviceName', header: 'Tên thiết bị' },
+		{ id: 'DeviceName', header: 'Tên thiết bị', size: 200 },
 		{ id: 'Model', header: 'Số Model' },
 		{ id: 'ImportDate', header: 'Ngày nhập', type: 'date' },
 		{ id: 'Standard', header: 'Qui cách' },
@@ -287,32 +291,37 @@ const DeviceOfDepartmentTable = () => {
 			id: 'QuantityOriginal',
 			header: 'SL ban đầu',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityExport',
 			header: 'SL xuất',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityRemain',
 			header: 'SL kho',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityTotal',
 			header: 'SL tồn',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 80
 		},
 		{
 			id: 'QuantityLiquidate',
 			header: 'SL thanh lý',
 			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+			size: 120
 		},
 	]);
 
 	return (
 		<>
-			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={2} mb={2}>
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" m={2}>
 				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
@@ -356,12 +365,7 @@ const DeviceOfDepartmentTable = () => {
 								onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
 							/>
 						</BoxTextFieldStyled>
-						<Box>
-							<Tooltip arrow placement="left" title="Tạo mới">
-								<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-									Tạo mới
-								</Button>
-							</Tooltip>
+						<Box mb={1}>
 							<Tooltip arrow placement="left" title="Nhập giờ thiết bị">
 								<Button
 									variant="contained"
@@ -372,7 +376,7 @@ const DeviceOfDepartmentTable = () => {
 								</Button>
 							</Tooltip>
 
-							<Tooltip arrow placement="left" title="Nhập giờ thiết bị">
+							<Tooltip arrow placement="left" title="Thanh lý thiết bị">
 								<Button variant="contained" onClick={handleDeviceLiquidate} sx={{ marginLeft: '24px' }}>
 									Thanh lý thiết bị
 								</Button>
@@ -391,7 +395,7 @@ const DeviceOfDepartmentTable = () => {
 					/>
 				</Box>
 			</Box>
-			<TableContainer component={Paper} sx={{ marginBottom: '24px', overflow: 'overlay' }}>
+			<TableContainer component={Paper} sx={{ marginBottom: '24px', overflow: 'overlay', flex: '1' }}>
 				<Table sx={{ minWidth: 900 }} stickyHeader size="small">
 					<TableHead>
 						<TableRow>
@@ -434,14 +438,14 @@ const DeviceOfDepartmentTable = () => {
 								))}
 						{loading && (
 							<TableRow>
-								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={14} sx={{ textAlign: 'center' }}>
 									<CircularProgress disableShrink />
 								</TableCell>
 							</TableRow>
 						)}
 						{!loading && devices?.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={14} sx={{ textAlign: 'center' }}>
 									<Typography variant="h5" gutterBottom align="center" component="div">
 										Trống
 									</Typography>
@@ -452,16 +456,27 @@ const DeviceOfDepartmentTable = () => {
 				</Table>
 			</TableContainer>
 
-			{isOpenCreateModal && <DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />}
-			{isOpenDeleteModal && <DialogDelete
-				isOpen={isOpenDeleteModal}
-				onClose={() => setIsOpenDeleteModal(false)}
-				dataDelete={deletedRow}
-				handleSubmitDelete={handleSubmitDelete}
-			/>}
+			{isOpenCreateModal && (
+				<DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
+			)}
+			{isOpenDeleteModal && (
+				<DialogDelete
+					isOpen={isOpenDeleteModal}
+					onClose={() => setIsOpenDeleteModal(false)}
+					dataDelete={deletedRow}
+					handleSubmitDelete={handleSubmitDelete}
+				/>
+			)}
 
-			{isOpenDeviceUsageHours && <DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />}
-			{isOpenDeviceLiquidate && <DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />}
+			{isOpenDeviceUsageHours && (
+				<DialogDeviceUsageHours
+					isOpen={isOpenDeviceUsageHours}
+					onClose={() => setIsOpenDeviceUsageHours(false)}
+				/>
+			)}
+			{isOpenDeviceLiquidate && (
+				<DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />
+			)}
 		</>
 	);
 };
@@ -532,7 +547,9 @@ const RowDevice = ({
 
 					if (col.type === 'date')
 						return (
-							<TableCell align="left" key={col.id}>
+							<TableCell align="left" key={col.id} sx={{
+								minWidth: col?.size ? `${col.size}px` : 'unset',
+							}}>
 								{moment.unix(Number(device[col.id as keyof typeof device])).format('DD/MM/YYYY')}
 							</TableCell>
 						);
@@ -545,21 +562,33 @@ const RowDevice = ({
 							col.id === 'QuantityLiquidate'
 						)
 							return (
-								<TableCell align="left" key={col.id}>
+								<TableCell
+									align="left"
+									key={col.id}
+									sx={{
+										minWidth: col?.size ? `${col.size}px` : 'unset',
+									}}
+								>
 									{col.renderValue(device[col.id as keyof typeof device], device.Unit)}
 								</TableCell>
 							);
 						if (col.id === 'HasTrain')
 							return (
-								<TableCell align="left" key={col.id}>
+								<TableCell align="left" key={col.id} sx={{
+								minWidth: col?.size ? `${col.size}px` : 'unset',
+							}}>
 									{col.renderValue(device[col.id as keyof typeof device])}
 								</TableCell>
 							);
 					}
 					return (
-						<TableCell align="left" key={col.id}>{`${
-							device[col.id as keyof typeof device] || ''
-						}`}</TableCell>
+						<TableCell
+							align="left"
+							key={col.id}
+							sx={{
+								minWidth: col?.size ? `${col.size}px` : 'unset',
+							}}
+						>{`${device[col.id as keyof typeof device] || ''}`}</TableCell>
 					);
 				})}
 				{deviceType !== listDeviceType[0] && (

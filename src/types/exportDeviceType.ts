@@ -26,6 +26,7 @@ export interface IExportDeviceType {
 	ExportId?: String;
 	WarningMaintenace?: String;
 	Status?: String;
+	InstrumentDeptId?: String;
 }
 
 export const dummyExportDevice: IExportDeviceType = {
@@ -56,3 +57,12 @@ export const dummyExportDevice: IExportDeviceType = {
 	PeriodicMaintenance: 0,
 	WarningMaintenace: '',
 };
+
+export interface IExportInstrument {
+	ExportId: String;
+	DeviceName: String;
+	InstrumentDeptId: String;
+	QuantityOriginal: Number;
+	Unit: String;
+	DeviceDetailId: String;
+}

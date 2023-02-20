@@ -4,14 +4,17 @@ import DataGrid, {
 	Column,
 	ColumnChooser,
 	ColumnFixing,
+	CustomRule,
 	FilterPanel,
 	FilterRow,
 	Grouping,
 	HeaderFilter,
 	Item,
+	LoadPanel,
 	Lookup,
 	Pager,
 	Paging,
+	Selection,
 	Toolbar,
 } from 'devextreme-react/data-grid';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,36 +33,56 @@ import {
 	IconButton,
 	Input,
 	InputLabel,
+	MenuItem,
+	Select,
+	SelectChangeEvent,
 	TextField,
 } from '@mui/material';
 import ArrayStore from 'devextreme/data/array_store';
 import DataSource from 'devextreme/data/data_source';
-import _, { uniqueId } from 'lodash';
-import { useAppSelector } from '../../hooks';
+import _, { isBuffer, uniqueId } from 'lodash';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { deleteTrainSchedule, getTrainSchedules, updateTrainSchedules } from '../../services/trainServices';
 import { ITrainSchedule, ITrainScheduleDeviceItem } from '../../types/trainType';
 import { renderHeader } from '../DepartmentTable/Dialog/DialogImportDeviceInfo';
 import { ColumnSizeType, ColumnsType, DialogProps } from '../DepartmentTable/Dialog/DialogType';
 import resultData from './ResultData.json';
+import { setSnackbar } from '../../pages/appSlice';
+import { colorsNotifi } from '../../configs/color';
+
+const types = [
+	{
+		value: 'researcher',
+		label: 'Nghiên cứu sinh',
+	},
+	{
+		value: 'student',
+		label: 'Sinh viên',
+	},
+];
 
 const ManagerTrainSchedule = () => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
+	const token = useAppSelector(state => state.userManager.token);
 	const [managerTrainSchedule, setManagerTrainSchedule] = useState<ITrainSchedule[]>([]);
 	const [initDataDialog, setInitDataDialog] = useState<ITrainSchedule | null>(null);
 	const [openDialog, setOpenDialog] = useState<{ isOpen: boolean; type: string }>({ isOpen: false, type: 'INFO' });
+	const [type, setType] = useState<string>(types[0].value);
+
+	const handleChangeType = (event: SelectChangeEvent) => {
+		setType(event.target.value);
+	};
 
 	const getTrainSchedulesData = async () => {
-		const listOfTrainSchedule: ITrainSchedule[] = await getTrainSchedules();
+		const listOfTrainSchedule: ITrainSchedule[] = await getTrainSchedules(type);
 		if (Array.isArray(listOfTrainSchedule)) {
 			setManagerTrainSchedule(listOfTrainSchedule);
 		}
 	};
 
 	useEffect(() => {
-		if (managerTrainSchedule.length === 0) {
-			getTrainSchedulesData();
-		}
-	}, []);
+		getTrainSchedulesData();
+	}, [type]);
 
 	const dataSource = useMemo(() => {
 		return new DataSource({
@@ -72,7 +95,7 @@ const ManagerTrainSchedule = () => {
 
 	const handleDelete = async (row: any) => {
 		try {
-			const deleted: any = await deleteTrainSchedule(row?.key);
+			const deleted: any = await deleteTrainSchedule(type, row?.key);
 			if (deleted?.status !== 200 || deleted === undefined) {
 				throw new Error();
 			}
@@ -126,7 +149,7 @@ const ManagerTrainSchedule = () => {
 					<HeaderFilter visible={true} />
 					<ColumnFixing enabled={false} />
 					<Grouping contextMenuEnabled={true} expandMode="rowClick" />
-					<FilterPanel visible={true}/>
+					<FilterPanel visible={true} />
 					<Pager
 						allowedPageSizes={true}
 						showInfo={true}
@@ -134,6 +157,7 @@ const ManagerTrainSchedule = () => {
 						showPageSizeSelector={true}
 						visible={true}
 					/>
+					<LoadPanel enabled={true} />
 					<Paging defaultPageSize={30} />
 
 					<Column
@@ -183,6 +207,25 @@ const ManagerTrainSchedule = () => {
 					<Toolbar>
 						<Item name="columnChooserButton" />
 						<Item name="searchPanel" showText="always" />
+						<Item location="before">
+							<FormControl sx={{ m: 1, minWidth: 200, height: '30px', margin: '0' }} size="small">
+								<InputLabel id="account-type-label">Đối tượng</InputLabel>
+								<Select
+									labelId="account-type-label"
+									id="account-type"
+									value={type}
+									onChange={handleChangeType}
+									autoWidth
+									label="Đối tượng"
+								>
+									{types.map(type => (
+										<MenuItem key={type.value} value={type.value}>
+											{type.label}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
+						</Item>
 					</Toolbar>
 				</DataGrid>
 			</Box>
@@ -192,6 +235,7 @@ const ManagerTrainSchedule = () => {
 					isOpen={openDialog.isOpen}
 					onClose={() => setOpenDialog({ isOpen: false, type: 'INFO' })}
 					type={openDialog.type}
+					typeUser={type}
 					data={initDataDialog}
 					getTrainSchedulesData={getTrainSchedulesData}
 				/>
@@ -205,17 +249,24 @@ const DetailTrainSchedule = ({
 	onClose,
 	data,
 	type,
+	typeUser,
 	getTrainSchedulesData,
-}: DialogProps & { data: ITrainSchedule | null; type: string; getTrainSchedulesData: () => Promise<void> }) => {
+}: DialogProps & {
+	data: ITrainSchedule | null;
+	type: string;
+	getTrainSchedulesData: () => Promise<void>;
+	typeUser: String;
+}) => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
+	const token = useAppSelector(state => state.userManager.token);
 	const [trainSchedule, setTrainSchedule] = useState<ITrainSchedule | null>(null);
 	const trainInstructors = useAppSelector(state => state.managerTrainSchedule.listOfTrainInstructor);
 	const trainer = useAppSelector(state => state.managerTrainSchedule.listOfTrainer);
 	const [updateTrains, setUpdateTrains] = useState<ITrainScheduleDeviceItem[]>([]);
-	const [deleteTrains, setDeleteTrains] = useState<Number[]>([]);
+	const dispatch = useAppDispatch();
 
 	function isTrainScheduleDevice(obj: any): obj is ITrainScheduleDeviceItem {
-		if (obj !== null) return 'ResultId' in obj && 'ResearcherId' in obj && 'InstructorId' in obj;
+		if (obj !== null) return 'ResultId' in obj;
 		return false;
 	}
 
@@ -377,7 +428,82 @@ const DetailTrainSchedule = ({
 		setUpdateTrains(prev => {
 			return [...prev.filter(x => !listUpdatedId.includes(x.ResultId)), ...updated];
 		});
-		setDeleteTrains(prev => [...prev, ...deleted]);
+	};
+
+	const handleConfirm = async () => {
+		try {
+			if (trainSchedule !== null) {
+				const x = await updateTrainSchedules(typeUser, [
+					{
+						...trainSchedule,
+						listTrainSchedule: updateTrains.map(x => ({
+							...x,
+							TrainDate: x.TrainDate ? `${Math.floor(Number(x.TrainDate) / 1000)}` : null,
+							DateCreate: x.DateCreate ? `${Math.floor(Number(x.DateCreate) / 1000)}` : null,
+						})),
+					},
+				]);
+
+				if (Object.keys(x).length > 0) {
+					dispatch(
+						setSnackbar({
+							message: 'Cập nhật thành công',
+							color: colorsNotifi['success'].color,
+							backgroundColor: colorsNotifi['success'].background,
+						}),
+					);
+				} else {
+					dispatch(
+						setSnackbar({
+							message: 'Cập nhật thất bại!!!',
+							color: colorsNotifi['error'].color,
+							backgroundColor: colorsNotifi['error'].background,
+						}),
+					);
+				}
+			}
+		} catch (err) {
+		} finally {
+			getTrainSchedulesData();
+		}
+	};
+
+	const setMultiType = (result: String) => {
+		const rowsData = dataGridRef.current?.instance.getSelectedRowsData();
+		if (Array.isArray(rowsData)) {
+			let listId = rowsData.map(row => row.ResultId);
+			if (
+				rowsData !== null &&
+				rowsData?.length > 0 &&
+				isTrainScheduleDevice(rowsData[0]) &&
+				trainSchedule !== null
+			) {
+				setTrainSchedule({
+					...trainSchedule,
+					listTrainSchedule: [
+						...trainSchedule.listTrainSchedule.filter(train => !listId.includes(train.ResultId)),
+						...rowsData.map(row => ({
+							...row,
+							Result: result,
+						})),
+					].map(x => ({
+						...x,
+						TrainDate: x.TrainDate ? `${Math.floor(Number(x.TrainDate) / 1000)}` : null,
+						DateCreate: x.DateCreate ? `${Math.floor(Number(x.DateCreate) / 1000)}` : null,
+					})),
+				});
+
+				setUpdateTrains((prev: ITrainScheduleDeviceItem[]) => {
+					return [
+						...prev.filter(train => !listId.includes(train.ResultId)),
+						...rowsData.map(row => ({
+							...row,
+							Result: result,
+						})),
+					];
+				});
+			}
+		}
 	};
 
 	return (
@@ -445,6 +571,7 @@ const DetailTrainSchedule = ({
 								<HeaderFilter visible={true} />
 								<ColumnFixing enabled={false} />
 								<Grouping contextMenuEnabled={true} expandMode="rowClick" />
+								{type !== 'INFO' && <Selection mode="multiple" allowSelectAll={true} showCheckBoxesMode="always" />}
 								<Pager
 									allowedPageSizes={true}
 									showInfo={true}
@@ -454,26 +581,63 @@ const DetailTrainSchedule = ({
 								/>
 								<Paging defaultPageSize={30} />
 
-								<Column
-									allowEditing={false}
-									dataField="ResearcherId"
-									dataType="string"
-									caption="Mã nghiên cứu sinh"
-									headerCellRender={data => renderHeader(data)}
-								/>
-								<Column
-									allowEditing={false}
-									dataField="ResearcherName"
-									dataType="string"
-									caption="Tên nghiên cứu sinh"
-									headerCellRender={data => renderHeader(data)}
-								/>
+								{typeUser === types[0].value && (
+									<Column
+										allowEditing={false}
+										dataField="ResearcherId"
+										dataType="string"
+										caption="Mã nghiên cứu sinh"
+										headerCellRender={data => renderHeader(data)}
+										visible={typeUser === types[0].value}
+									/>
+								)}
+								{typeUser === types[0].value && (
+									<Column
+										allowEditing={false}
+										dataField="ResearcherName"
+										dataType="string"
+										caption="Tên nghiên cứu sinh"
+										headerCellRender={data => renderHeader(data)}
+										visible={typeUser === types[0].value}
+									/>
+								)}
+								{typeUser === types[0].value && (
+									<Column
+										allowEditing={false}
+										dataField="StudentId"
+										dataType="string"
+										caption="Mã sinh viên"
+										headerCellRender={data => renderHeader(data)}
+										visible={typeUser === types[1].value}
+									/>
+								)}
+								{typeUser === types[0].value && (
+									<Column
+										allowEditing={false}
+										dataField="StudentName"
+										dataType="string"
+										caption="Tên sinh viên"
+										headerCellRender={data => renderHeader(data)}
+										visible={typeUser === types[1].value}
+									/>
+								)}
 								<Column
 									allowEditing={false}
 									dataField="InstructorName"
 									dataType="string"
 									caption="Người hướng dẫn"
 									headerCellRender={data => renderHeader(data)}
+								/>
+								<Column
+									allowEditing={false}
+									dataField="DateCreate"
+									dataType="date"
+									headerCellRender={data => renderHeader(data)}
+									format="dd/MM/yyyy"
+									caption="Ngày tạo"
+									setCellValue={(newData: any, value: any, currentRowData: any) => {
+										newData.DateCreate = Number(value);
+									}}
 								/>
 								<Column
 									dataField="TrainDate"
@@ -484,13 +648,23 @@ const DetailTrainSchedule = ({
 									setCellValue={(newData: any, value: any, currentRowData: any) => {
 										newData.TrainDate = Number(value);
 									}}
-								/>
+								>
+									<CustomRule
+										validationCallback={(e: any) => {
+											console.log(Number(e.value));
+											console.log(Number(new Date()));
+											if (Number(e.value) < Number(new Date())) return false;
+											return true;
+										}}
+										message=""
+									/>
+								</Column>
 								<Column
 									dataField="TrainTime"
 									dataType="number"
 									caption="Thời gian tập huấn"
 									headerCellRender={data => renderHeader(data)}
-								/>
+								></Column>
 								<Column
 									dataField="Result"
 									dataType="string"
@@ -508,10 +682,18 @@ const DetailTrainSchedule = ({
 								{type !== 'INFO' && (
 									<Column type="buttons">
 										<DevButtonGrid icon="edit" name="edit" />
-										<DevButtonGrid icon="trash" name="delete" />
 									</Column>
 								)}
 								<Toolbar>
+									{type !== 'INFO' && (
+										<Item location="before">
+											{resultData.map(result => (
+												<Button onClick={() => setMultiType(result.Result)}>
+													{result.Result}
+												</Button>
+											))}
+										</Item>
+									)}
 									<Item name="columnChooserButton" />
 									<Item name="searchPanel" showText="always" />
 								</Toolbar>
@@ -524,46 +706,7 @@ const DetailTrainSchedule = ({
 						<Button autoFocus color="error" onClick={onClose}>
 							Hủy
 						</Button>
-						<Button
-							color="info"
-							onClick={async () => {
-								try {
-									if (trainSchedule !== null) {
-										await updateTrainSchedules([
-											{
-												...trainSchedule,
-												listTrainSchedule: updateTrains.map(x => ({
-													...x,
-													TrainDate: x.TrainDate
-														? `${Math.floor(Number(x.TrainDate) / 1000)}`
-														: null,
-												})),
-											},
-										]);
-
-										if (deleteTrains.length > 0) {
-											await deleteTrainSchedule({
-												...trainSchedule,
-												listTrainSchedule: deleteTrains.map(x => ({
-													ResultId: x,
-													InstructorId: '',
-													InstructorName: '',
-													Note: '',
-													ResearcherId: '',
-													ResearcherName: '',
-													Result: '',
-													TrainDate: '',
-													TrainTime: 0,
-												})),
-											});
-										}
-									}
-								} catch (err) {
-								} finally {
-									getTrainSchedulesData();
-								}
-							}}
-						>
+						<Button color="info" onClick={handleConfirm}>
 							Xác nhận
 						</Button>
 					</DialogActions>

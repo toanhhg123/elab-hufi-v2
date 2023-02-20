@@ -1,23 +1,28 @@
 import styled from '@emotion/styled';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, NoteAdd } from '@mui/icons-material';
 import {
 	Button,
 	CircularProgress,
 	Collapse,
-	debounce, FormControl,
+	debounce,
+	FormControl,
 	FormControlLabel,
 	IconButton,
-	InputAdornment, Paper,
+	InputAdornment,
+	Paper,
 	Radio,
-	RadioGroup, Table,
+	RadioGroup,
+	Table,
 	TableBody,
 	TableCell,
 	tableCellClasses,
 	TableContainer,
 	TableHead,
 	TablePagination,
-	TableRow, TextField, Tooltip,
-	Typography
+	TableRow,
+	TextField,
+	Tooltip,
+	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useEffect, useRef, useState } from 'react';
@@ -33,9 +38,12 @@ import { DeviceType } from '../../configs/enums';
 import { setSnackbarMessage } from '../../pages/appSlice';
 import { deleteDevice, getDevices, updateDevice } from '../../services/deviceDepartmentServices';
 import {
-	dummyDeviceDepartmentData, IDeviceDepartmentType, IDeviceDeptType, IDeviceDetailType
+	dummyDeviceDepartmentData,
+	IDeviceDepartmentType,
+	IDeviceDeptType,
+	IDeviceDetailType,
 } from '../../types/deviceDepartmentType';
-import { DialogCreate, DialogDelete, DialogEdit, DialogImportDeviceInfo } from './Dialog';
+import { DialogCreate, DialogDelete, DialogEdit, DialogImportDeviceInfo, DialogLiquidate } from './Dialog';
 
 const StyledTableCell = styled(TableCell)(theme => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -57,6 +65,10 @@ const BoxTextFieldStyled = styled(Box)(theme => ({
 
 	'@media (max-width: 900px)': {
 		margin: '8px 0',
+	},
+
+	'@media (min-width: 0px)': {
+		marginBottom: '8px',
 	},
 }));
 
@@ -141,6 +153,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const [isOpenCreateModal, setIsOpenCreateModal] = useState<boolean>(false);
 	const [isOpenEditModal, setIsOpenEditModal] = useState<boolean>(false);
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
+	const [isOpenDeviceLiquidate, setIsOpenDeviceLiquidate] = useState<boolean>(false);
 	const [deviceType, setDeviceType] = useState<string>('Thiết bị');
 	const listDeviceType = useRef(Object.keys(DeviceType).filter(x => Number.isNaN(Number(x))));
 	const [deviceData, setDeviceData] = useState<any>({});
@@ -148,7 +161,6 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [loading, setLoading] = useState<Boolean>(true);
-	const [isOpenImportInfoDialog, setIsOpenImportInfoDialog] = useState<boolean>(false);
 
 	const [updatedRow, setUpdatedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>(dummyDeviceDepartmentData);
@@ -232,6 +244,10 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 	const handleOpenDelete = (dataDelete: IDeviceDepartmentType) => {
 		setIsOpenDeleteModal(true);
 		setDeletedRow(dataDelete);
+	};
+
+	const handleDeviceLiquidate = () => {
+		setIsOpenDeviceLiquidate(true);
 	};
 
 	const handleSubmitDelete = async (DeviceId: String) => {
@@ -320,12 +336,11 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 
 	return (
 		<>
-			{isOpenImportInfoDialog && <DialogImportDeviceInfo isOpen={isOpenImportInfoDialog} onClose={() => setIsOpenImportInfoDialog(false)} />}
-			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap" mx={2} mb={2}>
+			<Box component="div" justifyContent="space-between" display="flex" flexWrap="wrap"  m={2}>
 				<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 					Bảng {deviceType}
 				</Typography>
-				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
+				<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end" width="100%">
 					<Box display="flex" alignItems="end" flexWrap="wrap" justifyContent="flex-end">
 						<FormControlStyled>
 							<RadioGroup
@@ -365,21 +380,17 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 								onChange={debounce(e => setKeyword(removeAccents(e.target.value.toUpperCase())), 300)}
 							/>
 						</BoxTextFieldStyled>
-						<Box>
+						<Box mb={1}>
 							<Tooltip arrow placement="left" title="Tạo mới">
 								<Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
 									Tạo mới
 								</Button>
 							</Tooltip>
-							<Tooltip arrow placement="left" title="Nhập thông tin thiết bị">
-								<Button
-									variant="contained"
-									onClick={() => setIsOpenImportInfoDialog(true)}
-									sx={{ marginLeft: '24px' }}
-								>
-									Nhập thông tin thiết bị
+							{/* <Tooltip arrow placement="left" title="Thanh lý thiết bị">
+								<Button variant="contained" onClick={handleDeviceLiquidate} sx={{ marginLeft: '24px' }}>
+									Thanh lý thiết bị
 								</Button>
-							</Tooltip>
+							</Tooltip> */}
 						</Box>
 					</Box>
 					<TablePagination
@@ -445,7 +456,7 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 						)}
 						{!loading && devices.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={14} sx={{ textAlign: 'center' }}>
 									<Typography variant="h5" gutterBottom align="center" component="div">
 										Trống
 									</Typography>
@@ -473,6 +484,9 @@ const DeviceOfExperimentCenterTable = ({ id }: DeviceTableProps) => {
 					dataUpdate={updatedRow}
 					handleSubmitUpdate={handleSubmitUpdate}
 				/>
+			)}
+			{isOpenDeviceLiquidate && (
+				<DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />
 			)}
 		</>
 	);
@@ -703,6 +717,7 @@ const DeviceDetailTable = ({ data, unit }: DeviceDetailTableProps) => {
 									</StyledTableCell>
 								);
 							})}
+							<StyledTableCell></StyledTableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -744,10 +759,12 @@ const RowOfDeviceDetailTable = ({
 	handleOpen,
 }: RowOfDeviceDetailTableProps) => {
 	const [deviceDetails, setDeviceDetails] = useState<IDeviceDeptType[]>([]);
-	const [order, setOrder] = useState<string>('asc');
-	const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
+	const [order, setOrder] = useState<string>('desc');
+	const [orderBy, setOrderBy] = useState<string>('DeviceInfoId');
 	const [keyword, setKeyword] = useState<string>('');
 	const [dataSearch, setDataSearch] = useState<any>([]);
+
+	const [isOpenImportInfoDialog, setIsOpenImportInfoDialog] = useState<boolean>(false);
 
 	useEffect(() => {
 		setDeviceDetails(deviceDetailType?.listDeviceDept || []);
@@ -783,6 +800,10 @@ const RowOfDeviceDetailTable = ({
 			setDeviceDetails(results || []);
 		}
 	}, [keyword]);
+
+	useEffect(() => {
+		setOrderBy('DateStartUsage')
+	}, [])
 
 	useEffect(() => {
 		const searchArr = deviceDetailType?.listDeviceDept.map((device: any) => {
@@ -857,10 +878,20 @@ const RowOfDeviceDetailTable = ({
 						}`}</TableCell>
 					);
 				})}
+				<TableCell align="right" size="small">
+					<Tooltip arrow placement="left" title="Nhập thông tin thiết bị">
+						<IconButton
+							onClick={() => setIsOpenImportInfoDialog(true)}
+							sx={{ marginLeft: '24px' }}
+						>
+							<NoteAdd />
+						</IconButton>
+					</Tooltip>
+				</TableCell>
 			</TableRow>
 
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={13}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={14}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ padding: 1 }}>
 							{deviceDetailType?.listDeviceDept?.length !== 0 ? (
@@ -957,6 +988,13 @@ const RowOfDeviceDetailTable = ({
 					</Collapse>
 				</TableCell>
 			</TableRow>
+			{isOpenImportInfoDialog && (
+				<DialogImportDeviceInfo
+					deviceInfo={deviceDetailType.DeviceDetailId}
+					isOpen={isOpenImportInfoDialog}
+					onClose={() => setIsOpenImportInfoDialog(false)}
+				/>
+			)}
 		</>
 	);
 };

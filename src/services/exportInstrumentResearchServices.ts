@@ -1,8 +1,8 @@
 import * as API from '../configs/apiHelper';
 import config from '../configs/app';
-import { IExportInstrumentResearch,IExportInstrumentResearchItem } from '../types/exportInstrumentResearchType';
+import { IExportInstrumentResearch, IExportInstrumentResearchItem } from '../types/exportInstrumentResearchType';
 const { isProd } = config;
-const API_ENDPOINT = 'https://www.aspsite.somee.com';
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint
@@ -14,7 +14,7 @@ export const getInstruments = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/ExportInstrumentResearchs/instrument/${id}`;
 	const instruments: IExportInstrumentResearchItem[] = await API.get<IExportInstrumentResearchItem[]>(url);
 	return instruments;
-}
+};
 
 export const getExportInstrumentResearchs = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/ExportInstrumentResearchs/${id}`;
@@ -30,13 +30,19 @@ export const getExportInstrumentResearchById = async (deptId: Number, expId: Str
 
 export const postExportInstrumentResearchs = async (newData: IExportInstrumentResearch) => {
 	const url = `${API_ENDPOINT}/api/ExportInstrumentResearchs`;
-	const researchs: IExportInstrumentResearch = await API.post<IExportInstrumentResearch, IExportInstrumentResearch>(url, newData);
+	const researchs: IExportInstrumentResearch = await API.post<IExportInstrumentResearch, IExportInstrumentResearch>(
+		url,
+		newData,
+	);
 	return researchs;
 };
 
 export const updateExportInstrumentResearchs = async (updatedData: IExportInstrumentResearch) => {
 	const url = `${API_ENDPOINT}/api/ExportInstrumentResearchs`;
-	const researchs: IExportInstrumentResearch = await API.put<IExportInstrumentResearch, IExportInstrumentResearch>(url, updatedData);
+	const researchs: IExportInstrumentResearch = await API.put<IExportInstrumentResearch, IExportInstrumentResearch>(
+		url,
+		updatedData,
+	);
 	return researchs;
 };
 

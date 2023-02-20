@@ -17,7 +17,7 @@ const DeviceOfDepartmentTableContext = createContext<ProviderValueType>({
 	setCloneDeviceValues: (value: IDeviceDepartmentType[]) => {},
 	getDeviceData: async (isDisabledLoading?: Boolean) => {},
 	listDeviceType,
-	id: 0,
+	id: 2,
 });
 
 export type DeviceOfDepartmentTableProviderProps = {

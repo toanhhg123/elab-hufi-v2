@@ -7,13 +7,16 @@ import { store } from './store';
 import { Provider } from 'react-redux';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { viVN } from '@mui/material/locale';
+import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
 	<React.StrictMode>
 		<Provider store={store}>
 			<ThemeProvider theme={createTheme({}, viVN)}>
-				<App />
+				<BrowserRouter>
+					<App />
+				</BrowserRouter>
 			</ThemeProvider>
 		</Provider>
 	</React.StrictMode>,

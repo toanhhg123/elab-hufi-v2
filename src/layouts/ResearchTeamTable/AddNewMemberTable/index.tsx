@@ -11,12 +11,12 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { IListMemberType } from '../../../types/researchTeamType';
+import { IResearcherType } from '../../../types/researchTeamType';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
 
 const AddNewMemberTable: FC<{
-    listMemberColumns: MRT_ColumnDef<IListMemberType>[];
+    listMemberColumns: MRT_ColumnDef<IResearcherType>[];
     handleOpenDeleteMemberTeamModal: any;
     handleOpenEditMemberTeamModal: any;
     handleOpenCreateMemberTeamModal: any;
@@ -28,7 +28,7 @@ const AddNewMemberTable: FC<{
 }) => {
         const { currentResearchTeam } = useAppSelector((state: RootState) => state.researchTeam);
 
-        const [tableData, setTableData] = useState<IListMemberType[]>([]);
+        const [tableData, setTableData] = useState<IResearcherType[]>([]);
 
         useEffect(() => {
             if (currentResearchTeam.listMember.length > 0) {

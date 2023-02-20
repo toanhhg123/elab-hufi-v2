@@ -20,9 +20,12 @@ export const laboratorySlice = createSlice({
     setListOfLaboratories: (state: ILaboratoryState, action: PayloadAction<ILaboratoryType[]>) => {
       state.listOfLaboratories = action.payload
     },
+    reset: () => {
+      return initialState;
+    }
   },
 })
 
-export const { setListOfLaboratories } = laboratorySlice.actions
+export const { setListOfLaboratories, reset } = laboratorySlice.actions
 
 export default laboratorySlice.reducer

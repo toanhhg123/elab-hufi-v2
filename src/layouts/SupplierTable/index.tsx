@@ -208,7 +208,7 @@ const SupplierTable: FC = () => {
             <b><KeyboardArrowRightIcon
               style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
             ></KeyboardArrowRightIcon></b>
-            <span>Danh mục cung cấp</span>
+            <span>Danh mục nhà cung cấp</span>
           </h3>
         )}
         renderBottomToolbarCustomActions={() => (

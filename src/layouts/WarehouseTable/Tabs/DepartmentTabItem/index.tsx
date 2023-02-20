@@ -10,10 +10,12 @@ import { setSnackbarMessage } from '../../../../pages/appSlice';
 import { deleteExport, getExportById, postExport, updateExport } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
 import { IExportChemicalType } from '../../../../types/exportChemicalType';
-import { IExportDeviceType } from '../../../../types/exportDeviceType';
+import { IExportDeviceType, IExportInstrument } from '../../../../types/exportDeviceType';
+import { IExportInstrumentResearchItem } from '../../../../types/exportInstrumentResearchType';
 import { dummyExportData, IExportType } from '../../../../types/exportType';
 import ChemicalTable, { ColumnType } from '../../Details/ChemicalTable';
 import DeviceTable from '../../Details/DeviceTable';
+import InstrumentTable from '../../Details/Instrument';
 import CreateExportChemicalModal from '../../Modal/CreateExportChemicalModal';
 import CreateExportDeviceModal from '../../Modal/CreateExportDeviceModal';
 import CreateExportModal from '../../Modal/CreateExportModal';
@@ -29,6 +31,7 @@ const DepartmentTabItem: FC = () => {
 
 	const [isCreateExportChemicalModal, setIsCreateExportChemicalModal] = useState<boolean>(false);
 	const [isCreateExportDeviceModal, setIsCreateExportDeviceModal] = useState<boolean>(false);
+	const [isCreateExportInstrumentModal, setIsCreateExportInstrumentModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
 	const [isEditModal, setIsEditModal] = useState<boolean>(false);
 	const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
@@ -100,6 +103,7 @@ const DepartmentTabItem: FC = () => {
 			{
 				accessorKey: 'EmployeeId',
 				header: 'Người xuất',
+				enableEditing: false,
 			},
 			{
 				accessorKey: 'EmployeeName',
@@ -108,6 +112,7 @@ const DepartmentTabItem: FC = () => {
 					return <span style={{ whiteSpace: 'pre-wrap' }}>{cell.getValue<String>()}</span>;
 				},
 				enableHiding: false,
+				enableEditing: false,
 			},
 			{
 				accessorKey: 'DepartmentName',
@@ -128,6 +133,7 @@ const DepartmentTabItem: FC = () => {
 				accessorKey: 'UserAccept',
 				header: 'Người chấp nhận',
 				size: 180,
+				enableHiding: false,
 			},
 			{
 				accessorKey: 'DepartmentId',
@@ -143,6 +149,7 @@ const DepartmentTabItem: FC = () => {
 			{
 				accessorKey: 'Accept',
 				header: 'Chấp nhận',
+				enableHiding: false,
 				Cell: ({ cell, row, column }) => {
 					return (
 						<span
@@ -196,6 +203,47 @@ const DepartmentTabItem: FC = () => {
 			},
 			{
 				accessorKey: 'ChemDetailId',
+				header: 'Nhà sản xuât',
+				enableEditing: false,
+				size: 140,
+			},
+		],
+		[getCommonEditTextFieldProps],
+	);
+
+	const columnsExportInstrumentModal = useMemo<MRT_ColumnDef<IExportDeviceType>[]>(
+		() => [
+			{
+				accessorKey: 'ExportId',
+				header: 'ID',
+				size: 100,
+				enableColumnOrdering: true,
+				enableEditing: false,
+				enableSorting: false,
+			},
+			{
+				accessorKey: 'InstrumentDeptId',
+				header: 'Mã xuất DC-CC',
+				enableEditing: false,
+				size: 140,
+			},
+			{
+				accessorKey: 'DeviceDetailId',
+				header: 'Tên thiết bị',
+				size: 140,
+			},
+			{
+				accessorKey: 'DeviceName',
+				header: 'Số lượng',
+				size: 140,
+			},
+			{
+				accessorKey: 'QuantityOriginal',
+				header: 'Xuất xứ',
+				size: 140,
+			},
+			{
+				accessorKey: 'Unit',
 				header: 'Nhà sản xuât',
 				enableEditing: false,
 				size: 140,
@@ -267,11 +315,11 @@ const DepartmentTabItem: FC = () => {
 
 	const columnsDeviceTable = useRef<ColumnType[]>([
 		{
-			id: 'DeviceDeptId',
+			id: 'DeviceInfoId',
 			header: 'Mã xuất thiết bị',
 		},
 		{
-			id: 'DeviceDetailId',
+			id: 'SerialNumber',
 			header: 'Mã thiết bị',
 		},
 		{
@@ -279,9 +327,42 @@ const DepartmentTabItem: FC = () => {
 			header: 'Tên thiết bị',
 		},
 		{
+			id: 'ManufacturingDate',
+			header: 'Ngày sản xuất',
+			type: 'date',
+		},
+		{
+			id: 'StartGuarantee',
+			header: 'Bắt đầu bảo hành',
+			type: 'date',
+		},
+		{
+			id: 'EndGuarantee',
+			header: 'Kết thúc bảo hành',
+			type: 'date',
+		},
+	]);
+
+	const columnsInstrumentTable = useRef<ColumnType[]>([
+		{
+			id: 'InstrumentDeptId',
+			header: 'Mã xuất DC-CC',
+		},
+		{
+			id: 'DeviceDetailId',
+			header: 'Mã chi tiết DC-CC',
+		},
+		{
+			id: 'DeviceName',
+			header: 'Tên DC-CC',
+		},
+		{
 			id: 'QuantityOriginal',
 			header: 'Số lượng',
-			renderValue: (amount, unit) => `${amount} (${unit})`,
+		},
+		{
+			id: 'Unit',
+			header: 'Đơn vị tính',
 		},
 	]);
 
@@ -291,7 +372,6 @@ const DepartmentTabItem: FC = () => {
 	};
 
 	const onCloseEditWarehouseDep = () => {
-		setUpdatedRow(dummyExportData);
 		setIsEditModal(false);
 	};
 
@@ -314,9 +394,9 @@ const DepartmentTabItem: FC = () => {
 	};
 
 	const handleSubmitEditWarehouseDepModal = async (updatedRow: any) => {
-		const updateData: IExportType = {
+		const updateData = {
 			ExportId: updatedRow.ExportId,
-			ExportDate: Number(updatedRow.ExportDate),
+			ExportDate: `${Number(updatedRow.ExportDate)}`,
 			Content: updatedRow.Content,
 			Note: updatedRow.Note,
 			EmployeeId: updatedRow.EmployeeId,
@@ -327,6 +407,7 @@ const DepartmentTabItem: FC = () => {
 			UserAccept: updatedRow.UserAccept,
 			listChemicalExport: updatedRow.listChemicalExport,
 			listDeviceExport: updatedRow.listDeviceExport,
+			listInstrumentExport: updatedRow.listInstrumentExport,
 		};
 
 		setCreatedRow(updateData);
@@ -367,6 +448,7 @@ const DepartmentTabItem: FC = () => {
 				UserAccept: createdRow.UserAccept,
 				listChemicalExport: createdRow.listChemicalExport,
 				listDeviceExport: createdRow.listDeviceExport,
+				listInstrumentExport: createdRow.listInstrumentExport,
 			};
 			setCreatedRow(createData);
 			setIsCreateExportChemicalModal(true);
@@ -377,11 +459,11 @@ const DepartmentTabItem: FC = () => {
 
 	const handleSumbitCreateExportChemical = async (listChemical: any, row: any) => {
 		const listChemicalExportUpdate = listChemical.map((chemical: any) => ({
-			ChemDeptId: chemical.ChemDeptId,
-			ChemDetailId: chemical.ChemDetailId,
-			ChemicalName: chemical.ChemicalName,
-			AmountOriginal: chemical.Amount,
-			Unit: chemical.Unit,
+			ChemDeptId: chemical?.ChemDeptId,
+			ChemDetailId: chemical?.ChemDetailId,
+			ChemicalName: chemical?.ChemicalName,
+			AmountOriginal: chemical?.Amount,
+			Unit: chemical?.Unit,
 		}));
 
 		const createData: IExportType = {
@@ -390,16 +472,38 @@ const DepartmentTabItem: FC = () => {
 		};
 
 		setCreatedRow(createData);
+		setIsCreateExportInstrumentModal(true);
+	};
+
+	const handleSumbitCreateExportInstrument = async (listInstrument: any, row: any) => {
+		const listInstrumentExportUpdate = listInstrument.map((instrument: any) => ({
+			DeviceName: instrument?.DeviceName,
+			InstrumentDeptId: instrument?.DeviceDeptId,
+			QuantityOriginal: instrument?.Amount,
+			Unit: instrument?.Unit,
+			DeviceDetailId: instrument?.DeviceDetailId,
+		}));
+
+		console.log(listInstrumentExportUpdate);
+
+		const createData: IExportType = {
+			...createdRow,
+			listInstrumentExport: listInstrumentExportUpdate,
+		};
+
+		setCreatedRow(createData);
 		setIsCreateExportDeviceModal(true);
 	};
 
 	const handleSumbitCreateExportDevice = async (listDevice: any, row: any) => {
+		console.log(listDevice);
 		const listDeviceExportUpdate = listDevice.map((device: any) => ({
-			DeviceDeptId: device.DeviceDeptId,
-			DeviceDetailId: device.DeviceDetailId,
-			DeviceName: device.DeviceName,
-			QuantityOriginal: device.Amount,
-			Unit: device.Unit,
+			DeviceInfoId: device?.DeviceInfoId,
+			SerialNumber: device?.SerialNumber,
+			DeviceName: device?.DeviceName,
+			ManufacturingDate: device?.ManufacturingDate,
+			StartGuarantee: device?.StartGuarantee,
+			EndGuarantee: device?.EndGuarantee,
 		}));
 
 		const createData: IExportType = {
@@ -438,6 +542,7 @@ const DepartmentTabItem: FC = () => {
 
 		setIsCreateExportDeviceModal(false);
 		setIsCreateExportChemicalModal(false);
+		setIsCreateExportInstrumentModal(false);
 		setIsCreateModal(false);
 	};
 
@@ -499,6 +604,12 @@ const DepartmentTabItem: FC = () => {
 								warehouseData={warehouseDepartment}
 								row={row}
 								columns={columnsDeviceTable.current}
+								type="DEP"
+							/>
+							<InstrumentTable
+								warehouseData={warehouseDepartment}
+								row={row}
+								columns={columnsInstrumentTable.current}
 								type="DEP"
 							/>
 						</>
@@ -587,7 +698,11 @@ const DepartmentTabItem: FC = () => {
 					initData={createdRow}
 					isOpen={isCreateExportChemicalModal}
 					columns={columnsExportChemicalModal}
-					onClose={() => setIsCreateExportChemicalModal(false)}
+					onClose={() => {
+						setCreatedRow(dummyExportData);
+						setUpdatedRow(dummyExportData);
+						setIsCreateExportChemicalModal(false);
+					}}
 					handleSubmit={handleSumbitCreateExportChemical}
 				/>
 			)}
@@ -599,7 +714,26 @@ const DepartmentTabItem: FC = () => {
 					initData={createdRow}
 					isOpen={isCreateExportDeviceModal}
 					columns={columnsExportDeviceModal}
-					onClose={() => setIsCreateExportDeviceModal(false)}
+					onClose={() => {
+						setCreatedRow(dummyExportData);
+						setUpdatedRow(dummyExportData);
+						setIsCreateExportDeviceModal(false);
+					}}
+				/>
+			)}
+
+			{isCreateExportInstrumentModal && (
+				<CreateExportDeviceModal
+					type="DEP_INS"
+					handleSubmit={handleSumbitCreateExportInstrument}
+					initData={createdRow}
+					isOpen={isCreateExportInstrumentModal}
+					columns={columnsExportInstrumentModal}
+					onClose={() => {
+						setCreatedRow(dummyExportData);
+						setUpdatedRow(dummyExportData);
+						setIsCreateExportInstrumentModal(false);
+					}}
 				/>
 			)}
 		</>

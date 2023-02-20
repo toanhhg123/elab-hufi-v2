@@ -4,7 +4,7 @@ import { ILiquidateDept } from '../types/deviceDepartmentType';
 import { ILiquidateDeptDevice } from '../types/deviceType';
 import { ILiquidateDeptInstrument } from '../types/instrumentType';
 const { isProd } = config;
-const API_ENDPOINT = 'https://www.aspsite.somee.com';
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint
@@ -40,7 +40,7 @@ export const updateLiquidateDept = async (updatedData: ILiquidateDept) => {
 	const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices`;
 	const liquidates: ILiquidateDept = await API.put<ILiquidateDept, ILiquidateDept>(url, updatedData);
 	return liquidates;
-}
+};
 
 export const deleteLiquidateDept = async (id: String) => {
 	const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/${id}`;

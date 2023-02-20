@@ -36,6 +36,7 @@ export type ColumnType = {
 	id: string;
 	header: string;
 	renderValue?: (...arg: any[]) => void;
+	type?: string;
 };
 
 type ChemicalTableProps = {
@@ -104,13 +105,7 @@ const ChemicalTable = ({ row, warehouseData, columns, type }: ChemicalTableProps
 		} else {
 			return [];
 		}
-	}, [
-		row.original.ExportId,
-		row.original.ExpRegGeneralId,
-		row.original.ExpSubjectId,
-		warehouseData,
-		type,
-	]);
+	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId, warehouseData, type]);
 
 	useEffect(() => {
 		setChemicalOfExport(getExportChemicalData() || []);
@@ -120,6 +115,7 @@ const ChemicalTable = ({ row, warehouseData, columns, type }: ChemicalTableProps
 		row.original.ExpSubjectId,
 		row.original.ExportLabId,
 		warehouseData,
+		getExportChemicalData,
 	]);
 
 	const handleRequestSort = (property: string) => {
@@ -241,6 +237,13 @@ const ChemicalTable = ({ row, warehouseData, columns, type }: ChemicalTableProps
 								})}
 							</TableRow>
 						))}
+						{chemicalOfExport.length === 0 && (
+							<TableRow>
+								<TableCell colSpan={columns.length + 1} sx={{ borderBottom: '0', textAlign: 'center' }}>
+									<h3 style={{ width: '100%', padding: '16px 0px' }}>Trống</h3>
+								</TableCell>
+							</TableRow>
+						)}
 					</TableBody>
 				</Table>
 			</TableContainer>

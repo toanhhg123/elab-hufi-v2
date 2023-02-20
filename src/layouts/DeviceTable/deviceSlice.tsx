@@ -16,18 +16,21 @@ const initialState: IDeviceState = {
 }
 
 export const supplierSlice = createSlice({
-  name: 'device',
-  initialState,
-  reducers: {
-    setListOfDevices: (state: IDeviceState, action: PayloadAction<IDeviceType[]>) => {
-      state.listOfDevices = action.payload
-    },
-    setListOfDeviceSpecs: (state: IDeviceState, action: PayloadAction<IDeviceSpecType[]>) => {
-      state.listOfDeviceSpecs = action.payload
-    },
-  },
-})
+	name: 'device',
+	initialState,
+	reducers: {
+		setListOfDevices: (state: IDeviceState, action: PayloadAction<IDeviceType[]>) => {
+			state.listOfDevices = action.payload;
+		},
+		setListOfDeviceSpecs: (state: IDeviceState, action: PayloadAction<IDeviceSpecType[]>) => {
+			state.listOfDeviceSpecs = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfDevices, setListOfDeviceSpecs } = supplierSlice.actions
+export const { setListOfDevices, setListOfDeviceSpecs, reset } = supplierSlice.actions
 
 export default supplierSlice.reducer

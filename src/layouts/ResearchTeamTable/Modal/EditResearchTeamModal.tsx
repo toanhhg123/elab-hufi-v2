@@ -11,7 +11,7 @@ import {
     TextField,
 } from '@mui/material';
 import AddNewMemberTable from '../AddNewMemberTable';
-import { IListMemberType, IResearchTeamType } from '../../../types/researchTeamType';
+import { IResearcherType, IResearchTeamType } from '../../../types/researchTeamType';
 import { setCurrentResearchTeam } from '../researchTeamSlice';
 import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { RootState } from '../../../store';
@@ -24,7 +24,7 @@ const EditResearchTeamModal: FC<{
     handleOpenDeleteMemberTeamModal: any;
     handleOpenEditMemberTeamModal: any;
     handleOpenCreateMemberTeamModal: any;
-    listMemberColumns: MRT_ColumnDef<IListMemberType>[];
+    listMemberColumns: MRT_ColumnDef<IResearcherType>[];
 }> = ({
     isOpen,
     columns,

@@ -38,6 +38,7 @@ export interface IExportType {
 	LabName?: String;
 	listDevice?: IExportDeviceType[];
 	listInstrument?: IExportDeviceType[];
+	listInstrumentExport?: IExportDeviceType[];
 	listSub?: IExportChemicalType[];
 	// "SessionId"?: Number,
 	// "RegisterGeneralId"?: Number,
@@ -81,6 +82,7 @@ export const dummyExportData: IExportType = {
 	UserAccept: '',
 	listChemicalExport: [],
 	listDeviceExport: [],
+	listInstrumentExport: [],
 	ExpRegGeneralId: '',
 	Semester: 1,
 	Schoolyear: '',

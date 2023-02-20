@@ -45,7 +45,7 @@ import DataSource from 'devextreme/data/data_source';
 import _ from 'lodash';
 import moment from 'moment';
 import { colorsNotifi } from '../../../configs/color';
-import { useAppDispatch } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
 import { setSnackbar } from '../../../pages/appSlice';
 import {
 	deleteLiquidateDept,
@@ -61,13 +61,6 @@ import { ILiquidateDeptInstrument } from '../../../types/instrumentType';
 import { useDeviceOfDepartmentTableStore } from '../context/DeviceOfDepartmentTableContext';
 import { renderHeader } from './DialogImportDeviceInfo';
 import { ColumnSizeType, ColumnsType, DialogProps, ErrorType } from './DialogType';
-
-const userLogin = {
-	EmployeeId: '02003019',
-	EmployeeName: 'Dương Thị Ngọc Hân',
-	DepartmentId: 2,
-	DepartmentName: 'Khoa Công nghệ thực phẩm',
-};
 
 const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
@@ -383,7 +376,7 @@ const DetailTemplate = (props: any) => {
 					/>
 					<Column dataField="Unit" caption="Đơn vị" headerCellRender={data => renderHeader(data)} />
 					<Toolbar>
-						<Item location='before'>
+						<Item location="before">
 							<Typography variant="button" display="block" mb={0}>
 								<b>Thiết bị</b>
 							</Typography>
@@ -426,9 +419,9 @@ const DetailTemplate = (props: any) => {
 					<Column dataField="Quantity" caption="Số lượng" headerCellRender={data => renderHeader(data)} />
 					<Column dataField="LabId" caption="Phòng" headerCellRender={data => renderHeader(data)} />
 					<Toolbar>
-						<Item location='before'>
+						<Item location="before">
 							<Typography variant="button" display="block" mb={0}>
-							<b>Công cụ - Dụng cụ</b>
+								<b>Công cụ - Dụng cụ</b>
 							</Typography>
 						</Item>
 						<Item name="searchPanel" showText="always" />
@@ -446,7 +439,15 @@ const DialogCreateLiquidate = ({
 	data,
 	type,
 }: DialogProps & { data: ILiquidateDept | {}; getLiquidateDept: () => Promise<void>; type: string }) => {
-	const [liquidate, setLiquidate] = useState<ILiquidateDept>({ ...dummyLiquidateDept, ...userLogin, ...data });
+	const owner = useAppSelector(state => state.userManager.owner);
+	const [liquidate, setLiquidate] = useState<ILiquidateDept>({
+		...dummyLiquidateDept,
+		EmployeeId: owner?.EmployeeId || '0',
+		EmployeeName: owner.Fullname,
+		DepartmentId: owner.DepartmentId,
+		DepartmentName: owner.DepartmentName,
+		...data,
+	});
 	const [openAutocomplete, setOpenAutocomplete] = useState<{ device: boolean; instrument: boolean }>({
 		device: false,
 		instrument: false,
@@ -542,17 +543,6 @@ const DialogCreateLiquidate = ({
 				errorList.push({ id: col.id, msg: `${col.header} là bắt buộc` });
 			}
 		});
-
-		if (postData.listDevice.length === 0 && postData.listInstrument.length === 0) {
-			dispatch(
-				setSnackbar({
-					message: 'Danh sách thiết bị và công cụ - dụng cụ không được để trống!!!',
-					color: colorsNotifi['error'].color,
-					backgroundColor: colorsNotifi['error'].background,
-				}),
-			);
-			return;
-		}
 
 		setErrors(errorList);
 

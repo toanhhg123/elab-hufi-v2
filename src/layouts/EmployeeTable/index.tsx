@@ -57,12 +57,12 @@ const EmployeeTable: FC = () => {
       let departmentInfoIdx = departmentData.findIndex(y => y.DepartmentId === emp.DepartmentId);
       return {
         ...emp,
-        "formatedBirthday": moment.unix(emp.Birthday).format('DD/MM/YYYY'),
+        "formatedBirthdate": moment.unix(Number(emp.Birthdate)).format('DD/MM/YYYY'),
         "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : ""
       }
     }) : [];
     setTableData(formatedEmployeeData);
-  }, [employeeData])
+  }, [employeeData])  
 
   useEffect(() => {
     if (departmentData.length > 0) {
@@ -95,42 +95,34 @@ const EmployeeTable: FC = () => {
         enableColumnOrdering: true,
         enableEditing: false, //disable editing on this column
         enableSorting: false,
-        size: 50,
       },
       {
         accessorKey: 'Fullname',
         header: 'Họ và tên',
-        size: 100,
       },
       {
-        accessorKey: 'formatedBirthday',
+        accessorKey: 'formatedBirthdate',
         header: 'Ngày sinh',
-        size: 140,
       },
       {
         accessorKey: 'Gender',
         header: 'Giới tính',
-        size: 140,
       },
       {
         accessorKey: 'Address',
         header: 'Địa chỉ',
-        size: 140,
       },
       {
         accessorKey: 'Email',
         header: 'Email',
-        size: 140,
       },
       {
         accessorKey: 'PhoneNumber',
         header: 'Số điện thoại',
-        size: 50,
       },
       {
         accessorKey: 'DepartmentName',
         header: 'Phòng ban',
-        size: 50,
       },
     ],
     [getCommonEditTextFieldProps],
@@ -149,7 +141,7 @@ const EmployeeTable: FC = () => {
     const isUpdatedSuccess = await updateEmployee({
       "EmployeeId": updatedRow.EmployeeId,
       "Fullname": updatedRow.Fullname,
-      "Birthday": updatedRow.Birthday,
+      "Birthdate": updatedRow.Birthdate,
       "Gender": updatedRow.Gender,
       "Address": updatedRow.Address,
       "Email": updatedRow.Email,
@@ -199,7 +191,7 @@ const EmployeeTable: FC = () => {
     const createdEmployee = await postEmployee({
       "EmployeeId": createdRow.EmployeeId,
       "Fullname": createdRow.Fullname,
-      "Birthday": createdRow.Birthday,
+      "Birthdate": createdRow.Birthdate,
       "Gender": createdRow.Gender,
       "Address": createdRow.Address,
       "Email": createdRow.Email,
@@ -207,7 +199,7 @@ const EmployeeTable: FC = () => {
       "DepartmentId": createdRow.DepartmentId
     })
     if (createdEmployee) {
-      const newListOfEmployees: IEmployeeType[] = await getEmployees();
+      const newListOfEmployees: any[] = await getEmployees();
       if (newListOfEmployees) {
         dispatch(setSnackbarMessage("Tạo thông tin nhân viên mới thành công"));
         dispatch(setListOfEmployees(newListOfEmployees));
@@ -311,20 +303,20 @@ const EmployeeTable: FC = () => {
                     defaultValue={updatedRow["EmployeeId"]}
                   />
                 }
-                else if (column.accessorKey === "formatedBirthday") {
+                else if (column.accessorKey === "formatedBirthdate") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
-                      key={"UpdateBirthday"}
+                      key={"UpdateBirthdate"}
                       label="Ngày sinh"
-                      value={new Date(updatedRow.Birthday * 1000)}
+                      value={new Date(updatedRow.Birthdate * 1000)}
                       onChange={(val: any) =>
                         setUpdatedRow({
                           ...updatedRow,
-                          "formatedBirthday": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
-                          "Birthday": Date.parse(val) / 1000
+                          "formatedBirthdate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                          "Birthdate": Date.parse(val) / 1000
                         })
                       }
-                      renderInput={(params: any) => <TextField key={"UpdateBirthdayTextField"} {...params} />}
+                      renderInput={(params: any) => <TextField key={"UpdateBirthdateTextField"} {...params} />}
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
@@ -422,20 +414,20 @@ const EmployeeTable: FC = () => {
               }}
             >
               {columns.map((column) => {
-                if (column.accessorKey === "formatedBirthday") {
+                if (column.accessorKey === "formatedBirthdate") {
                   return <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
-                      key={"CreateBirthday"}
+                      key={"CreateBirthdate"}
                       label="Ngày sinh"
-                      value={new Date(createdRow.Birthday * 1000)}
+                      value={new Date(createdRow.Birthdate * 1000)}
                       onChange={(val: any) =>
                         setCreatedRow({
                           ...createdRow,
-                          "formatedBirthday": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
-                          "Birthday": Date.parse(val) / 1000
+                          "formatedBirthdate": moment.unix(Date.parse(val) / 1000).format('DD/MM/YYYY'),
+                          "Birthdate": Date.parse(val) / 1000
                         })
                       }
-                      renderInput={(params: any) => <TextField key={"CreateBirthdayTextField"} {...params} />}
+                      renderInput={(params: any) => <TextField key={"CreateBirthdateTextField"} {...params} />}
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>

@@ -2,7 +2,7 @@ import { Delete, Edit } from '@mui/icons-material';
 import {
 	dummyListMemberData,
 	dummyResearchTeamData,
-	IListMemberType,
+	IResearcherType,
 	IResearchTeamType,
 } from '../../types/researchTeamType';
 import {
@@ -108,7 +108,7 @@ const ResearchTeamTable: FC = () => {
 			header: 'Họ và tên',
 		},
 		{
-			id: 'Birthday',
+			id: 'Birthdate',
 			header: 'Ngày sinh',
 			type: 'date',
 		},
@@ -134,7 +134,7 @@ const ResearchTeamTable: FC = () => {
 		},
 	]);
 
-	const listMemberColumns = useMemo<MRT_ColumnDef<IListMemberType>[]>(
+	const listMemberColumns = useMemo<MRT_ColumnDef<IResearcherType>[]>(
 		() => [
 			{
 				accessorKey: 'Title',
@@ -149,7 +149,7 @@ const ResearchTeamTable: FC = () => {
 				header: 'Họ và tên',
 			},
 			{
-				accessorKey: 'formatedBirthday',
+				accessorKey: 'formatedBirthdate',
 				header: 'Ngày sinh',
 				type: 'date',
 			},
@@ -278,7 +278,7 @@ const ResearchTeamTable: FC = () => {
 
 	const handleSubmitDeleteMemberTeamModal = () => {
 		let deletedIdx = currentResearchTeam.listMember.findIndex(
-			(item: IListMemberType) => item.ResearcherId === currentMemberTeam.ResearcherId,
+			(item: IResearcherType) => item.ResearcherId === currentMemberTeam.ResearcherId,
 		);
 		if (deletedIdx > -1) {
 			dispatch(
@@ -319,10 +319,10 @@ const ResearchTeamTable: FC = () => {
 
 	const handleSubmitEditMemberTeamModal = () => {
 		let updatedIdx = currentResearchTeam.listMember.findIndex(
-			(item: IListMemberType) => item.ResearcherId === currentMemberTeam.ResearcherId,
+			(item: IResearcherType) => item.ResearcherId === currentMemberTeam.ResearcherId,
 		);
 		let currentMemberTeamClone = Object.assign({}, currentMemberTeam);
-		delete currentMemberTeamClone.formatedBirthday;
+		delete currentMemberTeamClone.formatedBirthdate;
 
 		dispatch(
 			setCurrentResearchTeam({
@@ -361,7 +361,7 @@ const ResearchTeamTable: FC = () => {
 
 	const handleSubmitCreateMemberTeamModal = async () => {
 		let currentMemberTeamClone = Object.assign({}, currentMemberTeam);
-		delete currentMemberTeamClone.formatedBirthday;
+		delete currentMemberTeamClone.formatedBirthdate;
 
 		dispatch(
 			setCurrentResearchTeam({

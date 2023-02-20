@@ -1,5 +1,6 @@
 import * as API from '../configs/apiHelper';
 import config from '../configs/app';
+import { IUserOwner } from '../types/userManagerType';
 const { isProd } = config;
 const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
@@ -9,8 +10,8 @@ const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // define type params: APIRequestParams
 
-export const login = async (type: String, username: String, password: String) => {
-	const url = `${API_ENDPOINT}/api/UserManagers/${type}/login/${username}/${password}`;
-	const user = await API.post<any, any>(url, null);
-	return user?.data;
+export const getStudentOwner = async (id: String) => {
+	const url = `${API_ENDPOINT}/api/Students/${id}`;
+	const owner: IUserOwner = await API.get<IUserOwner>(url);
+	return owner;
 };

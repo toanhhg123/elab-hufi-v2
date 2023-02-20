@@ -14,15 +14,18 @@ const initialState: ILessonLabState = {
 }
 
 export const lessonLabSlice = createSlice({
-  name: 'lessonLab',
-  initialState,
-  reducers: {
-    setListOfLessonLabs: (state: ILessonLabState, action: PayloadAction<ILessonLabType[]>) => {
-      state.listOfLessonLabs = action.payload
-    },
-  },
-})
+	name: 'lessonLab',
+	initialState,
+	reducers: {
+		setListOfLessonLabs: (state: ILessonLabState, action: PayloadAction<ILessonLabType[]>) => {
+			state.listOfLessonLabs = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfLessonLabs } = lessonLabSlice.actions
+export const { setListOfLessonLabs, reset } = lessonLabSlice.actions
 
 export default lessonLabSlice.reducer

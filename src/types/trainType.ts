@@ -16,13 +16,16 @@ export interface ITrainScheduleDeviceItem {
 	InstructorId: String;
 	InstructorName: String;
 	Note: String;
+	DateCreate: String | Number | null;
+	StudentId: String;
+	StudentName: String;
 }
 
 export interface ITrainRegister {
 	listTrainDetail: ITrainRegisterDetail[];
 	ResearcherId: String;
 	Fullname: String;
-	Birthday: String;
+	Birthdate: String;
 	Gender: String;
 	Address: String;
 	Email: String;

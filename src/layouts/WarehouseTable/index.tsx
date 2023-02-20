@@ -1,11 +1,18 @@
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { FC, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
+import { useAppSelector } from '../../hooks';
 import DepartmentTabItem from './Tabs/DepartmentTabItem';
 import LaboratoryTabItem from './Tabs/LaboratoryTabItem';
 import RegisterGeneralTabItem from './Tabs/RegisterGeneralTabItem';
 import StudySessionTabItem from './Tabs/StudySessionTabItem';
+
+type TabItem = {
+	id: string;
+	header: string;
+	comp: React.ComponentType<any>;
+};
 
 function a11yProps(index: number) {
 	return {
@@ -16,25 +23,38 @@ function a11yProps(index: number) {
 
 const WarehouseTable: FC = () => {
 	const [value, setValue] = useState(0);
+	const owner = useAppSelector(state => state.userManager.owner);
+	const [tabData, setTabData] = useState<TabItem[]>([]);
 
-	const tabData = useRef([
-		{
-			header: 'Khoa',
-			comp: DepartmentTabItem,
-		},
-		{
-			header: 'Phòng thí nghiệm',
-			comp: LaboratoryTabItem,
-		},
-		{
-			header: 'Đăng ký chung',
-			comp: RegisterGeneralTabItem,
-		},
-		{
-			header: 'Buổi học',
-			comp: StudySessionTabItem,
-		},
-	]);
+	useEffect(() => {
+		if (owner.DepartmentId === 1) {
+			setTabData([
+				{
+					id: 'department',
+					header: 'Xuất đến Khoa',
+					comp: DepartmentTabItem,
+				},
+			]);
+		} else {
+			setTabData([
+				{
+					id: 'laboratory',
+					header: 'Xuất đến Phòng thí nghiệm',
+					comp: LaboratoryTabItem,
+				},
+				{
+					id: 'registerGeneral',
+					header: 'Xuất cho Đăng ký chung',
+					comp: RegisterGeneralTabItem,
+				},
+				{
+					id: 'studySessionData',
+					header: 'Buổi học',
+					comp: StudySessionTabItem,
+				},
+			]);
+		}
+	}, [owner]);
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
@@ -44,12 +64,12 @@ const WarehouseTable: FC = () => {
 		<Box sx={{ width: '100%' }}>
 			<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
 				<Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-					{tabData.current.map((x, index) => (
-						<Tab key={index} label={x.header} {...a11yProps(index)} />
-					))}
+					{tabData.map((x, index) => {
+						return <Tab key={index} label={x.header} {...a11yProps(index)} />;
+					})}
 				</Tabs>
 			</Box>
-			{tabData.current.map((x, index) => {
+			{tabData.map((x, index) => {
 				const Comp = x.comp;
 				return (
 					<Box

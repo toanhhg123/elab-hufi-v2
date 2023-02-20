@@ -3,7 +3,7 @@ import * as API from '../configs/apiHelper';
 import { IExportDeviceType } from '../types/exportDeviceType';
 
 const { isProd } = config;
-const API_ENDPOINT = 'https://www.aspsite.somee.com';
+const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
 
 // isProd
 //   ? config.production.api_endpoint

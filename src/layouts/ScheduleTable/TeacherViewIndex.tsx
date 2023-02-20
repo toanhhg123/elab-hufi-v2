@@ -162,22 +162,18 @@ const ScheduleTable: FC = () => {
                 Schoolyear: '2022-2023'
             }
 
-            await API.post(
-                "https://www.aspsite.somee.com/api/Schedules/importFile",
-                formData,
-                {
-                    headers: {
-                        // "Authorization": "YOUR_API_AUTHORIZATION_KEY_SHOULD_GOES_HERE_IF_HAVE",
-                        "Content-type": "multipart/form-data",
-                    },
-                }
-            )
-                .then((res: any) => {
-                    console.log(`Success` + res.data);
-                })
-                .catch((err: any) => {
-                    console.log(err);
-                })
+            await API.post(`${process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT}/api/Schedules/importFile`, formData, {
+				headers: {
+					// "Authorization": "YOUR_API_AUTHORIZATION_KEY_SHOULD_GOES_HERE_IF_HAVE",
+					'Content-type': 'multipart/form-data',
+				},
+			})
+				.then((res: any) => {
+					console.log(`Success` + res.data);
+				})
+				.catch((err: any) => {
+					console.log(err);
+				});
         }
     }
 

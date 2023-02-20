@@ -45,12 +45,22 @@ export const defaultSidebarItems: ISidebarItem[] = [
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý nhóm nc',
+		name: 'Quản lý nhà NC',
+		icon: '',
+	},
+	{
+		isOpen: false,
+		name: 'Quản lý nhóm NC',
 		icon: '',
 	},
 	{
 		isOpen: false,
 		name: 'Quản lý hoá chất',
+		icon: '',
+	},
+	{
+		isOpen: false,
+		name: 'Quản lý thiết bị',
 		icon: '',
 	},
 	// {
@@ -190,9 +200,23 @@ export const appSlice = createSlice({
 				},
 			};
 		},
+
+		reset: () => {
+			return {
+                isOpenDrawer: false,
+                sidebarItems: defaultSidebarItems,
+                snackbarState: defaultSnackbarMessage,
+            };
+        },
 	},
 });
 
-export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems, setSnackbar } = appSlice.actions;
+export const { 
+	setIsOpenDrawer, 
+	setSnackbarMessage, 
+	setSidebarItems, 
+	setSnackbar, 
+	reset 
+} = appSlice.actions;
 
 export default appSlice.reducer;

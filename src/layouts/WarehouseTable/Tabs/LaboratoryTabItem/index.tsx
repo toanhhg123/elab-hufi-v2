@@ -12,7 +12,7 @@ import {
 	getExportsLabById,
 	getExportsLabs,
 	postExportLabs,
-	updateExportLabs
+	updateExportLabs,
 } from '../../../../services/exportsServices';
 import { RootState } from '../../../../store';
 import { IExportDeviceType } from '../../../../types/exportDeviceType';
@@ -30,7 +30,7 @@ const LaboratoryTabItem: FC = () => {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
 	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
 	const dispatch = useAppDispatch();
-
+	const owner = useAppSelector(state => state.userManager.owner);
 	const [isCreateExportInstrumentModal, setIsCreateExportInstrumentModal] = useState<boolean>(false);
 	const [isCreateExportDeviceModal, setIsCreateExportDeviceModal] = useState<boolean>(false);
 	const [isCreateModal, setIsCreateModal] = useState<boolean>(false);
@@ -40,7 +40,7 @@ const LaboratoryTabItem: FC = () => {
 	const [validationErrors, setValidationErrors] = useState<{
 		[cellId: string]: string;
 	}>({});
-	const [departmentActive, setDepartmentActive] = useState<Number>(2);
+	const [departmentActive, setDepartmentActive] = useState<Number>(owner.DepartmentId);
 
 	const [createdRow, setCreatedRow] = useState<any>(dummyExportData);
 	const [updatedRow, setUpdatedRow] = useState<any>(dummyExportData);
@@ -59,6 +59,10 @@ const LaboratoryTabItem: FC = () => {
 		};
 		getWarehouseLaboratoryData();
 	}, [departmentActive]);
+
+	useEffect(() => {
+		setDepartmentActive(owner.DepartmentId);
+	}, [owner]);
 
 	useEffect(() => {
 		let formatedData = warehouseLaboratoriesData?.map((x: IExportType) => {
@@ -214,7 +218,7 @@ const LaboratoryTabItem: FC = () => {
 				enableSorting: false,
 			},
 			{
-				accessorKey: 'DeviceInfoId',
+				accessorKey: 'InstrumentDeptId',
 				header: 'Mã xuất Thiết bị',
 				size: 100,
 			},
@@ -225,38 +229,13 @@ const LaboratoryTabItem: FC = () => {
 				size: 140,
 			},
 			{
-				accessorKey: 'SerialNumber',
-				header: 'Tên thiết bị',
-				size: 140,
-			},
-			{
 				accessorKey: 'Quantity',
 				header: 'Số lượng',
 				size: 140,
 			},
 			{
-				accessorKey: 'ManufacturingDate',
-				header: 'Xuất xứ',
-				size: 140,
-			},
-			{
-				accessorKey: 'StartGuarantee',
-				header: 'Mẫu',
-				size: 140,
-			},
-			{
-				accessorKey: 'EndGuarantee',
-				header: 'Mẫu',
-				size: 140,
-			},
-			{
-				accessorKey: 'YearStartUsage',
-				header: 'Mẫu',
-				size: 140,
-			},
-			{
-				accessorKey: 'HoursUsage',
-				header: 'Mẫu',
+				accessorKey: 'Unit',
+				header: 'Số lượng',
 				size: 140,
 			},
 		],
@@ -264,7 +243,7 @@ const LaboratoryTabItem: FC = () => {
 	);
 
 	const columsDeviceTable = useRef([
-		{ id: 'DeviceDeptId', header: 'ID' },
+		{ id: 'DeviceInfoId', header: 'ID' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
 		{ id: 'SerialNumber', header: 'Số Serial' },
 		{ id: 'Unit', header: 'Đơn vị' },
@@ -277,7 +256,7 @@ const LaboratoryTabItem: FC = () => {
 
 	const columnsInstrumentTable = useRef<ColumnType[]>([
 		{
-			id: 'DeviceDeptId',
+			id: 'InstrumentDeptId',
 			header: 'Mã xuất thiết bị',
 		},
 		{
@@ -342,7 +321,7 @@ const LaboratoryTabItem: FC = () => {
 		try {
 			const updateData = {
 				ExportLabId: updatedRow.ExportLabId,
-				ExportDate: Number(updatedRow.ExportDate),
+				ExportDate: `${Number(updatedRow.ExportDate)}`,
 				Content: updatedRow.Content,
 				EmployeeId: updatedRow.EmployeeId,
 				DepartmentId: updatedRow.DepartmentId,
@@ -362,13 +341,13 @@ const LaboratoryTabItem: FC = () => {
 		try {
 			const createData = {
 				ExportLabId: createdRow.ExportLabId,
-				ExportDate: Number(createdRow.ExportDate),
+				ExportDate: `${Number(createdRow.ExportDate)}`,
 				Content: createdRow.Content,
 				EmployeeId: createdRow.EmployeeId,
 				DepartmentId: createdRow.DepartmentId,
 				LabId: createdRow.LabId,
-				listDevice: createdRow.listDevice,
-				listInstrument: createdRow.listInstrument,
+				listDevice: createdRow.listDevice || [],
+				listInstrument: createdRow.listInstrument || [],
 			};
 
 			setCreatedRow(createData);
@@ -379,16 +358,12 @@ const LaboratoryTabItem: FC = () => {
 	};
 
 	const handleSubmitCreateDeviceModal = (listDevice: any, row: any) => {
+		console.log(listDevice);
 		const listDeviceExportUpdate = listDevice?.map((device: any) => ({
-			DeviceDeptId: device.DeviceDeptId,
-			DeviceName: device.DeviceName,
-			Unit: device.Unit,
-			SerialNumber: device.SerialNumber,
-			ManufacturingDate: device.ManufacturingDate,
-			StartGuarantee: device.StartGuarantee,
-			EndGuarantee: device.EndGuarantee,
-			YearStartUsage: device.YearStartUsage,
-			HoursUsage: device.HoursUsage,
+			DeviceName: device?.DeviceName,
+			Unit: device?.Unit,
+			DeviceInfoId: device?.DeviceInfoId,
+			SerialNumber: device?.SerialNumber,
 		}));
 
 		const createData: IExportType = {
@@ -402,7 +377,7 @@ const LaboratoryTabItem: FC = () => {
 
 	const handleSubmitCreateInstrumentModal = async (listDevice: any, row: any) => {
 		const listDeviceExportUpdate = listDevice?.map((device: any) => ({
-			DeviceDeptId: device.DeviceDeptId,
+			InstrumentDeptId: device.DeviceDeptId,
 			DeviceName: device.DeviceName,
 			Unit: device.Unit,
 			Quantity: device.Amount || device.Quantity,
@@ -413,8 +388,8 @@ const LaboratoryTabItem: FC = () => {
 			listInstrument: listDeviceExportUpdate,
 		};
 
-		const isExist: boolean =
-			warehouseLaboratoriesData.findIndex(x => x.ExportLabId === createData.ExportLabId) > -1;
+
+		const isExist: boolean = warehouseLaboratoriesData.findIndex(x => x.ExportLabId === createData.ExportLabId) > -1;
 		if (isExist) {
 			const resData = await updateExportLabs(createData, departmentActive);
 
@@ -446,7 +421,7 @@ const LaboratoryTabItem: FC = () => {
 			}
 		}
 
-		setCreatedRow(dummyExportData)
+		setCreatedRow(dummyExportData);
 		setIsCreateModal(false);
 		setIsCreateExportDeviceModal(false);
 		setIsCreateExportInstrumentModal(false);
@@ -522,22 +497,6 @@ const LaboratoryTabItem: FC = () => {
 							></KeyboardArrowRightIcon>
 						</b>
 						<span>Quản lý phiếu xuất phòng thí nghiệm</span>
-						<Autocomplete
-							sx={{ marginBottom: '8px', marginTop: '16px' }}
-							size="small"
-							autoComplete={true}
-							options={departmentData.filter(x => x.DepartmentId !== 1).map(y => y.DepartmentName)}
-							onChange={(event, value) => {
-								setDepartmentActive(
-									departmentData.find(x => x.DepartmentName === value)?.DepartmentId || -1,
-								);
-							}}
-							disableClearable={true}
-							noOptionsText="Không có kết quả trùng khớp"
-							defaultValue={departmentData.filter(x => x.DepartmentId !== 1)[0].DepartmentName || 0}
-							value={departmentData.find(x => x.DepartmentId === departmentActive)?.DepartmentName || ''}
-							renderInput={params => <TextField {...params} label="Khoa" />}
-						/>
 					</h3>
 				)}
 				renderRowActions={({ row, table }) => (
@@ -610,7 +569,10 @@ const LaboratoryTabItem: FC = () => {
 					initData={createdRow}
 					isOpen={isCreateExportDeviceModal}
 					columns={columnsExportDevice}
-					onClose={() => setIsCreateExportDeviceModal(false)}
+					onClose={() => {
+						setCreatedRow(dummyExportData);
+						setIsCreateExportDeviceModal(false);
+					}}
 				/>
 			)}
 
@@ -621,7 +583,10 @@ const LaboratoryTabItem: FC = () => {
 					initData={createdRow}
 					isOpen={isCreateExportInstrumentModal}
 					columns={columnsExportDevice}
-					onClose={() => setIsCreateExportInstrumentModal(false)}
+					onClose={() => {
+						setCreatedRow(dummyExportData);
+						setIsCreateExportInstrumentModal(false);
+					}}
 				/>
 			)}
 		</>

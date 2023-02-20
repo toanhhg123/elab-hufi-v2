@@ -14,15 +14,19 @@ const initialState: IManufacturerState = {
 }
 
 export const laboratoriesSlice = createSlice({
-  name: 'manufacturer',
-  initialState,
-  reducers: {
-    setListOfManufacturers: (state: IManufacturerState, action: PayloadAction<IManufacturerType[]>) => {
-      state.listOfManufacturers = action.payload
-    },
-  },
-})
+	name: 'manufacturer',
+	initialState,
+	reducers: {
+		setListOfManufacturers: (state: IManufacturerState, action: PayloadAction<IManufacturerType[]>) => {
+			state.listOfManufacturers = action.payload;
+		},
 
-export const { setListOfManufacturers } = laboratoriesSlice.actions
+		reset: () => {
+			return initialState;
+		},
+	},
+});
+
+export const { setListOfManufacturers, reset } = laboratoriesSlice.actions
 
 export default laboratoriesSlice.reducer

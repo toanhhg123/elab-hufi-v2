@@ -731,7 +731,7 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 										/>
 									</TableCell>
 									{columns.map(col => {
-										if (col.id === 'STT') return <TableCell key={col.id}>{index}</TableCell>;
+										if (col.id === 'STT') return <TableCell key={col.id}>{index + 1}</TableCell>;
 										return (
 											<TableCell key={col.id}>{`${device[col.id as keyof typeof device]
 												}`}</TableCell>
@@ -905,7 +905,7 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 							return (
 								<TableRow key={`${device.DeviceInfoId}`} role="checkbox" sx={{ position: 'relative' }}>
 									{columns.map(col => {
-										if (col.id === 'STT') return <TableCell key={col.id}>{index}</TableCell>;
+										if (col.id === 'STT') return <TableCell key={col.id}>{index + 1}</TableCell>;
 										return (
 											<TableCell key={col.id}>{`${device[col.id as keyof typeof device]
 												}`}</TableCell>

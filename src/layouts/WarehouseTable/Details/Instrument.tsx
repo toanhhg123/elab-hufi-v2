@@ -3,7 +3,8 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SearchIcon from '@mui/icons-material/Search';
 import {
-	debounce, InputAdornment,
+	debounce,
+	InputAdornment,
 	Paper,
 	Table,
 	TableBody,
@@ -11,7 +12,9 @@ import {
 	tableCellClasses,
 	TableContainer,
 	TableHead,
-	TableRow, TextField, Typography
+	TableRow,
+	TextField,
+	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { MRT_Row } from 'material-react-table';
@@ -61,12 +64,7 @@ function removeAccents(str: string) {
 		.replace(/Đ/g, 'D');
 }
 
-const InstrumentTable = ({
-	row,
-	warehouseData,
-	columns,
-	type,
-}: InstrumentTableProps) => {
+const InstrumentTable = ({ row, warehouseData, columns, type }: InstrumentTableProps) => {
 	const [deviceOfExport, setDeviceOfExport] = useState<IExportDeviceType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
 	const [orderBy, setOrderBy] = useState<string>('ExpDeviceDeptId');
@@ -91,7 +89,7 @@ const InstrumentTable = ({
 		if (index !== -1) {
 			switch (type) {
 				case 'DEP':
-					return warehouseData[index].listDeviceExport || [];
+					return warehouseData[index].listInstrumentExport || [];
 				case 'REG':
 					return warehouseData[index].listChemicalExport || [];
 				case 'SUB':
@@ -110,12 +108,19 @@ const InstrumentTable = ({
 		row.original.ExpSubjectId,
 		row.original.ExportLabId,
 		warehouseData,
-		type
+		type,
 	]);
 
 	useEffect(() => {
 		setDeviceOfExport(getExportDeviceData() || []);
-	}, [row.original.ExportId, row.original.ExpRegGeneralId, row.original.ExpSubjectId, row.original.ExportLabId, type , warehouseData]);
+	}, [
+		row.original.ExportId,
+		row.original.ExpRegGeneralId,
+		row.original.ExpSubjectId,
+		row.original.ExportLabId,
+		type,
+		warehouseData,
+	]);
 
 	const handleRequestSort = (property: string) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -247,6 +252,16 @@ const InstrumentTable = ({
 										</TableCell>
 									);
 								})}
+								{deviceOfExport.length === 0 && (
+									<TableRow>
+										<TableCell
+											colSpan={columns.length + 1}
+											sx={{ borderBottom: '0', textAlign: 'center' }}
+										>
+											<h3 style={{ width: '100%', padding: '16px 0px' }}>Trống</h3>
+										</TableCell>
+									</TableRow>
+								)}
 							</TableRow>
 						))}
 					</TableBody>

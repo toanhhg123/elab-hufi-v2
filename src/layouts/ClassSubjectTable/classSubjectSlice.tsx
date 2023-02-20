@@ -14,15 +14,18 @@ const initialState: IClassSubjectState = {
 }
 
 export const classSubjectSlice = createSlice({
-  name: 'classSubject',
-  initialState,
-  reducers: {
-    setListOfClassSubjects: (state: IClassSubjectState, action: PayloadAction<IClassSubjectType[]>) => {
-      state.listOfClassSubjects = action.payload
-    },
-  },
-})
+	name: 'classSubject',
+	initialState,
+	reducers: {
+		setListOfClassSubjects: (state: IClassSubjectState, action: PayloadAction<IClassSubjectType[]>) => {
+			state.listOfClassSubjects = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfClassSubjects } = classSubjectSlice.actions
+export const { setListOfClassSubjects, reset } = classSubjectSlice.actions
 
 export default classSubjectSlice.reducer

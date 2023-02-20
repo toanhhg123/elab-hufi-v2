@@ -14,15 +14,18 @@ const initialState: IRegisterGeneralState = {
 }
 
 export const registerGeneralsSlice = createSlice({
-  name: 'registerGeneral',
-  initialState,
-  reducers: {
-    setListOfRegisterGenerals: (state: IRegisterGeneralState, action: PayloadAction<IRegisterGeneralType[]>) => {
-      state.listOfRegisterGenerals = action.payload
-    },
-  },
-})
+	name: 'registerGeneral',
+	initialState,
+	reducers: {
+		setListOfRegisterGenerals: (state: IRegisterGeneralState, action: PayloadAction<IRegisterGeneralType[]>) => {
+			state.listOfRegisterGenerals = action.payload;
+		},
+		reset: () => {
+			return initialState;
+		},
+	},
+});
 
-export const { setListOfRegisterGenerals } = registerGeneralsSlice.actions
+export const { setListOfRegisterGenerals, reset } = registerGeneralsSlice.actions
 
 export default registerGeneralsSlice.reducer

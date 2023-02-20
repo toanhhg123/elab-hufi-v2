@@ -9,7 +9,13 @@ export interface IUserLogin {
 export interface IUserOwner extends IEmployeeType {
 	DepartmentName: String;
 	Status: String;
-	Birthdate: String
+	Birthdate: String;
+	StudentId: String;
+	ClassName: String;
+	GroupId: Number;
+	GroupName: String;
+	ReseacherId: Number;
+	Organization: String;
 }
 
 export const dummyUserOwner: IUserOwner = {
@@ -17,4 +23,10 @@ export const dummyUserOwner: IUserOwner = {
 	Status: '',
 	DepartmentName: '',
 	Birthdate: '',
+	StudentId: '',
+	ClassName: '',
+	GroupId: -1,
+	GroupName: '',
+	ReseacherId: -1,
+	Organization: '',
 };
