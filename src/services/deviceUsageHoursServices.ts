@@ -2,14 +2,11 @@ import config from '../configs/app';
 import * as API from '../configs/apiHelper';
 import { IDeviceUsageHours } from '../types/deviceUsageHoursType';
 import axios from 'axios';
+
 const { isProd } = config;
-const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
-
-// isProd
-//   ? config.production.api_endpoint
-//   : config.development.api_endpoint;
-
-// define type params: APIRequestParams
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 export const getRecordHours = async () => {
 	const url = `${API_ENDPOINT}/api/RecordHours`;

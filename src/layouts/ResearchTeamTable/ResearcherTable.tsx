@@ -23,7 +23,12 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import { dummyResearcherData, IResearcherType } from '../../types/researchTeamType';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { deleteResearcher, getResearchers, postResearcher, updateResearcher } from '../../services/researchTeamServices';
+import { 
+    deleteResearcher, 
+    getResearchers, 
+    postResearcher, 
+    updateResearcher 
+} from '../../services/researchTeamServices';
 import { RootState } from '../../store';
 import { setListOfResearchers } from './researchTeamSlice';
 import AddIcon from '@mui/icons-material/Add';
@@ -49,10 +54,6 @@ const ResearchersTable: FC = () => {
     const [updatedRow, setUpdatedRow] = useState<any>(dummyResearcherData);
     const [deletedRow, setDeletedRow] = useState<any>(dummyResearcherData);
     const [createdRow, setCreatedRow] = useState<any>(dummyResearcherData);
-
-    useEffect(() => {
-        setTableData(researchersData);
-    }, [researchersData])
 
     useEffect(() => {
         let formatedResearcherData = researchersData.length > 0 ? researchersData.map((researcher: IResearcherType) => {

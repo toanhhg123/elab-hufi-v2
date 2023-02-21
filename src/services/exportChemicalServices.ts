@@ -3,13 +3,9 @@ import * as API from '../configs/apiHelper';
 import { IExportChemicalType } from '../types/exportChemicalType';
 
 const { isProd } = config;
-const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
-
-// isProd
-//   ? config.production.api_endpoint
-//   : config.development.api_endpoint;
-
-// define type params: APIRequestParams
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 export const getExportChemical = async <IExportChemicalType>() => {
 	const url = `${API_ENDPOINT}/api/exportchemicals`;

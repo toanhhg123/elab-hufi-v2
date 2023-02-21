@@ -3,13 +3,9 @@ import * as API from '../configs/apiHelper';
 import { IExportDeviceType } from '../types/exportDeviceType';
 
 const { isProd } = config;
-const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
-
-// isProd
-//   ? config.production.api_endpoint
-//   : config.development.api_endpoint;
-
-// define type params: APIRequestParams
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 export const getExportDevice = async <IExportDeviceType>() => {
 	const url = `${API_ENDPOINT}/api/exportdevices`;

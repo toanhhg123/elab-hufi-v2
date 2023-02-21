@@ -62,7 +62,7 @@ const EmployeeTable: FC = () => {
       }
     }) : [];
     setTableData(formatedEmployeeData);
-  }, [employeeData])  
+  }, [employeeData])
 
   useEffect(() => {
     if (departmentData.length > 0) {
@@ -431,7 +431,7 @@ const EmployeeTable: FC = () => {
                       inputFormat='DD/MM/YYYY'
                     />
                   </LocalizationProvider>
-                } 
+                }
                 else if (column.accessorKey === "Gender") {
                   return <FormControl sx={{ m: 0, minWidth: 120 }}>
                     <InputLabel id="edit-select-required">Giới tính</InputLabel>

@@ -6,7 +6,7 @@ const { isProd } = config;
 const API_ENDPOINT = isProd
 	? config.production.api_endpoint
 	: config.development.api_endpoint;
-	
+
 export const getDepartments = async () => {
 	const url = `${API_ENDPOINT}/api/departments`;
 	const departments: IDepartmentType[] = await API.get<IDepartmentType[]>(url);

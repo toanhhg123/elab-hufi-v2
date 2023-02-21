@@ -3,7 +3,9 @@ import * as API from '../configs/apiHelper';
 import { IResearcherType, IResearchTeamType } from '../types/researchTeamType';
 
 const { isProd } = config;
-const API_ENDPOINT = isProd ? config.production.api_endpoint : config.development.api_endpoint;
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 export const getResearchTeams = async () => {
 	const url = `${API_ENDPOINT}/api/teams`;

@@ -8,7 +8,8 @@ const API_ENDPOINT = isProd
 	: config.development.api_endpoint;
 
 export const getSchedules = async () => {
-	const url = `${API_ENDPOINT}/api/schedules`;
+	const role = JSON.parse(localStorage.getItem("user") || "");
+	const url = `${API_ENDPOINT}/api/schedules/${role?.type.toString()}`;
 	const schedules: IScheduleType[] | [] = await API.get<IScheduleType[]>(url);
 
 	if (schedules.length > 0) {
