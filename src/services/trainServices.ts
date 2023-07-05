@@ -2,14 +2,11 @@ import axios from 'axios';
 import * as API from '../configs/apiHelper';
 import config from '../configs/app';
 import { ITrainDevice, ITrainer, ITrainInstructor, ITrainRegister, ITrainSchedule } from '../types/trainType';
+
 const { isProd } = config;
-const API_ENDPOINT = process.env.REACT_APP_DEVELOPMENT_API_ENDPOINT;
-
-// isProd
-//   ? config.production.api_endpoint
-//   : config.development.api_endpoint;
-
-// define type params: APIRequestParams
+const API_ENDPOINT = isProd
+	? config.production.api_endpoint
+	: config.development.api_endpoint;
 
 //TRAIN SCHEDULE
 export const getTrainSchedules = async (type: String) => {
@@ -55,7 +52,7 @@ export const updateTrainRegister = async (type: String, updatedData: ITrainRegis
 	return trainRegister;
 };
 
-export const postTrainRegister = async (type: String ,newData: ITrainRegister) => {
+export const postTrainRegister = async (type: String, newData: ITrainRegister) => {
 	const url = `${API_ENDPOINT}/api/TrainRegisters/${type}`;
 	const trainRegister = await API.post<ITrainRegister, ITrainRegister>(url, newData);
 	return trainRegister;

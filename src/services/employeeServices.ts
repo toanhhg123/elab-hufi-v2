@@ -11,7 +11,7 @@ const API_ENDPOINT = isProd
 export const getEmployees = async () => {
 	const url = `${API_ENDPOINT}/api/employees`;
 	const employees: IEmployeeType[] = await API.get<IEmployeeType[]>(url);
-	
+
 	return employees.map(item => {
 		return Object.assign({}, {
 			...item,

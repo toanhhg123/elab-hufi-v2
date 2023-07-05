@@ -104,7 +104,7 @@ const LaboratoryTable: FC = () => {
 
   const deviceInLaboratoryTableColumns = useRef<ColumnType[]>([
     {
-      id: 'DeviceDeptId',
+      id: 'DeviceInfoId',
       header: 'Mã TB',
     },
     {
@@ -157,7 +157,7 @@ const LaboratoryTable: FC = () => {
 
   const instrumentInLaboratoryTableColumns = useRef<ColumnType[]>([
     {
-      id: 'DeviceDeptId',
+      id: 'InstrumentDeptId',
       header: 'Mã dụng cụ',
     },
     {
