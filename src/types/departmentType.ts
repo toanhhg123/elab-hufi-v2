@@ -1,7 +1,7 @@
 export interface IDepartmentType {
     DepartmentId?: Number,
-    DepartmentName: String,
-    Location: String
+    DepartmentName: string,
+    Location: string
 }
 
 export const dummyDepartmentData: IDepartmentType = {

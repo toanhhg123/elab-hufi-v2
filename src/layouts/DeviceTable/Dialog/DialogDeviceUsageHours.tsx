@@ -1,4 +1,4 @@
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from '@mui/icons-material/Close'
 import {
 	Autocomplete,
 	Box,
@@ -10,6 +10,8 @@ import {
 	DialogTitle,
 	Grid,
 	IconButton,
+	Input,
+	InputLabel,
 	Table,
 	TableBody,
 	TableCell,
@@ -17,36 +19,37 @@ import {
 	TableRow,
 	TextField,
 	Typography,
-} from '@mui/material';
+} from '@mui/material'
 
-import moment from 'moment';
-import { Fragment, useEffect, useRef, useState } from 'react';
-import { useAppDispatch } from '../../../hooks';
-import { setSnackbarMessage } from '../../../pages/appSlice';
+import moment from 'moment'
+import { ChangeEvent, Fragment, useEffect, useRef, useState } from 'react'
+import { useAppDispatch } from '../../../hooks'
+import { setSnackbarMessage } from '../../../pages/appSlice'
 import {
 	deleteRecordHours,
 	getRecordHours,
 	postRecordHours,
 	putRecordHours,
-} from '../../../services/deviceUsageHoursServices';
+} from '../../../services/deviceUsageHoursServices'
 import {
 	dummyDeviceRecordUsageHours,
 	IDeviceRecordUsageHours,
 	IDeviceUsageHours,
-} from '../../../types/deviceUsageHoursType';
-import { DialogProps } from './DialogType';
-import { StyledTableCell } from './ultis';
+} from '../../../types/deviceUsageHoursType'
+import { DialogProps } from './DialogType'
+import { StyledTableCell } from './ultis'
+import { postCheckFileImport } from '../../../services/deviceServices'
 
 const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
-	const [openAutocomplete, setOpenAutocomplete] = useState<boolean>(false);
-	const [listDevice, setListDevice] = useState<IDeviceUsageHours[]>([]);
-	const loading = openAutocomplete && listDevice.length === 0;
-	const [deviceSelected, setDeviceSelected] = useState<IDeviceUsageHours | null>(null);
-	const [selected, setSelected] = useState<IDeviceRecordUsageHours[]>([]);
-	const [recordInputValue, setRecordInputValue] = useState<IDeviceRecordUsageHours>(dummyDeviceRecordUsageHours);
-	const [typeButton, setTypeButton] = useState<String>('POST');
-	const [loadingSendRequest, setLoadingSendRequest] = useState<boolean>(false);
-	const dispatch = useAppDispatch();
+	const [openAutocomplete, setOpenAutocomplete] = useState<boolean>(false)
+	const [listDevice, setListDevice] = useState<IDeviceUsageHours[]>([])
+	const loading = openAutocomplete && listDevice.length === 0
+	const [deviceSelected, setDeviceSelected] = useState<IDeviceUsageHours | null>(null)
+	const [selected, setSelected] = useState<IDeviceRecordUsageHours[]>([])
+	const [recordInputValue, setRecordInputValue] = useState<IDeviceRecordUsageHours>(dummyDeviceRecordUsageHours)
+	const [typeButton, setTypeButton] = useState<String>('POST')
+	const [loadingSendRequest, setLoadingSendRequest] = useState<boolean>(false)
+	const dispatch = useAppDispatch()
 
 	const columns = useRef([
 		{
@@ -70,72 +73,72 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 			header: 'Ngày nhập',
 			type: 'date',
 		},
-	]);
+	])
 
 	const getListDevice = async () => {
 		try {
-			const list: IDeviceUsageHours[] = await getRecordHours();
+			const list: IDeviceUsageHours[] = await getRecordHours()
 
 			if (Array.isArray(list)) {
-				setListDevice(list);
+				setListDevice(list)
 			}
 		} catch (error) {
-			setListDevice([]);
+			setListDevice([])
 		}
-	};
+	}
 
 	useEffect(() => {
-		setDeviceSelected(null);
-		setSelected([]);
-		setRecordInputValue(dummyDeviceRecordUsageHours);
-		getListDevice();
-	}, [isOpen]);
+		setDeviceSelected(null)
+		setSelected([])
+		setRecordInputValue(dummyDeviceRecordUsageHours)
+		getListDevice()
+	}, [isOpen])
 
 	useEffect(() => {
 		if (deviceSelected)
-			setDeviceSelected(listDevice.find(x => x.DeviceInfoId === deviceSelected.DeviceInfoId) || null);
-	}, [listDevice]);
+			setDeviceSelected(listDevice.find(x => x.DeviceInfoId === deviceSelected.DeviceInfoId) || null)
+	}, [listDevice])
 
 	useEffect(() => {
 		let isExist: Boolean =
 			deviceSelected?.listRecordHours.findIndex(
 				x => x.Month === recordInputValue.Month && x.Year === recordInputValue.Year,
-			) !== -1;
-		isExist ? setTypeButton('PUT') : setTypeButton('POST');
-	}, [recordInputValue, deviceSelected]);
+			) !== -1
+		isExist ? setTypeButton('PUT') : setTypeButton('POST')
+	}, [recordInputValue, deviceSelected])
 
 	const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			const newSelected: IDeviceRecordUsageHours[] = deviceSelected?.listRecordHours?.map(n => n) || [];
-			if (newSelected) handleSelect(newSelected);
-			return;
+			const newSelected: IDeviceRecordUsageHours[] = deviceSelected?.listRecordHours?.map(n => n) || []
+			if (newSelected) handleSelect(newSelected)
+			return
 		}
-		handleSelect([]);
-	};
+		handleSelect([])
+	}
 
 	const handleSelect = (value: IDeviceRecordUsageHours[]) => {
-		setSelected(value);
-	};
+		setSelected(value)
+	}
 
 	const handleClick = (event: React.MouseEvent<unknown>, record: IDeviceRecordUsageHours) => {
-		const selectedIndex = selected.findIndex(x => x.Month === record.Month && x.Year === record.Year);
-		let newSelected: IDeviceRecordUsageHours[] = [];
+		const selectedIndex = selected.findIndex(x => x.Month === record.Month && x.Year === record.Year)
+		let newSelected: IDeviceRecordUsageHours[] = []
 
 		if (selectedIndex === -1) {
-			newSelected = newSelected.concat(selected, record);
+			newSelected = newSelected.concat(selected, record)
 		} else if (selectedIndex === 0) {
-			newSelected = newSelected.concat(selected.slice(1));
+			newSelected = newSelected.concat(selected.slice(1))
 		} else if (selectedIndex === selected.length - 1) {
-			newSelected = newSelected.concat(selected.slice(0, -1));
+			newSelected = newSelected.concat(selected.slice(0, -1))
 		} else if (selectedIndex > 0) {
-			newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+			newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
 		}
-		setRecordInputValue(record);
-		handleSelect(newSelected);
-	};
+		setRecordInputValue(record)
+		handleSelect(newSelected)
+	}
 
 	const handleAddRecord = async () => {
-		setLoadingSendRequest(true);
+		setLoadingSendRequest(true)
 		if (deviceSelected !== null) {
 			let newData: IDeviceUsageHours = {
 				...deviceSelected,
@@ -145,50 +148,60 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 						DateInput: `${Math.floor(Date.now() / 1000)}`,
 					},
 				],
-			};
+			}
 
 			try {
 				if (typeButton === 'POST') {
-					await postRecordHours(newData);
-					dispatch(setSnackbarMessage('Thêm thành công!!!'));
+					await postRecordHours(newData)
+					dispatch(setSnackbarMessage('Thêm thành công!!!'))
 				}
 				if (typeButton === 'PUT') {
-					await putRecordHours(newData);
-					dispatch(setSnackbarMessage('Sửa thành công!!!'));
+					await putRecordHours(newData)
+					dispatch(setSnackbarMessage('Sửa thành công!!!'))
 				}
-				getListDevice();
+				getListDevice()
 			} catch (error) {
-				dispatch(setSnackbarMessage('Đã xảy ra lỗi!!!'));
+				dispatch(setSnackbarMessage('Đã xảy ra lỗi!!!'))
 			} finally {
-				setLoadingSendRequest(false);
+				setLoadingSendRequest(false)
 			}
 		}
-	};
+	}
 
 	const handleDeleteRecord = async () => {
 		if (deviceSelected !== null && selected.length !== 0) {
-			setLoadingSendRequest(true);
+			setLoadingSendRequest(true)
 			let deleteData: IDeviceUsageHours = {
 				...deviceSelected,
 				listRecordHours: selected,
-			};
+			}
 			try {
-				await deleteRecordHours(deleteData);
-				dispatch(setSnackbarMessage('Xóa thành công!!!'));
-				setSelected([]);
-				getListDevice();
+				await deleteRecordHours(deleteData)
+				dispatch(setSnackbarMessage('Xóa thành công!!!'))
+				setSelected([])
+				getListDevice()
 			} catch (error) {
-				dispatch(setSnackbarMessage('Đã xảy ra lỗi!!!'));
+				dispatch(setSnackbarMessage('Đã xảy ra lỗi!!!'))
 			} finally {
-				setLoadingSendRequest(false);
+				setLoadingSendRequest(false)
 			}
 		}
-	};
+	}
+
+	const handleChangeFileImport = async (event: ChangeEvent<HTMLInputElement>) => {
+		const formData = new FormData()
+		if (event.target.files && event.target.files.length > 0) {
+			formData.append('file', event.target.files[0])
+		}
+
+		const rs = await postCheckFileImport(formData)
+		console.log(rs)
+	}
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} PaperProps={{ style: { width: '800px', maxWidth: 'unset' } }}>
 			<DialogTitle textAlign="left">
-				<b>Nhập giờ sử dụng thiết bị</b>
+				<b>Giờ sử dụng Thiết bị</b>
 
 				<IconButton
 					aria-label="close"
@@ -204,40 +217,89 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 				</IconButton>
 			</DialogTitle>
 			<DialogContent sx={{ paddingTop: '8px' }}>
-				<Autocomplete
-					id="device-usage"
-					open={openAutocomplete}
-					onOpen={() => {
-						setOpenAutocomplete(true);
-					}}
-					onClose={() => {
-						setOpenAutocomplete(false);
-					}}
-					isOptionEqualToValue={(option, value) => option.DeviceInfoId === value.DeviceInfoId}
-					getOptionLabel={option => `${option.DeviceInfoId} - ${option.DeviceName}`}
-					options={listDevice}
-					loading={loading}
-					onChange={(e, value) => {
-						setDeviceSelected(value);
-						setRecordInputValue(dummyDeviceRecordUsageHours);
-					}}
-					renderInput={params => (
-						<TextField
-							{...params}
-							label="Thiết bị..."
-							InputProps={{
-								...params.InputProps,
-								endAdornment: (
-									<Fragment>
-										{loading ? <CircularProgress color="inherit" size={20} /> : null}
-										{params.InputProps.endAdornment}
-									</Fragment>
-								),
-							}}
-						/>
-					)}
-				/>
-
+				<Grid container spacing={2}>
+					<Grid item xs={8}>
+						<TextField label="Mã Thiết bị" variant="standard" type="text" fullWidth />
+						<TextField label="Mã định danh thiết bị" variant="standard" type="text" fullWidth />
+						<TextField label="Tên thiết bị" variant="standard" type="text" fullWidth />
+						<TextField label="Tên tiếng anh" variant="standard" type="text" fullWidth />
+						<TextField label="Vị trí" variant="standard" type="text" fullWidth />
+					</Grid>
+					<Grid item xs={4}>
+						<Box>
+							<Button
+								variant="contained"
+								sx={{
+									padding: 0,
+									minWidth: 0,
+									mb: '8px',
+								}}
+							>
+								<InputLabel
+									sx={{
+										padding: '6px 8px',
+										minWidth: '64px',
+										color: 'white',
+									}}
+									htmlFor="importUsageHour"
+								>
+									Tải mẫu file import
+									<input
+										type="file"
+										name="importUsageHour"
+										id="importUsageHour"
+										hidden
+										onChange={handleChangeFileImport}
+									/>
+								</InputLabel>
+							</Button>
+						</Box>
+						<Box>
+							<Button
+								variant="contained"
+								sx={{
+									padding: 0,
+									minWidth: 0,
+									mb: '8px',
+								}}
+							>
+								<InputLabel
+									sx={{
+										padding: '6px 8px',
+										minWidth: '64px',
+										color: 'white',
+									}}
+									htmlFor="attachFile"
+								>
+									Đính kèm file
+									<input type="file" name="attachFile" id="attachFile" hidden />
+								</InputLabel>
+							</Button>
+						</Box>
+						<Box>
+							<Button
+								sx={{
+									padding: 0,
+									minWidth: 0,
+									mb: '8px',
+								}}
+								variant="contained"
+							>
+								<InputLabel
+									sx={{
+										padding: '6px 8px',
+										minWidth: '64px',
+										color: 'white',
+									}}
+									htmlFor="import"
+								>
+									Import
+									<input type="file" name="import" id="import" hidden />
+								</InputLabel>
+							</Button>
+						</Box>
+					</Grid>
+				</Grid>
 				<Box my={3}>
 					<Grid container spacing={2}>
 						<Grid item md={2} xs={4}>
@@ -255,7 +317,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 									setRecordInputValue(prev => ({
 										...prev,
 										Month: Number(e.target.value),
-									}));
+									}))
 								}}
 							/>
 						</Grid>
@@ -272,7 +334,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 									setRecordInputValue(prev => ({
 										...prev,
 										Year: Number(e.target.value),
-									}));
+									}))
 								}}
 							/>
 						</Grid>
@@ -290,7 +352,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 									setRecordInputValue(prev => ({
 										...prev,
 										HoursUsage: Number(e.target.value),
-									}));
+									}))
 								}}
 							/>
 						</Grid>
@@ -324,6 +386,10 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 								{loadingSendRequest ? <CircularProgress color="inherit" size={24} /> : 'Xóa'}
 							</Button>
 						</Grid>
+
+						<Grid item md={12} xs={12} sx={{ display: 'flex', alignItems: 'flex-end' }}>
+							<b style={{ textAlign: 'right', width: '100%' }}>Tổng giờ sử dụng: 0 giờ</b>
+						</Grid>
 					</Grid>
 				</Box>
 
@@ -355,7 +421,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 									<StyledTableCell key={col.id}>
 										<b>{col.header}</b>
 									</StyledTableCell>
-								);
+								)
 							})}
 						</TableRow>
 					</TableHead>
@@ -363,8 +429,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 						{deviceSelected &&
 							deviceSelected?.listRecordHours?.map((device, index) => {
 								let isSelect: boolean | undefined =
-									selected.find(x => x.Month === device.Month && x.Year === device.Year) !==
-									undefined;
+									selected.find(x => x.Month === device.Month && x.Year === device.Year) !== undefined
 								return (
 									<TableRow
 										key={index}
@@ -387,16 +452,16 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 															.unix(Number(device[col.id as keyof typeof device]))
 															.format('DD/MM/YYYY')}
 													</TableCell>
-												);
+												)
 
 											return (
 												<TableCell align="left" key={col.id}>
 													{`${device[col.id as keyof typeof device] || ''}`}
 												</TableCell>
-											);
+											)
 										})}
 									</TableRow>
-								);
+								)
 							})}
 
 						{(deviceSelected?.listRecordHours.length === 0 || deviceSelected === null) && (
@@ -412,7 +477,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose }: DialogProps) => {
 				</Table>
 			</DialogContent>
 		</Dialog>
-	);
-};
+	)
+}
 
-export default DialogDeviceUsageHours;
+export default DialogDeviceUsageHours

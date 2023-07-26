@@ -1,25 +1,33 @@
 import { dummyEmployeeData, IEmployeeType } from './employeeType';
+import { dummyToken, IToken } from './tokenType';
 
 export interface IUserLogin {
-	UserName: String;
-	AccessToken: String;
-	RefreshToken: String;
+	UserName: string;
+	AccessToken: string;
+	RefreshToken: string;
 }
 
-export interface IUserOwner extends IEmployeeType {
-	DepartmentName: String;
-	Status: String;
-	Birthdate: String;
-	StudentId: String;
-	ClassName: String;
-	GroupId: Number;
-	GroupName: String;
-	ReseacherId: Number;
-	Organization: String;
+export interface IUserOwner extends IEmployeeType, IToken {
+	DepartmentName: string
+	Status: string
+	Birthdate: string
+	StudentId: string
+	ClassName: string
+	GroupId: Number
+	GroupName: string
+	ReseacherId: Number
+	Organization: string
 }
+
+
+export const isUserOwner = (pet: any): pet is IUserOwner =>
+	Object.keys(pet).includes('UserName') &&
+	Object.keys(pet).includes('AccessToken') &&
+	Object.keys(pet).includes('RefreshToken')
 
 export const dummyUserOwner: IUserOwner = {
 	...dummyEmployeeData,
+	...dummyToken,
 	Status: '',
 	DepartmentName: '',
 	Birthdate: '',

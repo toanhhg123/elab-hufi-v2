@@ -9,12 +9,11 @@ import RegisterTrainSchedule from './RegisterTrainSchedule';
 import { useAppSelector } from '../../hooks';
 
 const TrainSchedule: FC = () => {
-	const token = useAppSelector(state => state.userManager.token)
 
 	return (
 		<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-			{(token.type === 'student' || token.type === 'researcher') && <RegisterTrainSchedule />}
-			{(token.type === 'employee') && <ManagerTrainSchedule />}
+			{/* {(token.type === 'student' || token.type === 'researcher') && <RegisterTrainSchedule />}
+			{(token.type === 'employee') && <ManagerTrainSchedule />} */}
 		</Box>
 	);
 };

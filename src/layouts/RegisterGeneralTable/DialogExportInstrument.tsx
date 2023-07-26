@@ -1,5 +1,5 @@
-import Add from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close';
+import Add from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import {
 	Autocomplete,
 	Box,
@@ -17,7 +17,7 @@ import {
 	InputLabel,
 	TextField,
 	Typography,
-} from '@mui/material';
+} from '@mui/material'
 import DataGrid, {
 	Button as DevButtonGrid,
 	Column,
@@ -34,51 +34,51 @@ import DataGrid, {
 	RequiredRule,
 	SearchPanel,
 	Toolbar,
-} from 'devextreme-react/data-grid';
-import ArrayStore from 'devextreme/data/array_store';
-import DataSource from 'devextreme/data/data_source';
-import _ from 'lodash';
-import moment from 'moment';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { colorsNotifi } from '../../configs/color';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setSnackbar } from '../../pages/appSlice';
+} from 'devextreme-react/data-grid'
+import ArrayStore from 'devextreme/data/array_store'
+import DataSource from 'devextreme/data/data_source'
+import _ from 'lodash'
+import moment from 'moment'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { colorsNotifi } from '../../configs/color'
+import { useAppDispatch, useAppSelector } from '../../hooks'
+import { setSnackbar } from '../../pages/appSlice'
 import {
 	deleteExportInstrumentResearchs,
 	getExportInstrumentResearchs,
 	getInstruments,
 	postExportInstrumentResearchs,
 	updateExportInstrumentResearchs,
-} from '../../services/exportInstrumentResearchServices';
+} from '../../services/exportInstrumentResearchServices'
 import {
 	dummyExportInstrumentResearch,
 	IExportInstrumentResearch,
 	IExportInstrumentResearchItem,
-} from '../../types/exportInstrumentResearchType';
-import { renderHeader } from '../DepartmentTable/Dialog/DialogImportDeviceInfo';
-import { ColumnSizeType, DialogProps, ErrorType } from '../DepartmentTable/Dialog/DialogType';
-import { ColumnType } from './Utils';
+} from '../../types/exportInstrumentResearchType'
+import { renderHeader } from '../DeviceTable/Dialog/DialogImportDeviceInfo'
+import { ColumnSizeType, DialogProps, ErrorType } from '../DeviceTable/Dialog/DialogType'
+import { ColumnType } from './Utils'
 
 function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
-	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
-	const [exportResearchs, setExportResearchs] = useState<IExportInstrumentResearch[]>([]);
-	const [openCreate, setOpenCreate] = useState<{ isOpen: boolean; type: string }>({ isOpen: false, type: 'POST' });
-	const [initDataDialog, setInitDataDialog] = useState<IExportInstrumentResearch | null>(null);
-	const dispatch = useAppDispatch();
+	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
+	const [exportResearchs, setExportResearchs] = useState<IExportInstrumentResearch[]>([])
+	const [openCreate, setOpenCreate] = useState<{ isOpen: boolean; type: string }>({ isOpen: false, type: 'POST' })
+	const [initDataDialog, setInitDataDialog] = useState<IExportInstrumentResearch | null>(null)
+	const dispatch = useAppDispatch()
 
 	const getExportResearchs = async () => {
-		const data: IExportInstrumentResearch[] = await getExportInstrumentResearchs(2);
-		setExportResearchs([...data]);
-	};
+		const data: IExportInstrumentResearch[] = await getExportInstrumentResearchs(2)
+		setExportResearchs([...data])
+	}
 
 	function isExportInstrumentResearchs(obj: any): obj is IExportInstrumentResearchItem {
-		if (obj !== null) return 'ExpResearchId' in obj && 'listInstrument' in obj && 'RegisterGeneralId' in obj;
-		return false;
+		if (obj !== null) return 'ExpResearchId' in obj && 'listInstrument' in obj && 'RegisterGeneralId' in obj
+		return false
 	}
 
 	useEffect(() => {
-		getExportResearchs();
-	}, []);
+		getExportResearchs()
+	}, [])
 
 	const dataSourceExport = useMemo(() => {
 		return new DataSource({
@@ -86,15 +86,15 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 				data: exportResearchs,
 				key: 'ExpResearchId',
 			}),
-		});
-	}, [exportResearchs]);
+		})
+	}, [exportResearchs])
 
 	const handleDelete = async (row: any) => {
 		try {
 			if (isExportInstrumentResearchs(row?.data)) {
-				const deleted: any = await deleteExportInstrumentResearchs(row?.data.ExpResearchId);
+				const deleted: any = await deleteExportInstrumentResearchs(row?.data.ExpResearchId)
 				if (deleted?.status !== 200 || deleted === undefined) {
-					throw new Error();
+					throw new Error()
 				}
 				dispatch(
 					setSnackbar({
@@ -102,22 +102,22 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 						color: colorsNotifi['success'].color,
 						backgroundColor: colorsNotifi['success'].background,
 					}),
-				);
+				)
 			}
 		} catch (err) {
 			if (row?.data) {
-				dataSourceExport.store().insert(row?.data);
-				dataSourceExport.reload();
+				dataSourceExport.store().insert(row?.data)
+				dataSourceExport.reload()
 				dispatch(
 					setSnackbar({
 						message: 'Đã xảy ra lỗi!!!',
 						color: colorsNotifi['error'].color,
 						backgroundColor: colorsNotifi['error'].background,
 					}),
-				);
+				)
 			}
 		}
-	};
+	}
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} fullScreen PaperProps={{ style: { maxWidth: 'unset' } }}>
@@ -162,7 +162,7 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 								allowDeleting: true,
 							}}
 							onRowRemoving={row => {
-								handleDelete(row);
+								handleDelete(row)
 							}}
 							elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 800px' }}
 						>
@@ -207,8 +207,8 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 								<DevButtonGrid
 									icon="edit"
 									onClick={(e: any) => {
-										setOpenCreate({ isOpen: true, type: 'PUT' });
-										setInitDataDialog(e.row.data);
+										setOpenCreate({ isOpen: true, type: 'PUT' })
+										setInitDataDialog(e.row.data)
 									}}
 								/>
 								<DevButtonGrid icon="trash" name="delete" />
@@ -227,8 +227,8 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 											color: '#000',
 										}}
 										onClick={() => {
-											setOpenCreate({ isOpen: true, type: 'POST' });
-											setInitDataDialog(null);
+											setOpenCreate({ isOpen: true, type: 'POST' })
+											setInitDataDialog(null)
 										}}
 										startIcon={<Add />}
 									>
@@ -246,7 +246,7 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 							type={openCreate.type}
 							getData={getExportResearchs}
 							onClose={() => {
-								setOpenCreate(prev => ({ ...prev, isOpen: false }));
+								setOpenCreate(prev => ({ ...prev, isOpen: false }))
 							}}
 							data={initDataDialog || {}}
 						/>
@@ -254,15 +254,15 @@ function DialogExportInstrument({ isOpen, onClose }: DialogProps) {
 				</Box>
 			</DialogContent>
 		</Dialog>
-	);
+	)
 }
 
 const ExportDetail = (props: any) => {
-	const [listInstrument, setListInstrument] = useState<IExportInstrumentResearchItem[]>([]);
+	const [listInstrument, setListInstrument] = useState<IExportInstrumentResearchItem[]>([])
 
 	function isInstrument(obj: any): obj is IExportInstrumentResearchItem {
-		if (obj !== null) return 'InstrumentDeptId' in obj && 'Quantity' in obj && 'DeviceId' in obj;
-		return false;
+		if (obj !== null) return 'InstrumentDeptId' in obj && 'Quantity' in obj && 'DeviceId' in obj
+		return false
 	}
 
 	useEffect(() => {
@@ -271,9 +271,9 @@ const ExportDetail = (props: any) => {
 			props?.data?.data?.listInstrument.length > 0 &&
 			isInstrument(props?.data?.data?.listInstrument[0])
 		) {
-			setListInstrument(props?.data?.data?.listInstrument || []);
+			setListInstrument(props?.data?.data?.listInstrument || [])
 		}
-	}, [props]);
+	}, [props])
 
 	const dataSourceInstrument = useMemo(() => {
 		return new DataSource({
@@ -281,8 +281,8 @@ const ExportDetail = (props: any) => {
 				data: listInstrument,
 				key: 'InstrumentDeptId',
 			}),
-		});
-	}, [listInstrument]);
+		})
+	}, [listInstrument])
 
 	return (
 		<>
@@ -323,8 +323,8 @@ const ExportDetail = (props: any) => {
 				</DataGrid>
 			</Box>
 		</>
-	);
-};
+	)
+}
 
 const DialogCreate = ({
 	isOpen,
@@ -333,12 +333,12 @@ const DialogCreate = ({
 	data,
 	type,
 }: DialogProps & { data: IExportInstrumentResearch | {}; getData: () => Promise<void>; type: string }) => {
-	const registerGenerals = useAppSelector(state => state.registerGeneral.listOfRegisterGenerals);
-	const owner = useAppSelector(state => state.userManager.owner);
-	const [errors, setErrors] = useState<ErrorType[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [listInstrument, setListInstrument] = useState<IExportInstrumentResearchItem[]>([]);
-	const [selectedInstruments, setSelectedInstruments] = useState<IExportInstrumentResearchItem[]>([]);
+	const registerGenerals = useAppSelector(state => state.registerGeneral.listOfRegisterGenerals)
+	const owner = useAppSelector(state => state.userManager.owner)
+	const [errors, setErrors] = useState<ErrorType[]>([])
+	const [loading, setLoading] = useState<boolean>(true)
+	const [listInstrument, setListInstrument] = useState<IExportInstrumentResearchItem[]>([])
+	const [selectedInstruments, setSelectedInstruments] = useState<IExportInstrumentResearchItem[]>([])
 	const [exportResearch, setExportResearch] = useState<IExportInstrumentResearch>({
 		...dummyExportInstrumentResearch,
 		EmployeeIdCreate: owner.EmployeeId || '',
@@ -346,13 +346,13 @@ const DialogCreate = ({
 		DepartmentId: owner.DepartmentId,
 		DepartmentName: owner.DepartmentName,
 		...data,
-	});
+	})
 
-	const dispatch = useAppDispatch();
+	const dispatch = useAppDispatch()
 	const [openAutocomplete, setOpenAutocomplete] = useState<{ device: boolean; instrument: boolean }>({
 		device: false,
 		instrument: false,
-	});
+	})
 	const columns = useRef<(ColumnType & { colSize: ColumnSizeType; required?: boolean; readonly?: boolean })[]>([
 		{ id: 'ExpResearchId', header: 'Mã xuất', colSize: { xs: 12, sm: 6 }, required: true },
 		{ id: 'ExportDate', header: 'Ngày xuất', type: 'date', colSize: { xs: 12, sm: 6 }, required: true },
@@ -361,34 +361,34 @@ const DialogCreate = ({
 		{ id: 'DepartmentName', header: 'Khoa', colSize: { xs: 12, sm: 6 }, required: true, readonly: true },
 		{ id: 'InstructorName', header: 'Người nhận', colSize: { xs: 12, sm: 6 }, required: true, readonly: true },
 		{ id: 'Content', header: 'Nội dung', colSize: { xs: 12, sm: 12 } },
-	]);
+	])
 
 	useEffect(() => {
-		(async () => {
+		;(async () => {
 			try {
-				let listInstrument: IExportInstrumentResearchItem[] = await getInstruments(2);
-				setListInstrument(listInstrument);
+				let listInstrument: IExportInstrumentResearchItem[] = await getInstruments(2)
+				setListInstrument(listInstrument)
 			} catch (err) {
 			} finally {
-				setLoading(false);
+				setLoading(false)
 			}
-		})();
-	}, []);
+		})()
+	}, [])
 
 	const handleDebouncedInput = _.debounce((key: string, value: string) => {
 		setExportResearch(prev => ({
 			...prev,
 			[key]: value,
-		}));
-	}, 200);
+		}))
+	}, 200)
 
 	useEffect(() => {
 		setListInstrument(prev => {
 			return prev.filter(
 				x => selectedInstruments.findIndex(s => s.InstrumentDeptId === x.InstrumentDeptId) === -1,
-			);
-		});
-	}, [selectedInstruments]);
+			)
+		})
+	}, [selectedInstruments])
 
 	const dataSourceInstrument = useMemo(() => {
 		return new DataSource({
@@ -396,12 +396,12 @@ const DialogCreate = ({
 				data: [...exportResearch.listInstrument, ...selectedInstruments],
 				key: 'InstrumentDeptId',
 			}),
-		});
-	}, [selectedInstruments]);
+		})
+	}, [selectedInstruments])
 
 	const renderInfo = () => {
 		return columns.current.map(col => {
-			let indexError = errors.findIndex(err => err.id === col.id);
+			let indexError = errors.findIndex(err => err.id === col.id)
 			if (col.id === 'InstructorName') {
 				return (
 					<Grid item {...col.colSize} key={col.id}>
@@ -418,7 +418,7 @@ const DialogCreate = ({
 							{indexError !== -1 && <FormHelperText>{errors[indexError].msg}</FormHelperText>}
 						</FormControl>
 					</Grid>
-				);
+				)
 			}
 
 			if (col.id === 'RegisterGeneralId') {
@@ -442,12 +442,12 @@ const DialogCreate = ({
 									RegisterGeneralId: Number(value?.RegisterGeneralId || 0),
 									InstructorId: value?.InstructorId || '',
 									InstructorName: value?.InstructorName || '',
-								}));
+								}))
 							}}
 						/>
 						{indexError !== -1 && <FormHelperText>{errors[indexError].msg}</FormHelperText>}
 					</Grid>
-				);
+				)
 			}
 			if (col.type === 'date') {
 				return (
@@ -479,7 +479,7 @@ const DialogCreate = ({
 							{indexError !== -1 && <FormHelperText>{errors[indexError].msg}</FormHelperText>}
 						</FormControl>
 					</Grid>
-				);
+				)
 			}
 
 			return (
@@ -503,23 +503,23 @@ const DialogCreate = ({
 						{indexError !== -1 && <FormHelperText>{errors[indexError].msg}</FormHelperText>}
 					</FormControl>
 				</Grid>
-			);
-		});
-	};
+			)
+		})
+	}
 
 	const handleConfirm = async () => {
 		let postData: IExportInstrumentResearch = {
 			...exportResearch,
 			listInstrument: dataSourceInstrument.items(),
-		};
+		}
 
-		let errorList: ErrorType[] = [];
+		let errorList: ErrorType[] = []
 
 		columns.current.forEach(col => {
 			if (`${postData[col.id as keyof typeof postData]}`.trim() === '' && col.required) {
-				errorList.push({ id: col.id, msg: `${col.header} là bắt buộc` });
+				errorList.push({ id: col.id, msg: `${col.header} là bắt buộc` })
 			}
-		});
+		})
 
 		if (postData.listInstrument.length === 0) {
 			dispatch(
@@ -528,17 +528,17 @@ const DialogCreate = ({
 					color: colorsNotifi['error'].color,
 					backgroundColor: colorsNotifi['error'].background,
 				}),
-			);
-			return;
+			)
+			return
 		}
 
-		setErrors(errorList);
+		setErrors(errorList)
 
 		if (errorList.length === 0) {
 			try {
 				switch (type) {
 					case 'POST': {
-						const postRes = await postExportInstrumentResearchs(postData);
+						const postRes = await postExportInstrumentResearchs(postData)
 
 						if (Object.keys(postRes).length > 0) {
 							dispatch(
@@ -547,18 +547,18 @@ const DialogCreate = ({
 									color: colorsNotifi['success'].color,
 									backgroundColor: colorsNotifi['success'].background,
 								}),
-							);
-							getData();
+							)
+							getData()
 						} else {
-							throw new Error();
+							throw new Error()
 						}
-						break;
+						break
 					}
 					case 'PUT': {
 						const postRes = await updateExportInstrumentResearchs({
 							...postData,
 							listInstrument: dataSourceInstrument.items(),
-						});
+						})
 						if (Object.keys(postRes).length > 0) {
 							dispatch(
 								setSnackbar({
@@ -566,15 +566,15 @@ const DialogCreate = ({
 									color: colorsNotifi['success'].color,
 									backgroundColor: colorsNotifi['success'].background,
 								}),
-							);
-							getData();
+							)
+							getData()
 						} else {
-							throw new Error();
+							throw new Error()
 						}
-						break;
+						break
 					}
 					default:
-						break;
+						break
 				}
 			} catch (error) {
 				dispatch(
@@ -583,10 +583,10 @@ const DialogCreate = ({
 						color: colorsNotifi['error'].color,
 						backgroundColor: colorsNotifi['error'].background,
 					}),
-				);
+				)
 			}
 		}
-	};
+	}
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} PaperProps={{ style: { maxWidth: 'unset' } }}>
@@ -617,10 +617,10 @@ const DialogCreate = ({
 						<Autocomplete
 							open={openAutocomplete.instrument}
 							onOpen={() => {
-								setOpenAutocomplete(prev => ({ ...prev, instrument: true }));
+								setOpenAutocomplete(prev => ({ ...prev, instrument: true }))
 							}}
 							onClose={() => {
-								setOpenAutocomplete(prev => ({ ...prev, instrument: false }));
+								setOpenAutocomplete(prev => ({ ...prev, instrument: false }))
 							}}
 							sx={{
 								marginBottom: '10px',
@@ -631,7 +631,7 @@ const DialogCreate = ({
 							loading={loading}
 							onChange={(e, value) => {
 								if (value !== null) {
-									setSelectedInstruments(prev => [...prev, { ...value, Quantity: 0 }]);
+									setSelectedInstruments(prev => [...prev, { ...value, Quantity: 0 }])
 								}
 							}}
 							renderInput={params => (
@@ -713,7 +713,7 @@ const DialogCreate = ({
 				</Button>
 			</DialogActions>
 		</Dialog>
-	);
-};
+	)
+}
 
-export default DialogExportInstrument;
+export default DialogExportInstrument

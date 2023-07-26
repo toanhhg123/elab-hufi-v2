@@ -1,4 +1,4 @@
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from '@mui/icons-material/Close'
 import {
 	Autocomplete,
 	Box,
@@ -15,8 +15,8 @@ import {
 	InputLabel,
 	TextField,
 	Typography,
-} from '@mui/material';
-import Button from '@mui/material/Button';
+} from '@mui/material'
+import Button from '@mui/material/Button'
 import DataGrid, {
 	Button as DevButtonGrid,
 	Column,
@@ -34,54 +34,54 @@ import DataGrid, {
 	Scrolling,
 	SearchPanel,
 	Toolbar,
-} from 'devextreme-react/data-grid';
-import 'devextreme-react/text-area';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+} from 'devextreme-react/data-grid'
+import 'devextreme-react/text-area'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import Add from '@mui/icons-material/Add';
-import ArrayStore from 'devextreme/data/array_store';
-import DataSource from 'devextreme/data/data_source';
-import _ from 'lodash';
-import moment from 'moment';
-import { colorsNotifi } from '../../../configs/color';
-import { useAppDispatch, useAppSelector } from '../../../hooks';
-import { setSnackbar } from '../../../pages/appSlice';
+import Add from '@mui/icons-material/Add'
+import ArrayStore from 'devextreme/data/array_store'
+import DataSource from 'devextreme/data/data_source'
+import _ from 'lodash'
+import moment from 'moment'
+import { colorsNotifi } from '../../../configs/color'
+import { useAppDispatch, useAppSelector } from '../../../hooks'
+import { setSnackbar } from '../../../pages/appSlice'
 import {
 	deleteLiquidateDept,
 	getLiquidateDept,
 	getLiquidateDeptChemical,
 	postLiquidateDept,
 	updateLiquidateDept,
-} from '../../../services/liquidateChemicalServices';
+} from '../../../services/liquidateChemicalServices'
 import {
 	dummyLiquidateChemical,
 	ILiquidateChemical,
 	ILiquidateChemicalItem,
-} from '../../../types/chemicalWarehouseType';
-import { renderHeader } from '../../DepartmentTable/Dialog/DialogImportDeviceInfo';
-import { ColumnSizeType, ColumnsType, DialogProps, ErrorType } from '../../DepartmentTable/Dialog/DialogType';
+} from '../../../types/chemicalWarehouseType'
+import { renderHeader } from '../../DeviceTable/Dialog/DialogImportDeviceInfo'
+import { ColumnSizeType, ColumnsType, DialogProps, ErrorType } from '../../DeviceTable/Dialog/DialogType'
 
 const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
-	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
-	const [liquidateDeptDevice, setLiquidateDeptDevice] = useState<ILiquidateChemical[]>([]);
-	const [openCreate, setOpenCreate] = useState<{ isOpen: boolean; type: string }>({ isOpen: false, type: 'POST' });
-	const id = 2;
-	const [initDataDialog, setInitDataDialog] = useState<ILiquidateChemical | null>(null);
-	const dispatch = useAppDispatch();
+	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
+	const [liquidateDeptDevice, setLiquidateDeptDevice] = useState<ILiquidateChemical[]>([])
+	const [openCreate, setOpenCreate] = useState<{ isOpen: boolean; type: string }>({ isOpen: false, type: 'POST' })
+	const id = 2
+	const [initDataDialog, setInitDataDialog] = useState<ILiquidateChemical | null>(null)
+	const dispatch = useAppDispatch()
 
 	const getLiquidateDeptChemicals = useCallback(async () => {
-		let data: ILiquidateChemical[] = await getLiquidateDept(id);
+		let data: ILiquidateChemical[] = await getLiquidateDept(id)
 
-		setLiquidateDeptDevice(data);
-	}, [id]);
+		setLiquidateDeptDevice(data)
+	}, [id])
 
 	const renderHeader = (data: any, isRequired: boolean = false) => {
 		return (
 			<b style={{ color: 'black' }}>
 				{data.column.caption} {isRequired && <span style={{ color: 'red' }}>*</span>}
 			</b>
-		);
-	};
+		)
+	}
 
 	const dataSource = useMemo(() => {
 		return new DataSource({
@@ -89,18 +89,18 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 				data: Array.isArray(liquidateDeptDevice) ? liquidateDeptDevice : [],
 				key: 'ExpLiquidateDeptId',
 			}),
-		});
-	}, [liquidateDeptDevice]);
+		})
+	}, [liquidateDeptDevice])
 
 	useEffect(() => {
-		getLiquidateDeptChemicals();
-	}, [isOpen]);
+		getLiquidateDeptChemicals()
+	}, [isOpen])
 
 	const handleDeleteLiquidate = async (row: any) => {
 		try {
-			const deleted: any = await deleteLiquidateDept(row?.key);
+			const deleted: any = await deleteLiquidateDept(row?.key)
 			if (deleted?.status !== 200 || deleted === undefined) {
-				throw new Error();
+				throw new Error()
 			}
 			dispatch(
 				setSnackbar({
@@ -108,21 +108,21 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 					color: colorsNotifi['success'].color,
 					backgroundColor: colorsNotifi['success'].background,
 				}),
-			);
+			)
 		} catch (err) {
 			if (row?.data) {
-				dataSource.store().insert(row?.data);
-				dataSource.reload();
+				dataSource.store().insert(row?.data)
+				dataSource.reload()
 				dispatch(
 					setSnackbar({
 						message: 'Đã xảy ra lỗi!!!',
 						color: colorsNotifi['error'].color,
 						backgroundColor: colorsNotifi['error'].background,
 					}),
-				);
+				)
 			}
 		}
-	};
+	}
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} fullScreen PaperProps={{ style: { maxWidth: 'unset' } }}>
@@ -168,7 +168,7 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 								enabled: true,
 							}}
 							onRowRemoving={row => {
-								handleDeleteLiquidate(row);
+								handleDeleteLiquidate(row)
 							}}
 							elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 800px' }}
 						>
@@ -227,8 +227,8 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 								caption="Tình trạng phiếu"
 								headerCellRender={data => renderHeader(data)}
 								cellRender={cell => {
-									if (!cell.data?.DateStartUsage) return <p style={{ margin: '0' }}></p>;
-									return <p style={{ margin: '0' }}>{cell.text}</p>;
+									if (!cell.data?.DateStartUsage) return <p style={{ margin: '0' }}></p>
+									return <p style={{ margin: '0' }}>{cell.text}</p>
 								}}
 							></Column>
 
@@ -242,8 +242,8 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 								<DevButtonGrid
 									icon="edit"
 									onClick={(e: any) => {
-										setOpenCreate({ isOpen: true, type: 'PUT' });
-										setInitDataDialog(e.row.data);
+										setOpenCreate({ isOpen: true, type: 'PUT' })
+										setInitDataDialog(e.row.data)
 									}}
 								/>
 								<DevButtonGrid icon="trash" name="delete" />
@@ -262,8 +262,8 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 											color: '#000',
 										}}
 										onClick={() => {
-											setOpenCreate({ isOpen: true, type: 'POST' });
-											setInitDataDialog(null);
+											setOpenCreate({ isOpen: true, type: 'POST' })
+											setInitDataDialog(null)
 										}}
 										startIcon={<Add />}
 									>
@@ -281,8 +281,8 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 							type={openCreate.type}
 							getLiquidateDept={getLiquidateDeptChemicals}
 							onClose={() => {
-								setOpenCreate(prev => ({ ...prev, isOpen: false }));
-								getLiquidateDeptChemicals();
+								setOpenCreate(prev => ({ ...prev, isOpen: false }))
+								getLiquidateDeptChemicals()
 							}}
 							data={initDataDialog || []}
 						/>
@@ -290,15 +290,15 @@ const DialogLiquidate = ({ isOpen, onClose }: DialogProps) => {
 				</Box>
 			</DialogContent>
 		</Dialog>
-	);
-};
+	)
+}
 
 const DetailTemplate = (props: any) => {
-	const [listChemical, setListChemical] = useState<ILiquidateChemical[]>([]);
+	const [listChemical, setListChemical] = useState<ILiquidateChemical[]>([])
 
 	function isLiquidateChemical(obj: any): obj is ILiquidateChemical {
-		if (obj !== null) return 'ChemDeptId' in obj && 'ChemicalName' in obj && 'ChemicalId' in obj;
-		return false;
+		if (obj !== null) return 'ChemDeptId' in obj && 'ChemicalName' in obj && 'ChemicalId' in obj
+		return false
 	}
 
 	useEffect(() => {
@@ -307,9 +307,9 @@ const DetailTemplate = (props: any) => {
 			props?.data?.data?.listChemical.length > 0 &&
 			isLiquidateChemical(props?.data?.data?.listChemical[0])
 		) {
-			setListChemical(props?.data?.data?.listChemical || []);
+			setListChemical(props?.data?.data?.listChemical || [])
 		}
-	}, [props]);
+	}, [props])
 
 	const dataSourceChemical = useMemo(() => {
 		return new DataSource({
@@ -317,8 +317,8 @@ const DetailTemplate = (props: any) => {
 				data: listChemical,
 				key: 'ChemDeptId',
 			}),
-		});
-	}, [listChemical]);
+		})
+	}, [listChemical])
 
 	return (
 		<>
@@ -365,8 +365,8 @@ const DetailTemplate = (props: any) => {
 				</DataGrid>
 			</Box>
 		</>
-	);
-};
+	)
+}
 
 const DialogCreateLiquidate = ({
 	isOpen,
@@ -383,18 +383,18 @@ const DialogCreateLiquidate = ({
 		DepartmentId: owner.DepartmentId,
 		DepartmentName: owner.DepartmentName,
 		...data,
-	});
+	})
 
 	const [openAutocomplete, setOpenAutocomplete] = useState<{ device: boolean; instrument: boolean }>({
 		device: false,
 		instrument: false,
-	});
-	const [loading, setLoading] = useState<boolean>(true);
-	const [listChemical, setListChemical] = useState<ILiquidateChemicalItem[]>([]);
-	const id = 2;
-	const [selectedChemicals, setSelectedChemicals] = useState<ILiquidateChemicalItem[]>([]);
-	const [errors, setErrors] = useState<ErrorType[]>([]);
-	const dispatch = useAppDispatch();
+	})
+	const [loading, setLoading] = useState<boolean>(true)
+	const [listChemical, setListChemical] = useState<ILiquidateChemicalItem[]>([])
+	const id = 2
+	const [selectedChemicals, setSelectedChemicals] = useState<ILiquidateChemicalItem[]>([])
+	const [errors, setErrors] = useState<ErrorType[]>([])
+	const dispatch = useAppDispatch()
 
 	const columns = useRef<(ColumnsType & { colSize: ColumnSizeType; required?: boolean; readonly?: boolean })[]>([
 		{ id: 'ExpLiquidateDeptId', header: 'Mã phiếu thanh lý', colSize: { md: 3, sm: 6, xs: 12 }, required: true },
@@ -409,26 +409,26 @@ const DialogCreateLiquidate = ({
 		{ id: 'DepartmentName', header: 'Khoa', colSize: { md: 3, sm: 6, xs: 12 }, required: true, readonly: true },
 		{ id: 'Content', header: 'Nội dung', colSize: { md: 6, xs: 12 } },
 		{ id: 'Note', header: 'Ghi chú', colSize: { md: 6, xs: 12 } },
-	]);
+	])
 
 	const handleDebouncedInput = _.debounce((key: string, value: string) => {
 		setLiquidate(prev => ({
 			...prev,
 			[key]: value,
-		}));
-	}, 200);
+		}))
+	}, 200)
 
 	useEffect(() => {
-		(async () => {
+		;(async () => {
 			try {
-				let listChemical: ILiquidateChemicalItem[] = await getLiquidateDeptChemical(id);
-				setListChemical(listChemical);
+				let listChemical: ILiquidateChemicalItem[] = await getLiquidateDeptChemical(id)
+				setListChemical(listChemical)
 			} catch (err) {
 			} finally {
-				setLoading(false);
+				setLoading(false)
 			}
-		})();
-	}, []);
+		})()
+	}, [])
 
 	const dataSourceChemical = useMemo(() => {
 		return new DataSource({
@@ -436,14 +436,14 @@ const DialogCreateLiquidate = ({
 				data: [...liquidate.listChemical, ...selectedChemicals],
 				key: 'ChemDeptId',
 			}),
-		});
-	}, [selectedChemicals]);
+		})
+	}, [selectedChemicals])
 
 	useEffect(() => {
 		setListChemical(prev => {
-			return prev.filter(x => selectedChemicals.findIndex(s => s.ChemDeptId === x.ChemDeptId) === -1);
-		});
-	}, [selectedChemicals]);
+			return prev.filter(x => selectedChemicals.findIndex(s => s.ChemDeptId === x.ChemDeptId) === -1)
+		})
+	}, [selectedChemicals])
 
 	const handleConfirm = async () => {
 		let postData: ILiquidateChemical = {
@@ -451,15 +451,15 @@ const DialogCreateLiquidate = ({
 			Accept: 'Create New',
 			UserAccept: null,
 			listChemical: dataSourceChemical.items(),
-		};
+		}
 
-		let errorList: ErrorType[] = [];
+		let errorList: ErrorType[] = []
 
 		columns.current.forEach(col => {
 			if (`${postData[col.id as keyof typeof postData]}`.trim() === '' && col.required) {
-				errorList.push({ id: col.id, msg: `${col.header} là bắt buộc` });
+				errorList.push({ id: col.id, msg: `${col.header} là bắt buộc` })
 			}
-		});
+		})
 
 		if (postData.listChemical.length === 0) {
 			dispatch(
@@ -468,17 +468,17 @@ const DialogCreateLiquidate = ({
 					color: colorsNotifi['error'].color,
 					backgroundColor: colorsNotifi['error'].background,
 				}),
-			);
-			return;
+			)
+			return
 		}
 
-		setErrors(errorList);
+		setErrors(errorList)
 
 		if (errorList.length === 0) {
 			try {
 				switch (type) {
 					case 'POST': {
-						const postRes = await postLiquidateDept(postData);
+						const postRes = await postLiquidateDept(postData)
 
 						if (Object.keys(postRes).length > 0) {
 							dispatch(
@@ -487,15 +487,15 @@ const DialogCreateLiquidate = ({
 									color: colorsNotifi['success'].color,
 									backgroundColor: colorsNotifi['success'].background,
 								}),
-							);
-							getLiquidateDept();
+							)
+							getLiquidateDept()
 						} else {
-							throw new Error();
+							throw new Error()
 						}
-						break;
+						break
 					}
 					case 'PUT': {
-						const postRes = await updateLiquidateDept(postData);
+						const postRes = await updateLiquidateDept(postData)
 						if (Object.keys(postRes).length > 0) {
 							dispatch(
 								setSnackbar({
@@ -503,15 +503,15 @@ const DialogCreateLiquidate = ({
 									color: colorsNotifi['success'].color,
 									backgroundColor: colorsNotifi['success'].background,
 								}),
-							);
-							getLiquidateDept();
+							)
+							getLiquidateDept()
 						} else {
-							throw new Error();
+							throw new Error()
 						}
-						break;
+						break
 					}
 					default:
-						break;
+						break
 				}
 			} catch (error) {
 				dispatch(
@@ -520,16 +520,16 @@ const DialogCreateLiquidate = ({
 						color: colorsNotifi['error'].color,
 						backgroundColor: colorsNotifi['error'].background,
 					}),
-				);
+				)
 			}
 		}
-	};
+	}
 
 	const renderInfo = useCallback(() => {
 		return (
 			<>
 				{columns.current.map(col => {
-					let indexError = errors.findIndex(err => err.id === col.id);
+					let indexError = errors.findIndex(err => err.id === col.id)
 					if (col.id === 'ExportDate') {
 						return (
 							<Grid item {...col.colSize} key={col.id}>
@@ -562,7 +562,7 @@ const DialogCreateLiquidate = ({
 									{indexError !== -1 && <FormHelperText>{errors[indexError].msg}</FormHelperText>}
 								</FormControl>
 							</Grid>
-						);
+						)
 					}
 
 					return (
@@ -586,11 +586,11 @@ const DialogCreateLiquidate = ({
 								{indexError !== -1 && <FormHelperText>{errors[indexError].msg}</FormHelperText>}
 							</FormControl>
 						</Grid>
-					);
+					)
 				})}
 			</>
-		);
-	}, [liquidate, errors]);
+		)
+	}, [liquidate, errors])
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} PaperProps={{ style: { maxWidth: 'unset' } }}>
@@ -621,10 +621,10 @@ const DialogCreateLiquidate = ({
 						<Autocomplete
 							open={openAutocomplete.device}
 							onOpen={() => {
-								setOpenAutocomplete(prev => ({ ...prev, device: true }));
+								setOpenAutocomplete(prev => ({ ...prev, device: true }))
 							}}
 							onClose={() => {
-								setOpenAutocomplete(prev => ({ ...prev, device: false }));
+								setOpenAutocomplete(prev => ({ ...prev, device: false }))
 							}}
 							sx={{
 								marginBottom: '10px',
@@ -637,7 +637,7 @@ const DialogCreateLiquidate = ({
 							loading={loading}
 							onChange={(e, value) => {
 								if (value !== null) {
-									setSelectedChemicals(prev => [...prev, { ...value, Amount: 0 }]);
+									setSelectedChemicals(prev => [...prev, { ...value, Amount: 0 }])
 								}
 							}}
 							renderInput={params => (
@@ -721,7 +721,7 @@ const DialogCreateLiquidate = ({
 				</Button>
 			</DialogActions>
 		</Dialog>
-	);
-};
+	)
+}
 
-export default DialogLiquidate;
+export default DialogLiquidate

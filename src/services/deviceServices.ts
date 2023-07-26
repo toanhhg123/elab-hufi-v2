@@ -37,6 +37,12 @@ export const postDevice = async (newLabData: IDeviceType) => {
 	return newDevice;
 };
 
+export const postCheckFileImport = async (file: FormData) => {
+	const url = `${API_ENDPOINT}/api/PurchaseOrderDevices/checkImportFile`
+	const newDevice = await API.post<FormData, string>(url, file)
+	return newDevice
+}
+
 export const getDeviceSpec = async () => {
 	const url = `${API_ENDPOINT}/api/devicespecs`;
 	const devicespec: IDeviceSpecType[] = await API.get<IDeviceSpecType[]>(url);

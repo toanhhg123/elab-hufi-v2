@@ -8,7 +8,7 @@ const API_ENDPOINT = isProd
 	: config.development.api_endpoint;
 
 export const getDevices = async (id: Number, deviceType: String) => {
-	const url = `${API_ENDPOINT}/api/devices/${id}/${deviceType}`;
+	const url = `${API_ENDPOINT}/api/devices`
 	const devices: IDeviceDepartmentType[] = await API.get<IDeviceDepartmentType[]>(url);
 	return devices;
 };
