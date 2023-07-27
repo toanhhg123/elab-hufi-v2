@@ -1,40 +1,48 @@
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { Box } from '@mui/material';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
+import { Box } from '@mui/material'
 import DataGrid, {
-    Button as DevButtonGrid,
-    Column,
-    ColumnChooser,
-    ColumnFixing,
-    Editing,
-    FilterRow, Form, Grouping,
-    HeaderFilter, Item, Lookup, Pager,
-    Paging, Popup, Toolbar
-} from 'devextreme-react/data-grid';
-import { Item as FromItem } from 'devextreme-react/form';
-import ArrayStore from 'devextreme/data/array_store';
-import DataSource from 'devextreme/data/data_source';
-import { uniqueId } from 'lodash';
-import moment from 'moment';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { colorsNotifi } from '../../configs/color';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setSnackbar } from '../../pages/appSlice';
+	Button as DevButtonGrid,
+	Column,
+	ColumnChooser,
+	ColumnFixing,
+	Editing,
+	FilterRow,
+	Form,
+	Grouping,
+	HeaderFilter,
+	Item,
+	Lookup,
+	Pager,
+	Paging,
+	Popup,
+	Toolbar,
+} from 'devextreme-react/data-grid'
+import { Item as FromItem } from 'devextreme-react/form'
+import ArrayStore from 'devextreme/data/array_store'
+import DataSource from 'devextreme/data/data_source'
+import { uniqueId } from 'lodash'
+import moment from 'moment'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { colorsNotifi } from '../../configs/color'
+import { useAppDispatch, useAppSelector } from '../../hooks'
+import { setSnackbar } from '../../pages/appSlice'
 import {
-    deleteTrainRegister, getTrainRegister,
-    postTrainRegister,
-    updateTrainRegister
-} from '../../services/trainServices';
-import { ITrainRegister } from '../../types/trainType';
-import { renderHeader } from '../DepartmentTable/Dialog/DialogImportDeviceInfo';
-import { ColumnSizeType, ColumnsType } from '../DepartmentTable/Dialog/DialogType';
+	deleteTrainRegister,
+	getTrainRegister,
+	postTrainRegister,
+	updateTrainRegister,
+} from '../../services/trainServices'
+import { ITrainRegister } from '../../types/trainType'
+import { renderHeader } from '../DeviceTable/Dialog/DialogImportDeviceInfo'
+import { ColumnSizeType, ColumnsType } from '../DeviceTable/Dialog/DialogType'
 
 const RegisterTrainSchedule = () => {
-	const dataGridRef = useRef<DataGrid<any, any> | null>(null);
-	const token = useAppSelector(state => state.userManager.token)
-	const [registerTrainSchedule, setRegisterTrainSchedule] = useState<ITrainRegister | null>(null);
-	const dispatch = useAppDispatch();
-	const trainDevices = useAppSelector(state => state.managerTrainSchedule.listOfTrainDevice);
-	const trainInstructors = useAppSelector(state => state.managerTrainSchedule.listOfTrainInstructor);
+	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
+	const owner = useAppSelector(state => state.userManager.owner)
+	const [registerTrainSchedule, setRegisterTrainSchedule] = useState<ITrainRegister | null>(null)
+	const dispatch = useAppDispatch()
+	const trainDevices = useAppSelector(state => state.managerTrainSchedule.listOfTrainDevice)
+	const trainInstructors = useAppSelector(state => state.managerTrainSchedule.listOfTrainInstructor)
 	const columns = useRef<(ColumnsType & { colSize: ColumnSizeType; required?: boolean; readonly?: boolean })[]>([
 		{ id: 'ResearcherId', header: 'ResearcherId', colSize: { xs: 4 } },
 		{ id: 'Fullname', header: 'Fullname', colSize: { xs: 4 } },
@@ -44,25 +52,25 @@ const RegisterTrainSchedule = () => {
 		{ id: 'Email', header: 'Email', colSize: { xs: 4 } },
 		{ id: 'PhoneNumber', header: 'PhoneNumber', colSize: { xs: 4 } },
 		{ id: 'Organization', header: 'Organization', colSize: { xs: 4 } },
-	]);
+	])
 
 	function isTrainRegister(obj: any): obj is ITrainRegister {
-		if (obj !== null) return 'ResearcherId' in obj && 'listTrainDetail' in obj;
-		return false;
+		if (obj !== null) return 'ResearcherId' in obj && 'listTrainDetail' in obj
+		return false
 	}
 
 	const getTrainSchedulesData = async () => {
-		const listOfTrainSchedule: ITrainRegister[] = await getTrainRegister(token.type);
+		const listOfTrainSchedule: ITrainRegister[] = await getTrainRegister(owner.Fullname)
 		if (listOfTrainSchedule.length > 0) {
-			setRegisterTrainSchedule(listOfTrainSchedule[0]);
+			setRegisterTrainSchedule(listOfTrainSchedule[0])
 		}
-	};
+	}
 
 	useEffect(() => {
 		if (registerTrainSchedule === null) {
-			getTrainSchedulesData();
+			getTrainSchedulesData()
 		}
-	}, []);
+	}, [])
 
 	const dataSource = useMemo(() => {
 		return new DataSource({
@@ -73,30 +81,30 @@ const RegisterTrainSchedule = () => {
 						: [],
 				key: 'Id',
 			}),
-		});
-	}, [registerTrainSchedule]);
+		})
+	}, [registerTrainSchedule])
 
 	const handleDelete = async (row: any) => {
 		try {
-			const deleteData = { ...registerTrainSchedule, listTrainDetail: [row?.data] };
+			const deleteData = { ...registerTrainSchedule, listTrainDetail: [row?.data] }
 			if (isTrainRegister(deleteData)) {
-				const deleted: any = await deleteTrainRegister(token.type, deleteData);
+				const deleted: any = await deleteTrainRegister(owner.Fullname, deleteData)
 				if (deleted?.status !== 200 || deleted === undefined) {
-					throw new Error();
+					throw new Error()
 				}
-				await getTrainSchedulesData();
+				await getTrainSchedulesData()
 				dispatch(
 					setSnackbar({
 						message: 'Xóa thành công',
 						color: colorsNotifi['success'].color,
 						backgroundColor: colorsNotifi['success'].background,
 					}),
-				);
+				)
 			}
 		} catch (err) {
 			if (row?.data) {
-				dataSource.store().insert(row?.data);
-				dataSource.reload();
+				dataSource.store().insert(row?.data)
+				dataSource.reload()
 
 				dispatch(
 					setSnackbar({
@@ -104,13 +112,13 @@ const RegisterTrainSchedule = () => {
 						color: colorsNotifi['error'].color,
 						backgroundColor: colorsNotifi['error'].background,
 					}),
-				);
+				)
 			}
 		}
-	};
+	}
 
 	const handleInsert = async (row: any) => {
-		if (registerTrainSchedule === null) return;
+		if (registerTrainSchedule === null) return
 		try {
 			const postData: ITrainRegister = {
 				...registerTrainSchedule,
@@ -121,12 +129,12 @@ const RegisterTrainSchedule = () => {
 						ResultId: 0,
 					},
 				],
-			};
+			}
 
-			const res = await postTrainRegister(token.type, postData);
+			const res = await postTrainRegister(owner.Fullname, postData)
 
 			if (Object.keys(res).length === 0) {
-				throw new Error();
+				throw new Error()
 			}
 
 			dispatch(
@@ -135,7 +143,7 @@ const RegisterTrainSchedule = () => {
 					color: colorsNotifi['success'].color,
 					backgroundColor: colorsNotifi['success'].background,
 				}),
-			);
+			)
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -143,14 +151,14 @@ const RegisterTrainSchedule = () => {
 					color: colorsNotifi['error'].color,
 					backgroundColor: colorsNotifi['error'].background,
 				}),
-			);
+			)
 		} finally {
-			await getTrainSchedulesData();
+			await getTrainSchedulesData()
 		}
-	};
+	}
 
 	const handleUpdate = async (row: any) => {
-		if (registerTrainSchedule === null) return;
+		if (registerTrainSchedule === null) return
 		try {
 			const updateData: ITrainRegister = {
 				...registerTrainSchedule,
@@ -163,12 +171,12 @@ const RegisterTrainSchedule = () => {
 							: row?.oldData?.InstructorId,
 					},
 				],
-			};
+			}
 
-			const res = await updateTrainRegister(token.type, updateData);
+			const res = await updateTrainRegister(owner.Fullname, updateData)
 
 			if (Object.keys(res).length === 0) {
-				throw new Error();
+				throw new Error()
 			}
 
 			dispatch(
@@ -177,7 +185,7 @@ const RegisterTrainSchedule = () => {
 					color: colorsNotifi['success'].color,
 					backgroundColor: colorsNotifi['success'].background,
 				}),
-			);
+			)
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -185,11 +193,11 @@ const RegisterTrainSchedule = () => {
 					color: colorsNotifi['error'].color,
 					backgroundColor: colorsNotifi['error'].background,
 				}),
-			);
+			)
 		} finally {
-			await getTrainSchedulesData();
+			await getTrainSchedulesData()
 		}
-	};
+	}
 
 	return (
 		<>
@@ -238,7 +246,7 @@ const RegisterTrainSchedule = () => {
 					onRowInserting={handleInsert}
 					onRowUpdating={handleUpdate}
 					onSaved={() => {
-						console.log(dataSource.items());
+						console.log(dataSource.items())
 					}}
 					elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 800px' }}
 				>
@@ -250,10 +258,10 @@ const RegisterTrainSchedule = () => {
 					<Grouping contextMenuEnabled={true} expandMode="rowClick" />
 					<Editing
 						mode="popup"
-							confirmDelete={true}
-							allowUpdating={true}
-							allowAdding={true}
-							allowDeleting={true}
+						confirmDelete={true}
+						allowUpdating={true}
+						allowAdding={true}
+						allowDeleting={true}
 					>
 						<Popup
 							title="Thông tin đăng ký"
@@ -328,12 +336,12 @@ const RegisterTrainSchedule = () => {
 						<DevButtonGrid
 							icon="edit"
 							name="edit"
-							visible={(e: any) => e.row.data.Result !== 'Đã tập huấn' ||  e.row.data.result !== 'Vắng'}
+							visible={(e: any) => e.row.data.Result !== 'Đã tập huấn' || e.row.data.result !== 'Vắng'}
 						/>
 						<DevButtonGrid
 							icon="trash"
 							name="delete"
-							visible={(e: any) => e.row.data.Result !== 'Đã tập huấn' ||  e.row.data.result !== 'Vắng'}
+							visible={(e: any) => e.row.data.Result !== 'Đã tập huấn' || e.row.data.result !== 'Vắng'}
 						/>
 					</Column>
 					<Toolbar>
@@ -344,7 +352,7 @@ const RegisterTrainSchedule = () => {
 				</DataGrid>
 			</Box>
 		</>
-	);
-};
+	)
+}
 
-export default RegisterTrainSchedule;
+export default RegisterTrainSchedule

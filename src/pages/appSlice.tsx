@@ -1,11 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 
 interface ISnackbarMessage {
-	isOpen?: boolean;
-	message: string;
-	color?: string;
-	backgroundColor?: string;
+	isOpen?: boolean
+	message: string
+	color?: string
+	backgroundColor?: string
 }
 
 export const defaultSnackbarMessage: ISnackbarMessage = {
@@ -13,89 +13,89 @@ export const defaultSnackbarMessage: ISnackbarMessage = {
 	message: '',
 	color: 'black',
 	backgroundColor: 'white',
-};
+}
 
 interface ISidebarItem {
-	isOpen: boolean;
-	name: String;
-	icon: String;
+	isOpen: boolean
+	name: String
+	icon: String
 }
 
 interface IAppState {
-	isOpenDrawer: boolean;
-	sidebarItems: ISidebarItem[];
-	snackbarState: ISnackbarMessage;
+	isOpenDrawer: boolean
+	sidebarItems: ISidebarItem[]
+	snackbarState: ISnackbarMessage
 }
 
 export const defaultSidebarItems: ISidebarItem[] = [
 	{
 		isOpen: true,
-		name: 'Quản lý phòng lab',
+		name: 'Phòng lab',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý phòng ban',
+		name: 'Phòng ban',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý nhân viên',
+		name: 'Nhân viên',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý nhà NC',
+		name: 'Nhà nghiên cứu',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý nhóm NC',
+		name: 'nhóm nghiên cứu',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý hoá chất',
+		name: 'Hoá chất',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý thiết bị',
+		name: 'Thiết bị',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Danh mục NSX',
+		name: 'Nhà sản xuất',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Danh mục NCC',
+		name: 'Nhà cung cấp',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý TKB',
+		name: 'Thời khóa biểu',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý môn học',
+		name: 'Môn học',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý lớp học phần',
+		name: 'Lớp học phần',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý xuất',
+		name: 'Xuất',
 		icon: '',
 	},
 	{
 		isOpen: false,
-		name: 'Quản lý nhập',
+		name: 'Nhập',
 		icon: '',
 	},
 	{
@@ -123,14 +123,14 @@ export const defaultSidebarItems: ISidebarItem[] = [
 		name: 'Lịch tập huấn',
 		icon: '',
 	},
-];
+]
 
 // Define the initial state using that type
 const initialState: IAppState = {
 	isOpenDrawer: false,
 	sidebarItems: defaultSidebarItems,
 	snackbarState: defaultSnackbarMessage,
-};
+}
 
 export const appSlice = createSlice({
 	name: 'app',
@@ -141,7 +141,7 @@ export const appSlice = createSlice({
 			return {
 				...state,
 				isOpenDrawer: action.payload,
-			};
+			}
 		},
 		setSidebarItems: (state: IAppState, action: PayloadAction<Number>) => {
 			let newSidebarItems: ISidebarItem[] = state.sidebarItems.map((item: ISidebarItem, idx) => {
@@ -149,19 +149,19 @@ export const appSlice = createSlice({
 					return {
 						...item,
 						isOpen: true,
-					};
+					}
 				} else {
 					return {
 						...item,
 						isOpen: false,
-					};
+					}
 				}
-			});
+			})
 
 			return {
 				...state,
 				sidebarItems: newSidebarItems,
-			};
+			}
 		},
 		setSnackbarMessage: (state: IAppState, action: PayloadAction<string>) => {
 			return {
@@ -170,7 +170,7 @@ export const appSlice = createSlice({
 					isOpen: action.payload ? true : false,
 					message: action.payload ? action.payload : '',
 				},
-			};
+			}
 		},
 		setSnackbar: (state: IAppState, action: PayloadAction<ISnackbarMessage>) => {
 			return {
@@ -183,7 +183,7 @@ export const appSlice = createSlice({
 						? action.payload.backgroundColor
 						: state.snackbarState.backgroundColor,
 				},
-			};
+			}
 		},
 
 		reset: () => {
@@ -191,17 +191,11 @@ export const appSlice = createSlice({
 				isOpenDrawer: false,
 				sidebarItems: defaultSidebarItems,
 				snackbarState: defaultSnackbarMessage,
-			};
+			}
 		},
 	},
-});
+})
 
-export const {
-	setIsOpenDrawer,
-	setSnackbarMessage,
-	setSidebarItems,
-	setSnackbar,
-	reset
-} = appSlice.actions;
+export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems, setSnackbar, reset } = appSlice.actions
 
-export default appSlice.reducer;
+export default appSlice.reducer

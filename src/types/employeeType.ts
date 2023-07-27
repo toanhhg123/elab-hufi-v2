@@ -1,14 +1,14 @@
 export interface IEmployeeType {
-    EmployeeId?: String,
-    Fullname: String,
-    Birthdate: String | number,
+    EmployeeId?: string,
+    Fullname: string,
+    Birthdate: string | number,
     Gender: "Nam" | "Nữ" | "Khác",
-    Address: String,
-    Email: String,
-    PhoneNumber: String,
+    Address: string,
+    Email: string,
+    PhoneNumber: string,
     DepartmentId: number,
-    DepartmentName?: String,
-    formatedBirthdate?: String,
+    DepartmentName?: string,
+    formatedBirthdate?: string,
 }
 
 export const dummyEmployeeData: IEmployeeType = {

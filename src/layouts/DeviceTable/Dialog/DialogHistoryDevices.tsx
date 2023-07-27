@@ -1,5 +1,5 @@
-import CloseIcon from '@mui/icons-material/Close';
-import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close'
+import SearchIcon from '@mui/icons-material/Search'
 import {
 	Box,
 	CircularProgress,
@@ -20,24 +20,24 @@ import {
 	TableHead,
 	TableRow,
 	TextField,
-} from '@mui/material';
+} from '@mui/material'
 
-import moment from 'moment';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { IDeviceHistory } from '../../../types/deviceHistoriesType';
-import { IDeviceTransferHistoryItem } from '../../../types/deviceTransferType';
-import { IDeviceRecordUsageHours } from '../../../types/deviceUsageHoursType';
+import moment from 'moment'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { IDeviceHistory } from '../../../types/deviceHistoriesType'
+import { IDeviceTransferHistoryItem } from '../../../types/deviceTransferType'
+import { IDeviceRecordUsageHours } from '../../../types/deviceUsageHoursType'
 import {
 	IInstrumentHistory,
 	IInstrumentResearchItem,
 	IInstrumentTranferItem,
-} from '../../../types/instrumentHistoriesType';
-import { IRepairDeviceItem } from '../../../types/maintenanceDevicesType';
-import { descendingComparator, renderArrowSort } from '../../ChemicalWarehouseTable/Utils';
-import { useDeviceOfDepartmentTableStore } from '../context/DeviceOfDepartmentTableContext';
-import { removeAccents } from '../DeviceOfDepartmentTable';
-import { ColumnSizeType, ColumnsType, DialogProps } from './DialogType';
-import { nestedObject } from './ultis';
+} from '../../../types/instrumentHistoriesType'
+import { IRepairDeviceItem } from '../../../types/maintenanceDevicesType'
+import { descendingComparator, renderArrowSort } from '../../ChemicalWarehouseTable/Utils'
+import { removeAccents } from '../DeviceOfDepartmentTable'
+import { ColumnSizeType, ColumnsType, DialogProps } from './DialogType'
+import { nestedObject } from './ultis'
+import { useDeviceOfDepartmentTableStore } from '../context/DeviceOfDepartmentTableContext'
 
 const DialogHistoryDevices = ({
 	isOpen,
@@ -45,41 +45,41 @@ const DialogHistoryDevices = ({
 	data,
 	loading,
 }: DialogProps & {
-	data: IDeviceHistory | IInstrumentHistory | null;
-	loading: boolean;
+	data: IDeviceHistory | IInstrumentHistory | null
+	loading: boolean
 }) => {
-	const [historyDevice, setHistoryDevice] = useState<IDeviceHistory | IInstrumentHistory | null>(null);
-	const [order, setOrder] = useState<string>('asc');
-	const [orderBy, setOrderBy] = useState<string>('DeviceId');
-	const [keyword, setKeyword] = useState<String | null>(null);
-	const [typeTable, setTypeTable] = useState<string>('Giờ sử dụng');
-	const typeDeviceTables = useRef<string[]>(['Giờ sử dụng', 'Điều chuyển', 'Bảo trì']);
-	const typeInstrumentTables = useRef<string[]>(['Điều chuyển', 'Research', 'Thanh lý']);
-	const { deviceType, listDeviceType } = useDeviceOfDepartmentTableStore();
+	const [historyDevice, setHistoryDevice] = useState<IDeviceHistory | IInstrumentHistory | null>(null)
+	const [order, setOrder] = useState<string>('asc')
+	const [orderBy, setOrderBy] = useState<string>('DeviceId')
+	const [keyword, setKeyword] = useState<String | null>(null)
+	const [typeTable, setTypeTable] = useState<string>('Giờ sử dụng')
+	const typeDeviceTables = useRef<string[]>(['Giờ sử dụng', 'Điều chuyển', 'Bảo trì'])
+	const typeInstrumentTables = useRef<string[]>(['Điều chuyển', 'Research', 'Thanh lý'])
+	const { deviceType, listDeviceType } = useDeviceOfDepartmentTableStore()
 
 	function isDeviceHistory(obj: any): obj is IDeviceHistory {
-		if (obj !== null) return 'SerialNumber' in obj;
-		return false;
+		if (obj !== null) return 'SerialNumber' in obj
+		return false
 	}
 
 	function isInstrumentHistory(obj: any): obj is IInstrumentHistory {
-		if (obj !== null) return 'InstrumentDeptId' in obj;
-		return false;
+		if (obj !== null) return 'InstrumentDeptId' in obj
+		return false
 	}
 
 	useEffect(() => {
-		setHistoryDevice(data);
-		setKeyword('');
-	}, [data]);
+		setHistoryDevice(data)
+		setKeyword('')
+	}, [data])
 
 	useEffect(() => {
 		if (!isOpen) {
-			setHistoryDevice(null);
-			setKeyword(null);
-			setTypeTable('Giờ sử dụng');
-			setOrderBy('asc');
+			setHistoryDevice(null)
+			setKeyword(null)
+			setTypeTable('Giờ sử dụng')
+			setOrderBy('asc')
 		}
-	}, [isOpen]);
+	}, [isOpen])
 
 	const historyDeviceColumns = useRef<(ColumnsType & { colSize: ColumnSizeType })[]>([
 		{ id: 'DeviceId', header: `Mã ${deviceType}`, colSize: { sm: 3, xs: 12 } },
@@ -95,7 +95,7 @@ const DialogHistoryDevices = ({
 		{ id: 'Location', header: 'Location', colSize: { sm: 6, xs: 12 } },
 		{ id: 'Status', header: 'Trạng thái', colSize: { sm: 6, xs: 12 } },
 		{ id: 'Standard', header: 'Qui cách', colSize: { sm: 12, xs: 12 } },
-	]);
+	])
 
 	const historyInstrumentColumns = useRef<(ColumnsType & { colSize: ColumnSizeType })[]>([
 		{ id: 'DeviceId', header: `Mã deviceType`, colSize: { sm: 6, xs: 12 } },
@@ -104,7 +104,7 @@ const DialogHistoryDevices = ({
 		{ id: 'Origin', header: 'Xuất xứ', colSize: { xs: 6 } },
 		{ id: 'Unit', header: 'Đơn vị tính', colSize: { xs: 6 } },
 		{ id: 'Standard', header: 'Qui cách', colSize: { xs: 12 } },
-	]);
+	])
 
 	const historyDeviceHourUsageColumns = useRef<ColumnsType[]>([
 		{
@@ -128,7 +128,7 @@ const DialogHistoryDevices = ({
 			header: 'Ngày nhập',
 			type: 'date',
 		},
-	]);
+	])
 
 	const historyDeviceTranferColumns = useRef<ColumnsType[]>([
 		{ id: 'LabId', header: 'Mã phòng' },
@@ -137,7 +137,7 @@ const DialogHistoryDevices = ({
 		{ id: 'DateTransfer', header: 'Ngày chuyển', type: 'date' },
 		{ id: 'ExportLabId', header: 'Mã phiếu xuất' },
 		{ id: 'EmployeeName', header: 'Người chuyển' },
-	]);
+	])
 
 	const historyDeviceMaintenanceColumns = useRef<ColumnsType[]>([
 		{ id: 'RepairId', header: 'Mã bảo trì' },
@@ -146,7 +146,7 @@ const DialogHistoryDevices = ({
 		{ id: 'DateCreate', header: 'Ngày bảo trì', type: 'date' },
 		{ id: 'EmployeeName', header: 'Người yêu cầu bảo trì' },
 		{ id: 'Status', header: 'Trạng thái' },
-	]);
+	])
 
 	const historyInstrumentTranferColumns = useRef<ColumnsType[]>([
 		{ id: 'TransferId', header: 'EmployeeName' },
@@ -154,42 +154,35 @@ const DialogHistoryDevices = ({
 		{ id: 'DateTransfer', header: 'Ngày chuyển', type: 'date' },
 		{ id: 'LabIdReceive', header: 'LabIdReceive' },
 		{ id: 'EmployeeName', header: 'EmployeeName' },
-	]);
+	])
 
 	const historyInstrumentResearchColumns = useRef<ColumnsType[]>([
 		{ id: 'EmployeeId', header: 'EmployeeId' },
 		{ id: 'EmployeeName', header: 'EmployeeName' },
 		{ id: 'Quantity', header: 'Quantity' },
 		{ id: 'ExpResearchId', header: 'ExpResearchId' },
-	]);
-
-	// const historyLiquitedateResearchColumns = useRef<ColumnsType[]>([
-	// 	{ id: 'EmployeeId', header: 'EmployeeId' },
-	// 	{ id: 'EmployeeName', header: 'EmployeeName' },
-	// 	{ id: 'Quantity', header: 'Quantity' },
-	// 	{ id: 'ExpResearchId', header: 'ExpResearchId' },
-	// ]);
+	])
 
 	const handleRequestSort = (property: string) => {
-		const isAsc = orderBy === property && order === 'asc';
-		setOrder(isAsc ? 'desc' : 'asc');
-		setOrderBy(property);
-	};
+		const isAsc = orderBy === property && order === 'asc'
+		setOrder(isAsc ? 'desc' : 'asc')
+		setOrderBy(property)
+	}
 
 	const getColumnActive = useCallback(
 		(type: string) => {
-			let headerCol: ColumnsType[] = [];
+			let headerCol: ColumnsType[] = []
 			let list:
 				| IRepairDeviceItem[]
 				| IDeviceTransferHistoryItem[]
 				| IDeviceRecordUsageHours[]
 				| IInstrumentTranferItem[]
-				| IInstrumentResearchItem[] = [];
+				| IInstrumentResearchItem[] = []
 
 			if (deviceType === listDeviceType[0]) {
 				switch (type) {
 					case typeDeviceTables.current[0]: {
-						headerCol = historyDeviceHourUsageColumns.current;
+						headerCol = historyDeviceHourUsageColumns.current
 						if (isDeviceHistory(historyDevice)) {
 							list =
 								historyDevice?.listHourUsage
@@ -198,20 +191,20 @@ const DialogHistoryDevices = ({
 											Number(b.DateInput) - Number(a.DateInput),
 									)
 									.filter(item => {
-										if (keyword?.trim() === '') return true;
+										if (keyword?.trim() === '') return true
 
-										let searchString: String = '';
+										let searchString: String = ''
 
-										searchString = nestedObject(item, searchString);
-										searchString = removeAccents(searchString.toUpperCase());
+										searchString = nestedObject(item, searchString)
+										searchString = removeAccents(searchString.toUpperCase())
 
-										return searchString.includes(`${keyword}`);
-									}) || [];
+										return searchString.includes(`${keyword}`)
+									}) || []
 						}
-						break;
+						break
 					}
 					case typeDeviceTables.current[1]: {
-						headerCol = historyDeviceTranferColumns.current;
+						headerCol = historyDeviceTranferColumns.current
 						if (isDeviceHistory(historyDevice)) {
 							list =
 								historyDevice?.listDeviceTransfer
@@ -220,20 +213,20 @@ const DialogHistoryDevices = ({
 											Number(b.DateTransfer) - Number(a.DateTransfer),
 									)
 									.filter(item => {
-										if (keyword?.trim() === '') return true;
+										if (keyword?.trim() === '') return true
 
-										let searchString: String = '';
+										let searchString: String = ''
 
-										searchString = nestedObject(item, searchString);
-										searchString = removeAccents(searchString.toUpperCase());
+										searchString = nestedObject(item, searchString)
+										searchString = removeAccents(searchString.toUpperCase())
 
-										return searchString.includes(`${keyword}`);
-									}) || [];
+										return searchString.includes(`${keyword}`)
+									}) || []
 						}
-						break;
+						break
 					}
 					case typeDeviceTables.current[2]: {
-						headerCol = historyDeviceMaintenanceColumns.current;
+						headerCol = historyDeviceMaintenanceColumns.current
 						if (isDeviceHistory(historyDevice)) {
 							list =
 								historyDevice?.listMaintenance
@@ -242,26 +235,26 @@ const DialogHistoryDevices = ({
 											Number(b.DateCreate) - Number(a.DateCreate),
 									)
 									.filter(item => {
-										if (keyword?.trim() === '') return true;
+										if (keyword?.trim() === '') return true
 
-										let searchString: String = '';
-										searchString = nestedObject(item, searchString);
-										searchString = removeAccents(searchString.toUpperCase());
+										let searchString: String = ''
+										searchString = nestedObject(item, searchString)
+										searchString = removeAccents(searchString.toUpperCase())
 
-										return searchString.includes(`${keyword}`);
-									}) || [];
+										return searchString.includes(`${keyword}`)
+									}) || []
 						}
-						break;
+						break
 					}
 					default:
-						break;
+						break
 				}
 			}
 
 			if (deviceType !== listDeviceType[0]) {
 				switch (type) {
 					case typeInstrumentTables.current[0]: {
-						headerCol = historyInstrumentTranferColumns.current;
+						headerCol = historyInstrumentTranferColumns.current
 						if (isInstrumentHistory(historyDevice)) {
 							list =
 								historyDevice?.listInstrumentTranfer
@@ -270,45 +263,45 @@ const DialogHistoryDevices = ({
 											Number(b.DateTransfer) - Number(a.DateTransfer),
 									)
 									.filter(item => {
-										if (keyword?.trim() === '') return true;
+										if (keyword?.trim() === '') return true
 
-										let searchString: String = '';
-										searchString = nestedObject(item, searchString);
-										searchString = removeAccents(searchString.toUpperCase());
+										let searchString: String = ''
+										searchString = nestedObject(item, searchString)
+										searchString = removeAccents(searchString.toUpperCase())
 
-										return searchString.includes(`${keyword}`);
-									}) || [];
+										return searchString.includes(`${keyword}`)
+									}) || []
 						}
-						break;
+						break
 					}
 					case typeInstrumentTables.current[1]: {
-						headerCol = historyInstrumentResearchColumns.current;
+						headerCol = historyInstrumentResearchColumns.current
 						if (isInstrumentHistory(historyDevice)) {
 							list =
 								historyDevice?.listInstrumentResearch
 									.sort((a: IInstrumentResearchItem, b: IInstrumentResearchItem) => {
 										if (a.ExpResearchId < b.ExpResearchId) {
-											return -1;
+											return -1
 										}
 										if (a.ExpResearchId > b.ExpResearchId) {
-											return 1;
+											return 1
 										}
-										return 0;
+										return 0
 									})
 									.filter(item => {
-										if (keyword?.trim() === '') return true;
+										if (keyword?.trim() === '') return true
 
-										let searchString: String = '';
-										searchString = nestedObject(item, searchString);
-										searchString = removeAccents(searchString.toUpperCase());
+										let searchString: String = ''
+										searchString = nestedObject(item, searchString)
+										searchString = removeAccents(searchString.toUpperCase())
 
-										return searchString.includes(`${keyword}`);
-									}) || [];
+										return searchString.includes(`${keyword}`)
+									}) || []
 						}
-						break;
+						break
 					}
 					default:
-						break;
+						break
 				}
 			}
 
@@ -316,17 +309,17 @@ const DialogHistoryDevices = ({
 				let i: any =
 					order === 'desc'
 						? descendingComparator<any>(a, b, orderBy)
-						: -descendingComparator<any>(a, b, orderBy);
-				return i;
-			});
+						: -descendingComparator<any>(a, b, orderBy)
+				return i
+			})
 
-			return { headerCol, list };
+			return { headerCol, list }
 		},
 		[order, orderBy, keyword],
-	);
+	)
 
 	const renderTableHeader = (type: string) => {
-		let { headerCol } = getColumnActive(type);
+		let { headerCol } = getColumnActive(type)
 
 		return headerCol?.map(col => (
 			<TableCell
@@ -343,11 +336,11 @@ const DialogHistoryDevices = ({
 					{renderArrowSort(order, orderBy, col.id)}
 				</span>
 			</TableCell>
-		));
-	};
+		))
+	}
 
 	const renderTableBody = (type: string) => {
-		const { headerCol, list } = getColumnActive(type);
+		const { headerCol, list } = getColumnActive(type)
 
 		return (
 			<>
@@ -369,31 +362,31 @@ const DialogHistoryDevices = ({
 												.unix(Number(device[col.id as keyof typeof device]))
 												.format('DD/MM/YYYY')}
 										</TableCell>
-									);
+									)
 								if (col.id === 'Cost')
 									return (
 										<TableCell key={col.id}>
 											{Number(device[col.id as keyof typeof device]).toLocaleString('vi-VN')}
 										</TableCell>
-									);
+									)
 								return (
 									<TableCell key={col.id}>{`${
 										device[col.id as keyof typeof device] === null
 											? ''
 											: device[col.id as keyof typeof device]
 									}`}</TableCell>
-								);
+								)
 							})}
 						</TableRow>
-					);
+					)
 				})}
 			</>
-		);
-	};
+		)
+	}
 
 	const renderStaticField = () => {
 		let fields: (ColumnsType & { colSize: ColumnSizeType })[] =
-			deviceType === listDeviceType[0] ? historyDeviceColumns.current : historyInstrumentColumns.current;
+			deviceType === listDeviceType[0] ? historyDeviceColumns.current : historyInstrumentColumns.current
 
 		return fields.map(col => {
 			if (col.type === 'date')
@@ -415,7 +408,7 @@ const DialogHistoryDevices = ({
 							label={col.header}
 						/>
 					</Grid>
-				);
+				)
 
 			if (col.id === 'Standard')
 				return (
@@ -434,7 +427,7 @@ const DialogHistoryDevices = ({
 							label={col.header}
 						/>
 					</Grid>
-				);
+				)
 			return (
 				<Grid item {...col.colSize} key={col.id}>
 					<TextField
@@ -447,9 +440,9 @@ const DialogHistoryDevices = ({
 						label={col.header}
 					/>
 				</Grid>
-			);
-		});
-	};
+			)
+		})
+	}
 
 	return (
 		<Dialog open={isOpen} onClose={onClose} PaperProps={{ style: { width: '800px', maxWidth: 'unset' } }}>
@@ -517,7 +510,7 @@ const DialogHistoryDevices = ({
 											: typeDeviceTables.current[0]
 									}
 									onChange={e => {
-										setTypeTable(e.target.value);
+										setTypeTable(e.target.value)
 									}}
 								>
 									{deviceType === listDeviceType[0] &&
@@ -557,7 +550,7 @@ const DialogHistoryDevices = ({
 				)}
 			</DialogContent>
 		</Dialog>
-	);
-};
+	)
+}
 
-export default DialogHistoryDevices;
+export default DialogHistoryDevices

@@ -32,135 +32,34 @@ import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
 
 const Account: React.FC = () => {
-	const token = useAppSelector(state => state.userManager.token);
 	const owner = useAppSelector(state => state.userManager.owner);
 	const [avatarUpload, setAvatarUpload] = useState<string>();
-
+	console.log(owner);
 	const columns: any = useMemo<MRT_ColumnDef<any>[]>(() => {
-		switch (token.type) {
-			case 'employee':
-				return [
-					{
-						accessorKey: 'Fullname',
-						header: 'Họ và tên',
-						size: 100,
-					},
-					{
-						accessorKey: 'formatedBirthday',
-						header: 'Ngày sinh',
-						size: 140,
-					},
-					{
-						accessorKey: 'Gender',
-						header: 'Giới tính',
-						size: 140,
-					},
-					{
-						accessorKey: 'Address',
-						header: 'Địa chỉ',
-						size: 140,
-					},
-					{
-						accessorKey: 'Email',
-						header: 'Email',
-						size: 140,
-					},
-					{
-						accessorKey: 'PhoneNumber',
-						header: 'Số điện thoại',
-						size: 50,
-					},
-					{
-						accessorKey: 'DepartmentName',
-						header: 'Phòng ban',
-						size: 50,
-					},
-				];
-			case 'student':
-				return [
-					{
-						accessorKey: 'Fullname',
-						header: 'Họ và tên',
-						size: 100,
-					},
-					{
-						accessorKey: 'ClassName',
-						header: 'Lớp',
-						size: 100,
-					},
-					{
-						accessorKey: 'formatedBirthday',
-						header: 'Ngày sinh',
-						size: 140,
-					},
-					{
-						accessorKey: 'Gender',
-						header: 'Giới tính',
-						size: 140,
-					},
-					{
-						accessorKey: 'Email',
-						header: 'Email',
-						size: 140,
-					},
-					{
-						accessorKey: 'PhoneNumber',
-						header: 'Số điện thoại',
-						size: 50,
-					},
-					{
-						accessorKey: 'GroupName',
-						header: 'Nhóm',
-						size: 50,
-					},
-					{
-						accessorKey: 'Address',
-						header: 'Địa chỉ',
-						size: 140,
-					},
-				];
-			case 'researcher':
-				return [
-					{
-						accessorKey: 'Fullname',
-						header: 'Họ và tên',
-						size: 100,
-					},
-					{
-						accessorKey: 'formatedBirthday',
-						header: 'Ngày sinh',
-						size: 140,
-					},
-					{
-						accessorKey: 'Gender',
-						header: 'Giới tính',
-						size: 140,
-					},
-					{
-						accessorKey: 'Email',
-						header: 'Email',
-						size: 140,
-					},
-					{
-						accessorKey: 'PhoneNumber',
-						header: 'Số điện thoại',
-						size: 50,
-					},
-					{
-						accessorKey: 'Organization',
-						header: 'Phòng ban',
-						size: 50,
-					},
-					{
-						accessorKey: 'Address',
-						header: 'Địa chỉ',
-						size: 140,
-					},
-				];
-			default:
-				return [];
+			return [
+				{
+					accessorKey: 'UserName',
+					header: 'ID',
+					size: 100,
+				},
+				{
+					accessorKey: 'FullName',
+					header: 'Tên',
+					size: 140,
+				},
+				{
+					accessorKey: 'DepartmentName',
+					header: 'Phòng/Khoa',
+					size: 140,
+				},
+				{
+					accessorKey: 'GroupName',
+					header: 'Nhóm',
+					size: 140,
+				},
+			]
 		}
-	}, [owner]);
+	, [owner]);
 
 	return (
 		<div className="home">
@@ -183,7 +82,7 @@ const Account: React.FC = () => {
 							>
 								<Box sx={{ position: 'relative', display: 'inline-block', margin: 'auto' }}>
 									<Avatar
-										alt={owner.Fullname.toString()}
+										alt={owner?.Fullname?.toString()}
 										src={avatarUpload || '/static/images/avatar/1.jpg'}
 										sx={{ width: 120, height: 120 }}
 									/>
@@ -216,88 +115,22 @@ const Account: React.FC = () => {
 										/>
 									</Button>
 								</Box>
-								{owner.EmployeeId && (
-									<Typography variant="body1" align="center">
-										ID: <b>{owner.EmployeeId}</b>
-									</Typography>
-								)}
-								{owner.ReseacherId && (
-									<Typography variant="body1" align="center">
-										ID: <b>{owner.ReseacherId.toString()}</b>
-									</Typography>
-								)}
-								{owner.StudentId && (
-									<Typography variant="body1" align="center">
-										ID: <b>{owner.StudentId}</b>
-									</Typography>
-								)}
 								<Grid container spacing={4}>
 									{columns.map((column: any) => {
-										if (column.accessorKey === 'formatedBirthdate') {
-											let x = moment.unix(Number(`${owner['Birthdate']}`)).format('DD/MM/YYYY');
-											return (
-												<Grid item xs={12} sm={12} md={6} key={column.accessorKey}>
-													<TextField
-														label={column.header}
-														name={column.accessorKey}
-														value={x}
-														fullWidth
-														variant="standard"
-													/>
-												</Grid>
-											);
-										}
-										if (
-											column.accessorKey === 'Address' &&
-											(token.type === 'student' || token.type === 'researcher')
-										) {
-											return (
-												<Grid item xs={12} key={column.accessorKey}>
-													<TextField
-														label={column.header}
-														name={column.accessorKey}
-														value={
-															column.accessorKey &&
-															owner[column.accessorKey as keyof typeof owner]
-														}
-														fullWidth
-														variant="standard"
-													/>
-												</Grid>
-											);
-										}
-
-										if (column.accessorKey === 'DepartmentName') {
-											return (
-												<Grid item xs={12} key={column.accessorKey}>
-													<TextField
-														label={column.header}
-														name={column.accessorKey}
-														value={
-															column.accessorKey &&
-															owner[column.accessorKey as keyof typeof owner]
-														}
-														fullWidth
-														variant="standard"
-													/>
-												</Grid>
-											);
-										} else {
-											return (
-												<Grid item xs={12} sm={12} md={6} key={column.accessorKey}>
-													<TextField
-														label={column.header}
-														name={column.accessorKey}
-														value={
-															column.accessorKey &&
-															owner[column.accessorKey as keyof typeof owner]
-														}
-														fullWidth
-														variant="standard"
-													/>
-												</Grid>
-											);
-										}
+										return (
+											<Grid item xs={12} sm={12} md={6} key={column.accessorKey}>
+												<TextField
+													label={column.header}
+													name={column.accessorKey}
+													value={
+														column.accessorKey &&
+														owner[column.accessorKey as keyof typeof owner]
+													}
+													fullWidth
+													variant="standard"
+												/>
+											</Grid>
+										)
 									})}
 								</Grid>
 							</Stack>

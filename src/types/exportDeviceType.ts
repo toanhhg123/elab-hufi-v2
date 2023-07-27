@@ -1,32 +1,51 @@
 export interface IExportDeviceType {
-	DeviceName: String;
-	DeviceInfoId: String;
-	ExportLabId?: String;
-	QuantityOriginal: Number;
-	ExpRegGeneralId?: String;
-	Unit: String;
-	DeviceDetailId?: String;
-	SerialNumber?: String;
-	ManufacturingDate?: String;
-	DateMaintenace?: String;
-	StartGuarantee?: String;
-	EndGuarantee?: String;
-	YearStartUsage?: Number;
-	HoursUsage?: Number;
-	Quantity?: Number;
-	LabId?: String;
-	LabName?: String;
-	Location?: String;
-	ExportDate?: String;
-	DateTranferTo?: String;
-	DateStartUsage?: String;
-	HoursUsageTotal?: Number;
-	PeriodicMaintenance?: Number;
-	EmployeeName?: String;
-	ExportId?: String;
-	WarningMaintenace?: String;
-	Status?: String;
-	InstrumentDeptId?: String;
+	DeviceName: String
+	DeviceInfoId: String
+	ExportLabId?: String
+	QuantityOriginal: Number
+	ExpRegGeneralId?: String
+	Unit: String
+	DeviceDetailId?: String
+	SerialNumber?: String
+	ManufacturingDate?: String
+	DateMaintenace?: String
+	StartGuarantee?: String
+	EndGuarantee?: String
+	YearStartUsage?: Number
+	HoursUsage?: Number
+	Quantity?: Number
+	LabId?: String
+	LabName?: String
+	Location?: String
+	ExportDate?: String
+	DateTranferTo?: String
+	DateStartUsage?: String
+	HoursUsageTotal?: Number
+	PeriodicMaintenance?: Number
+	EmployeeName?: String
+	ExportId?: String
+	WarningMaintenace?: String
+	Status?: String
+	InstrumentDeptId?: String
+	DeviceId: String
+	DeviceEnglishName: String
+	Specification: String
+	Manufacturer: String
+	Origin: String
+	SupplierName: String
+	QuantityImport: Number
+	QuantityDistribute: Number
+	QuantityExport: Number
+	QuantityAvailable: Number
+	DepartmentImportName: String
+	DateImport: String
+	DateMaintenance: String
+	DepartmentImportId: String
+	DepartmentMaintenanceId: String
+	DepartmentMaintenanceName: String
+	Model: String
+	SupplierId: Number
+	WarningMaintenance: String
 }
 
 export const dummyExportDevice: IExportDeviceType = {
@@ -56,6 +75,25 @@ export const dummyExportDevice: IExportDeviceType = {
 	HoursUsageTotal: 0,
 	PeriodicMaintenance: 0,
 	WarningMaintenace: '',
+	DeviceId: "",
+	DeviceEnglishName: "",
+	Specification: "",
+	Manufacturer: "",
+	Origin: "",
+	SupplierName: "",
+	QuantityImport: 0,
+	QuantityDistribute: 0,
+	QuantityExport: 0,
+	QuantityAvailable: 0,
+	DepartmentImportName: "",
+	DateImport: "",
+	DateMaintenance: "",
+	DepartmentImportId: "",
+	DepartmentMaintenanceId: "",
+	DepartmentMaintenanceName: "",
+	Model: "",
+	SupplierId: 0,
+	WarningMaintenance: "",
 };
 
 export interface IExportInstrument {

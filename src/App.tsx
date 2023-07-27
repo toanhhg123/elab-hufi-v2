@@ -11,7 +11,7 @@ import DrawerLeft from './components/DrawerLeft';
 import Footer from './components/Footer';
 import { clearFromLocalStorage, getFromLocalStorage } from './configs/apiHelper';
 import { useAppDispatch, useAppSelector } from './hooks';
-import { logout, setIsLogined, setOwner, setToken } from './layouts/UserManager/userManagerSlice';
+import { logout, setIsLogined, setOwner } from './layouts/UserManager/userManagerSlice';
 import Account from './pages/Account';
 import { setIsOpenDrawer } from './pages/appSlice';
 import { Dashboard } from './pages/Dashboard';
@@ -38,7 +38,6 @@ const settings = [
 
 function App() {
 	const isOpenDrawer: boolean = useAppSelector((state: RootState) => state.app.isOpenDrawer);
-	const token = useAppSelector((state: RootState) => state.userManager.token);
 	const isLogined = useAppSelector((state: RootState) => state.userManager.isLogined);
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
@@ -65,7 +64,7 @@ function App() {
 		const getUserLocal = async () => {
 			const user = await getFromLocalStorage('user');
 			if (user) {
-				dispatch(setToken(user));
+				dispatch(setOwner(user));
 				dispatch(setIsLogined(true));
 				navigate('/');
 				
@@ -77,38 +76,6 @@ function App() {
 		};
 		getUserLocal();
 	}, [isLogined]);
-
-	useEffect(() => {
-		const getOwnerData = () => {
-			try {
-				switch (token.type) {
-					case 'employee': {
-						getEmployeeOwner().then(owner => {
-							dispatch(setOwner(owner));
-						});
-						break;
-					}
-					case 'student': {
-						getStudentOwner(token.UserName).then(owner => {
-							dispatch(setOwner(owner));
-						});
-						break;
-					}
-					case 'researcher': {
-						getResearcherOwner(token.UserName).then(owner => {
-							dispatch(setOwner(owner));
-						});
-						break;
-					}
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
-		getOwnerData();
-	}, [token]);
-
 	
 
 	const _renderRouteElement = (id: String) => {
