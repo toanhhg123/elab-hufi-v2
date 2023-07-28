@@ -1,8 +1,15 @@
-import React, { FC, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import MaterialReactTable, {
   MRT_Cell,
   MRT_ColumnDef,
-} from 'material-react-table';
+} from "material-react-table";
 import {
   TextareaAutosize,
   Button,
@@ -22,33 +29,36 @@ import {
   Autocomplete,
   Typography,
   CircularProgress,
-} from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
-import { dummyPlanSubjectData, IPlanSubjectType } from '../../types/planSubjectType';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+} from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import {
+  dummyPlanSubjectData,
+  IPlanSubjectType,
+} from "../../types/planSubjectType";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
   deletePlanSubject,
   getPlanningSuggestion,
   getPlanSubjects,
   postPlanSubject,
-  updatePlanSubject
-} from '../../services/planSubjectServices';
-import { RootState } from '../../store';
-import { setListOfPlanSubjects } from './planSubjectSlice';
-import AddIcon from '@mui/icons-material/Add';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { setSnackbarMessage } from '../../pages/appSlice';
-import DetailDeviceTable from './Details/DetailDeviceTable';
-import { ColumnType } from './Utils';
-import DetailInstrumentTable from './Details/DetailInstrumentTable';
-import DetailChemicalTable from './Details/DetailChemicalTable';
-import ChemicalPlanning from './Planning/ChemicalPlanning';
-import DevicePlanning from './Planning/DevicePlanning';
-import InstrumentPlanning from './Planning/InstrumentPlanning';
-import SummaryTable from './Details/SummaryTable';
+  updatePlanSubject,
+} from "../../services/planSubjectServices";
+import { RootState } from "../../store";
+import { setListOfPlanSubjects } from "./planSubjectSlice";
+import AddIcon from "@mui/icons-material/Add";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { setSnackbarMessage } from "../../pages/appSlice";
+import DetailDeviceTable from "./Details/DetailDeviceTable";
+import { ColumnType } from "./Utils";
+import DetailInstrumentTable from "./Details/DetailInstrumentTable";
+import DetailChemicalTable from "./Details/DetailChemicalTable";
+import ChemicalPlanning from "./Planning/ChemicalPlanning";
+import DevicePlanning from "./Planning/DevicePlanning";
+import InstrumentPlanning from "./Planning/InstrumentPlanning";
+import SummaryTable from "./Details/SummaryTable";
 
-const semesterValue = ['1', '2', '3'];
-const schoolYearValue = ['2020-2021', '2021-2022', '2022-2023'];
+const semesterValue = ["1", "2", "3"];
+const schoolYearValue = ["2020-2021", "2021-2022", "2022-2023"];
 
 type SuggestionProps = {
   Semester: string;
@@ -58,16 +68,22 @@ type SuggestionProps = {
 };
 
 const dummyPlanSubjectSuggestion: SuggestionProps = {
-  "Semester": "1",
-  "Schoolyear": "2022-2023",
-  "SubjectId": "",
-  "SubjectName": ""
-}
+  Semester: "1",
+  Schoolyear: "2022-2023",
+  SubjectId: "",
+  SubjectName: "",
+};
 
 const PlanSubjectTable: FC = () => {
-  const planSubjectsData = useAppSelector((state: RootState) => state.planSubject.listOfPlanSubjects);
-  const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-  const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
+  const planSubjectsData = useAppSelector(
+    (state: RootState) => state.planSubject.listOfPlanSubjects
+  );
+  const employeeData = useAppSelector(
+    (state: RootState) => state.employee.listOfEmployees
+  );
+  const subjectData = useAppSelector(
+    (state: RootState) => state.subject.listOfSubjects
+  );
   const dispatch = useAppDispatch();
 
   const [isCreateModal, setIsCreateModal] = useState(false);
@@ -83,214 +99,211 @@ const PlanSubjectTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyPlanSubjectData);
   const [subjectDataValue, setSubjectDataValue] = useState<any>([]);
   const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
-  const [suggestedPlanning, setSuggestedPlanning] = useState<SuggestionProps>(dummyPlanSubjectSuggestion);
+  const [suggestedPlanning, setSuggestedPlanning] = useState<SuggestionProps>(
+    dummyPlanSubjectSuggestion
+  );
   const [isSummaryModal, setIsSummaryModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (subjectData.length > 0) {
-      const list = subjectData.map(x => ({
+      const list = subjectData.map((x) => ({
         label: `${x.SubjectId} - ${x.SubjectName}`,
         id: x.SubjectId,
-        name: x.SubjectName
+        name: x.SubjectName,
       }));
       setSubjectDataValue(list);
     }
-  }, [subjectData])
+  }, [subjectData]);
 
   useEffect(() => {
     if (employeeData.length > 0) {
-      const list = employeeData.map(x => ({
+      const list = employeeData.map((x) => ({
         label: `${x.EmployeeId} - ${x.Fullname}`,
         id: x.EmployeeId,
-        name: x.Fullname
+        name: x.Fullname,
       }));
       setEmployeeDataValue(list);
     }
-  }, [employeeData])
+  }, [employeeData]);
 
   useEffect(() => {
     if (planSubjectsData.length > 0) {
-      let formatedPlanSubjectsData = planSubjectsData.map((emp: IPlanSubjectType) => {
-        let employeeInfoIdx = employeeData.findIndex(y => y.EmployeeId === emp.EmployeeId);
-        let subjectInfoIdx = subjectData.findIndex(y => y.SubjectId === emp.SubjectId);
+      let formatedPlanSubjectsData = planSubjectsData.map((emp) => {
+        let employeeInfoIdx = employeeData.findIndex(
+          (y) => y.EmployeeId === emp.EmployeeId
+        );
+
+        let subjectInfoIdx =
+          subjectData?.findIndex((y) => y.SubjectId === emp.SubjectId) ?? -1;
+
         return {
           ...emp,
-          "EmployeeName": employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname.toString() : "",
-          "SubjectName": subjectInfoIdx > -1 ? subjectData[subjectInfoIdx].SubjectName.toString() : '',
-        }
-      })
+          EmployeeName:
+            employeeInfoIdx > -1
+              ? employeeData[employeeInfoIdx].Fullname.toString()
+              : "",
+          SubjectName:
+            subjectInfoIdx > -1
+              ? subjectData[subjectInfoIdx].SubjectName.toString()
+              : "",
+        };
+      });
       setTableData(formatedPlanSubjectsData);
     }
-  }, [planSubjectsData])
+  }, [planSubjectsData]);
 
   const getCommonEditTextFieldProps = useCallback(
     (
-      cell: MRT_Cell<IPlanSubjectType>,
-    ): MRT_ColumnDef<IPlanSubjectType>['muiTableBodyCellEditTextFieldProps'] => {
+      cell: MRT_Cell<IPlanSubjectType>
+    ): MRT_ColumnDef<IPlanSubjectType>["muiTableBodyCellEditTextFieldProps"] => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
       };
     },
-    [validationErrors],
+    [validationErrors]
   );
 
   const columns = useMemo<MRT_ColumnDef<IPlanSubjectType>[]>(
     () => [
       {
-        accessorKey: 'PlanId',
-        header: 'Mã phiếu',
+        accessorKey: "PlanId",
+        header: "Mã phiếu",
       },
       {
-        accessorKey: 'Semester',
-        header: 'Học kỳ',
+        accessorKey: "Semester",
+        header: "Học kỳ",
       },
       {
-        accessorKey: 'Schoolyear',
-        header: 'Năm học',
+        accessorKey: "Schoolyear",
+        header: "Năm học",
       },
       {
-        accessorKey: 'Content',
-        header: 'Nội dung',
+        accessorKey: "Content",
+        header: "Nội dung",
       },
       {
-        accessorKey: 'NumClass',
-        header: 'SL lớp',
+        accessorKey: "NumClass",
+        header: "SL lớp",
       },
       {
-        accessorKey: 'NumGroupOfClass',
-        header: 'SL nhóm',
+        accessorKey: "NumGroupOfClass",
+        header: "SL nhóm",
       },
       {
-        accessorKey: 'SubjectName',
-        header: 'Môn học',
+        accessorKey: "SubjectName",
+        header: "Môn học",
       },
       {
-        accessorKey: 'EmployeeName',
-        header: 'Người lập',
+        accessorKey: "EmployeeName",
+        header: "Người lập",
       },
       {
-        accessorKey: 'Note',
-        header: 'Ghi chú',
+        accessorKey: "Note",
+        header: "Ghi chú",
       },
     ],
-    [getCommonEditTextFieldProps],
+    [getCommonEditTextFieldProps]
   );
 
   const infoInSuggestedPlanning = [
     {
-      id: 'PlanId',
-      name: 'Mã phiếu',
+      id: "PlanId",
+      name: "Mã phiếu",
     },
     {
-      id: 'Content',
-      name: 'Nội dung',
+      id: "Content",
+      name: "Nội dung",
     },
-    // {
-    //   id: 'NumClass',
-    //   name: 'SL lớp',
-    // },
-    // {
-    //   id: 'NumGroupOfClass',
-    //   name: 'SL nhóm',
-    // },
-    // {
-    //   id: 'EmployeeName',
-    //   name: 'Người lập',
-    // },
-    // {
-    //   id: 'Note',
-    //   name: 'Ghi chú',
-    // },
-  ]
+  ];
 
   const chemicalInPlanSubjectTableColumns = useRef<ColumnType[]>([
     {
-      id: 'ChemicalId',
-      header: 'Mã HC',
+      id: "ChemicalId",
+      header: "Mã HC",
     },
     {
-      id: 'ChemicalName',
-      header: 'Tên HC',
+      id: "ChemicalName",
+      header: "Tên HC",
     },
     {
-      id: 'Specifications',
-      header: 'Công thức',
+      id: "Specifications",
+      header: "Công thức",
     },
     {
-      id: 'Amount',
-      header: 'Số lượng chuẩn/1 nhóm lớp',
-      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
+      id: "Amount",
+      header: "Số lượng chuẩn/1 nhóm lớp",
+      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`,
     },
     {
-      id: 'AmountTotal',
-      header: 'Số lượng tổng/Học kỳ',
-      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
+      id: "AmountTotal",
+      header: "Số lượng tổng/Học kỳ",
+      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`,
     },
     {
-      id: 'Note',
-      header: 'Ghi chú',
+      id: "Note",
+      header: "Ghi chú",
     },
   ]);
 
   const deviceInPlanSubjectTableColumns = useRef<ColumnType[]>([
     {
-      id: 'DeviceId',
-      header: 'Mã TB',
+      id: "DeviceId",
+      header: "Mã TB",
     },
     {
-      id: 'DeviceName',
-      header: 'Tên TB',
+      id: "DeviceName",
+      header: "Tên TB",
     },
     {
-      id: 'Standard',
-      header: 'Quy cách',
+      id: "Standard",
+      header: "Quy cách",
     },
     {
-      id: 'Quantity',
-      header: 'Số lượng',
-      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
+      id: "Quantity",
+      header: "Số lượng",
+      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`,
     },
     {
-      id: 'Note',
-      header: 'Ghi chú',
+      id: "Note",
+      header: "Ghi chú",
     },
   ]);
 
   const instrumentInPlanSubjectTableColumns = useRef<ColumnType[]>([
     {
-      id: 'DeviceId',
-      header: 'Mã DC',
+      id: "DeviceId",
+      header: "Mã DC",
     },
     {
-      id: 'DeviceName',
-      header: 'Tên DC',
+      id: "DeviceName",
+      header: "Tên DC",
     },
     {
-      id: 'Standard',
-      header: 'Quy cách',
+      id: "Standard",
+      header: "Quy cách",
     },
     {
-      id: 'Quantity',
-      header: 'Số lượng',
-      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
+      id: "Quantity",
+      header: "Số lượng",
+      renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`,
     },
     {
-      id: 'Note',
-      header: 'Ghi chú',
+      id: "Note",
+      header: "Ghi chú",
     },
   ]);
 
   const handleOpenEditModal = (row: any) => {
     setUpdatedRow(row.original);
     setIsEditModal(true);
-  }
+  };
 
   const onCloseEditModal = () => {
     setUpdatedRow(dummyPlanSubjectData);
     setIsEditModal(false);
-  }
+  };
 
   const handleSubmitEditModal = async () => {
     const isUpdatedSuccess = await updatePlanSubject({
@@ -305,49 +318,62 @@ const PlanSubjectTable: FC = () => {
       SubjectId: updatedRow.SubjectId,
       listChemical: updatedRow.listChemical,
       listDevice: updatedRow.listDevice,
-      listInstrument: updatedRow.listInstrument
+      listInstrument: updatedRow.listInstrument,
     });
 
     if (isUpdatedSuccess) {
-      dispatch(setSnackbarMessage("Cập nhật thông tin phiếu dự trù thành công"));
-      let updatedIdx = planSubjectsData.findIndex(x => x.PlanId === updatedRow.PlanId);
-      let newListOfPlanSubjects = [...planSubjectsData.slice(0, updatedIdx), updatedRow, ...planSubjectsData.slice(updatedIdx + 1,)]
+      dispatch(
+        setSnackbarMessage("Cập nhật thông tin phiếu dự trù thành công")
+      );
+      let updatedIdx = planSubjectsData.findIndex(
+        (x) => x.PlanId === updatedRow.PlanId
+      );
+      let newListOfPlanSubjects = [
+        ...planSubjectsData.slice(0, updatedIdx),
+        updatedRow,
+        ...planSubjectsData.slice(updatedIdx + 1),
+      ];
       dispatch(setListOfPlanSubjects(newListOfPlanSubjects));
     }
 
     onCloseEditModal();
-  }
+  };
 
   const handleOpenDeleteModal = (row: any) => {
     setDeletedRow(row.original);
     setIsDeleteModal(true);
-  }
+  };
 
   const onCloseDeleteModal = () => {
     setDeletedRow(dummyPlanSubjectData);
     setIsDeleteModal(false);
-  }
+  };
 
   const handleSubmitDeleteModal = async () => {
     await deletePlanSubject(deletedRow.PlanId);
     dispatch(setSnackbarMessage("Xóa phiếu dự trù thành công"));
-    let deletedIdx = planSubjectsData.findIndex(x => x.PlanId === deletedRow.PlanId);
-    let newListOfPlanSubjects = [...planSubjectsData.slice(0, deletedIdx), ...planSubjectsData.slice(deletedIdx + 1,)]
+    let deletedIdx = planSubjectsData.findIndex(
+      (x) => x.PlanId === deletedRow.PlanId
+    );
+    let newListOfPlanSubjects = [
+      ...planSubjectsData.slice(0, deletedIdx),
+      ...planSubjectsData.slice(deletedIdx + 1),
+    ];
     dispatch(setListOfPlanSubjects(newListOfPlanSubjects));
 
     onCloseDeleteModal();
-  }
+  };
 
   const handleOpenCreateModal = (row: any) => {
     setIsCreateModal(true);
-  }
+  };
 
   const onCloseCreateModal = () => {
     setCreatedRow(dummyPlanSubjectData);
     setSuggestedPlanning(dummyPlanSubjectSuggestion);
     setLoading(false);
     setIsCreateModal(false);
-  }
+  };
 
   const handleSubmitCreateModal = async () => {
     let clone = Object.assign({}, createdRow);
@@ -361,47 +387,51 @@ const PlanSubjectTable: FC = () => {
       }
     }
     onCloseCreateModal();
-  }
+  };
 
   const getSubjectPlanningSuggestion = async () => {
     setLoading(true);
-    let planningData = await getPlanningSuggestion(suggestedPlanning.Semester, suggestedPlanning.Schoolyear, suggestedPlanning.SubjectId);
+    let planningData = await getPlanningSuggestion(
+      suggestedPlanning.Semester,
+      suggestedPlanning.Schoolyear,
+      suggestedPlanning.SubjectId
+    );
     if (planningData) {
       setLoading(false);
       console.log("planningData :", planningData);
       setCreatedRow(planningData);
     }
-  }
+  };
 
   const onOpenSummaryModal = () => {
     setIsSummaryModal(true);
-  }
+  };
 
   const onCloseSummaryModal = () => {
     setIsSummaryModal(false);
-  }
+  };
 
   return (
     <>
       <MaterialReactTable
         displayColumnDefOptions={{
-          'mrt-row-actions': {
-            header: 'Các hành động',
+          "mrt-row-actions": {
+            header: "Các hành động",
             muiTableHeadCellProps: {
-              align: 'center',
+              align: "center",
             },
             muiTableBodyCellProps: {
-              align: 'center',
+              align: "center",
             },
           },
-          'mrt-row-numbers': {
+          "mrt-row-numbers": {
             muiTableHeadCellProps: {
-              align: 'center',
+              align: "center",
             },
             muiTableBodyCellProps: {
-              align: 'center',
+              align: "center",
             },
-          }
+          },
         }}
         columns={columns}
         data={tableData}
@@ -411,19 +441,21 @@ const PlanSubjectTable: FC = () => {
         enableRowNumbers
         enablePinning
         initialState={{
-          density: 'compact',
+          density: "compact",
           columnOrder: [
-            'mrt-row-expand',
-            'mrt-row-numbers',
-            ...columns.map(x => x.accessorKey || ''),
-            'mrt-row-actions'
-          ]
+            "mrt-row-expand",
+            "mrt-row-numbers",
+            ...columns.map((x) => x.accessorKey || ""),
+            "mrt-row-actions",
+          ],
         }}
         renderTopToolbarCustomActions={() => (
-          <h3 style={{ "margin": "0px" }}>
-            <b><KeyboardArrowRightIcon
-              style={{ "margin": "0px", "fontSize": "30px", "paddingTop": "15px" }}
-            ></KeyboardArrowRightIcon></b>
+          <h3 style={{ margin: "0px" }}>
+            <b>
+              <KeyboardArrowRightIcon
+                style={{ margin: "0px", fontSize: "30px", paddingTop: "15px" }}
+              ></KeyboardArrowRightIcon>
+            </b>
             <span>Thông tin phiếu dự trù</span>
           </h3>
         )}
@@ -451,20 +483,23 @@ const PlanSubjectTable: FC = () => {
               </IconButton>
             </Tooltip>
             <Tooltip arrow placement="right" title="Xoá phiếu dự trù">
-              <IconButton color="error" onClick={() => handleOpenDeleteModal(row)}>
+              <IconButton
+                color="error"
+                onClick={() => handleOpenDeleteModal(row)}
+              >
                 <Delete />
               </IconButton>
             </Tooltip>
           </>
         )}
         renderBottomToolbarCustomActions={() => (
-          <div className='bottomButton' style={{ "display": "flex" }}>
+          <div className="bottomButton" style={{ display: "flex" }}>
             <Tooltip title="Tạo phiếu dự trù mới" placement="top">
               <Button
                 color="primary"
                 onClick={handleOpenCreateModal}
                 variant="contained"
-                style={{ "margin": "10px" }}
+                style={{ margin: "10px" }}
               >
                 <AddIcon fontSize="small" />
               </Button>
@@ -474,7 +509,7 @@ const PlanSubjectTable: FC = () => {
                 color="success"
                 onClick={onOpenSummaryModal}
                 variant="contained"
-                style={{ "margin": "10px" }}
+                style={{ margin: "10px" }}
               >
                 Xem tổng hợp
               </Button>
@@ -484,46 +519,58 @@ const PlanSubjectTable: FC = () => {
       />
 
       <Dialog open={isEditModal}>
-        <DialogTitle textAlign="center"><b>Sửa thông tin phiếu dự trù</b></DialogTitle>
+        <DialogTitle textAlign="center">
+          <b>Sửa thông tin phiếu dự trù</b>
+        </DialogTitle>
         <DialogContent>
-          <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            style={{ marginTop: "10px" }}
+          >
             <Stack
               sx={{
-                width: '100%',
-                minWidth: { xs: '400px', sm: '460px', md: '500px' },
-                gap: '1.5rem',
+                width: "100%",
+                minWidth: { xs: "400px", sm: "460px", md: "500px" },
+                gap: "1.5rem",
               }}
             >
               {columns.map((column) => {
-                if (column.accessorKey === 'PlanId') {
-                  return <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    disabled
-                    defaultValue={column.id && updatedRow[column.id]}
-                  />
-                }
-                else if (column.accessorKey === "Note") {
-                  return <TextareaAutosize
-                    key="Note"
-                    aria-label="minimum height"
-                    minRows={3}
-                    placeholder="Nhập ghi chú..."
-                    defaultValue={updatedRow["Note"]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, "Note": e.target.value })
-                    } />
-                }
-                else if (column.accessorKey === "EmployeeName") {
+                if (column.accessorKey === "PlanId") {
+                  return (
+                    <TextField
+                      key={column.accessorKey}
+                      label={column.header}
+                      name={column.accessorKey}
+                      disabled
+                      defaultValue={column.id && updatedRow[column.id]}
+                    />
+                  );
+                } else if (column.accessorKey === "Note") {
+                  return (
+                    <TextareaAutosize
+                      key="Note"
+                      aria-label="minimum height"
+                      minRows={3}
+                      placeholder="Nhập ghi chú..."
+                      defaultValue={updatedRow["Note"]}
+                      onChange={(e) =>
+                        setUpdatedRow({ ...updatedRow, Note: e.target.value })
+                      }
+                    />
+                  );
+                } else if (column.accessorKey === "EmployeeName") {
                   return (
                     <Autocomplete
                       key={column.accessorKey}
                       options={employeeDataValue}
                       noOptionsText="Không có kết quả trùng khớp"
-                      value={employeeDataValue.find((x: any) => x.id === updatedRow.EmployeeId) || null}
-                      getOptionLabel={option => option?.label}
-                      renderInput={params => {
+                      value={
+                        employeeDataValue.find(
+                          (x: any) => x.id === updatedRow.EmployeeId
+                        ) || null
+                      }
+                      getOptionLabel={(option) => option?.label}
+                      renderInput={(params) => {
                         return (
                           <TextField
                             {...params}
@@ -535,22 +582,25 @@ const PlanSubjectTable: FC = () => {
                       onChange={(event, value) => {
                         setUpdatedRow({
                           ...updatedRow,
-                          "EmployeeId": value?.id,
-                          "EmployeeName": value?.name,
+                          EmployeeId: value?.id,
+                          EmployeeName: value?.name,
                         });
                       }}
                     />
                   );
-                }
-                else if (column.accessorKey === "SubjectName") {
+                } else if (column.accessorKey === "SubjectName") {
                   return (
                     <Autocomplete
                       key={column.accessorKey}
                       options={subjectDataValue}
                       noOptionsText="Không có kết quả trùng khớp"
-                      value={subjectDataValue.find((x: any) => x.id === updatedRow.SubjectId) || null}
-                      getOptionLabel={option => option?.label}
-                      renderInput={params => {
+                      value={
+                        subjectDataValue.find(
+                          (x: any) => x.id === updatedRow.SubjectId
+                        ) || null
+                      }
+                      getOptionLabel={(option) => option?.label}
+                      renderInput={(params) => {
                         return (
                           <TextField
                             {...params}
@@ -562,27 +612,35 @@ const PlanSubjectTable: FC = () => {
                       onChange={(event, value) => {
                         setUpdatedRow({
                           ...updatedRow,
-                          "SubjectId": value?.id,
-                          "SubjectName": value?.name,
+                          SubjectId: value?.id,
+                          SubjectName: value?.name,
                         });
                       }}
                     />
                   );
-                }
-                else if (column.accessorKey === 'Semester') {
-                  const list = ['1', '2', '3'];
+                } else if (column.accessorKey === "Semester") {
+                  const list = ["1", "2", "3"];
                   return (
-                    <FormControl sx={{ m: 0, minWidth: 120 }} key={column.accessorKey}>
-                      <InputLabel id="Semester-select-required-label">Học kỳ</InputLabel>
+                    <FormControl
+                      sx={{ m: 0, minWidth: 120 }}
+                      key={column.accessorKey}
+                    >
+                      <InputLabel id="Semester-select-required-label">
+                        Học kỳ
+                      </InputLabel>
                       <Select
                         labelId="Semester-select-required-label"
                         id="Semester-select-required"
                         value={
-                          list.findIndex(x => x === updatedRow.Semester.toString()) > -1
+                          list.findIndex(
+                            (x) => x === updatedRow.Semester.toString()
+                          ) > -1
                             ? list
-                              .findIndex(x => x === updatedRow.Semester.toString())
-                              .toString()
-                            : '1'
+                                .findIndex(
+                                  (x) => x === updatedRow.Semester.toString()
+                                )
+                                .toString()
+                            : "1"
                         }
                         label="Học kỳ"
                         onChange={(e: SelectChangeEvent) =>
@@ -599,22 +657,27 @@ const PlanSubjectTable: FC = () => {
                         ))}
                       </Select>
                     </FormControl>
-                  )
-                }
-                else if (column.accessorKey === 'Schoolyear') {
-                  const list = ['2020-2021', '2021-2022', '2022-2023'];
+                  );
+                } else if (column.accessorKey === "Schoolyear") {
+                  const list = ["2020-2021", "2021-2022", "2022-2023"];
                   return (
-                    <FormControl sx={{ m: 0, minWidth: 120 }} key={column.accessorKey}>
-                      <InputLabel id="Schoolyear-select-required-label">Năm học</InputLabel>
+                    <FormControl
+                      sx={{ m: 0, minWidth: 120 }}
+                      key={column.accessorKey}
+                    >
+                      <InputLabel id="Schoolyear-select-required-label">
+                        Năm học
+                      </InputLabel>
                       <Select
                         labelId="Schoolyear-select-required-label"
                         id="Schoolyear-select-required"
                         value={
-                          list.findIndex(x => x === updatedRow.Schoolyear) > -1
+                          list.findIndex((x) => x === updatedRow.Schoolyear) >
+                          -1
                             ? list
-                              .findIndex(x => x === updatedRow.Schoolyear)
-                              .toString()
-                            : '2022-2023'
+                                .findIndex((x) => x === updatedRow.Schoolyear)
+                                .toString()
+                            : "2022-2023"
                         }
                         label="Năm học"
                         onChange={(e: SelectChangeEvent) =>
@@ -631,28 +694,34 @@ const PlanSubjectTable: FC = () => {
                         ))}
                       </Select>
                     </FormControl>
-                  )
+                  );
+                } else {
+                  return (
+                    <TextField
+                      key={column.accessorKey}
+                      label={column.header}
+                      name={column.accessorKey}
+                      defaultValue={column.id && updatedRow[column.id]}
+                      onChange={(e) =>
+                        setUpdatedRow({
+                          ...updatedRow,
+                          [e.target.name]: e.target.value,
+                        })
+                      }
+                    />
+                  );
                 }
-                else {
-                  return <TextField
-                    key={column.accessorKey}
-                    label={column.header}
-                    name={column.accessorKey}
-                    defaultValue={column.id && updatedRow[column.id]}
-                    onChange={(e) =>
-                      setUpdatedRow({ ...updatedRow, [e.target.name]: e.target.value })
-                    }
-                  />
-                }
-              }
-              )}
-
+              })}
             </Stack>
           </form>
         </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
+        <DialogActions sx={{ p: "1.25rem" }}>
           <Button onClick={onCloseEditModal}>Hủy</Button>
-          <Button color="primary" onClick={handleSubmitEditModal} variant="contained">
+          <Button
+            color="primary"
+            onClick={handleSubmitEditModal}
+            variant="contained"
+          >
             Sửa
           </Button>
         </DialogActions>
@@ -664,36 +733,55 @@ const PlanSubjectTable: FC = () => {
           "& .MuiDialog-container": {
             "& .MuiPaper-root": {
               width: "100%",
-              maxWidth: "1000px",  // Set your width here
+              maxWidth: "1000px", // Set your width here
             },
           },
         }}
       >
-        <DialogTitle textAlign="center"><b>Tạo phiếu dự trù</b></DialogTitle>
-        <DialogContent sx={{ "minWidth": "1000px" }}>
-          <form onSubmit={(e) => e.preventDefault()} style={{ "marginTop": "10px" }}>
+        <DialogTitle textAlign="center">
+          <b>Tạo phiếu dự trù</b>
+        </DialogTitle>
+        <DialogContent sx={{ minWidth: "1000px" }}>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            style={{ marginTop: "10px" }}
+          >
             <Stack
               sx={{
-                width: '100%',
-                minWidth: { xs: '400px', sm: '460px', md: '500px' },
-                gap: '1.5rem',
+                width: "100%",
+                minWidth: { xs: "400px", sm: "460px", md: "500px" },
+                gap: "1.5rem",
               }}
             >
-              <div className='suggestion' style={{ "display": "flex" }}>
-                <Typography variant="h6" noWrap component="div" sx={{ mt: 1, mr: 3, minWidth: 50 }}>
+              <div className="suggestion" style={{ display: "flex" }}>
+                <Typography
+                  variant="h6"
+                  noWrap
+                  component="div"
+                  sx={{ mt: 1, mr: 3, minWidth: 50 }}
+                >
                   Tra cứu:
                 </Typography>
-                <FormControl sx={{ m: 0, mr: 1, minWidth: 100 }} key={"semesterSuggestion"}>
-                  <InputLabel id="Semester-select-required-label-suggestion">Học kỳ</InputLabel>
+                <FormControl
+                  sx={{ m: 0, mr: 1, minWidth: 100 }}
+                  key={"semesterSuggestion"}
+                >
+                  <InputLabel id="Semester-select-required-label-suggestion">
+                    Học kỳ
+                  </InputLabel>
                   <Select
                     labelId="Semester-select-required-label-suggestion"
                     id="Semester-select-required-suggestion"
                     value={
-                      semesterValue.findIndex(x => x === suggestedPlanning.Semester.toString()) > -1
+                      semesterValue.findIndex(
+                        (x) => x === suggestedPlanning.Semester.toString()
+                      ) > -1
                         ? semesterValue
-                          .findIndex(x => x === suggestedPlanning.Semester.toString())
-                          .toString()
-                        : '1'
+                            .findIndex(
+                              (x) => x === suggestedPlanning.Semester.toString()
+                            )
+                            .toString()
+                        : "1"
                     }
                     label="Học kỳ"
                     onChange={(e: SelectChangeEvent) =>
@@ -710,17 +798,27 @@ const PlanSubjectTable: FC = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl sx={{ m: 0, mr: 1, minWidth: 150 }} key={"schoolYearSuggestion"}>
-                  <InputLabel id="schoolYear-select-required-label-suggestion">Năm học</InputLabel>
+                <FormControl
+                  sx={{ m: 0, mr: 1, minWidth: 150 }}
+                  key={"schoolYearSuggestion"}
+                >
+                  <InputLabel id="schoolYear-select-required-label-suggestion">
+                    Năm học
+                  </InputLabel>
                   <Select
                     labelId="schoolYear-select-required-label-suggestion"
                     id="schoolYear-select-required-suggestion"
                     value={
-                      schoolYearValue.findIndex(x => x === suggestedPlanning.Schoolyear.toString()) > -1
+                      schoolYearValue.findIndex(
+                        (x) => x === suggestedPlanning.Schoolyear.toString()
+                      ) > -1
                         ? schoolYearValue
-                          .findIndex(x => x === suggestedPlanning.Schoolyear.toString())
-                          .toString()
-                        : '2022-2023'
+                            .findIndex(
+                              (x) =>
+                                x === suggestedPlanning.Schoolyear.toString()
+                            )
+                            .toString()
+                        : "2022-2023"
                     }
                     label="Năm học"
                     onChange={(e: SelectChangeEvent) =>
@@ -743,9 +841,13 @@ const PlanSubjectTable: FC = () => {
                   style={{ margin: 0, marginRight: 8, minWidth: 380 }}
                   noOptionsText="Không có kết quả trùng khớp"
                   disableClearable
-                  value={subjectDataValue.find((x: any) => x.id === suggestedPlanning.SubjectId) || null}
-                  getOptionLabel={option => option?.label}
-                  renderInput={params => {
+                  value={
+                    subjectDataValue.find(
+                      (x: any) => x.id === suggestedPlanning.SubjectId
+                    ) || null
+                  }
+                  getOptionLabel={(option) => option?.label}
+                  renderInput={(params) => {
                     return (
                       <TextField
                         {...params}
@@ -757,8 +859,8 @@ const PlanSubjectTable: FC = () => {
                   onChange={(event, value) => {
                     setSuggestedPlanning({
                       ...suggestedPlanning,
-                      "SubjectId": value?.id,
-                      "SubjectName": value?.name,
+                      SubjectId: value?.id,
+                      SubjectName: value?.name,
                     });
                   }}
                 />
@@ -766,52 +868,61 @@ const PlanSubjectTable: FC = () => {
                   sx={{ minWidth: 100, marginRight: 2 }}
                   color="primary"
                   onClick={getSubjectPlanningSuggestion}
-                  variant="contained">
+                  variant="contained"
+                >
                   Tìm kiếm
                 </Button>
-                {loading && <CircularProgress disableShrink sx={{ size: 100 }} />}
+                {loading && (
+                  <CircularProgress disableShrink sx={{ size: 100 }} />
+                )}
               </div>
-              {(createdRow.PlanId && !loading) &&
+              {createdRow.PlanId && !loading && (
                 <>
                   <Typography variant="h6" noWrap component="div">
                     Thông tin phiếu dự trù:
                   </Typography>
-                  {infoInSuggestedPlanning.map(item => {
+                  {infoInSuggestedPlanning.map((item) => {
                     if (item.id === "Note") {
-                      return <TextareaAutosize
-                        aria-label="minimum height"
-                        minRows={3}
-                        placeholder="Nhập ghi chú..."
-                        defaultValue={createdRow["Note"]}
-                        onChange={(e) =>
-                          setCreatedRow({ ...createdRow, "Note": e.target.value })
-                        }
-                      />
-                    }
-                    else {
-                      return <TextField
-                        key={item.id}
-                        label={item.name}
-                        name={item.id}
-                        defaultValue={createdRow[item.id]}
-                        disabled
-                      />
+                      return (
+                        <TextareaAutosize
+                          aria-label="minimum height"
+                          minRows={3}
+                          placeholder="Nhập ghi chú..."
+                          defaultValue={createdRow["Note"]}
+                          onChange={(e) =>
+                            setCreatedRow({
+                              ...createdRow,
+                              Note: e.target.value,
+                            })
+                          }
+                        />
+                      );
+                    } else {
+                      return (
+                        <TextField
+                          key={item.id}
+                          label={item.name}
+                          name={item.id}
+                          defaultValue={createdRow[item.id]}
+                          disabled
+                        />
+                      );
                     }
                   })}
-                  <div className="planningGroup" style={{ "display": "flex" }}>
+                  <div className="planningGroup" style={{ display: "flex" }}>
                     <TextField
                       key={"NumClass"}
-                      label={'SL lớp'}
+                      label={"SL lớp"}
                       name={"NumClass"}
-                      sx={{ "minWidth": "250px", "marginRight": "10px" }}
+                      sx={{ minWidth: "250px", marginRight: "10px" }}
                       defaultValue={createdRow["NumClass"]}
                       disabled
                     />
                     <TextField
                       key={"NumGroupOfClass"}
-                      label={'SL nhóm'}
+                      label={"SL nhóm"}
                       name={"NumGroupOfClass"}
-                      sx={{ "minWidth": "250px", "marginRight": "10px" }}
+                      sx={{ minWidth: "250px", marginRight: "10px" }}
                       defaultValue={createdRow["NumGroupOfClass"]}
                       disabled
                     />
@@ -819,10 +930,14 @@ const PlanSubjectTable: FC = () => {
                       key={"EmployeeName"}
                       options={employeeDataValue}
                       noOptionsText="Không có kết quả trùng khớp"
-                      sx={{ "width": "450px" }}
-                      value={employeeDataValue.find((x: any) => x.id === createdRow.EmployeeId) || null}
-                      getOptionLabel={option => option?.label}
-                      renderInput={params => {
+                      sx={{ width: "450px" }}
+                      value={
+                        employeeDataValue.find(
+                          (x: any) => x.id === createdRow.EmployeeId
+                        ) || null
+                      }
+                      getOptionLabel={(option) => option?.label}
+                      renderInput={(params) => {
                         return (
                           <TextField
                             {...params}
@@ -834,13 +949,12 @@ const PlanSubjectTable: FC = () => {
                       onChange={(event, value) => {
                         setCreatedRow({
                           ...createdRow,
-                          "EmployeeId": value?.id,
-                          "EmployeeName": value?.name,
+                          EmployeeId: value?.id,
+                          EmployeeName: value?.name,
                         });
                       }}
                     />
                   </div>
-
 
                   <TextareaAutosize
                     aria-label="minimum height"
@@ -848,7 +962,7 @@ const PlanSubjectTable: FC = () => {
                     placeholder="Nhập ghi chú..."
                     defaultValue={createdRow["Note"]}
                     onChange={(e) =>
-                      setCreatedRow({ ...createdRow, "Note": e.target.value })
+                      setCreatedRow({ ...createdRow, Note: e.target.value })
                     }
                   />
                   <ChemicalPlanning
@@ -864,34 +978,45 @@ const PlanSubjectTable: FC = () => {
                     currentValue={createdRow.listInstrument}
                   />
                 </>
-              }
+              )}
             </Stack>
           </form>
         </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
+        <DialogActions sx={{ p: "1.25rem" }}>
           <Button onClick={onCloseCreateModal}>Hủy</Button>
-          {createdRow.PlanId && <Button color="primary" onClick={handleSubmitCreateModal} variant="contained">
-            Tạo
-          </Button>}
+          {createdRow.PlanId && (
+            <Button
+              color="primary"
+              onClick={handleSubmitCreateModal}
+              variant="contained"
+            >
+              Tạo
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
       <Dialog open={isDeleteModal}>
-        <DialogTitle textAlign="center"><b>Xoá phiếu dự trù</b></DialogTitle>
+        <DialogTitle textAlign="center">
+          <b>Xoá phiếu dự trù</b>
+        </DialogTitle>
         <DialogContent>
-          <div>Bạn có chắc muốn xoá phiếu dự trù {`${deletedRow.PlanId}`} không?</div>
+          <div>
+            Bạn có chắc muốn xoá phiếu dự trù {`${deletedRow.PlanId}`} không?
+          </div>
         </DialogContent>
-        <DialogActions sx={{ p: '1.25rem' }}>
+        <DialogActions sx={{ p: "1.25rem" }}>
           <Button onClick={onCloseDeleteModal}>Hủy</Button>
-          <Button color="primary" onClick={handleSubmitDeleteModal} variant="contained">
+          <Button
+            color="primary"
+            onClick={handleSubmitDeleteModal}
+            variant="contained"
+          >
             Xác nhận
           </Button>
         </DialogActions>
       </Dialog>
-      <SummaryTable
-        isOpen={isSummaryModal}
-        onClose={onCloseSummaryModal}
-      />
+      <SummaryTable isOpen={isSummaryModal} onClose={onCloseSummaryModal} />
     </>
   );
 };

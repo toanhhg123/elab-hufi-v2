@@ -1,30 +1,31 @@
 .home {
-	flex: 4;
-	box-sizing: border-box;
-	height: calc(100vh - 70px);
-	margin-top: 50px;
-	overflow: auto;
+  flex: 4;
+  box-sizing: border-box;
+  height: calc(100vh - 70px);
+  margin-top: 50px;
+  overflow: auto;
+  padding: 1rem;
 }
 
 .homeWidgets {
-	display: flex;
-	margin: 20px;
+  display: flex;
+  margin: 20px;
 }
 
 *::-webkit-scrollbar-thumb {
-	border-radius: 10px;
-	background: #d4d4d4;
+  border-radius: 10px;
+  background: #d4d4d4;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-	background: #d4d4d4;
+  background: #d4d4d4;
 }
 
 *::-webkit-scrollbar-thumb:active {
-	background: linear-gradient(left, #22add4, #1e98ba);
+  background: linear-gradient(left, #22add4, #1e98ba);
 }
 
-*::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
