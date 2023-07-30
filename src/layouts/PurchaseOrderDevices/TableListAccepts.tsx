@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { MRT_ColumnDef } from "material-react-table";
 import { IAccept } from "../../types/IDeviceServiceInfo";
 import MaterialReactTable from "material-react-table";
@@ -13,38 +12,6 @@ interface IProps {
 }
 
 const TableListAccept = ({ dataSource }: IProps) => {
-  const columns = useMemo<MRT_ColumnDef<IAccept>[]>(
-    () => [
-      {
-        accessorFn: renderRow("AcceptValue"),
-        header: "Giá Trị",
-        size: 100,
-      },
-      {
-        accessorFn: (row) =>
-          moment.unix(Number(row.AcceptDate)).format("DD/MM/YYYY"),
-        header: "Thời Gian xác nhận",
-        size: 100,
-      },
-      {
-        accessorFn: renderRow("ContentAccept"),
-        header: "Nội dung",
-        size: 100,
-      },
-      {
-        accessorFn: renderRow("EmployeeAcceptId"),
-        header: "ID nhân viên",
-        size: 100,
-      },
-      {
-        accessorFn: renderRow("EmployeeAcceptName"),
-        header: "Tên Nhân Viên",
-        size: 100,
-      },
-    ],
-    []
-  );
-
   return (
     <MaterialReactTable
       muiTableBodyProps={{
@@ -71,10 +38,43 @@ const TableListAccept = ({ dataSource }: IProps) => {
           },
         },
       }}
+      initialState={{
+        density: "compact",
+      }}
+      enableStickyHeader
       columns={columns}
       data={dataSource}
     />
   );
 };
+
+const columns: MRT_ColumnDef<IAccept>[] = [
+  {
+    accessorFn: renderRow("AcceptValue"),
+    header: "Giá Trị",
+    size: 100,
+  },
+  {
+    accessorFn: (row) =>
+      moment.unix(Number(row.AcceptDate)).format("DD/MM/YYYY"),
+    header: "Thời Gian xác nhận",
+    size: 100,
+  },
+  {
+    accessorFn: renderRow("ContentAccept"),
+    header: "Nội dung",
+    size: 100,
+  },
+  {
+    accessorFn: renderRow("EmployeeAcceptId"),
+    header: "ID nhân viên",
+    size: 100,
+  },
+  {
+    accessorFn: renderRow("EmployeeAcceptName"),
+    header: "Tên Nhân Viên",
+    size: 100,
+  },
+];
 
 export default TableListAccept;

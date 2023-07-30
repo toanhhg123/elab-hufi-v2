@@ -18,7 +18,6 @@ import EmployeeTable from "../layouts/EmployeeTable";
 import { setListOfEmployees } from "../layouts/EmployeeTable/employeeSlice";
 import LaboratoryTable from "../layouts/LaboratoryTable";
 import { setListOfLaboratories } from "../layouts/LaboratoryTable/laboratorySlice";
-import LessonLabTable from "../layouts/LessonLabTable";
 import { setListOfLessonLabs } from "../layouts/LessonLabTable/lessonLabSlice";
 import ManufacturersTable from "../layouts/ManufacturerTable";
 import { setListOfManufacturers } from "../layouts/ManufacturerTable/manufacturerSlice";
@@ -79,7 +78,6 @@ import { IChemicalWarehouseType } from "../types/chemicalWarehouseType";
 import { IClassSubjectType } from "../types/classSubjectType";
 import { IDepartmentType } from "../types/departmentType";
 import { IDeviceSpecType, IDeviceType } from "../types/deviceType";
-import { IEmployeeType } from "../types/employeeType";
 import { IExportType } from "../types/exportType";
 import { ILaboratoryType } from "../types/laboratoryType";
 import { ILessonLabType } from "../types/lessonLabType";
@@ -101,11 +99,8 @@ import { setListOfSuggestNewDevices } from "../layouts/SuggestNewDevicesTable/su
 import { getSuggestNewDevices } from "../services/suggestNewDeviceServices";
 import { IResearcherType, IResearchTeamType } from "../types/researchTeamType";
 import { ISuggestNewDeviceType } from "../types/suggestNewDeviceType";
-import { useNavigate } from "react-router-dom";
-import { getFromLocalStorage } from "../configs/apiHelper";
 import DeviceTable from "../layouts/DeviceTable";
 import ResearchersTable from "../layouts/ResearchTeamTable/ResearcherTable";
-import { getAll } from "../services/PurchaseOrderDevices";
 import PurchaseOrderDevices from "../layouts/PurchaseOrderDevices";
 
 export function Dashboard() {

@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import jwtDecode from "jwt-decode";
-import { requestConfig } from "./request";
 import { store } from "../store/index";
 import {
   logout,

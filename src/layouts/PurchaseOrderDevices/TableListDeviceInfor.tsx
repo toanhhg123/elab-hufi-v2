@@ -11,9 +11,10 @@ const renderRow = (key: keyof IDeviceInfor) => {
 
 interface IProps {
   dataSource: IDeviceInfor[];
+  alowExportCsv?: boolean;
 }
 
-const TableListDeviceInfo = ({ dataSource }: IProps) => {
+const TableListDeviceInfo = ({ dataSource, alowExportCsv }: IProps) => {
   const handleExportRows = (rows: MRT_Row<IDeviceInfor>[]) => {
     csvExporter.generateCsv(rows.map((row) => row._valuesCache));
   };
@@ -29,26 +30,22 @@ const TableListDeviceInfo = ({ dataSource }: IProps) => {
       data={dataSource}
       initialState={{
         density: "compact",
-        columnOrder: [
-          "mrt-row-expand",
-          "mrt-row-numbers",
-          ...columns.map((x) => x.accessorKey || ""),
-          "mrt-row-actions",
-        ],
       }}
       renderTopToolbarCustomActions={({ table }) => (
         <Box
           sx={{ display: "flex", gap: "1rem", p: "0.5rem", flexWrap: "wrap" }}
         >
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={() => {
-              handleExportRows(table.getRowModel().rows);
-            }}
-          >
-            Xuất
-          </Button>
+          {alowExportCsv && (
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => {
+                handleExportRows(table.getRowModel().rows);
+              }}
+            >
+              Xuất
+            </Button>
+          )}
         </Box>
       )}
     />

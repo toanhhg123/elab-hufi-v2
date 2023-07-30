@@ -1,6 +1,4 @@
-import React from "react";
 import { Alert, Snackbar } from "@mui/material";
-import { FC } from "react";
 
 interface IProps {
   errorMessage: string;

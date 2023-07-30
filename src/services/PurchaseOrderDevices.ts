@@ -12,3 +12,20 @@ export const getAll = async () => {
     `${API_ENDPOINT}/api/PurchaseOrderDevices`
   );
 };
+
+export const getDataFile = async (file: File) => {
+  const form = new FormData();
+  form.append("file", file);
+
+  return API.post<unknown, { data: IDeviceServiceInfo }>(
+    `${API_ENDPOINT}/api/PurchaseOrderDevices/checkImportFile`,
+    form
+  );
+};
+
+export const savePurchaseOrderDevices = async (body: IDeviceServiceInfo) => {
+  return API.post<unknown, { data: IDeviceServiceInfo }>(
+    `${API_ENDPOINT}/api/PurchaseOrderDevices/savePurchaseOrder`,
+    body
+  );
+};

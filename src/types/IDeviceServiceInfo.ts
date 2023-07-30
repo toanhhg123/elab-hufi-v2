@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export interface IAccept {
   AcceptDate: string;
   AcceptValue: string;
@@ -41,8 +43,106 @@ export interface IDeviceServiceInfo {
   EmployeeCreateName: string;
   Lock: "True" | string;
   OrderId: string;
-  Status: string;
+  Status: string | null;
   Title: string | null;
   listAccept: IAccept[] | undefined | null;
   listDeviceInfo: IDeviceInfor[] | undefined | null;
 }
+
+export const initAccept: IAccept = {
+  AcceptDate: Date.now().toString(),
+  AcceptValue: "",
+  ContentAccept: null,
+  EmployeeAcceptId: "",
+  EmployeeAcceptName: "",
+};
+
+export const initDeviceInfo: IDeviceInfor = {
+  DateImport: Date.now().toString(),
+  DepartmentImportId: "",
+  DepartmentImportName: "",
+  DepartmentMaintenanceId: "",
+  DepartmentMaintenanceName: "",
+  DeviceEnglishName: null,
+  DeviceId: "",
+  DeviceInfoId: "",
+  DeviceName: null,
+  EndGuarantee: Date.now().toString(),
+  Manufacturer: "",
+  Model: "",
+  Origin: "",
+  PeriodicMaintenance: 0,
+  QuantityImport: 0,
+  SerialNumber: "",
+  Specification: "",
+  StartGuarantee: Date.now().toString(),
+  Status: "",
+  SupplierId: 0,
+  SupplierName: "",
+  Unit: "",
+  YearStartUsage: 0,
+};
+
+export const initDeviceServiceInfo: IDeviceServiceInfo = {
+  Content: null,
+  DateCreate: moment().unix().toString(),
+  DepartmentImportId: "",
+  DepartmentImportName: "",
+  EmployeeCreateId: "",
+  EmployeeCreateName: "",
+  Lock: "",
+  OrderId: "",
+  Status: null,
+  Title: null,
+  listAccept: [],
+  listDeviceInfo: [],
+};
+
+export interface IFormDeviceServiceInfo {
+  sourceKey: keyof IDeviceServiceInfo;
+  label: string;
+  type: "string" | "Date";
+}
+
+export const formsControlDeviceServiceInfo: IFormDeviceServiceInfo[] = [
+  {
+    sourceKey: "Content",
+    label: "Nội dung",
+    type: "string",
+  },
+  {
+    sourceKey: "DateCreate",
+    label: "Ngày Tạo",
+    type: "Date",
+  },
+  {
+    sourceKey: "DepartmentImportId",
+    label: "Phòng nhập(id)",
+    type: "string",
+  },
+  {
+    sourceKey: "DepartmentImportName",
+    label: "Phòng nhập(name)",
+    type: "string",
+  },
+  {
+    sourceKey: "EmployeeCreateId",
+    label: "Nhân viên(id)",
+    type: "string",
+  },
+  {
+    sourceKey: "EmployeeCreateName",
+    label: "Nhân Viên (name)",
+    type: "string",
+  },
+  {
+    sourceKey: "OrderId",
+    label: "orderId",
+    type: "string",
+  },
+  {
+    sourceKey: "Title",
+    label: "Tiêu đề",
+    type: "string",
+  },
+];

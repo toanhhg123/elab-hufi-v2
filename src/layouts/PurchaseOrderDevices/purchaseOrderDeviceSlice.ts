@@ -2,12 +2,16 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 import { IDeviceServiceInfo } from "../../types/IDeviceServiceInfo";
-import { getAll } from "../../services/PurchaseOrderDevices";
+import {
+  getAll,
+  savePurchaseOrderDevices,
+} from "../../services/PurchaseOrderDevices";
 
 interface IState {
   data: IDeviceServiceInfo[];
   loading?: boolean;
   error?: string;
+  successMessage?: string;
 }
 
 const initialState: IState = {
@@ -16,7 +20,6 @@ const initialState: IState = {
 
 export const purchaseOrderDeviceSlice = createSlice({
   name: "purchaseOrderDeviceSlice",
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     sendRequest: (state) => {
@@ -24,6 +27,14 @@ export const purchaseOrderDeviceSlice = createSlice({
     },
     getAllSuccess: (_, { payload }: PayloadAction<IDeviceServiceInfo[]>) => {
       return { ...initialState, data: payload };
+    },
+
+    createSuccess: (_, { payload }: PayloadAction<IDeviceServiceInfo>) => {
+      return {
+        ...initialState,
+        data: [payload, ..._.data],
+        successMessage: "lưu thành công",
+      };
     },
     reset: () => {
       return { ...initialState };
@@ -33,10 +44,17 @@ export const purchaseOrderDeviceSlice = createSlice({
     builder.addCase(getAllAction.rejected, (state, actions) => {
       return { ...initialState, error: actions.error.message };
     });
+
+    builder.addCase(
+      savePurchaseOrderDeviceAction.rejected,
+      (state, actions) => {
+        return { ...initialState, error: actions.error.message };
+      }
+    );
   },
 });
 
-export const { sendRequest, reset, getAllSuccess } =
+export const { sendRequest, reset, getAllSuccess, createSuccess } =
   purchaseOrderDeviceSlice.actions;
 
 export const getAllAction = createAsyncThunk(
@@ -44,6 +62,15 @@ export const getAllAction = createAsyncThunk(
   async (_: undefined, { dispatch }) => {
     dispatch(sendRequest());
     dispatch(getAllSuccess(await getAll()));
+  }
+);
+
+export const savePurchaseOrderDeviceAction = createAsyncThunk(
+  "purchaseOrderDeviceSlice/savePurchaseOrderDeviceAction",
+  async (record: IDeviceServiceInfo, { dispatch }) => {
+    dispatch(sendRequest());
+    await savePurchaseOrderDevices(record);
+    dispatch(createSuccess(record));
   }
 );
 
