@@ -1,11 +1,17 @@
-import { MRT_ColumnDef } from "material-react-table";
-import { IAccept } from "../../types/IDeviceServiceInfo";
-import MaterialReactTable from "material-react-table";
-import moment from "moment";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  tableCellClasses,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const renderRow = (key: keyof IAccept) => {
-  return (row: IAccept) => row[key] ?? "trống";
-};
+import moment from "moment";
+import { IAccept } from "../../types/IDeviceServiceInfo";
 
 interface IProps {
   dataSource: IAccept[];
@@ -13,68 +19,61 @@ interface IProps {
 
 const TableListAccept = ({ dataSource }: IProps) => {
   return (
-    <MaterialReactTable
-      muiTableBodyProps={{
-        sx: {
-          backgroundColor: "#f5f5f5",
-        },
-      }}
-      displayColumnDefOptions={{
-        "mrt-row-actions": {
-          header: "Các hành động",
-          muiTableHeadCellProps: {
-            align: "center",
-          },
-          muiTableBodyCellProps: {
-            align: "center",
-          },
-        },
-        "mrt-row-numbers": {
-          muiTableHeadCellProps: {
-            align: "center",
-          },
-          muiTableBodyCellProps: {
-            align: "center",
-          },
-        },
-      }}
-      initialState={{
-        density: "compact",
-      }}
-      enableStickyHeader
-      columns={columns}
-      data={dataSource}
-    />
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>Trạng thái xác nhận</StyledTableCell>
+            <StyledTableCell align="center">Thời Gian xác nhận</StyledTableCell>
+            <StyledTableCell align="center">Nội dung</StyledTableCell>
+            <StyledTableCell align="center">ID nhân viên</StyledTableCell>
+            <StyledTableCell align="center">Tên Nhân Viên</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {dataSource.map((row, index) => (
+            <StyledTableRow
+              key={index}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <StyledTableCell component="th" scope="row">
+                {row.AcceptValue}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {moment.unix(Number(row.AcceptDate)).format("DD/MM/YYYY")}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {row.ContentAccept || "Trống"}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {row.EmployeeAcceptId}
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {row.EmployeeAcceptName}
+              </StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 
-const columns: MRT_ColumnDef<IAccept>[] = [
-  {
-    accessorFn: renderRow("AcceptValue"),
-    header: "Giá Trị",
-    size: 100,
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
   },
-  {
-    accessorFn: (row) =>
-      moment.unix(Number(row.AcceptDate)).format("DD/MM/YYYY"),
-    header: "Thời Gian xác nhận",
-    size: 100,
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
   },
-  {
-    accessorFn: renderRow("ContentAccept"),
-    header: "Nội dung",
-    size: 100,
+  // hide last border
+  "& td, & th": {
+    border: "1px solid #eee",
   },
-  {
-    accessorFn: renderRow("EmployeeAcceptId"),
-    header: "ID nhân viên",
-    size: 100,
-  },
-  {
-    accessorFn: renderRow("EmployeeAcceptName"),
-    header: "Tên Nhân Viên",
-    size: 100,
-  },
-];
+}));
 
 export default TableListAccept;

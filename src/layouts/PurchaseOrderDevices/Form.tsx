@@ -1,4 +1,5 @@
 import {
+  Alert,
   Backdrop,
   Box,
   Button,
@@ -13,23 +14,46 @@ import { useState } from "react";
 import { getDataFile } from "../../services/PurchaseOrderDevices";
 import {
   formsControlDeviceServiceInfo,
+  IDeviceInfor,
   IDeviceServiceInfo,
 } from "../../types/IDeviceServiceInfo";
 import DetailPannel from "./DetailPanel";
+import { useAppSelector } from "../../hooks";
+import AlertDialog from "../../components/AlertDialog";
+import { DeviceEditing, matchAccept } from "./utils";
+import { GroupNames } from "../../types/userManagerType";
 
 interface IProps {
   dataInit: IDeviceServiceInfo;
   handleSubmit?: (dataForm: IDeviceServiceInfo) => void;
   enableUpload?: boolean;
+  handleOnClickAccept: (dataForm: IDeviceServiceInfo) => void;
+  enableAcceptButton?: boolean;
+  handleOnclickNoAccept?: (
+    dataForm: IDeviceServiceInfo,
+    message: string
+  ) => void;
+  handleReUpdate: (dataForm: IDeviceServiceInfo) => void;
+  onDeleteOnclick: (dataForm: IDeviceServiceInfo) => void;
 }
 
 export default function FormCmp({
   dataInit,
   handleSubmit,
   enableUpload,
+  handleOnClickAccept,
+  enableAcceptButton,
+  handleOnclickNoAccept,
+  handleReUpdate,
+  onDeleteOnclick,
 }: IProps) {
+  const {
+    owner: { GroupName },
+  } = useAppSelector((state) => state.userManager);
   const [data, setData] = useState<IDeviceServiceInfo>(dataInit);
   const [loading, setLoading] = useState(false);
+  const [showBox, setShowBox] = useState(false);
+  const [showBoxDelete, setShowBoxDelete] = useState(false);
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -59,8 +83,11 @@ export default function FormCmp({
         setLoading(false);
       });
     }
-
     e.target.value = "";
+  };
+
+  const handleTableDeviceInfoChange = (tableChange: IDeviceInfor[]) => {
+    setData({ ...data, listDeviceInfo: tableChange });
   };
 
   return (
@@ -87,7 +114,11 @@ export default function FormCmp({
         {formsControlDeviceServiceInfo.map((x) => {
           const { sourceKey, label } = x;
           const value = data[sourceKey] ?? "";
-          if (sourceKey === "listDeviceInfo" || sourceKey === "listAccept")
+          if (
+            sourceKey === "listDeviceInfo" ||
+            sourceKey === "listAccept" ||
+            sourceKey === "Status"
+          )
             return <></>;
           if (x.type === "Date")
             return (
@@ -123,17 +154,89 @@ export default function FormCmp({
           );
         })}
       </Box>
-
-      <DetailPannel data={data} />
+      <DetailPannel
+        data={data}
+        onTableDeviceInfoChange={handleTableDeviceInfoChange}
+      />
       <Box sx={{ my: 2, gap: 2, display: "flex", justifyContent: "end" }}>
+        {GroupName === GroupNames["Chuyên viên phòng QTTB"] &&
+          data.Status === DeviceEditing && (
+            <Button
+              onClick={() => setShowBoxDelete(true)}
+              variant="contained"
+              color="error"
+            >
+              xoá
+            </Button>
+          )}
         {enableUpload && (
           <Button variant="contained" component="label">
             Upload File
             <input type="file" hidden onChange={handleGetFile} />
           </Button>
         )}
+
+        <AlertDialog
+          head="Form xác nhận"
+          message="nhập nội dung đính kèm"
+          isOpen={showBox}
+          handleClose={() => setShowBox(false)}
+          handleOk={(text) => {
+            if (handleOnclickNoAccept) handleOnclickNoAccept(data, text || "");
+          }}
+          showBoxInput
+          boxInputProps={{
+            label: "nội dung",
+          }}
+        />
+
+        <AlertDialog
+          head="Form xác nhận"
+          message="Bạn thực sự muốn xoá ??"
+          isOpen={showBoxDelete}
+          handleClose={() => setShowBoxDelete(false)}
+          handleOk={() => {
+            onDeleteOnclick(data);
+          }}
+        />
+
+        {enableAcceptButton && matchAccept(GroupName, data.Status || "") && (
+          <Button
+            variant="contained"
+            onClick={() => setShowBox(true)}
+            color="warning"
+          >
+            Không xác nhận
+          </Button>
+        )}
+
+        {GroupName === GroupNames["Chuyên viên phòng QTTB"] &&
+        data.Status === DeviceEditing ? (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => {
+              handleReUpdate(data);
+            }}
+          >
+            Lưu những chỉnh sửa
+          </Button>
+        ) : (
+          <></>
+        )}
+
+        {enableAcceptButton && matchAccept(GroupName, data.Status || "") && (
+          <Button
+            onClick={() => handleOnClickAccept(data)}
+            variant="contained"
+            color="success"
+          >
+            xác nhận
+          </Button>
+        )}
+
         <Button type="submit" variant="contained">
-          Save
+          Lưu lại
         </Button>
       </Box>
     </Box>

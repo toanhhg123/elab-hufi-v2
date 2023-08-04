@@ -1,65 +1,65 @@
 import { configureStore, Middleware } from "@reduxjs/toolkit";
-import counterReducer from "../layouts/Counter/counterSlice";
-import appReducer, { reset as appReset } from "../pages/appSlice";
-import laboratoryReducer, {
-  reset as laboratoryReset,
-} from "../layouts/LaboratoryTable/laboratorySlice";
-import employeeReducer, {
-  reset as employeeReset,
-} from "../layouts/EmployeeTable/employeeSlice";
-import departmentReducer, {
-  reset as departmentReset,
-} from "../layouts/DepartmentTable/departmentSlice";
-import manufacturerReducer, {
-  reset as manufacturerReset,
-} from "../layouts/ManufacturerTable/manufacturerSlice";
 import chemicalReducer, {
   reset as chemicalReset,
 } from "../layouts/ChemicalTable/chemicalSlice";
 import chemicalWarehouseReducer, {
   reset as chemicalWarehouseReset,
 } from "../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice";
-import supplierReducer, {
-  reset as supplierReset,
-} from "../layouts/SupplierTable/supplierSlice";
-import deviceReducer, {
-  reset as deviceReset,
-} from "../layouts/DeviceTable/deviceSlice";
-import subjectReducer, {
-  reset as subjectReset,
-} from "../layouts/SubjectTable/subjectSlice";
 import classSubjectReducer, {
   reset as classSubjectReset,
 } from "../layouts/ClassSubjectTable/classSubjectSlice";
+import counterReducer from "../layouts/Counter/counterSlice";
+import departmentReducer, {
+  reset as departmentReset,
+} from "../layouts/DepartmentTable/departmentSlice";
+import deviceReducer, {
+  reset as deviceReset,
+} from "../layouts/DeviceTable/deviceSlice";
+import employeeReducer, {
+  reset as employeeReset,
+} from "../layouts/EmployeeTable/employeeSlice";
+import laboratoryReducer, {
+  reset as laboratoryReset,
+} from "../layouts/LaboratoryTable/laboratorySlice";
 import lessonLabReducer, {
   reset as lessonLabReset,
 } from "../layouts/LessonLabTable/lessonLabSlice";
-import warehouseReducer, {
-  reset as warehouseReset,
-} from "../layouts/WarehouseTable/warehouseSlice";
-import registerGeneralReducer, {
-  reset as registerGeneralReset,
-} from "../layouts/RegisterGeneralTable/registerGeneralSlice";
-import purchaseOrderReducer, {
-  reset as purchaseOrderReset,
-} from "../layouts/PurchaseOrderTable/purchaseOrderSlice";
-import scheduleReducer, {
-  reset as scheduleReset,
-} from "../layouts/ScheduleTable/scheduleSlice";
+import manufacturerReducer, {
+  reset as manufacturerReset,
+} from "../layouts/ManufacturerTable/manufacturerSlice";
 import planSubjectReducer, {
   reset as planSubjectReset,
 } from "../layouts/PlanSubjectTable/planSubjectSlice";
+import purchaseOrderDeviceReduce from "../layouts/PurchaseOrderDevices/purchaseOrderDeviceSlice";
+import purchaseOrderReducer, {
+  reset as purchaseOrderReset,
+} from "../layouts/PurchaseOrderTable/purchaseOrderSlice";
+import registerGeneralReducer, {
+  reset as registerGeneralReset,
+} from "../layouts/RegisterGeneralTable/registerGeneralSlice";
 import researchTeamReducer, {
   reset as researchTeamReset,
 } from "../layouts/ResearchTeamTable/researchTeamSlice";
-import trainScheduleReducer, {
-  reset as trainScheduleReset,
-} from "../layouts/TrainSchedule/TrainScheduleSlice";
+import scheduleReducer, {
+  reset as scheduleReset,
+} from "../layouts/ScheduleTable/scheduleSlice";
+import subjectReducer, {
+  reset as subjectReset,
+} from "../layouts/SubjectTable/subjectSlice";
 import suggestNewDeviceReducer, {
   reset as suggestNewDeviceReset,
 } from "../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice";
+import supplierReducer, {
+  reset as supplierReset,
+} from "../layouts/SupplierTable/supplierSlice";
+import trainScheduleReducer, {
+  reset as trainScheduleReset,
+} from "../layouts/TrainSchedule/TrainScheduleSlice";
 import userManagerReducer from "../layouts/UserManager/userManagerSlice";
-import purchaseOrderDeviceReduce from "../layouts/PurchaseOrderDevices/purchaseOrderDeviceSlice";
+import warehouseReducer, {
+  reset as warehouseReset,
+} from "../layouts/WarehouseTable/warehouseSlice";
+import appReducer, { reset as appReset } from "../pages/appSlice";
 
 const resetStateMiddleware: Middleware =
   ({ dispatch }) =>

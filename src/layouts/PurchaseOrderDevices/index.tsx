@@ -10,9 +10,13 @@ import MaterialReactTable, {
 import moment from "moment";
 import { useSelector } from "react-redux";
 import {
+  acceptPurchaseOrderDeviceAction,
+  deletePurchaseOrderDeviceAction,
   getAllAction,
+  noAcceptPurchaseOrderDeviceAction,
   purchaseOrderDeviceSelect,
   savePurchaseOrderDeviceAction,
+  updatePurchaseOrderDeviceAction,
 } from "./purchaseOrderDeviceSlice";
 import { useAppDispatch } from "../../hooks";
 import { Box } from "@mui/system";
@@ -29,6 +33,7 @@ import FormCmp from "./Form";
 import SuccessToast from "../../components/Success";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import AlertDialog from "../../components/AlertDialog";
+import { DeviceEditing, nextStatus } from "./utils";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
   return (row: IDeviceServiceInfo) => row[key] ?? "trống";
@@ -45,9 +50,10 @@ const PurchaseOrderDevices = () => {
   const [dataForm, setDataForm] = useState<IDeviceServiceInfo>(
     initDeviceServiceInfo
   );
-  const [typeForm, setTypeForm] = useState<"create" | "update">("create");
 
-  const [showModalDelete, setShowModalDelete] = useState(false);
+  const [typeForm, setTypeForm] = useState<"create" | "update" | "reupdate">(
+    "create"
+  );
 
   const handleToggleForm = () => {
     setOpenModalForm(!isOpenModalForm);
@@ -55,7 +61,7 @@ const PurchaseOrderDevices = () => {
 
   const handleShowForm = (
     data: IDeviceServiceInfo,
-    typeForm: "create" | "update"
+    typeForm: "create" | "update" | "reupdate"
   ) => {
     setDataForm(data);
     setTypeForm(typeForm);
@@ -68,32 +74,49 @@ const PurchaseOrderDevices = () => {
 
   const handleShowModalDelete = (row: MRT_Row<IDeviceServiceInfo>) => {
     setDataForm(row.original);
-    setShowModalDelete(true);
   };
 
-  function handleDelete(): void {
-    console.log(dataForm.OrderId);
+  function handleDelete(data: IDeviceServiceInfo): void {
+    dispatch(deletePurchaseOrderDeviceAction(data.OrderId));
+  }
+
+  const handleAccept = (dataForm: IDeviceServiceInfo) => {
+    dispatch(
+      acceptPurchaseOrderDeviceAction({
+        ...dataForm,
+        Status: nextStatus[dataForm.Status || ""],
+      })
+    );
+  };
+
+  const handleNoAccept = (dataForm: IDeviceServiceInfo, message: string) => {
+    dispatch(
+      noAcceptPurchaseOrderDeviceAction({
+        body: { ...dataForm, Status: DeviceEditing },
+        message,
+      })
+    );
+  };
+
+  function handleReUpdate(body: IDeviceServiceInfo) {
+    dispatch(updatePurchaseOrderDeviceAction({ ...body, listAccept: [] }));
   }
 
   useEffect(() => {
     dispatch(getAllAction());
-  }, []);
+  }, [dispatch]);
 
   return (
     <Box>
       {error && <ErrorComponent errorMessage={error} />}
+
       {successMessage && (
         <SuccessToast
           isOpen={successMessage ? true : false}
           message={successMessage}
         />
       )}
-      <AlertDialog
-        message="Bạn có muốn xoá thực sự ??"
-        handleOk={handleDelete}
-        handleClose={() => setShowModalDelete(false)}
-        isOpen={showModalDelete}
-      />
+
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
         <Typography variant="h5">Quản lí phiếu nhập</Typography>
         <Button
@@ -126,11 +149,17 @@ const PurchaseOrderDevices = () => {
           </IconButton>
         </DialogTitle>
         <FormCmp
+          onDeleteOnclick={handleDelete}
           handleSubmit={handleSubmitForm}
           dataInit={dataForm}
           enableUpload={typeForm === "create"}
+          handleOnClickAccept={handleAccept}
+          enableAcceptButton={typeForm === "update"}
+          handleOnclickNoAccept={handleNoAccept}
+          handleReUpdate={handleReUpdate}
         />
       </Dialog>
+
       <MaterialReactTable
         enableRowActions
         enableStickyHeader
@@ -172,10 +201,13 @@ export const columns: MRT_ColumnDef<IDeviceServiceInfo>[] = [
     header: "Mã phiếu nhập",
   },
   {
+    accessorFn: renderRow("Status"),
+    header: "Trạng Thái",
+  },
+  {
     accessorFn: renderRow("Content"),
     header: "Nội dung",
   },
-
   {
     accessorFn: (row) =>
       moment.unix(Number(row.DateCreate)).format("DD/MM/YYYY"),

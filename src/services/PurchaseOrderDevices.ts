@@ -29,3 +29,31 @@ export const savePurchaseOrderDevices = async (body: IDeviceServiceInfo) => {
     body
   );
 };
+
+export const acceptPurchaseOrderDevices = async (id: string) => {
+  return API.post<unknown, { data: IDeviceServiceInfo }>(
+    `${API_ENDPOINT}/api/PurchaseOrderDevices/Accept/${id}`,
+    {}
+  );
+};
+
+export const noAcceptPurchaseOrderDevices = async (
+  id: string,
+  message: string
+) => {
+  return API.post<unknown, { data: IDeviceServiceInfo }>(
+    `${API_ENDPOINT}/api/PurchaseOrderDevices/Reject/${id}/${message}`,
+    {}
+  );
+};
+
+export const updatePurchaseOrderDevices = async (body: IDeviceServiceInfo) => {
+  return API.put<unknown, { data: IDeviceServiceInfo }>(
+    `${API_ENDPOINT}/api/PurchaseOrderDevices`,
+    body
+  );
+};
+
+export const deletePurchaseOrderDevices = async (id: string) => {
+  return API.deleteResource(`${API_ENDPOINT}/api/PurchaseOrderDevices/${id}`);
+};

@@ -50,7 +50,7 @@ export interface IDeviceServiceInfo {
 }
 
 export const initAccept: IAccept = {
-  AcceptDate: Date.now().toString(),
+  AcceptDate: moment().unix().toString(),
   AcceptValue: "",
   ContentAccept: null,
   EmployeeAcceptId: "",
@@ -58,7 +58,7 @@ export const initAccept: IAccept = {
 };
 
 export const initDeviceInfo: IDeviceInfor = {
-  DateImport: Date.now().toString(),
+  DateImport: moment().unix().toString(),
   DepartmentImportId: "",
   DepartmentImportName: "",
   DepartmentMaintenanceId: "",
@@ -67,7 +67,7 @@ export const initDeviceInfo: IDeviceInfor = {
   DeviceId: "",
   DeviceInfoId: "",
   DeviceName: null,
-  EndGuarantee: Date.now().toString(),
+  EndGuarantee: moment().unix().toString(),
   Manufacturer: "",
   Model: "",
   Origin: "",
@@ -75,7 +75,7 @@ export const initDeviceInfo: IDeviceInfor = {
   QuantityImport: 0,
   SerialNumber: "",
   Specification: "",
-  StartGuarantee: Date.now().toString(),
+  StartGuarantee: moment().unix().toString(),
   Status: "",
   SupplierId: 0,
   SupplierName: "",

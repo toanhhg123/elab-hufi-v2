@@ -1,12 +1,20 @@
 import { Tab, Tabs } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
-import { IDeviceServiceInfo } from "../../types/IDeviceServiceInfo";
+import {
+  IDeviceInfor,
+  IDeviceServiceInfo,
+} from "../../types/IDeviceServiceInfo";
 import TableListAccept from "./TableListAccepts";
 import TableListDeviceInfo from "./TableListDeviceInfor";
 
-const DetailPannel = (props: { data: IDeviceServiceInfo }) => {
-  const [value, setValue] = useState("listAccept");
+interface IProps {
+  data: IDeviceServiceInfo;
+  onTableDeviceInfoChange: (data: IDeviceInfor[]) => any;
+}
+
+const DetailPannel = (props: IProps) => {
+  const [value, setValue] = useState("listDeviceInfo");
 
   const { listAccept, listDeviceInfo } = props.data;
 
@@ -17,8 +25,8 @@ const DetailPannel = (props: { data: IDeviceServiceInfo }) => {
   return (
     <Box>
       <Tabs value={value} onChange={handleChange}>
-        <Tab value={"listAccept"} label={"Danh sách xác nhận"} />;
         <Tab value={"listDeviceInfo"} label={"Danh sách thông tin thiết bị"} />;
+        <Tab value={"listAccept"} label={"Lịch sử xác nhận"} />;
       </Tabs>
 
       <Box sx={{ m: "2rem" }}>
@@ -30,6 +38,7 @@ const DetailPannel = (props: { data: IDeviceServiceInfo }) => {
           <TableListDeviceInfo
             alowExportCsv
             dataSource={listDeviceInfo ?? []}
+            onTableChange={props.onTableDeviceInfoChange}
           />
         )}
       </Box>
